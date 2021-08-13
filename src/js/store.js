@@ -1,8 +1,11 @@
 
 import { createStore } from 'framework7/lite';
+import axios from 'axios'
 
+const api = '/api/v03/'
 const store = createStore({
   state: {
+    profile : {},
     products: [
       {
         id: '1',
@@ -22,11 +25,21 @@ const store = createStore({
     ]
   },
   getters: {
+    profile({ state }) {
+      return state.profile;
+    },
     products({ state }) {
       return state.products;
     }
   },
   actions: {
+    getProfile({ state }) {
+      axios.get(api+"profile/")
+      .then(r=>r.data)
+      .then(json => {
+        state.profile = json.profile
+      })
+    },
     addProduct({ state }, product) {
       state.products = [...state.products, product];
     },

@@ -1,5 +1,5 @@
 <template>
-  <f7-app v-bind="f7params" >
+  <f7-app store={store} v-bind="f7params" >
 
   <!-- Left panel with cover effect-->
   <f7-panel left cover theme-dark>

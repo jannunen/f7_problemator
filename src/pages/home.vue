@@ -15,15 +15,25 @@
     </f7-toolbar>
     <!-- Page content-->
     <route-filter-buttons></route-filter-buttons>
+    <personal-tick-status></personal-tick-status>
 
     
   </f7-page>
 </template>
 <script>
-import RouteFilterButtons from '../components/home/RouteFilterButtons.vue'
+import RouteFilterButtons from '@components/home/RouteFilterButtons.vue'
+import PersonalTickStatus from '@components/home/PersonalTickStatus.vue'
+import store from '@js/store.js'
+
   export default {
+    mounted() {
+      // Fetch profile info
+      store.dispatch("getProfile")
+
+    },
     components : {
       RouteFilterButtons,
+      PersonalTickStatus,
     }
   }
 </script>

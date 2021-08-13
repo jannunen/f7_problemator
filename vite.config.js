@@ -24,6 +24,8 @@ export default {
   resolve: {
     alias: {
       '@': SRC_DIR,
+      '@js': SRC_DIR+"/js",
+      '@components' : SRC_DIR+"/components"
     },
   },
 
