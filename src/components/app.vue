@@ -24,7 +24,9 @@
 
 
   <!-- Your main view, should have "view-main" class -->
-  <f7-view main class="safe-areas" url="/"></f7-view>
+  <f7-view main class="safe-areas" url="/">
+
+  </f7-view>
 
 
     <!-- Popup -->
@@ -80,6 +82,8 @@
   import routes from '../js/routes.js';
   import store from '../js/store';
 
+
+
   export default {
     setup() {
 
@@ -89,9 +93,9 @@
         theme: 'auto', // Automatic theme detection
 
 
-
         // App store
         store: store,
+        
         // App routes
         routes: routes,
         // Register service worker (only on production build)
