@@ -1,0 +1,20 @@
+{
+  "cwd": "/Users/jannunen/Documents/code/problemator/f7_problemator",
+  "type": [
+    "web",
+    "pwa"
+  ],
+  "name": "Problemator",
+  "framework": "vue",
+  "template": "single-view",
+  "cssPreProcessor": "scss",
+  "bundler": "vite",
+  "theming": {
+    "customColor": false,
+    "color": "#007aff",
+    "darkTheme": false,
+    "iconFonts": true,
+    "fillBars": false
+  },
+  "customBuild": false
+}
