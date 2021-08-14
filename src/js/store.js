@@ -1,47 +1,45 @@
-
 import { createStore } from 'framework7/lite';
 import axios from 'axios'
+const apihost = import.meta.env.VITE_API_HOST
+const api = apihost+'/api/v03/'
+const gymid = 1;
+// This is needed by the backend to recognize ajax request
+axios.defaults.headers['Accept'] =  'application/json' 
 
-const api = '/api/v03/'
 const store = createStore({
   state: {
     profile : {},
-    products: [
-      {
-        id: '1',
-        title: 'Apple iPhone 8',
-        description: 'Lorem ipsum dolor sit amet, consectetur adipisicing elit. Nisi tempora similique reiciendis, error nesciunt vero, blanditiis pariatur dolor, minima sed sapiente rerum, dolorem corrupti hic modi praesentium unde saepe perspiciatis.'
-      },
-      {
-        id: '2',
-        title: 'Apple iPhone 8 Plus',
-        description: 'Velit odit autem modi saepe ratione totam minus, aperiam, labore quia provident temporibus quasi est ut aliquid blanditiis beatae suscipit odio vel! Nostrum porro sunt sint eveniet maiores, dolorem itaque!'
-      },
-      {
-        id: '3',
-        title: 'Apple iPhone X',
-        description: 'Expedita sequi perferendis quod illum pariatur aliquam, alias laboriosam! Vero blanditiis placeat, mollitia necessitatibus reprehenderit. Labore dolores amet quos, accusamus earum asperiores officiis assumenda optio architecto quia neque, quae eum.'
-      },
-    ]
+    user : null,
   },
   getters: {
     profile({ state }) {
       return state.profile;
     },
-    products({ state }) {
-      return state.products;
-    }
   },
   actions: {
+    refreshJWT({ state },payload) {
+      return axios.post(apihost+"/api/auth/refresh")
+      .then(r=>r.data)
+      .then(json => {
+        state.user = json.user
+        return {user : state.user, jwt : json.access_token}
+      })
+    },
+    login({ state },payload) {
+      return axios.post(apihost+"/api/auth/login",payload)
+      .then(r=>r.data)
+      .then(json => {
+        state.user = json.user
+        return {user : state.user, jwt : json.access_token}
+      })
+    },
+
     getProfile({ state }) {
-      axios.get(api+"profile/")
+      axios.get(api+"profile/?gymid="+gymid)
       .then(r=>r.data)
       .then(json => {
         state.profile = json.profile
       })
-    },
-    addProduct({ state }, product) {
-      state.products = [...state.products, product];
     },
   },
 })

@@ -8,11 +8,6 @@
       <f7-nav-title sliding>Problemator</f7-nav-title>
       <f7-nav-title-large>Problemator</f7-nav-title-large>
     </f7-navbar>
-    <!-- Toolbar-->
-    <f7-toolbar bottom>
-      <f7-link>Left Link</f7-link>
-      <f7-link>Right Link</f7-link>
-    </f7-toolbar>
     <!-- Page content-->
     <route-filter-buttons></route-filter-buttons>
     <personal-tick-status></personal-tick-status>
@@ -23,10 +18,12 @@
 <script>
 import RouteFilterButtons from '@components/home/RouteFilterButtons.vue'
 import PersonalTickStatus from '@components/home/PersonalTickStatus.vue'
+import { useStore } from 'framework7-vue';
 import store from '@js/store.js'
 
   export default {
     mounted() {
+      const jwt = useStore('jwt')
       // Fetch profile info
       store.dispatch("getProfile")
 

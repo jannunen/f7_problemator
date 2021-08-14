@@ -21,7 +21,6 @@ import App from '../components/app.vue';
 //import VueI18n from 'vue-i18n'
 import { createI18n } from 'vue-i18n'
 
-
 // Init Framework7-Vue Plugin
 Framework7.use(Framework7Vue);
 
