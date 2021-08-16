@@ -2,21 +2,35 @@
     <f7-block>
     <f7-row>
         <f7-col>
+            <div style="display : flex; flex-direction : row; justify-content: center; ">
+            <div style="display : flex; flex-direction : column; align-content : center;">
             {{ $t('pts.you_ticked') }}
             <round-badge border-color="#5fda5f">{{ getOwnTickCount }}</round-badge>     
+            </div>
+            </div>
         </f7-col>
-        <f7-col>{{ $t('pts.you_tried') }}
+        <f7-col>
+            <div style="display : flex; flex-direction : row; justify-content: center; ">
+            <div style="display : flex; flex-direction : column; align-content : center;">
+            {{ $t('pts.you_tried') }}
             <round-badge border-color="#f08d0c">{{ getTriedCount }}</round-badge>     
+            </div>
+            </div>
         </f7-col>
-        <f7-col>{{ $t('pts.total') }}
+        <f7-col>
+            <div style="display : flex; flex-direction : row; justify-content: center; ">
+            <div style="display : flex; flex-direction : column; align-content : center;">
+            {{ $t('pts.total') }}
             <round-badge >{{ getTotalRoutes }}</round-badge>     
+            </div>
+            </div>
 
         </f7-col>
 
     </f7-row> 
     <f7-row> 
         <f7-col>
-                <horizontal-bar-graph :height="8" :items=[10,25] :colours="['#5fda5f','#f08d0c']" :max="76"> </horizontal-bar-graph>
+                <horizontal-bar-graph :height="10" :items=[10,25] :colours="['#5fda5f','#f08d0c']" :max="76"> </horizontal-bar-graph>
         </f7-col>
     </f7-row>
     </f7-block>
