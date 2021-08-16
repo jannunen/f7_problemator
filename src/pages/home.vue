@@ -18,12 +18,10 @@
 <script>
 import RouteFilterButtons from '@components/home/RouteFilterButtons.vue'
 import PersonalTickStatus from '@components/home/PersonalTickStatus.vue'
-import { useStore } from 'framework7-vue';
 import store from '@js/store.js'
 
   export default {
     mounted() {
-      const jwt = useStore('jwt')
       // Fetch profile info
       store.dispatch("getProfile")
 

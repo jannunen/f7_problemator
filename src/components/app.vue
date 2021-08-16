@@ -55,7 +55,6 @@
               // Try to refresh the token, and if it's valid, navigate to actual home
               store.dispatch('refreshJWT')
               .then(data => {
-                debugger
                 // Update jwt to axios
                 axios.defaults.headers.common = {'Authorization': `Bearer ${data.jwt}`}
                 // Save it to localStorage for future refreshes

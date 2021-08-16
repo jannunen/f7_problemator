@@ -39,8 +39,6 @@
         const payload = { email: email.value, password : password.value}
         store.dispatch('login',payload)
         .then((data) => {
-
-            debugger
           // Save data to localStorage
           localStorage.jwt = data.jwt
           // If success, navigate to /home

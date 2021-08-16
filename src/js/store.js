@@ -33,12 +33,13 @@ const store = createStore({
         return {user : state.user, jwt : json.access_token}
       })
     },
-
     getProfile({ state }) {
       axios.get(api+"profile/?gymid="+gymid)
       .then(r=>r.data)
       .then(json => {
         state.profile = json.profile
+      })
+      .catch(err => {
       })
     },
   },
