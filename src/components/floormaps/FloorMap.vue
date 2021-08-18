@@ -3,14 +3,16 @@
         {{ width }}x{{ height }}
     <div @mousemove="checkForHits" style="border : 1px solid gray; position : relative; display : flex; flex-direction : column; align-items : center" v-if="map != null">
         <img ref="imagemapcontainer" style="opacity : 0.8; width : 100%;" :src="map.imageurl" :usemap="'#image-map-'+map.id"/>
+        <canvas ref="graph" style="; position : absolute;z-index : 1000; " :width="width" :height="height"> </canvas>
         <canvas ref="active" style="border : 1px solid blue; position : absolute;z-index : 1000; " :width="width" :height="height"> </canvas>
-        <canvas ref="graph" style="border : 1px solid red; position : absolute;z-index : 1000; " :width="width" :height="height"> </canvas>
     </div>
     </f7-block>
 </template>
 
 <script>
 import { watchEffect,onUpdated,onUnmounted, onMounted, ref ,reactive} from 'vue'
+import { useI18n } from 'vue-i18n'
+
 const chunkArray = (inputArray,perChunk) => {
     return inputArray.reduce((all,one,i) => {
     const ch = Math.floor(i/perChunk); 
@@ -28,6 +30,7 @@ export default {
     },
 
   setup(props) {
+       const { t, d, locale } = useI18n()
       const x = ref(0)
       const y = ref(0)
       const inside = (x,y, vs) => {
@@ -52,22 +55,22 @@ export default {
           const mx= event.clientX-rect.left;
           const my= event.clientY-rect.top;
           // Check if this is a hit in a wall coord...
-            const hits = wallAreas.filter((coords) => {
-                return inside(mx,my,translateCoords(coords))
+            const hits = wallAreas.filter((wall) => {
+                return inside(mx,my,translateCoords(wall.coords))
             })
-            console.log(mx,my)
-            console.log(hits.length)
             if (hits.length > 0) {
                 // We have hits!
                 // Now highlight these with a stroke.
                 // Clear active canvas first
                 ctxActive.value.clearRect(0,0,width.value,height.value)
-                hits.forEach((coords)=> {
-                    polygon(ctxActive.value,translateCoords(coords),true,{lineWidth : 1})
-                    graph.value.style.cursor = 'pointer'
+                hits.forEach((wall)=> {
+                    polygon(ctxActive.value,translateCoords(wall.coords),true,{lineWidth : 1})
+                    active.value.style.cursor = 'pointer'
+                    ctxActive.value.font = '20px Arial';
+                    ctxActive.value.fillText(wall.alt, mx, my-20);
                 })
             } else  {
-                graph.value.style.cursor = "default"
+                active.value.style.cursor = "default"
             }
 
       }
@@ -85,7 +88,6 @@ export default {
         }
         ctx.closePath();
         if (stroke) {
-            console.log("stroking")
             ctx.globalAlpha = 0.9
             ctx.lineWidth = opt.lineWidth || 2
             ctx.strokeStyle = "red"
@@ -119,8 +121,8 @@ export default {
             if (width.value == 0 || height.value == 0) {
                 return
             }
-            wallAreas.map((coords) => {
-                const translatedCoords = translateCoords(coords)
+            wallAreas.map((wall) => {
+                const translatedCoords = translateCoords(wall.coords)
                 polygon(ctx.value,translatedCoords)
             })
         }
@@ -133,7 +135,7 @@ export default {
                 const alt = mapAttributesMatch[1]
                 const title = mapAttributesMatch[2]
                 const coords = mapAttributesMatch[3]
-                wallAreas = [...wallAreas,chunkArray(coords.split(",").map((item)=>parseInt(item)),2)]
+                wallAreas = [...wallAreas,{alt, title, coords : chunkArray(coords.split(",").map((item)=>parseInt(item)),2)}]
             }
         }
         const myEventHandler = () => {
