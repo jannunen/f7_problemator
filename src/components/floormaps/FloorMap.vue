@@ -1,7 +1,7 @@
 <template>
     <f7-block>
         {{ width }}x{{ height }}
-    <div @mousemove="checkForHits" style="border : 1px solid gray; position : relative; display : flex; flex-direction : column; align-items : center" v-if="map != null">
+    <div @mouseup="selectPolygon" @mousemove="checkForHits" style="border : 1px solid gray; position : relative; display : flex; flex-direction : column; align-items : center" v-if="map != null">
         <img ref="imagemapcontainer" style="opacity : 0.8; width : 100%;" :src="map.imageurl" :usemap="'#image-map-'+map.id"/>
         <canvas ref="graph" style="; position : absolute;z-index : 1000; " :width="width" :height="height"> </canvas>
         <canvas ref="active" style="border : 1px solid blue; position : absolute;z-index : 1000; " :width="width" :height="height"> </canvas>
@@ -50,6 +50,23 @@ export default {
             
             return inside;
         };
+        const selectPolygon = (event) => {
+           // First, check if a hit.
+           const rect = event.target.getBoundingClientRect();
+          const mx= event.clientX-rect.left;
+          const my= event.clientY-rect.top;
+          // Check if this is a hit in a wall coord...
+            const hits = wallAreas.filter((wall) => {
+                return inside(mx,my,translateCoords(wall.coords))
+            })
+            if (hits.length > 0) {
+                // Send events about selected element.
+                hits.forEach((wall)=> {
+                console.log("Clicked on "+wall.alt)
+                })
+            }
+
+        }
       const checkForHits = (event) => {
            const rect = event.target.getBoundingClientRect();
           const mx= event.clientX-rect.left;
@@ -170,6 +187,7 @@ export default {
           imagemapcontainer,
           graph,
           checkForHits,
+          selectPolygon,
           active,
           x,
           y,
