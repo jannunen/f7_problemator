@@ -3,6 +3,7 @@
         {{ width }}x{{ height }}
     <div @mousemove="checkForHits" style="border : 1px solid gray; position : relative; display : flex; flex-direction : column; align-items : center" v-if="map != null">
         <img ref="imagemapcontainer" style="opacity : 0.8; width : 100%;" :src="map.imageurl" :usemap="'#image-map-'+map.id"/>
+        <canvas ref="active" style="border : 1px solid blue; position : absolute;z-index : 1000; " :width="width" :height="height"> </canvas>
         <canvas ref="graph" style="border : 1px solid red; position : absolute;z-index : 1000; " :width="width" :height="height"> </canvas>
     </div>
     </f7-block>
@@ -59,8 +60,10 @@ export default {
             if (hits.length > 0) {
                 // We have hits!
                 // Now highlight these with a stroke.
+                // Clear active canvas first
+                ctxActive.value.clearRect(0,0,width.value,height.value)
                 hits.forEach((coords)=> {
-                    polygon(ctx.value,coords,true)
+                    polygon(ctxActive.value,translateCoords(coords),true,{lineWidth : 1})
                     graph.value.style.cursor = 'pointer'
                 })
             } else  {
@@ -69,9 +72,7 @@ export default {
 
       }
 
-    const polygon = (ctx, coords,stroke=false) => {
-        ctx.fillStyle = '#ECF219';
-        ctx.globalAlpha = 0.8
+    const polygon = (ctx, coords,stroke=false,opt={}) => {
         ctx.beginPath();
 
         for (let idx in coords) {
@@ -84,11 +85,14 @@ export default {
         }
         ctx.closePath();
         if (stroke) {
+            console.log("stroking")
             ctx.globalAlpha = 0.9
-            ctx.lineWidth = 2
-            ctx.strokeStyle = "#ff0000"
+            ctx.lineWidth = opt.lineWidth || 2
+            ctx.strokeStyle = "red"
             ctx.stroke();
         } else {
+            ctx.fillStyle = '#ECF219';
+            ctx.globalAlpha = 0.8
             ctx.fill();
         }
     }
@@ -96,8 +100,10 @@ export default {
         const width = ref(0)
         const height = ref(0)
         const graph = ref(null)
+        const active = ref(null)
         const imagemapcontainer = ref(null)
         const ctx = ref(null)
+        const ctxActive = ref(null)
       let wallAreas = reactive([])
       // Translates coordinates by getting the image size, then the 
       // container size and applying the ratio for x and y
@@ -146,6 +152,7 @@ export default {
       onMounted(() => {
           // Argh. Create stuffs so that the imagemap works also when scaled.
           ctx.value = graph.value.getContext('2d')
+          ctxActive.value = active.value.getContext('2d')
           parseRawPixels(props.map.imagemap)  
           setTimeout(() => {
               draw()
@@ -161,6 +168,7 @@ export default {
           imagemapcontainer,
           graph,
           checkForHits,
+          active,
           x,
           y,
       }
