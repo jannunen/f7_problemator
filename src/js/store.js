@@ -9,12 +9,16 @@ axios.defaults.headers['Accept'] =  'application/json'
 const store = createStore({
   state: {
     profile : {},
-    user : null,
+    gym : {},
+    user : {},
   },
   getters: {
     profile({ state }) {
       return state.profile;
     },
+    gym({state}) {
+      return state.gym
+    }
   },
   actions: {
     refreshJWT({ state },payload) {
@@ -38,6 +42,7 @@ const store = createStore({
       .then(r=>r.data)
       .then(json => {
         state.profile = json.profile
+        state.gym = json.gym
       })
       .catch(err => {
       })

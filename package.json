@@ -26,6 +26,7 @@
     "framework7": "^6.2.0",
     "framework7-icons": "^5.0.3",
     "framework7-vue": "^6.2.0",
+    "maphilight": "github:kemayo/maphilight",
     "material-icons": "^1.1.1",
     "skeleton-elements": "^3.4.0",
     "swiper": "^6.8.1",
