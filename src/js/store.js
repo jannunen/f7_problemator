@@ -18,7 +18,34 @@ const store = createStore({
     },
     gym({state}) {
       return state.gym
-    }
+    },
+    problems({state}) {
+      return state.gym.problems
+    },
+    /** Groups problems by walls. */
+    problemsByWall({state}) {
+      if (state.gym.problems == null) {
+        return null 
+      }
+      const grouped = state.gym.problems.reduce( (acc, item) => {
+        if (item.wall != null) {
+
+          if (acc[item.wall.wallchar] == null) {
+            acc[item.wall.wallchar] ={ id : item.wall.id, wall: item.wall, problems : []} 
+          }
+          acc[item.wall.wallchar].problems.push(item)
+        }
+        return acc
+      },{})
+      return grouped
+    },
+    getBoulders({state}) {
+      return state.gym.problems.filter(item => item.routetype == 'boulder' )
+    },
+    getRoutes({state}) {
+      return state.gym.problems.filter(item => item.routetype == 'route' )
+    },
+
   },
   actions: {
     refreshJWT({ state },payload) {

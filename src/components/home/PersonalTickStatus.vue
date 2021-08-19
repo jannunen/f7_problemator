@@ -64,8 +64,8 @@ export default {
                 return 0
             },
             getTotalRoutes : function() {
-                if (this.profile.info != null) {
-                    const total= this.profile.info.count
+                if (this.gym != null) {
+                    const total= this.gym.problemcount
                     return total
                 }
                 return 0
@@ -74,7 +74,8 @@ export default {
     },
     setup() {
             const profile = useStore('profile')
-            return { profile}
+            const gym = useStore('gym')
+            return { profile, gym}
 
     },
     methods : {

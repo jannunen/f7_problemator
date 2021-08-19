@@ -25,6 +25,7 @@
   import { ref, onMounted } from 'vue';
   import { f7 } from 'framework7-vue';
   import store from '@js/store'
+  import axios from 'axios'
 
   export default {
     props: {
@@ -41,6 +42,7 @@
         .then((data) => {
           // Save data to localStorage
           localStorage.jwt = data.jwt
+          axios.defaults.headers.common = {'Authorization': `Bearer ${data.jwt}`}
           // If success, navigate to /home
           f7.views.main.router.navigate("/home")
         })

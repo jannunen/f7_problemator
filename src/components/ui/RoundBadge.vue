@@ -10,11 +10,29 @@
            borderColor : {
                type : String,
                default : "#000"
+           },
+           bgColor : {
+               type : String,
+               default : "#fff",
+           },
+           width : {
+               type : Number,
+               default : 32,
            }
+
        },
        computed : {
            getStyle() {
-               return "border-color : "+this.borderColor
+               return `
+               border-color : ${this.borderColor}; 
+               background-color : ${this.bgColor};
+               width : ${this.width}px;
+               height : ${this.width}px;
+               
+               `
+           },
+           getBadgeStyle() {
+
            }
        }
    }
@@ -25,8 +43,6 @@
            display: block;
            border-style : solid;
            position : relative;
-           width : 32px;
-           height : 32px;
            text-align : center;
            border-radius : 18px;
            border-width : 1px;

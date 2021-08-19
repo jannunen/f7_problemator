@@ -1,12 +1,11 @@
 <template>
-    <f7-block>
-        {{ width }}x{{ height }}
+    
     <div @mouseup="selectPolygon" @mousemove="checkForHits" style="border : 1px solid gray; position : relative; display : flex; flex-direction : column; align-items : center" v-if="map != null">
-        <img ref="imagemapcontainer" style="opacity : 0.8; width : 100%;" :src="map.imageurl" :usemap="'#image-map-'+map.id"/>
+        <img @load="onImageLoaded" ref="imagemapcontainer" style="opacity : 0.9; width : 100%;" :src="map.imageurl" :usemap="'#image-map-'+map.id"/>
         <canvas ref="graph" style="; position : absolute;z-index : 1000; " :width="width" :height="height"> </canvas>
-        <canvas ref="active" style="border : 1px solid blue; position : absolute;z-index : 1000; " :width="width" :height="height"> </canvas>
+        <canvas ref="active" style=" position : absolute;z-index : 1000; " :width="width" :height="height"> </canvas>
     </div>
-    </f7-block>
+    
 </template>
 
 <script>
@@ -29,7 +28,7 @@ export default {
     methods : {
     },
 
-  setup(props) {
+  setup(props,context) {
        const { t, d, locale } = useI18n()
       const x = ref(0)
       const y = ref(0)
@@ -63,6 +62,8 @@ export default {
                 // Send events about selected element.
                 hits.forEach((wall)=> {
                 console.log("Clicked on "+wall.alt)
+                context.emit("area-selected",wall)
+
                 })
             }
 
@@ -110,8 +111,8 @@ export default {
             ctx.strokeStyle = "red"
             ctx.stroke();
         } else {
-            ctx.fillStyle = '#ECF219';
-            ctx.globalAlpha = 0.8
+            ctx.fillStyle = '#EAD502';
+            ctx.globalAlpha = 0.7
             ctx.fill();
         }
     }
@@ -134,6 +135,10 @@ export default {
           })
 
       }
+      const onImageLoaded = (evt) => {
+        width.value = imagemapcontainer.value.clientWidth
+        height.value = imagemapcontainer.value.clientHeight
+      }
         const draw = () => {
             if (width.value == 0 || height.value == 0) {
                 return
@@ -148,11 +153,15 @@ export default {
             const mapRows = map.match( /alt="(.*?)".*?title="(.*?)".*?coords="(.*?)"/g)
             for (const idx  in mapRows) {
                 const mapRow = mapRows[idx]
-                const mapAttributesMatch = mapRow.match( /alt="(.*?)".*?title="(.*?)".*?coords="(.*?)"/)
-                const alt = mapAttributesMatch[1]
-                const title = mapAttributesMatch[2]
-                const coords = mapAttributesMatch[3]
-                wallAreas = [...wallAreas,{alt, title, coords : chunkArray(coords.split(",").map((item)=>parseInt(item)),2)}]
+                const altMatch = mapRow.match( /alt="(.*?)"/)
+                const titleMatch = mapRow.match( /title="(.*?)"/)
+                const coordsMatch = mapRow.match( /coords="(.*?)"/)
+                const dataIDMatch = mapRow.match( /data-id="(.*?)"/)
+                const alt = (altMatch != null) ? altMatch[1] : null
+                const title = (titleMatch != null) ? titleMatch[1] : null
+                const coords = (coordsMatch != null) ? coordsMatch[1] : null
+                const dataID = (dataIDMatch != null) ? dataIDMatch[1] : null
+                wallAreas = [...wallAreas,{alt, title, id : dataID, coords : chunkArray(coords.split(",").map((item)=>parseInt(item)),2)}]
             }
         }
         const myEventHandler = () => {
@@ -164,10 +173,12 @@ export default {
         onUnmounted(() => {
             window.removeEventListener("resize", myEventHandler);
         })
+        /*
         watchEffect(() => {
                 width.value = imagemapcontainer.value.clientWidth
                 height.value = imagemapcontainer.value.clientHeight
         },{flush : 'post'})
+        */
       onMounted(() => {
           // Argh. Create stuffs so that the imagemap works also when scaled.
           ctx.value = graph.value.getContext('2d')
@@ -188,6 +199,7 @@ export default {
           graph,
           checkForHits,
           selectPolygon,
+          onImageLoaded,
           active,
           x,
           y,

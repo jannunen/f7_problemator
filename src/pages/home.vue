@@ -11,13 +11,14 @@
     <!-- Page content-->
     <route-filter-buttons></route-filter-buttons>
     <personal-tick-status></personal-tick-status>
-    <div>
-      <h2>{{ $t('home.Floor maps') }}</h2>
+    <f7-block>
+      <h2 class="no-margin" >{{ $t('home.floor_maps') }} <small>{{ gym.floormaps?.length }} {{ $t('home.maps') }}</small></h2>
+      <small >{{ $t('home.click_to_filter_by_wall')}}</small>
         <div v-for="floormap in gym.floormaps" :key="floormap.id">
-          <floor-map :map="floormap"></floor-map>
+          <floor-map @area-selected="onAreaSelected" :map="floormap"></floor-map>
         </div>
-    </div>
-
+    </f7-block>
+    <problem-list :filters="filters" :wall="wall"></problem-list>
 
 
     
@@ -26,9 +27,10 @@
 <script>
 import RouteFilterButtons from '@components/home/RouteFilterButtons.vue'
 import PersonalTickStatus from '@components/home/PersonalTickStatus.vue'
-import FloorMap from '@components/floormaps/FloorMap.vue'
+import FloorMap from '@components/ui/FloorMap.vue'
+import ProblemList from '@components/ui/ProblemList.vue'
 import { useStore } from 'framework7-vue'
-import { onMounted} from 'vue'
+import { ref, onMounted} from 'vue'
 import store from '@js/store.js'
 
   export default {
@@ -39,19 +41,32 @@ import store from '@js/store.js'
       },
     },
     setup() {
+      const filters = ref(null)
+      const wall = ref(null)
       onMounted(() => {
           store.dispatch("getProfile")
+          filters.value = localStorage.filters
+          wall.value = localStorage.wall
 
       })
       const gym = useStore('gym')
+      const onAreaSelected = (area) => {
+        debugger
+        // Set selected wall.
+        localStorage.wall = area.alt
+      }
       return {
-        gym
+        gym,
+        onAreaSelected,
+        wall,
+        filters,
       }
     },
     components : {
       RouteFilterButtons,
       PersonalTickStatus,
       FloorMap,
+      ProblemList,
     }
   }
 </script>
