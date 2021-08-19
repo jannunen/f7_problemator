@@ -11,8 +11,19 @@ const store = createStore({
     profile : {},
     gym : {},
     user : {},
+    grades :[] ,
+    walls : [],
+    filters : {
+      gradeMin : null,
+      gradeMax : null,
+      styles : [],
+      sort : null,
+    }
   },
   getters: {
+    filters({ state }) {
+      return state.filters;
+    },
     profile({ state }) {
       return state.profile;
     },
@@ -22,22 +33,11 @@ const store = createStore({
     problems({state}) {
       return state.gym.problems
     },
-    /** Groups problems by walls. */
-    problemsByWall({state}) {
-      if (state.gym.problems == null) {
-        return null 
-      }
-      const grouped = state.gym.problems.reduce( (acc, item) => {
-        if (item.wall != null) {
-
-          if (acc[item.wall.wallchar] == null) {
-            acc[item.wall.wallchar] ={ id : item.wall.id, wall: item.wall, problems : []} 
-          }
-          acc[item.wall.wallchar].problems.push(item)
-        }
-        return acc
-      },{})
-      return grouped
+    grades({state}) {
+      return state.grades
+    },
+    walls({state}) {
+      return state.walls
     },
     getBoulders({state}) {
       return state.gym.problems.filter(item => item.routetype == 'boulder' )
@@ -48,6 +48,12 @@ const store = createStore({
 
   },
   actions: {
+    setGradeMin({ state },payload) {
+      state.filters= {...state.filters, ['gradeMin'] : payload}
+    },
+    setGradeMax({ state },payload) {
+      state.filters= {...state.filters, ['gradeMax'] : payload}
+    },
     refreshJWT({ state },payload) {
       return axios.post(apihost+"/api/auth/refresh")
       .then(r=>r.data)
@@ -70,6 +76,8 @@ const store = createStore({
       .then(json => {
         state.profile = json.profile
         state.gym = json.gym
+        state.grades = json.grades
+        state.walls = json.walls
       })
       .catch(err => {
       })

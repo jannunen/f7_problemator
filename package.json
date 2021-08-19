@@ -32,7 +32,8 @@
     "skeleton-elements": "^3.4.0",
     "swiper": "^6.8.1",
     "vue": "^3.2.2",
-    "vue-i18n": "^9.1.7"
+    "vue-i18n": "^9.1.7",
+    "vue-the-storages": "^1.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^1.4.0",

@@ -17,6 +17,7 @@ import '../css/app.scss';
 
 // Import App Component
 import App from '../components/app.vue';
+import vueTheStorages from 'vue-the-storages'
 
 //import VueI18n from 'vue-i18n'
 import { createI18n } from 'vue-i18n'
@@ -26,13 +27,22 @@ Framework7.use(Framework7Vue);
 
 // Init App
 const app = createApp(App);
+app.mixin({
+  debounce(func, timeout = 300){
+    let timer;
+    return (...args) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => { func.apply(this, args); }, timeout);
+    };
+  }
+
+})
 
 
 // Register Framework7 Vue components
 registerComponents(app);
 
 import messages from './i18n/messages.js'
-console.log(messages)
   
   // 2. Create i18n instance with options
   const i18n = createI18n({
@@ -41,6 +51,8 @@ console.log(messages)
     messages, 
   })
   app.use(i18n)
+ 
+app.use(vueTheStorages)
 
 // Mount the app
 app.mount('#app');
