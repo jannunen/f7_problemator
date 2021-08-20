@@ -9,13 +9,13 @@
                 <f7-block>
                   <p>
                     <grade-filter
-                      :min="mirror.filters.gradeMin"
-                      :max="mirror.filters.gradeMax"
+                      :min="filters.gradeMin"
+                      :max="filters.gradeMax"
                       :grades="grades"
                       @min="minChanged"
                       @max="maxChanged"
                     ></grade-filter>
-                    <style-filter :styles="mirror.filters.style"></style-filter>
+                    <style-filter @styles-changed="onStylesChanged" :styles="styles" :selected-styles="filters.styles"></style-filter>
                     <!--sort-by v-model="$localStorage.filters.sortBy"></sort-by-->
                   </p>
                 </f7-block>
@@ -26,26 +26,27 @@
       </f7-row>
     </f7-block>
     <f7-list>
-        <div v-for="(problem,idx) in getProblems" :key="problem.id">
+        <f7-block-title>{{ filteredProblems?.length }} {{ $t('home.visible out of') }} {{ problems?.length }} {{ $t('home.problems') }}</f7-block-title>
 
-        <li v-if="wallNamesDiffer(idx)" class="list-group-title">{{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }}</li>
-        <f7-list-item
-          :key="problem.id"
-          link="#"
-          :header="getAuthor(problem)"
-          :after="getAfter(problem)"
-        >
-          <template #title>
-            {{ problem.grade?.name }}
-          </template>
-          <template #media>
-            <round-badge
-              :width="20"
-              :bgColor="problem.colour.code"
-            ></round-badge>
-            {{ getTagShort(problem.tag) }}
-          </template>
-        </f7-list-item>
+        <div v-for="(problem,idx) in filteredProblems" :key="problem.id">
+            <li v-if="wallNamesDiffer(idx)" class="list-group-title">{{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }}</li>
+            <f7-list-item
+            :key="problem.id"
+            link="#"
+            :header="getAuthor(problem)"
+            :after="getAfter(problem)"
+            >
+            <template #title>
+                {{ problem.grade?.name }}
+            </template>
+            <template #media>
+                <round-badge
+                :width="20"
+                :bgColor="problem.colour.code"
+                ></round-badge>
+                {{ getTagShort(problem.tag) }}
+            </template>
+            </f7-list-item>
       </div>
     </f7-list>
   </div>
@@ -56,9 +57,11 @@ import { useStore } from "framework7-vue";
 import { useI18n } from "vue-i18n";
 import RoundBadge from "./RoundBadge.vue";
 import GradeFilter from "@components/ui/problemlist/GradeFilter.vue";
+import StyleFilter from "@components/ui/problemlist/StyleFilter.vue";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { createLocal, createSession, createStorage } from "the-storages";
+import { debounce } from '@js/helpers'
 dayjs.extend(relativeTime);
 import store from '@js/store.js'
 
@@ -80,6 +83,7 @@ export default {
     const walls = useStore("walls")
     const grades = useStore('grades')
     const filters = useStore('filters')
+    const styles = useStore('styles')
     onMounted(() => {});
     const getGroupTitle = (group) => {
       return group.wallchar + " " + group.walldesc;
@@ -104,40 +108,17 @@ export default {
       }
       return walls.value.sort((a, b) => a.wallchar.localeCompare(b.wallchar))
     });
-    const getProblems = computed(() => {
-      if (problems.value == null) {
-        return [];
-      }
-      /*
-      let probs = problems.value.filter(item => {
-          if (item.wall != null) {
-            return item.wall.wallchar == wallchar
-          }
-          return false
-          });
-          */
-         let probs = problems.value
-        if (filters.value.gradeMax!= null) {
-            probs = probs.filter((item => item.grade.score <= filters.value.gradeMax.score ))
-        }
-        if (filters.value.gradeMin !=null) {
-            probs = probs.filter((item => item.grade.score >= filters.value.gradeMin.score ))
-        }
-        return probs
-    });
-  const  debounce = (func, timeout = 300) => {
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => { func.apply(this, args); }, timeout);
-    };
-  }
+  
     const minChanged = debounce((value) => {
         store.dispatch('setGradeMin',value)
     })
     const maxChanged = debounce((value) => {
         store.dispatch('setGradeMax',value)
     })
+    const onStylesChanged = (styles) => {
+        // set active filters.
+        store.dispatch('setStyles',styles)
+    }
     const filteredProblems = computed(() => {
         let probs = problems.value
         if (filters.value.gradeMax!= null) {
@@ -145,6 +126,11 @@ export default {
         }
         if (filters.value.gradeMin !=null) {
             probs = probs.filter((item => item.grade.score >= filters.value.gradeMin.score ))
+        }
+        if (filters.value.styles !=null && filters.value.styles.length > 0) {
+            probs = probs.filter((item) => {
+                return filters.value.styles.every(i => item.styles.includes(i));
+            })
         }
         return probs
     })
@@ -155,31 +141,35 @@ export default {
             }
             const a = filteredProblems.value[idx]
             const b = filteredProblems.value[idx-1]
-            if (a.wall == null || b.wall == null) {
+            if (a  == null || b == null || a.wall == null || b.wall == null) {
                 return false
             }
             return a.wall.wallchar != b.wall.wallchar
 
         }
     return {
-sortedWalls,
-wallNamesDiffer,
+      sortedWalls,
+      wallNamesDiffer,
       mirror,
       storage,
-      problems : filteredProblems,
+      filteredProblems,
+      problems,
       getGroupTitle,
       getAuthor,
       getTagShort,
       getAfter,
-      getProblems,
       grades,
+      filters,
+      styles,
       minChanged,
       maxChanged,
+      onStylesChanged,
     };
   },
   components: {
     RoundBadge,
     GradeFilter,
+    StyleFilter,
   },
 };
 </script>

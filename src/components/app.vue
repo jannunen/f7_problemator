@@ -66,12 +66,12 @@ import { createLocal, createSession } from 'the-storages'
           if (mirror.filters.gradeMax != null) {
             store.dispatch('setGradeMax',mirror.filters.gradeMax)
           }
+          if (mirror.filters.styles == null) {
+            store.dispatch('setStyles',mirror.filters.styles)
+          }
           
           /*
           TODO: Set these
-          if (mirror.filters.style == null) {
-            storage.set('filters',{...mirror.get('filters'),['style'] : []})
-          }
           if (mirror.filters.sort == null) {
             storage.set('filters',{...mirror.get('filters'),['sort'] : 'none'})
           }

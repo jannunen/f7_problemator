@@ -21,6 +21,9 @@ const store = createStore({
     }
   },
   getters: {
+    styles({ state }) {
+      return state.styles;
+    },
     filters({ state }) {
       return state.filters;
     },
@@ -48,11 +51,17 @@ const store = createStore({
 
   },
   actions: {
+    setStyles({ state },payload) {
+      state.filters= {...state.filters, ['styles'] : payload}
+    },
     setGradeMin({ state },payload) {
       state.filters= {...state.filters, ['gradeMin'] : payload}
     },
     setGradeMax({ state },payload) {
       state.filters= {...state.filters, ['gradeMax'] : payload}
+    },
+    setStyles({ state },payload) {
+      state.filters= {...state.filters, ['styles'] : payload}
     },
     refreshJWT({ state },payload) {
       return axios.post(apihost+"/api/auth/refresh")
@@ -78,6 +87,7 @@ const store = createStore({
         state.gym = json.gym
         state.grades = json.grades
         state.walls = json.walls
+        state.styles = json.styles
       })
       .catch(err => {
       })
