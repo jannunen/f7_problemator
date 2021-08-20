@@ -4,11 +4,9 @@
       >{{ $t('Grade filter ') }}
       <span>{{ getGradeName(gradeMin) }} - {{ getGradeName(gradeMax) }}</span></f7-block-title
     >
-    
-      
           <f7-range
             :min="0"
-            :max="getMaxGrade"
+            :max="getGradeMax"
             :step="1"
             :value="[gradeMin, gradeMax]"
             :label="false"
@@ -51,9 +49,6 @@ export default {
        context.emit('min',props.grades[gradeMin.value])
        context.emit('max',props.grades[gradeMax.value])
     }
-    const getMaxGrade = computed(() => {
-        return props.grades.length -1
-    })
     const getGradeName = (grade) => {
        if (props.grades== null) {
            return null
@@ -64,8 +59,19 @@ export default {
         }
 
     }
+    const getGradeMax = computed(() => {
+        if (isNaN(gradeMax.value)) {
+            const newValue =  props.grades.length -1 
+            gradeMax.value = newValue
+            return gradeMax.value
+        }
+        return gradeMax.value
+    })
     onMounted(() => {
         if (props.min == 'min') {
+            gradeMin.value = 0
+        }
+        if (gradeMin.value == 'na') {
             gradeMin.value = 0
         }
         if (props.max == 'max') {
@@ -73,20 +79,14 @@ export default {
         } else {
             gradeMax.value = props.max
         }
-        if (props.min == 'na') {
-            gradeMin.value = 0
-        }
-        if (props.max == 'na') {
-            gradeMax.value =props.grades.length -1 
-        }
 
     });
     return {
         gradeMin,
         gradeMax,
         onGradeChange,
-        getMaxGrade,
         getGradeName,
+        getGradeMax,
     }
   },
 };
