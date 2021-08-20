@@ -121,10 +121,10 @@ export default {
     }
     const filteredProblems = computed(() => {
         let probs = problems.value
-        if (filters.value.gradeMax!= null) {
+        if (filters.value.gradeMax!= 'max') {
             probs = probs.filter((item => item.grade.score <= filters.value.gradeMax.score ))
         }
-        if (filters.value.gradeMin !=null) {
+        if (filters.value.gradeMin !='min') {
             probs = probs.filter((item => item.grade.score >= filters.value.gradeMin.score ))
         }
         if (filters.value.styles !=null && filters.value.styles.length > 0) {

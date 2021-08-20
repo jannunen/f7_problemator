@@ -1,20 +1,33 @@
 <template >
   <div v-if="grades != null && grades.length > 0">
     <f7-block-title class="display-flex justify-content-space-between"
-      >{{ $t('Grade filter ') }}
-      <span>{{ getGradeName(gradeMin) }} - {{ getGradeName(gradeMax) }}</span></f7-block-title
+      >{{ $t('Minimum grade ') }} <span>{{ getGradeName(gradeMin) }}</span></f7-block-title
     >
           <f7-range
             :min="0"
             :max="getGradeMax"
             :step="1"
-            :value="[gradeMin, gradeMax]"
+            :value="gradeMin"
             :label="false"
-            :dual="true"
+            :dual="false"
             color="green"
-            @range:change="onGradeChange"
+            @range:change="onMinGradeChange"
           />
         
+    <f7-block-title class="display-flex justify-content-space-between"
+      >{{ $t('Maximum grade ') }}
+      <span>{{ getGradeName(gradeMax) }}</span></f7-block-title
+    >
+          <f7-range
+            :min="0"
+            :max="getGradeMax"
+            :step="1"
+            :value="gradeMax"
+            :label="false"
+            :dual="false"
+            color="green"
+            @range:change="onMaxGradeChange"
+          />
         
       
     
@@ -43,10 +56,12 @@ export default {
   setup(props, context) {
     const gradeMin = ref(0)
     const gradeMax = ref(props.grades.length -1)
-    const onGradeChange = (values) => {
-       gradeMin.value = values[0];
-       gradeMax.value= values[1];
+    const onMinGradeChange = (value) => {
+       gradeMin.value = value
        context.emit('min',props.grades[gradeMin.value])
+    }
+    const onMaxGradeChange = (value) => {
+       gradeMax.value= value
        context.emit('max',props.grades[gradeMax.value])
     }
     const getGradeName = (grade) => {
@@ -60,31 +75,32 @@ export default {
 
     }
     const getGradeMax = computed(() => {
-        if (isNaN(gradeMax.value)) {
-            const newValue =  props.grades.length -1 
-            gradeMax.value = newValue
-            return gradeMax.value
-        }
-        return gradeMax.value
+        debugger
+        return  props.grades.length -1 
     })
     onMounted(() => {
+        debugger
         if (props.min == 'min') {
             gradeMin.value = 0
         }
-        if (gradeMin.value == 'na') {
-            gradeMin.value = 0
-        }
         if (props.max == 'max') {
-            gradeMax.value =prps.grades.length-1 
+            gradeMax.value =props.grades.length -1
         } else {
             gradeMax.value = props.max
+        }
+        if (gradeMax.value == null || isNaN(gradeMax.value)) {
+            gradeMax.value = props.grades.length -1
+        }
+        if (gradeMin.value == null || isNaN(gradeMin.value)) {
+            gradeMin.value = 0
         }
 
     });
     return {
         gradeMin,
         gradeMax,
-        onGradeChange,
+        onMinGradeChange,
+        onMaxGradeChange,
         getGradeName,
         getGradeMax,
     }

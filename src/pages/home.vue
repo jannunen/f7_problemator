@@ -9,6 +9,7 @@
       <f7-nav-title-large>Problemator</f7-nav-title-large>
     </f7-navbar>
     <!-- Page content-->
+    <div v-if="profileLoaded">
     <route-filter-buttons></route-filter-buttons>
     <personal-tick-status></personal-tick-status>
     <f7-block>
@@ -19,6 +20,7 @@
         </div>
     </f7-block>
     <problem-list :filters="filters" :wall="wall"></problem-list>
+    </div>
 
 
     
@@ -43,8 +45,12 @@ import store from '@js/store.js'
     setup() {
       const filters = ref(null)
       const wall = ref(null)
+      const profileLoaded = ref(false)
       onMounted(() => {
           store.dispatch("getProfile")
+          .then(() => {
+            profileLoaded.value = true
+          })
           filters.value = localStorage.filters
           wall.value = localStorage.wall
 
@@ -58,6 +64,7 @@ import store from '@js/store.js'
       return {
         gym,
         onAreaSelected,
+        profileLoaded,
         wall,
         filters,
       }

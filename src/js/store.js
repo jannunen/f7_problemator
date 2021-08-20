@@ -14,8 +14,8 @@ const store = createStore({
     grades :[] ,
     walls : [],
     filters : {
-      gradeMin : null,
-      gradeMax : null,
+      gradeMin : 'min',
+      gradeMax : 'max',
       styles : [],
       sort : null,
     }
@@ -80,7 +80,7 @@ const store = createStore({
       })
     },
     getProfile({ state }) {
-      axios.get(api+"profile/?gymid="+gymid)
+      return axios.get(api+"profile/?gymid="+gymid)
       .then(r=>r.data)
       .then(json => {
         state.profile = json.profile
