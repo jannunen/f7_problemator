@@ -1,7 +1,7 @@
 <template >
     <div>
         <f7-block strong>
-            <f7-chip :color="getColor(style)" @click="(evt) => onClicked(style,evt)" v-for="style in styles" :key="style"  :text="$t(style)"></f7-chip>
+            <f7-chip outline :color="getColor(style)" @click="(evt) => onClicked(style,evt)" v-for="style in styles" :key="style"  :text="$t(style)"></f7-chip>
             <f7-chip @click="clearStyles" color="red">reset</f7-chip>
         </f7-block>
         
@@ -46,7 +46,7 @@ export default {
         }
         const getColor = (style) => {
             if (activeStyles.value.includes(style)) {
-                return "green"
+                return "red"
             }
             return null
         }

@@ -69,12 +69,12 @@ import { createLocal, createSession } from 'the-storages'
           if (mirror.filters.styles == null) {
             store.dispatch('setStyles',mirror.filters.styles)
           }
+          if (mirror.filters.sort == null) {
+            storage.set('filters',{...mirror.get('filters'),['sort'] : 'sector_asc'})
+          }
           
           /*
           TODO: Set these
-          if (mirror.filters.sort == null) {
-            storage.set('filters',{...mirror.get('filters'),['sort'] : 'none'})
-          }
           */
 
           // Initialize filters (inc. sort)

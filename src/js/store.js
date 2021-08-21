@@ -16,8 +16,9 @@ const store = createStore({
     filters : {
       gradeMin : 'min',
       gradeMax : 'max',
+      sort : 'sector_asc',
       styles : [],
-      sort : null,
+      problemStates : ['all'], // all, ticked, projects
     }
   },
   getters: {
@@ -51,6 +52,9 @@ const store = createStore({
 
   },
   actions: {
+    setSort({ state },payload) {
+      state.filters= {...state.filters, ['sort'] : payload}
+    },
     setStyles({ state },payload) {
       state.filters= {...state.filters, ['styles'] : payload}
     },

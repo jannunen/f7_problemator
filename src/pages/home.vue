@@ -32,6 +32,7 @@ import PersonalTickStatus from '@components/home/PersonalTickStatus.vue'
 import FloorMap from '@components/ui/FloorMap.vue'
 import ProblemList from '@components/ui/ProblemList.vue'
 import { useStore } from 'framework7-vue'
+  import { f7, f7ready } from 'framework7-vue';
 import { ref, onMounted} from 'vue'
 import store from '@js/store.js'
 
@@ -47,9 +48,11 @@ import store from '@js/store.js'
       const wall = ref(null)
       const profileLoaded = ref(false)
       onMounted(() => {
+          f7.preloader.show()
           store.dispatch("getProfile")
           .then(() => {
             profileLoaded.value = true
+            f7.preloader.hide()
           })
           filters.value = localStorage.filters
           wall.value = localStorage.wall
@@ -57,7 +60,6 @@ import store from '@js/store.js'
       })
       const gym = useStore('gym')
       const onAreaSelected = (area) => {
-        debugger
         // Set selected wall.
         localStorage.wall = area.alt
       }

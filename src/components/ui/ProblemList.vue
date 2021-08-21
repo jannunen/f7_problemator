@@ -16,7 +16,7 @@
                       @max="maxChanged"
                     ></grade-filter>
                     <style-filter @styles-changed="onStylesChanged" :styles="styles" :selected-styles="filters.styles"></style-filter>
-                    <!--sort-by v-model="$localStorage.filters.sortBy"></sort-by-->
+                    <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
                   </p>
                 </f7-block>
               </f7-accordion-content>
@@ -29,7 +29,7 @@
         <f7-block-title>{{ filteredProblems?.length }} {{ $t('home.visible out of') }} {{ problems?.length }} {{ $t('home.problems') }}</f7-block-title>
 
         <div v-for="(problem,idx) in filteredProblems" :key="problem.id">
-            <li v-if="wallNamesDiffer(idx)" class="list-group-title">{{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }}</li>
+            <li v-if="filters.sort.match(/sector/) && wallNamesDiffer(idx)" class="list-group-title">{{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }}</li>
             <f7-list-item
             :key="problem.id"
             link="#"
@@ -37,7 +37,12 @@
             :after="getAfter(problem)"
             >
             <template #title>
-                {{ problem.grade?.name }}
+
+                <strong >{{ getGrade(problem.routetype,problem.grade) }}</strong>
+                <span v-if="problem.c_like > 0" class="padding-left">
+                <f7-icon size="14" color="red" material="favorite"></f7-icon>
+                {{ problem.c_like }}
+                </span>
             </template>
             <template #media>
                 <round-badge
@@ -58,10 +63,12 @@ import { useI18n } from "vue-i18n";
 import RoundBadge from "./RoundBadge.vue";
 import GradeFilter from "@components/ui/problemlist/GradeFilter.vue";
 import StyleFilter from "@components/ui/problemlist/StyleFilter.vue";
+import SortBy from "@components/ui/problemlist/SortBy.vue";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { createLocal, createSession, createStorage } from "the-storages";
 import { debounce } from '@js/helpers'
+import { sortFunction } from '@components/ui/problemlist/sortFunctions.js'
 dayjs.extend(relativeTime);
 import store from '@js/store.js'
 
@@ -89,7 +96,7 @@ export default {
       return group.wallchar + " " + group.walldesc;
     };
     const getAuthor = (group) => {
-      return t("home.by") + " " + group.author;
+      return t("home.by") + " " + group.author+", "+group.ascentCount+" "+t('home.ascents');
     };
     const getAfter = (group) => {
       const date = dayjs(group.added);
@@ -119,6 +126,16 @@ export default {
         // set active filters.
         store.dispatch('setStyles',styles)
     }
+    const getGrade = (routetype,gradeObj) => {
+        if (gradeObj == null) {
+            return "N/A"
+        }
+        const grade = gradeObj.name 
+        if (routetype=='boulder') {
+            return grade.toUpperCase()
+        }
+        return grade.toLowerCase()
+    }
     const filteredProblems = computed(() => {
         let probs = problems.value
         if (filters.value.gradeMax!= 'max') {
@@ -128,12 +145,18 @@ export default {
             probs = probs.filter((item => item.grade.score >= filters.value.gradeMin.score ))
         }
         if (filters.value.styles !=null && filters.value.styles.length > 0) {
-            probs = probs.filter((item) => {
-                return filters.value.styles.every(i => item.styles.includes(i));
-            })
+            probs = probs.filter((item) => filters.value.styles.every(i => item.styles.includes(i)))
         }
+        const sortKey = filters.value.sort
+        probs = probs.slice().sort((a,b) => sortFunction(a,b,sortKey))
         return probs
     })
+    const onSortChanged = (sort) => {
+
+        store.dispatch('setSort',sort)
+        // TODO: Save to localStorage
+        // storage.filters.sort = sort
+    }
 
         const wallNamesDiffer = (idx) => {
             if (idx < 1) {
@@ -153,6 +176,7 @@ export default {
       mirror,
       storage,
       filteredProblems,
+      getGrade,
       problems,
       getGroupTitle,
       getAuthor,
@@ -164,12 +188,15 @@ export default {
       minChanged,
       maxChanged,
       onStylesChanged,
+      onSortChanged,
     };
   },
   components: {
     RoundBadge,
     GradeFilter,
     StyleFilter,
+    SortBy,
+
   },
 };
 </script>

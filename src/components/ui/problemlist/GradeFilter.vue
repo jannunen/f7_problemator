@@ -1,7 +1,7 @@
 <template >
   <div v-if="grades != null && grades.length > 0">
     <f7-block-title class="display-flex justify-content-space-between"
-      >{{ $t('Minimum grade ') }} <span>{{ getGradeName(gradeMin) }}</span></f7-block-title
+      >{{ $t('gradefilter.minimum_grade') }} <span>{{ getGradeName(gradeMin) }}</span></f7-block-title
     >
           <f7-range
             :min="0"
@@ -15,7 +15,7 @@
           />
         
     <f7-block-title class="display-flex justify-content-space-between"
-      >{{ $t('Maximum grade ') }}
+      >{{ $t('gradefilter.maximum_grade') }}
       <span>{{ getGradeName(gradeMax) }}</span></f7-block-title
     >
           <f7-range
@@ -75,11 +75,9 @@ export default {
 
     }
     const getGradeMax = computed(() => {
-        debugger
         return  props.grades.length -1 
     })
     onMounted(() => {
-        debugger
         if (props.min == 'min') {
             gradeMin.value = 0
         }
