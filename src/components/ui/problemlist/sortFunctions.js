@@ -28,14 +28,14 @@ const sortFunctions = {
         return a.author.localeCompare(b.author)
     },
     'hardest': (a, b) => {
-        return parseInt(a.grade.score) - parseInt(b.grade.score)
+        return parseInt(b.grade.score) - parseInt(a.grade.score)
 
     },
     'easiest': (a, b) => {
         return parseInt(a.grade.score) - parseInt(b.grade.score)
     },
     'most_ticks': (a, b) => {
-        return parseInt(b.ascentCount) - parseInt(a.ascentCount)
+        return parseInt(a.ascentCount) - parseInt(b.ascentCount)
     },
     'least_ticks': (a, b) => {
         return parseInt(a.ascentCount) - parseInt(b.ascentCount)

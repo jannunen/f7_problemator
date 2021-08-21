@@ -25,13 +25,16 @@
         </f7-col>
       </f7-row>
     </f7-block>
-    <f7-list >
+            
+    <f7-list problemlist>
         <f7-block inset>
         <f7-block-title>{{ filteredProblems?.length }} {{ $t('home.visible out of') }} {{ problems?.length }} {{ $t('home.problems') }}</f7-block-title>
         </f7-block>
 
         <div v-for="(problem,idx) in filteredProblems" :key="problem.id">
-            <li v-if="filters.sort.match(/sector/) && wallNamesDiffer(idx)" class="list-group-title">{{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }}</li>
+            <li v-if="filters.sort.match(/sector/) && wallNamesDiffer(idx)" class="list-group-title"><h2>{{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }}</h2></li>
+            <li v-if="filters.sort.match(/routesetter/) && routesettersDiffer(idx)" class="list-group-title"><h2>{{ problem.author }} <small>({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small></h2> </li>
+            <li v-if="filters.sort.match(/(hardest|easiest)/) && gradesDiffer(idx)" class="list-group-title"><h2>{{ problem.grade.name }} <small>({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small></h2> </li>
             <f7-list-item
             :key="problem.id"
             link="#"
@@ -187,9 +190,32 @@ export default {
             return a.wall.wallchar != b.wall.wallchar
 
         }
+        const routesettersDiffer = (idx) => {
+            if (idx < 1) {
+                return true
+            }
+            const a = filteredProblems.value[idx]
+            const b = filteredProblems.value[idx-1]
+            return a.author!= b.author
+
+        }
+        const gradesDiffer = (idx) => {
+            if (idx < 1) {
+                return true
+            }
+            const a = filteredProblems.value[idx]
+            const b = filteredProblems.value[idx-1]
+            if (a.grade == null || b.grade == null) {
+                return false
+            }
+            return a.grade.score!= b.grade.score
+
+        }
     return {
       sortedWalls,
       wallNamesDiffer,
+      routesettersDiffer,
+      gradesDiffer,
       mirror,
       storage,
       filteredProblems,
