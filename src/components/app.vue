@@ -13,7 +13,7 @@
 
 
   <!-- Your main view, should have "view-main" class -->
-  <f7-view main class="safe-areas" url="/">
+  <f7-view main class="safe-areas" url="/welcome" v-cloak>
 
   </f7-view>
 
@@ -91,6 +91,10 @@ import { createLocal, createSession } from 'the-storages'
                 localStorage.jwt = data.jwt
                 // If we have a fresh jwt, navigate to /home
                 f7.views.main.router.navigate("/home")
+              })
+              .catch(data => {
+                f7.views.main.router.navigate("/")
+
               })
           }
           // Call F7 APIs here

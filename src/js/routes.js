@@ -1,6 +1,7 @@
 
 import HomePage from '../pages/home.vue';
 import LoginPage from '../pages/login.vue';
+import WelcomePage from '../pages/welcome.vue';
 
 
 import DynamicRoutePage from '../pages/dynamic-route.vue';
@@ -8,6 +9,10 @@ import RequestAndLoad from '../pages/request-and-load.vue';
 import NotFoundPage from '../pages/404.vue';
 
 var routes = [
+  {
+    path: '/welcome',
+    component: WelcomePage,
+  },
   {
     path: '/',
     component: LoginPage,

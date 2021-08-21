@@ -1,6 +1,10 @@
 <template>
-<f7-page no-toolbar no-navbar no-swipeback login-screen>
-  <f7-login-screen-title>Framework7</f7-login-screen-title>
+<f7-page  no-toolbar no-navbar no-swipeback login-screen v-cloak>
+  <f7-login-screen-title>Problemator</f7-login-screen-title>
+  <f7-block v-if="readyToShow" >
+    Initializing...
+  </f7-block>
+  <f7-block  v-else>
   <f7-list form>
     <f7-list-input
       label="Email"
@@ -19,6 +23,7 @@
     <f7-list-button @click="doLogin">Sign In</f7-list-button>
     <f7-block-footer>Some text about login information.<br>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</f7-block-footer>
   </f7-list>
+  </f7-block>
 </f7-page>
 </template>
 <script>
@@ -35,6 +40,7 @@
         const self = this;
       const email = ref('');
       const password = ref('');
+      const readyToShow = ref(false)
 
       const doLogin = () => {
         const payload = { email: email.value, password : password.value}
@@ -45,16 +51,21 @@
           axios.defaults.headers.common = {'Authorization': `Bearer ${data.jwt}`}
           // If success, navigate to /home
           f7.views.main.router.navigate("/home")
+          readyToShow.value=true
         })
         .catch(err=> {
+            readyToShow.value=true
             f7.dialog.alert(JSON.stringify(err.response.data))
 
         })
       }
+      onMounted(() => {
+      })
       return {
           doLogin,
           email,
           password,
+          readyToShow,
       }
 
     },
@@ -69,3 +80,6 @@
     },
   }
 </script>
+<style >
+
+</style>
