@@ -54,7 +54,7 @@ const messages = {
             'filters' : 'Suodattimet',
             'floor_maps' : 'Hallikartat',
             'maps' : 'kartta(a)',
-            'by' : 'Reitintekijä',
+            'by' : 'by',
             'problems' : 'reitistä näkyvissä',
             'visible out of' : '/'
         },

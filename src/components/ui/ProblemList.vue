@@ -25,31 +25,46 @@
         </f7-col>
       </f7-row>
     </f7-block>
-    <f7-list>
+    <f7-list >
+        <f7-block inset>
         <f7-block-title>{{ filteredProblems?.length }} {{ $t('home.visible out of') }} {{ problems?.length }} {{ $t('home.problems') }}</f7-block-title>
+        </f7-block>
 
         <div v-for="(problem,idx) in filteredProblems" :key="problem.id">
             <li v-if="filters.sort.match(/sector/) && wallNamesDiffer(idx)" class="list-group-title">{{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }}</li>
             <f7-list-item
             :key="problem.id"
             link="#"
-            :header="getAuthor(problem)"
-            :after="getAfter(problem)"
             >
-            <template #title>
+            <template #after>
+                <div style="width : 80px;" class="display-flex flex-direction-column">
+                    <span>{{ getAfter(problem) }}</span>
+                    <small>
+                        {{ $t('home.by') }} {{ problem.author }}
+                    </small>
 
-                <strong >{{ getGrade(problem.routetype,problem.grade) }}</strong>
-                <span v-if="problem.c_like > 0" class="padding-left">
-                <f7-icon size="14" color="red" material="favorite"></f7-icon>
-                {{ problem.c_like }}
-                </span>
+                </div>
+            </template>
+            <template #title>
+                    <small> {{ problem.ascentCount }} {{ $t('home.ascents')}}</small>
+            </template>
+            <template #after-start>
+                    <strong class="margin-left margin-right" v-if="problem.c_like > 0">
+                    <f7-icon size="15" color="red" material="favorite"></f7-icon>
+                    {{ problem.c_like }} 
+                    </strong>
             </template>
             <template #media>
-                <round-badge
-                :width="20"
-                :bgColor="problem.colour.code"
-                ></round-badge>
-                {{ getTagShort(problem.tag) }}
+                <div class="display-flex flex-direction-column">
+                    <div class="display-flex flex-direction-row">
+                        <round-badge
+                        :width="20"
+                        :bgColor="problem.colour.code"
+                        ></round-badge>
+                        {{ getTagShort(problem.tag) }}
+                    </div>
+                </div>
+                <h2 style="width : 40px;" class="margin-left no-margin">{{ getGrade(problem.routetype,problem.grade) }}</h2>
             </template>
             </f7-list-item>
       </div>
@@ -57,6 +72,8 @@
   </div>
 </template>
 <script>
+// TODO: Add list index
+// TODO: Add filter routes, problems
 import { ref, computed, onMounted } from "vue";
 import { useStore } from "framework7-vue";
 import { useI18n } from "vue-i18n";
@@ -96,7 +113,7 @@ export default {
       return group.wallchar + " " + group.walldesc;
     };
     const getAuthor = (group) => {
-      return t("home.by") + " " + group.author+", "+group.ascentCount+" "+t('home.ascents');
+      return group.ascentCount+" "+t('home.ascents');
     };
     const getAfter = (group) => {
       const date = dayjs(group.added);
