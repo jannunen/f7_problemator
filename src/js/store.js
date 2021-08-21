@@ -13,11 +13,13 @@ const store = createStore({
     user : {},
     grades :[] ,
     walls : [],
+    problems : {},
     filters : {
       gradeMin : 'min',
       gradeMax : 'max',
       sort : 'sector_asc',
       styles : [],
+      walls : [],
       problemStates : ['all'], // all, ticked, projects
     }
   },
@@ -67,6 +69,9 @@ const store = createStore({
     setStyles({ state },payload) {
       state.filters= {...state.filters, ['styles'] : payload}
     },
+    setWalls({ state },payload) {
+      state.filters= {...state.filters, ['walls'] : payload}
+    },
     refreshJWT({ state },payload) {
       return axios.post(apihost+"/api/auth/refresh")
       .then(r=>r.data)
@@ -96,6 +101,16 @@ const store = createStore({
       .catch(err => {
       })
     },
-  },
+    getProblem({ state },payload) {
+      debugger
+      return axios.get(api+"problem/"+payload)
+      .then(r=>r.data)
+      .then(json => {
+        state.problems = {...state.problems,[json.problem.id] : json.problem}
+      })
+      .catch(err => {
+      })
+    },
+  }
 })
 export default store;

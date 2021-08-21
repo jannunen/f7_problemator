@@ -19,7 +19,7 @@
           <floor-map @area-selected="onAreaSelected" :map="floormap"></floor-map>
         </div>
     </f7-block>
-    <problem-list :filters="filters" :wall="wall"></problem-list>
+    <problem-list  :filters="filters" :wall="wall"></problem-list>
     </div>
 
 
@@ -59,9 +59,15 @@ import store from '@js/store.js'
 
       })
       const gym = useStore('gym')
+      const walls = useStore('walls')
+      const selectedWalls = ref([])
       const onAreaSelected = (area) => {
         // Set selected wall.
         localStorage.wall = area.alt
+        // Find wall ids
+        const selectedWall = walls.value.find(wall => wall.wallchar.toLowerCase() ==area.alt.toLowerCase())
+        console.log("selecting wall",selectedWall.id)
+        store.dispatch("setWalls",[selectedWall.id])
       }
       return {
         gym,

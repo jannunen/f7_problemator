@@ -37,7 +37,7 @@
             <li v-if="filters.sort.match(/(hardest|easiest)/) && gradesDiffer(idx)" class="list-group-title"><h2>{{ problem.grade.name }} <small>({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small></h2> </li>
             <f7-list-item
             :key="problem.id"
-            link="#"
+            :link="`/problem/`+problem.id+`/`"
             >
             <template #after>
                 <div style="width : 80px;" class="display-flex flex-direction-column">
@@ -166,6 +166,16 @@ export default {
         }
         if (filters.value.styles !=null && filters.value.styles.length > 0) {
             probs = probs.filter((item) => filters.value.styles.every(i => item.styles.includes(i)))
+        }
+        // Filter by walls
+        if (filters.value.walls !=null && filters.value.walls.length > 0) {
+            debugger
+            probs = probs.filter((item) => {
+                if (item.wall == null) {
+                    return true
+                }
+                return filters.value.walls.includes(item.wall.id)
+            })
         }
         const sortKey = filters.value.sort
         probs = probs.slice().sort((a,b) => sortFunction(a,b,sortKey))
