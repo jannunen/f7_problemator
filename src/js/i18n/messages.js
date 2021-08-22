@@ -53,6 +53,9 @@ const messages = {
             'minimum_grade' : 'Minimigreidi',
         },
         problem : {
+            'yesterday' : 'eilen',
+            'popup_title_date' : 'Lähetyspäivän valinta',
+            'choose_tick_date' : 'Valitse lähetyspäivä',
             'popup_title_tries' : 'Yrkkien määrä',
             'popup_title_grade_opinion' : 'Greidimielipide',
             'what_is_your_grade_opinion' : 'Mikä on mielipiteesi greidistä?',
@@ -69,14 +72,14 @@ const messages = {
             'grade_opinion' : 'Greidimielipide',
             'still_a_project' : 'Jatka projektointia',
             'dislike' : 'Epätykkää',
-            'dislikes' : 'epätykkäystä',
+            'dislikes' : 'Ei epätykkäyksiä | epätykkäys | {count} epätykkäystä',
             'details' : 'Radan tiedot',
             'grade_opinions' : 'Greidimielipiteet',
             'notes' : 'Lisätiedot',
             'problem' : 'Rata',
             'route' : 'Köysirata',
-            'ascents' : 'nousu(a)',
-            'likes' : 'tykkäys(tä)',
+            'ascents' : 'ei nousuja | nousu | {count} nousua',
+            'likes' : 'ei tykkäyksiä | tykkäys | tykkäystä',
             'dolike' : 'tykkää'
         },
         home : {

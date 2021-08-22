@@ -20,10 +20,10 @@
         <round-badge :width="32" :bgColor="problem.colour.code"></round-badge>
         <list-styles class="my-2" :styles="problem.styles"></list-styles>
         <div class="my-2 text-sm text-gray-700 font-bold">
-          {{ problem.ascentCount }} {{ $t("problem.ascents") }}
+          {{ $tc("problem.ascents",problem.ascentCount) }}
         </div>
         <div class="my-2 text-sm text-gray-700">
-          {{ problem.c_like }} {{ $t("problem.likes") }}
+           {{ $tc("problem.likes",problem.c_like) }}
         </div>
         <div class="mb-2 flex flex-row">
           <f7-icon material="favorite" color="red"></f7-icon
@@ -60,7 +60,7 @@
         <!-- Show dislikes -->
         <div class="my-2 flex-col">
           <div class="my-2">
-            {{ problem.dislikeCount || 0 }} {{ $t("problem.dislikes") }}
+             {{ $tc("problem.dislikes",problem.dislikeCount) }}
           </div>
           <div class="font-bold my-2">
             <f7-icon material="sentiment_dissatisfied"></f7-icon>
@@ -81,13 +81,15 @@
       class="border-red-100 rounded-t-2xl"
     >
       <div class="flex p-3 mt-2 grid grid-cols-3">
-        <div class="flex flex-col items-center justify-center font-bold">
+        <div class="flex flex-col items-center justify-center font-bold" 
+          @click="openTickDatePopup"
+        >
           <i
             class="icon material-icons color-custom"
             style="font-size: 42px; color: #2f2d51"
             >today</i
           >
-          {{ $t("problem.today") }}
+          {{ formatDate(tick.created) }}
         </div>
         <div class="flex flex-col items-center justify-center font-bold"
           @click="openTriesPopup"
@@ -135,6 +137,28 @@
     </f7-sheet>
 
     <!-- Popups for grade opinion, tries and such -->
+    <f7-popup animate swipe-to-close class="popup_tick_date">
+      <f7-page>
+        <f7-navbar :title="$t('problem.popup_title_date')">
+          <f7-nav-right>
+            <f7-link popup-close>{{ $t('problem.close_action') }}</f7-link>
+          </f7-nav-right>
+        </f7-navbar>
+        <f7-block>
+            <f7-block-title>{{ $t('problem.choose_tick_date') }}</f7-block-title>
+
+            <div class="flex flex-row justify-around">
+                <f7-button @click="setCalendarDate(dayjs().subtract(1,'day').toDate())" class="mx-2" round fill color="red">{{ $t('problem.yesterday')}} </f7-button>
+                <f7-button @click="setCalendarDate(dayjs().toDate())" class="mx-2" round fill color="red">{{ $t('problem.today')}} </f7-button>
+            </div>
+            <div id="demo-calendar-inline-container"></div>
+            <div class="mx-2">
+            <f7-button popup-close large round fill color="blue"  >{{ $t('global.close_action') }}</f7-button>
+            </div>
+        </f7-block>
+      </f7-page>
+    </f7-popup>
+
     <f7-popup animate swipe-to-close class="popup_tries">
       <f7-page>
         <f7-navbar :title="$t('problem.popup_title_tries')">
@@ -198,8 +222,11 @@ import GradeOpinions from "@components/ui/problem/GradeOpinions.vue";
 import ListStyles from "@components/ui/problem/ListStyles.vue";
 import { getTagShort } from "@js/helpers.js";
 import { useStore } from "framework7-vue";
-import { ref } from "vue";
+import { ref ,onMounted} from "vue";
 import dayjs from "dayjs";
+import { useI18n } from 'vue-i18n'
+import  LocalizedFormat  from 'dayjs/plugin/localizedFormat'
+dayjs.extend(LocalizedFormat)
 import { f7 } from 'framework7-vue'
 
 export default {
@@ -210,6 +237,7 @@ export default {
     },
   },
   setup(props, context) {
+       const { t, d, locale } = useI18n()
     const grades = useStore("grades");
     const leaveOnBothSides = ref(3);
     const cutOpinions = (opinions, cutAt, leave) => {
@@ -219,6 +247,19 @@ export default {
       const end = Math.min(opinions.length - 1, idx + leave);
       return opinions.slice(start, end);
     };
+    const calendar = ref(null)
+    onMounted(() => {
+        calendar.value = f7.calendar.create({
+            containerEl: '#demo-calendar-inline-container',
+            value: [tick.value.created],
+            weekHeader: false,
+        })
+        calendar.value.on('change',(calendar,value) => {
+            tick.value.created = value[0]
+            f7.popup.close('.popup_tick_date')
+        })
+
+    })
     const cutGrades = (grades, cutAt, leave) => {
       // Find first the index of cutAt and slice accordingly
       const idx = grades.findIndex((item) => item.id == cutAt);
@@ -235,6 +276,9 @@ export default {
     const openTriesPopup = () => {
         f7.popup.open('.popup_tries',true)
     }
+    const openTickDatePopup = () => {
+        f7.popup.open('.popup_tick_date',true)
+    }
     const getGrade = (gradeid) => {
         return grades.value[gradeid].name
     }
@@ -249,9 +293,18 @@ export default {
     const tick = ref({});
     tick.value.ascentType = "tick";
     tick.value.tries = 1;
-    tick.value.created = dayjs();
+    tick.value.created = new Date();
     tick.value.grade_opinion = props.problem.grade.id;
     const preTries = ref(1)
+    const formatDate = (date) => {
+        if (dayjs(date).isSame(new Date(),'day')) {
+            return t('problem.today')
+        }
+        return dayjs(date).format("DD.MM.YYYY")
+    }
+    const setCalendarDate = (date) => {
+        calendar.value.setValue([date])
+    }
     return {
       getTagShort,
       preTries,
@@ -266,6 +319,11 @@ export default {
       openTriesPopup,
       selectTries,
       gradeOpinionSelected,
+      openTickDatePopup,
+      formatDate,
+      calendar,
+      dayjs,
+      setCalendarDate,
     }
   },
   components: {
