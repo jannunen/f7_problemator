@@ -72,34 +72,114 @@
     <!-- top part ends -->
 
     <!-- sheet modal -->
-    <f7-sheet animate bottom opened swipe-to-close style="background-color : #E5E4E5;" class="border-red-100 rounded-t-2xl">
-        <div class="flex p-3 mt-2 grid grid-cols-3">
-            <div class="flex flex-col items-center justify-center font-bold">
-                <i class="icon material-icons color-custom" style= "font-size : 39px; color : #2f2d51;">today</i>
-                {{ $t('problem.today') }}
-             </div>
-            <div class="flex flex-col items-center justify-center font-bold">
-                <round-badge text-color="#fff" bg-color="#2F2D51" :width="32">1</round-badge>
-                {{ $t('problem.tries') }}
-             </div>
-            <div class="flex flex-col items-center justify-center font-bold">
-                <round-badge text-color="#fff" bg-color="#2F2D51" :width="32">{{ problem.grade.name }}</round-badge>
-                {{ $t('problem.grade_opinion') }}
-             </div>
+    <f7-sheet
+      animate
+      bottom
+      opened
+      swipe-to-close
+      style="background-color: #e5e4e5"
+      class="border-red-100 rounded-t-2xl"
+    >
+      <div class="flex p-3 mt-2 grid grid-cols-3">
+        <div class="flex flex-col items-center justify-center font-bold">
+          <i
+            class="icon material-icons color-custom"
+            style="font-size: 39px; color: #2f2d51"
+            >today</i
+          >
+          {{ $t("problem.today") }}
         </div>
-        <div class="flex flex-row justify-around p-3 mt-1 font-bold">
-            <div>
-                <f7-radio :checked="tick.ascentType == 'tick'" name="ascentType" value="tick" @change="() => onAscentTypeChange('tick')" ></f7-radio> {{ $t('problem.send')}}
-            </div>
-            <div>
-                <f7-radio :checked="tick.ascentType == 'pretick'" name="ascentType" value="pretick"  @change="() => onAscentTypeChange('pretick')"></f7-radio> {{ $t('problem.still_a_project')}}
-            </div>
+        <div class="flex flex-col items-center justify-center font-bold"
+          @click="openTriesPopup"
+        >
+          <round-badge text-color="#fff" bg-color="#2F2D51" :width="32"
+            >{{ tick.tries }}</round-badge
+          >
+          {{ $t("problem.tries") }}
         </div>
-        <div class="my-2 mx-4">
+        <div
+          class="flex flex-col items-center justify-center font-bold"
+          @click="openGradeOpinionPopup"
+        >
+          <round-badge text-color="#fff" bg-color="#2F2D51" :width="32">{{
+             getGrade(tick.grade_opinion)
+          }}</round-badge>
+          {{ $t("problem.grade_opinion") }}
+        </div>
+      </div>
+      <div class="flex flex-row justify-around p-3 mt-1 font-bold">
+        <div>
+          <f7-radio
+            :checked="tick.ascentType == 'tick'"
+            name="ascentType"
+            value="tick"
+            @change="() => onAscentTypeChange('tick')"
+          ></f7-radio>
+          {{ $t("problem.send") }}
+        </div>
+        <div>
+          <f7-radio
+            :checked="tick.ascentType == 'pretick'"
+            name="ascentType"
+            value="pretick"
+            @change="() => onAscentTypeChange('pretick')"
+          ></f7-radio>
+          {{ $t("problem.still_a_project") }}
+        </div>
+      </div>
+      <div class="my-2 mx-4">
+        <f7-button large round fill color="red"
+          >+ {{ $t("problem.add_a_tick") }}</f7-button
+        >
+      </div>
+    </f7-sheet>
 
-            <f7-button large round fill color="red">+ {{ $t('problem.add_a_tick') }}</f7-button>
-        </div>
-    </f7-sheet> 
+    <!-- Popups for grade opinion, tries and such -->
+    <f7-popup animate swipe-to-close class="popup_tries">
+      <f7-page>
+        <f7-navbar title="Popup Title">
+          <f7-nav-right>
+            <f7-link popup-close>{{ $t('problem.close_action') }}</f7-link>
+          </f7-nav-right>
+        </f7-navbar>
+        <f7-block>
+            <f7-block-title>{{ $t('problem.how_many_tries') }}</f7-block-title>
+
+            <f7-list>
+                <f7-list-item @click="selectTries(n)" v-for="n in 8" radio radio-icon="end" :key="n" :title="n" name="tries" :checked="n==1"></f7-list-item>
+
+                <li class="mx-2">{{ $t('problem.or_enter_custom_amount')}}</li>
+                <li class="item-content item-input">
+                    <div class="item-inner">
+                    <div class="item-input-wrap">
+                        <input type="number" v-model="preTries" :placeholder="$t('problem.custom_amt_tries')" />
+                        <span class="input-clear-button"></span>
+                    </div>
+                    </div>
+                    <f7-button @click="selectTries(preTries)">{{ $t('problem.save_tries') }}</f7-button>
+                </li>
+            </f7-list>
+        </f7-block>
+      </f7-page>
+    </f7-popup>
+
+    <f7-popup animate swipe-to-close class="popup_grade_opinion">
+      <f7-page>
+        <f7-navbar title="Popup Title">
+          <f7-nav-right>
+            <f7-link popup-close>Close</f7-link>
+          </f7-nav-right>
+        </f7-navbar>
+        <f7-block>
+            <f7-block-title>{{ $t('problem.how_many_tries') }}</f7-block-title>
+
+            <f7-list>
+                <f7-list-item v-for="n in 8" radio radio-icon="end" :title="n" name="tries" :checked="n==1"></f7-list-item>
+            </f7-list>
+        </f7-block>
+      </f7-page>
+    </f7-popup>
+
 
   </f7-page>
 </template>
@@ -111,7 +191,8 @@ import ListStyles from "@components/ui/problem/ListStyles.vue";
 import { getTagShort } from "@js/helpers.js";
 import { useStore } from "framework7-vue";
 import { ref } from "vue";
-import dayjs from 'dayjs'
+import dayjs from "dayjs";
+import { f7 } from 'framework7-vue'
 
 export default {
   props: {
@@ -138,22 +219,41 @@ export default {
       return grades.slice(start, end);
     };
     const onAscentTypeChange = (value) => {
-        tick.value.ascentType = value
+      tick.value.ascentType = value;
+    };
+    const openGradeOpinionPopup = () => {
+        f7.popup.open('.popup_grade_opinion',true)
     }
-    const tick = ref({})
-    tick.value.ascentType = 'tick'
-    tick.value.tries = 1
-    tick.value.created = dayjs()
-    tick.value.grade_opinion = props.problem.grade.id
+    const openTriesPopup = () => {
+        f7.popup.open('.popup_tries',true)
+    }
+    const getGrade = (gradeid) => {
+        return grades.value[gradeid].name
+    }
+    const selectTries = (tries) => {
+        tick.value.tries=tries
+        f7.popup.close('.popup_tries')
+    }
+    const tick = ref({});
+    tick.value.ascentType = "tick";
+    tick.value.tries = 1;
+    tick.value.created = dayjs();
+    tick.value.grade_opinion = props.problem.grade.id;
+    const preTries = ref(1)
     return {
       getTagShort,
+      preTries,
       grades,
       cutOpinions,
       cutGrades,
       leaveOnBothSides,
       onAscentTypeChange,
       tick,
-    };
+      openGradeOpinionPopup,
+      getGrade,
+      openTriesPopup,
+      selectTries,
+    }
   },
   components: {
     RoundBadge,

@@ -49,6 +49,11 @@ const messages = {
             'minimum_grade' : 'Minimigreidi',
         },
         problem : {
+            'or_enter_custom_amount' : 'tai syötä yrkkien määrä käsin',
+            'save_tries' : 'Tallenna',
+            'close_action' : 'Sulje',
+            'custom_amt_tries' : '...syötä määrä',
+            'how_many_tries' : 'Kuinka monta yrkkää meni',
             'add_a_tick' : 'Lisää merkintä',
             'send' : 'Lähetä',
             'today' : 'Tänään',
