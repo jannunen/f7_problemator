@@ -1,6 +1,6 @@
 <template>
   <f7-page name="problem_details">
-    <f7-navbar :title="$t('problem.details')" back-link="Back"></f7-navbar>
+    <f7-navbar :title="$t('problem.details')" :back-link="$t('global.back')"></f7-navbar>
     <!-- Details title -->
     <h2 class="flex flex-row justify-center font-bold text-xl">
       <span v-if="problem.routetype == 'sport'">
@@ -84,7 +84,7 @@
         <div class="flex flex-col items-center justify-center font-bold">
           <i
             class="icon material-icons color-custom"
-            style="font-size: 39px; color: #2f2d51"
+            style="font-size: 42px; color: #2f2d51"
             >today</i
           >
           {{ $t("problem.today") }}
@@ -92,16 +92,16 @@
         <div class="flex flex-col items-center justify-center font-bold"
           @click="openTriesPopup"
         >
-          <round-badge text-color="#fff" bg-color="#2F2D51" :width="32"
+          <round-badge text-color="#fff" bg-color="#2F2D51" :width="38"
             >{{ tick.tries }}</round-badge
           >
-          {{ $t("problem.tries") }}
+          {{ $tc("problem.tries",tick.tries) }}
         </div>
         <div
           class="flex flex-col items-center justify-center font-bold"
           @click="openGradeOpinionPopup"
         >
-          <round-badge text-color="#fff" bg-color="#2F2D51" :width="32">{{
+          <round-badge text-color="#fff" bg-color="#2F2D51" :width="38">{{
              getGrade(tick.grade_opinion)
           }}</round-badge>
           {{ $t("problem.grade_opinion") }}
@@ -137,7 +137,7 @@
     <!-- Popups for grade opinion, tries and such -->
     <f7-popup animate swipe-to-close class="popup_tries">
       <f7-page>
-        <f7-navbar title="Popup Title">
+        <f7-navbar :title="$t('problem.popup_title_tries')">
           <f7-nav-right>
             <f7-link popup-close>{{ $t('problem.close_action') }}</f7-link>
           </f7-nav-right>
@@ -159,23 +159,31 @@
                     <f7-button @click="selectTries(preTries)">{{ $t('problem.save_tries') }}</f7-button>
                 </li>
             </f7-list>
+            <div class="mx-2">
+            <f7-button popup-close large round fill color="blue"  >{{ $t('global.close_action') }}</f7-button>
+            </div>
         </f7-block>
       </f7-page>
     </f7-popup>
 
     <f7-popup animate swipe-to-close class="popup_grade_opinion">
       <f7-page>
-        <f7-navbar title="Popup Title">
+        <f7-navbar :title="$t('problem.popup_title_grade_opinion')">
           <f7-nav-right>
-            <f7-link popup-close>Close</f7-link>
+            <f7-link popup-close>{{ $t('global.close_action') }}</f7-link>
           </f7-nav-right>
         </f7-navbar>
         <f7-block>
-            <f7-block-title>{{ $t('problem.how_many_tries') }}</f7-block-title>
-
+            <f7-block-title>{{ $t('problem.what_is_your_grade_opinion') }}</f7-block-title>
             <f7-list>
-                <f7-list-item v-for="n in 8" radio radio-icon="end" :title="n" name="tries" :checked="n==1"></f7-list-item>
+
+                    <f7-list-item @click="gradeOpinionSelected(null)" radio radio-icon="end" :title="$t('problem.no_opinion')" name="demo-radio-end" checked></f7-list-item>
+                    <f7-list-item @click="gradeOpinionSelected(grade.id)" v-for="grade in grades" :key="grade.id" radio radio-icon="end" :title="grade.name" name="demo-radio-end"></f7-list-item>
+
             </f7-list>
+            <div class="mx-2">
+            <f7-button popup-close large round fill color="blue"  >{{ $t('global.close_action') }}</f7-button>
+            </div>
         </f7-block>
       </f7-page>
     </f7-popup>
@@ -234,6 +242,10 @@ export default {
         tick.value.tries=tries
         f7.popup.close('.popup_tries')
     }
+    const gradeOpinionSelected = (gradeid) => {
+        tick.value.grade_opinion = gradeid
+        f7.popup.close('.popup_grade_opinion')
+    }  
     const tick = ref({});
     tick.value.ascentType = "tick";
     tick.value.tries = 1;
@@ -253,6 +265,7 @@ export default {
       getGrade,
       openTriesPopup,
       selectTries,
+      gradeOpinionSelected,
     }
   },
   components: {

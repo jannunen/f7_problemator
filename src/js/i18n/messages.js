@@ -6,6 +6,10 @@ const messages = {
         'btn_circuits': 'Circuits',
     },
     fi: {
+        global : {
+            'back' : 'Takaisin',
+            'close_action' : 'Sulje',
+        },
         'btn_all_routes': 'Kaikki reitit',
         'btn_new_routes': 'Uudet reitit',
         'btn_expiring_routes': 'Vanhenevat reitit',
@@ -49,6 +53,10 @@ const messages = {
             'minimum_grade' : 'Minimigreidi',
         },
         problem : {
+            'popup_title_tries' : 'Yrkkien määrä',
+            'popup_title_grade_opinion' : 'Greidimielipide',
+            'what_is_your_grade_opinion' : 'Mikä on mielipiteesi greidistä?',
+            'no_opinion' : 'Ei mielipidettä',
             'or_enter_custom_amount' : 'tai syötä yrkkien määrä käsin',
             'save_tries' : 'Tallenna',
             'close_action' : 'Sulje',
@@ -57,7 +65,7 @@ const messages = {
             'add_a_tick' : 'Lisää merkintä',
             'send' : 'Lähetä',
             'today' : 'Tänään',
-            'tries' : 'Yrkkä(ä)',
+            'tries' : 'Ei yrkkiä | yrkkä | {count} yrkkää',
             'grade_opinion' : 'Greidimielipide',
             'still_a_project' : 'Jatka projektointia',
             'dislike' : 'Epätykkää',
