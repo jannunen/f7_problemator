@@ -13,7 +13,7 @@
 
 
   <!-- Your main view, should have "view-main" class -->
-  <f7-view main class="safe-areas" url="/welcome" v-cloak>
+  <f7-view main class="safe-areas" url="/" v-cloak>
 
   </f7-view>
 
@@ -93,7 +93,7 @@ import { createLocal, createSession } from 'the-storages'
                 f7.views.main.router.navigate("/home")
               })
               .catch(data => {
-                f7.views.main.router.navigate("/")
+                f7.views.main.router.navigate("/login")
 
               })
           }

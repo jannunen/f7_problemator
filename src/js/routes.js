@@ -1,27 +1,57 @@
 
 import HomePage from '../pages/home.vue';
 import LoginPage from '../pages/login.vue';
+import ProblemDetails from '../pages/problem.vue';
 import WelcomePage from '../pages/welcome.vue';
 
 
 import DynamicRoutePage from '../pages/dynamic-route.vue';
 import RequestAndLoad from '../pages/request-and-load.vue';
 import NotFoundPage from '../pages/404.vue';
+import store from './store';
 
 var routes = [
   {
-    path: '/welcome',
+    path: '/',
     component: WelcomePage,
   },
   {
-    path: '/',
+    path: '/login',
     component: LoginPage,
   },
   {
     path: '/home',
     component: HomePage,
   },
+  {
+    name : 'problem_details',
+    path: '/problem/:problem_id',
+    async: function ({ router, to, resolve }) {
+      var app = router.app;
+      // Show Preloader
+      app.preloader.show();
 
+      // User ID from request
+      var problemID = to.params.problem_id;
+      store.dispatch("getProblem",problemID)
+      .then((problem) => {
+        // Hide Preloader
+        app.preloader.hide();
+        // Resolve route to load page
+        resolve(
+          {
+            component: ProblemDetails,
+          },
+          {
+            props: {
+              problem,
+            }
+          }
+        );
+
+      })
+    },
+  },
   {
     path: '/dynamic-route/blog/:blogId/post/:postId/',
     component: DynamicRoutePage,

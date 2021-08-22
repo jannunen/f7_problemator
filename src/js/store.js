@@ -102,11 +102,11 @@ const store = createStore({
       })
     },
     getProblem({ state },payload) {
-      debugger
       return axios.get(api+"problem/"+payload)
       .then(r=>r.data)
       .then(json => {
         state.problems = {...state.problems,[json.problem.id] : json.problem}
+        return json.problem
       })
       .catch(err => {
       })

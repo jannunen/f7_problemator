@@ -169,7 +169,6 @@ export default {
         }
         // Filter by walls
         if (filters.value.walls !=null && filters.value.walls.length > 0) {
-            debugger
             probs = probs.filter((item) => {
                 if (item.wall == null) {
                     return true
