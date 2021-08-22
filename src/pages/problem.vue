@@ -29,6 +29,9 @@
           <f7-icon material="favorite" color="red"></f7-icon
           ><span class="font-bold">{{ $t("problem.dolike") }}</span>
         </div>
+        <div class="my-2" v-if="problem.myTicks != null && problem.myTicks.length > 0">
+            <div class="bg-green-500 px-2 py-1 text-white text-center text-xs rounded-full"> {{ $t('problem.ticked') }} <f7-icon size="12px" material="check"></f7-icon></div>
+        </div>
       </div>
 
       <!-- right col -->
@@ -130,7 +133,7 @@
         </div>
       </div>
       <div class="my-2 mx-4">
-        <f7-button large round fill color="red"
+        <f7-button @click="saveTick" large round fill color="red"
           >+ {{ $t("problem.add_a_tick") }}</f7-button
         >
       </div>
@@ -222,6 +225,7 @@ import GradeOpinions from "@components/ui/problem/GradeOpinions.vue";
 import ListStyles from "@components/ui/problem/ListStyles.vue";
 import { getTagShort } from "@js/helpers.js";
 import { useStore } from "framework7-vue";
+import store from '@js/store.js'
 import { ref ,onMounted} from "vue";
 import dayjs from "dayjs";
 import { useI18n } from 'vue-i18n'
@@ -288,13 +292,16 @@ export default {
     }
     const gradeOpinionSelected = (gradeid) => {
         tick.value.grade_opinion = gradeid
+        isGradeOpinionSelected.value = true
         f7.popup.close('.popup_grade_opinion')
     }  
     const tick = ref({});
+    const isGradeOpinionSelected = ref(false)
     tick.value.ascentType = "tick";
     tick.value.tries = 1;
     tick.value.created = new Date();
-    tick.value.grade_opinion = props.problem.grade.id;
+    tick.value.grade_opinion = props.problem.grade.id
+    tick.value.problemid = props.problem.id
     const preTries = ref(1)
     const formatDate = (date) => {
         if (dayjs(date).isSame(new Date(),'day')) {
@@ -305,7 +312,30 @@ export default {
     const setCalendarDate = (date) => {
         calendar.value.setValue([date])
     }
+    const saveTick = () => {
+        // IF use has NOT selected grade opinion, make sure one is
+        // NOT sent to the server
+        let payload = {...tick.value}
+        if (!isGradeOpinionSelected.value) {
+            payload.grade_opinion= null
+        } 
+        store.dispatch("saveTick",tick.value)
+        .then((resp) => {
+           f7.toast.show({
+               icon : "<i class='material-icons'>check</i>",
+               text : resp.message,
+               position : 'top',
+               closeButtonColor : 'red',
+               closeTimeout : 4000,
+               closeButton : true,
+           }) 
+        })
+        .catch(err => {
+            f7.dialog.alert(err)
+        })
+    }
     return {
+        saveTick,
       getTagShort,
       preTries,
       grades,

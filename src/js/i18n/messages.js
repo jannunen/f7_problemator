@@ -68,6 +68,7 @@ const messages = {
             'add_a_tick' : 'Lisää merkintä',
             'send' : 'Lähetä',
             'today' : 'Tänään',
+            'ticked' : 'Tikattu',
             'tries' : 'Ei yrkkiä | yrkkä | {count} yrkkää',
             'grade_opinion' : 'Greidimielipide',
             'still_a_project' : 'Jatka projektointia',

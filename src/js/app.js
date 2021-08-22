@@ -27,9 +27,6 @@ Framework7.use(Framework7Vue);
 
 // Init App
 const app = createApp(App);
-app.mixin({
-
-})
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime)

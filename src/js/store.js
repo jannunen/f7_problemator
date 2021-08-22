@@ -109,6 +109,36 @@ const store = createStore({
         return json.problem
       })
       .catch(err => {
+        return err
+      })
+    },
+    saveTick({ state },payload) {
+      return axios.post(api+"tick/",payload)
+      .then(r=>r.data)
+      .then(json => {
+        state.problems[json.tick.problemid].myTicks = [...state.problems[json.tick.problemid].myTicks, json.tick]
+        // update ascent counts. Why manually? If we update the count from the server,
+        // someone (or many ppl) and then the ascentcount might jump by a multitude... not nice.
+        debugger
+        state.problems[json.tick.problemid].ascentCount = state.problems[json.tick.problemid].ascentCount+1
+        // This beauty updates the ascentcount for gym's problemlist
+        state.gym.problems =  state.gym.problems.map((item, index) => {
+
+          if (item.id !== json.tick.problemid) {
+            return item
+          }
+          debugger
+          // Otherwise, this is the one we want - return an updated value
+          return {
+            ...item,
+            ['ascentCount'] : item.ascentCount+1
+          }
+        })
+
+        return json
+      })
+      .catch(err => {
+        return err
       })
     },
   }
