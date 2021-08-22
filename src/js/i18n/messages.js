@@ -49,10 +49,13 @@ const messages = {
             'minimum_grade' : 'Minimigreidi',
         },
         problem : {
+            'dislike' : 'Epätykkää',
+            'dislikes' : 'Epätykkäystä',
+            'details' : 'Radan tiedot',
             'grade_opinions' : 'Greidimielipiteet',
             'notes' : 'Lisätiedot',
-            'problem' : 'Probleema',
-            'route' : 'Reitti',
+            'problem' : 'Rata',
+            'route' : 'Köysirata',
             'ascents' : 'nousu(a)',
             'likes' : 'tykkäys(tä)',
             'dolike' : 'tykkää'

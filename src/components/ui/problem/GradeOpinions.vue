@@ -41,8 +41,10 @@ export default {
     }));
 
     const options = computed(() => ({
-        legend : {
-            display : false,
+        plugins : {
+            legend : {
+                display : false,
+            }
         }
 
     }));

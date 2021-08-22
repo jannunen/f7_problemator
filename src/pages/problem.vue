@@ -1,6 +1,6 @@
 <template>
   <f7-page name="problem_details" >
-    <f7-navbar title="Problem details" back-link="Back"></f7-navbar>
+    <f7-navbar :title="$t('problem.details')" back-link="Back"></f7-navbar>
         <!-- Details title -->
         <h2 class="flex flex-row justify-center font-bold text-xl">
            <span v-if="problem.routetype=='sport'">
@@ -29,17 +29,29 @@
             </div>
             <div class="col-span-2 p-4">
 
+                <!-- Show author and addition date -->
                 <div class="my-2 flex flex-row justify-between">
                      <span class="font-bold">{{ problem.author }}</span>
                      <span class="">{{ $filters.fromNow(problem.added) }}</span>
                 </div>
+                <!-- Show additional details -->
                 <div class="my-2 flex flex-row justify-between">
                      <span class="font-bold">{{ $t('problem.notes') }}</span>
                      <span class="" v-html="(problem.addt || 'N/A')"></span>
                 </div>
+                <!-- Show grade opinions -->
                 <div class="my-2" >
                     <f7-block-title>{{ $t('problem.grade_opinions')}}</f7-block-title>
                     <grade-opinions :grades="cutGrades(grades,problem.grade.id,leaveOnBothSides)" :opinions="cutOpinions(problem.grade_opinions,problem.grade.id,leaveOnBothSides)"></grade-opinions>
+                </div>
+                <!-- Show dislikes -->
+                <div class="my-2 flex-col">
+                    <div class="my-2">
+                        {{ problem.dislikeCount || 0 }} {{ $t('problem.dislikes')}}
+                    </div>
+                    <div class="font-bold my-2">
+                        <f7-icon material="sentiment_dissatisfied"></f7-icon> {{ $t('problem.dislike')}}
+                    </div>
                 </div>
 
 
