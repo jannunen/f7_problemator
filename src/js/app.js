@@ -28,15 +28,19 @@ Framework7.use(Framework7Vue);
 // Init App
 const app = createApp(App);
 app.mixin({
-  debounce(func, timeout = 300){
-    let timer;
-    return (...args) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => { func.apply(this, args); }, timeout);
-    };
-  }
 
 })
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+dayjs.extend(relativeTime)
+app.config.globalProperties.$filters = {
+  fromNow(value) {
+    return dayjs(value).fromNow()
+  },
+  format(value,format) {
+    return dayjs(value).format(format)
+  }
+}
 
 
 // Register Framework7 Vue components
@@ -53,6 +57,7 @@ import messages from './i18n/messages.js'
   app.use(i18n)
  
 app.use(vueTheStorages)
+
 
 // Mount the app
 app.mount('#app');

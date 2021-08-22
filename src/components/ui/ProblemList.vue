@@ -40,7 +40,7 @@
             :link="`/problem/`+problem.id+`/`"
             >
             <template #after>
-                <div style="width : 80px;" class="display-flex flex-direction-column">
+                <div style="width : 100px;" class="display-flex flex-direction-column">
                     <span>{{ getAfter(problem) }}</span>
                     <small>
                         {{ $t('home.by') }} {{ problem.author }}
@@ -87,7 +87,7 @@ import SortBy from "@components/ui/problemlist/SortBy.vue";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { createLocal, createSession, createStorage } from "the-storages";
-import { debounce } from '@js/helpers'
+import { debounce,getTagShort } from '@js/helpers'
 import { sortFunction } from '@components/ui/problemlist/sortFunctions.js'
 dayjs.extend(relativeTime);
 import store from '@js/store.js'
@@ -121,13 +121,6 @@ export default {
     const getAfter = (group) => {
       const date = dayjs(group.added);
       return date.fromNow();
-    };
-    const getTagShort = (tag) => {
-      if (tag == null) {
-        return "";
-      }
-
-      return tag.substring(tag.length - 4);
     };
     const sortedWalls = computed(() => {
       if (walls.value == null) {

@@ -48,6 +48,13 @@ const messages = {
             'maximum_grade' : 'Maksimigreidi',
             'minimum_grade' : 'Minimigreidi',
         },
+        problem : {
+            'problem' : 'Probleema',
+            'route' : 'Reitti',
+            'ascents' : 'nousu(a)',
+            'likes' : 'tykkäys(tä)',
+            'dolike' : 'tykkää'
+        },
         home : {
             'ascents' : 'nousu(a)',
             'click_to_filter_by_wall' : 'Klikkaa sektoria suodattaaksesi sektorin mukaan',
