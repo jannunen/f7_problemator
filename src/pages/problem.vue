@@ -38,7 +38,8 @@
                      <span class="" v-html="(problem.addt || 'N/A')"></span>
                 </div>
                 <div class="my-2" >
-                    <grade-opinions :grades="grades" :opinions="problem.grade_opinions"></grade-opinions>
+                    <f7-block-title>{{ $t('problem.grade_opinions')}}</f7-block-title>
+                    <grade-opinions :grades="cutGrades(grades,problem.grade.id,leaveOnBothSides)" :opinions="cutOpinions(problem.grade_opinions,problem.grade.id,leaveOnBothSides)"></grade-opinions>
                 </div>
 
 
@@ -56,6 +57,7 @@ import GradeOpinions from "@components/ui/problem/GradeOpinions.vue"
 import ListStyles from "@components/ui/problem/ListStyles.vue";
 import { getTagShort } from '@js/helpers.js'
 import { useStore } from 'framework7-vue'
+import { ref } from 'vue'
 
 export default {
     props : {
@@ -66,9 +68,27 @@ export default {
     },
     setup(props, context) {
         const grades = useStore('grades')
+        const leaveOnBothSides =ref(3)
+        const cutOpinions = (opinions,cutAt,leave) => {
+            // Find first the index of cutAt and slice accordingly
+            const idx = opinions.findIndex(item => item.gradeid == cutAt)
+            const start = Math.max(0,idx-leave)
+            const end = Math.min(opinions.length-1, idx+leave)
+            return opinions.slice(start,end)
+        }
+        const cutGrades = (grades,cutAt,leave) => {
+            // Find first the index of cutAt and slice accordingly
+            const idx = grades.findIndex(item => item.id == cutAt)
+            const start = Math.max(0,idx-leave)
+            const end = Math.min(grades.length-1, idx+leave)
+            return grades.slice(start,end)
+        }
         return {
             getTagShort,
             grades,
+            cutOpinions,
+            cutGrades,
+            leaveOnBothSides,
         }
 
     },

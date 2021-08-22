@@ -49,6 +49,8 @@ const messages = {
             'minimum_grade' : 'Minimigreidi',
         },
         problem : {
+            'grade_opinions' : 'Greidimielipiteet',
+            'notes' : 'Lisätiedot',
             'problem' : 'Probleema',
             'route' : 'Reitti',
             'ascents' : 'nousu(a)',
