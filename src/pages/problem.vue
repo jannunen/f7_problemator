@@ -38,7 +38,7 @@
                      <span class="" v-html="(problem.addt || 'N/A')"></span>
                 </div>
                 <div class="my-2" >
-                    Grade opinions
+                    <grade-opinions :grades="grades" :opinions="problem.grade_opinions"></grade-opinions>
                 </div>
 
 
@@ -52,8 +52,10 @@
 
 <script>
 import RoundBadge from "@components/ui/RoundBadge.vue";
+import GradeOpinions from "@components/ui/problem/GradeOpinions.vue"
 import ListStyles from "@components/ui/problem/ListStyles.vue";
 import { getTagShort } from '@js/helpers.js'
+import { useStore } from 'framework7-vue'
 
 export default {
     props : {
@@ -63,14 +65,17 @@ export default {
         }
     },
     setup(props, context) {
+        const grades = useStore('grades')
         return {
             getTagShort,
+            grades,
         }
 
     },
     components : {
         RoundBadge,
         ListStyles,
+        GradeOpinions,
     }
 
 

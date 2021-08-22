@@ -41,7 +41,7 @@
             >
             <template #after>
                 <div style="width : 100px;" class="display-flex flex-direction-column">
-                    <span>{{ getAfter(problem) }}</span>
+                    <small>{{ getAfter(problem) }}</small>
                     <small>
                         {{ $t('home.by') }} {{ problem.author }}
                     </small>
@@ -49,13 +49,15 @@
                 </div>
             </template>
             <template #title>
-                    <small> {{ problem.ascentCount }} {{ $t('home.ascents')}}</small>
+                    <div class="flex flex-col">
+                        <strong class="margin-left margin-right" v-if="problem.c_like > 0">
+                            <f7-icon size="15" color="red" material="favorite"></f7-icon>
+                            {{ problem.c_like }} 
+                        </strong>
+                        <small> {{ problem.ascentCount }} {{ $t('home.ascents')}}</small>
+                    </div>
             </template>
             <template #after-start>
-                    <strong class="margin-left margin-right" v-if="problem.c_like > 0">
-                    <f7-icon size="15" color="red" material="favorite"></f7-icon>
-                    {{ problem.c_like }} 
-                    </strong>
             </template>
             <template #media>
                 <div class="display-flex flex-direction-column">
@@ -67,7 +69,7 @@
                         {{ getTagShort(problem.tag) }}
                     </div>
                 </div>
-                <h2 style="width : 40px;" class="margin-left no-margin">{{ getGrade(problem.routetype,problem.grade) }}</h2>
+                <h2 style="width : 20px;" class="font-bold margin-left no-margin">{{ getGrade(problem.routetype,problem.grade) }}</h2>
             </template>
             </f7-list-item>
       </div>

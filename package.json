@@ -21,6 +21,7 @@
   ],
   "dependencies": {
     "axios": "^0.21.1",
+    "chart.js": "^3.5.1",
     "dayjs": "^1.10.6",
     "dom7": "^3.0.0",
     "dotenv": "^10.0.0",
@@ -32,6 +33,7 @@
     "skeleton-elements": "^3.4.0",
     "swiper": "^6.8.1",
     "vue": "^3.2.2",
+    "vue-chart-3": "^0.5.7",
     "vue-i18n": "^9.1.7",
     "vue-the-storages": "^1.0.2"
   },
