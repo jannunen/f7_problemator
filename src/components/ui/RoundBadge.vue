@@ -18,18 +18,23 @@
            width : {
                type : Number,
                default : 32,
+           },
+           textColor  : {
+               type : String,
+               default : "#000",
            }
 
        },
        computed : {
            getStyle() {
-               return `
+               const style = `
                border-color : ${this.borderColor}; 
                background-color : ${this.bgColor};
                width : ${this.width}px;
                height : ${this.width}px;
-               
+               color : ${this.textColor};
                `
+               return style
            },
            getBadgeStyle() {
 
@@ -54,7 +59,7 @@
            display: block;
            font-size : 16px;
            font-weight : bold;
-           padding : 5px 4px 4px 4px;
+           padding : 4px 4px 4px 4px;
 
        }
    </style> 
