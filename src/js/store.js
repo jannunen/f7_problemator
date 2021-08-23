@@ -39,6 +39,10 @@ const store = createStore({
     problems({state}) {
       return state.gym.problems
     },
+    detailedProblems({state}) {
+      debugger
+      return state.problems
+    },
     grades({state}) {
       return state.grades
     },
@@ -123,9 +127,11 @@ const store = createStore({
         state.problems[json.tick.problemid].myTicks = [...state.problems[json.tick.problemid].myTicks, json.tick]
         // update ascent counts. Why manually? If we update the count from the server,
         // someone (or many ppl) and then the ascentcount might jump by a multitude... not nice.
+        //state.problems[json.tick.problemid]= {...state.problems[json.tick.problemid], ['ascentCount'] : state.problems[json.tick.problemid].ascentCount+1}
         debugger
-        state.problems[json.tick.problemid]= {...state.problems[json.tick.problemid], ['ascentCount'] : state.problems[json.tick.problemid].ascentCount+1}
+        state.problems[json.tick.problemid].ascentCount = state.problems[json.tick.problemid].ascentCount +1
         // This beauty updates the ascentcount for gym's problemlist
+        /*
         state.gym.problems =  state.gym.problems.map((item, index) => {
 
           if (item.id !== json.tick.problemid) {
@@ -136,6 +142,7 @@ const store = createStore({
             ['ascentCount'] : item.ascentCount+1
           }
         })
+        */
         return json
       })
       .catch(err => {

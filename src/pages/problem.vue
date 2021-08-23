@@ -18,6 +18,7 @@
       <div class="bg-gray-300 rounded-r-2xl flex flex-col items-center">
         <h1 class="text-4xl p-2 m-1">{{ problem.grade.name }}</h1>
         <round-badge :width="32" :bgColor="problem.colour.code"></round-badge>
+        {{ getTagShort(problem.tag) }}
         <list-styles class="my-2" :styles="problem.styles"></list-styles>
         <div class="my-2 text-sm text-gray-700 font-bold">
           {{ $tc("problem.ascents",problem.ascentCount) }}
@@ -290,12 +291,12 @@ export default {
       return opinions.slice(start, end);
     };
     const calendar = ref(null)
-    const problems = useStore("problems")
+    const problems = useStore('detailedProblems')
     const problem = computed(() => {
         if (problems.value == null) {
             return null
         }
-        return problems.value.find(item => item.id == props.problemId)
+        return problems.value[props.problemId]
     })
     const cutGrades = (grades, cutAt, leave) => {
       if (grades == null) {
