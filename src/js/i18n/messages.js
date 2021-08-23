@@ -73,7 +73,7 @@ const messages = {
             'grade_opinion' : 'Greidimielipide',
             'still_a_project' : 'Jatka projektointia',
             'dislike' : 'Epätykkää',
-            'dislikes' : 'Ei epätykkäyksiä | epätykkäys | {count} epätykkäystä',
+            'dislikes' : 'Ei epätykkäyksiä | 1 epätykkäys | {n} epätykkäystä',
             'details' : 'Radan tiedot',
             'grade_opinions' : 'Greidimielipiteet',
             'notes' : 'Lisätiedot',

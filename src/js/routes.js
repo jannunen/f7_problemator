@@ -25,32 +25,8 @@ var routes = [
   },
   {
     name : 'problem_details',
-    path: '/problem/:problem_id',
-    async: function ({ router, to, resolve }) {
-      var app = router.app;
-      // Show Preloader
-      app.preloader.show();
-
-      // User ID from request
-      var problemID = to.params.problem_id;
-      store.dispatch("getProblem",problemID)
-      .then((problem) => {
-        // Hide Preloader
-        app.preloader.hide();
-        // Resolve route to load page
-        resolve(
-          {
-            component: ProblemDetails,
-          },
-          {
-            props: {
-              problem,
-            }
-          }
-        );
-
-      })
-    },
+    path: '/problem/:problemId',
+    component : ProblemDetails,
   },
   {
     path: '/dynamic-route/blog/:blogId/post/:postId/',

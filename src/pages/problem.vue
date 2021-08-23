@@ -1,5 +1,5 @@
 <template>
-  <f7-page name="problem_details">
+  <f7-page name="problem_details" v-if="problem != null && problem.id != null">
     <f7-navbar :title="$t('problem.details')" :back-link="$t('global.back')"></f7-navbar>
     <!-- Details title -->
     <h2 class="flex flex-row justify-center font-bold text-xl">
@@ -22,12 +22,14 @@
         <div class="my-2 text-sm text-gray-700 font-bold">
           {{ $tc("problem.ascents",problem.ascentCount) }}
         </div>
-        <div class="my-2 text-sm text-gray-700">
+        <div class="mt-2 text-sm text-gray-700">
            {{ $tc("problem.likes",problem.c_like) }}
         </div>
-        <div class="mb-2 flex flex-row">
+        <div class="mb-2 flex flex-row p-3">
+            <f7-button raised class="bg-white text-purple-900">
           <f7-icon material="favorite" color="red"></f7-icon
           ><span class="font-bold">{{ $t("problem.dolike") }}</span>
+            </f7-button>
         </div>
         <div class="my-2" v-if="problem.myTicks != null && problem.myTicks.length > 0">
             <div class="bg-green-500 px-2 py-1 text-white text-center text-xs rounded-full"> {{ $t('problem.ticked') }} <f7-icon size="12px" material="check"></f7-icon></div>
@@ -65,9 +67,11 @@
           <div class="my-2">
              {{ $tc("problem.dislikes",problem.dislikeCount) }}
           </div>
-          <div class="font-bold my-2">
+          <div class="font-bold my-2 ">
+            <f7-button class=" bg-white text-purple-900" raised  >
             <f7-icon material="sentiment_dissatisfied"></f7-icon>
-            {{ $t("problem.dislike") }}
+                {{ $t("problem.dislike") }}
+            </f7-button>
           </div>
         </div>
       </div>
@@ -226,7 +230,7 @@ import ListStyles from "@components/ui/problem/ListStyles.vue";
 import { getTagShort } from "@js/helpers.js";
 import { useStore } from "framework7-vue";
 import store from '@js/store.js'
-import { ref ,onMounted} from "vue";
+import { ref ,onMounted, computed} from "vue";
 import dayjs from "dayjs";
 import { useI18n } from 'vue-i18n'
 import  LocalizedFormat  from 'dayjs/plugin/localizedFormat'
@@ -239,20 +243,31 @@ export default {
       type: Object,
       default: null,
     },
+    problemId : {
+        type : String,
+        default : null,
+    }
   },
   setup(props, context) {
-       const { t, d, locale } = useI18n()
+    const { t, d, locale } = useI18n()
+    const tick = ref({});
+    const isGradeOpinionSelected = ref(false)
+    const preTries = ref(1)
     const grades = useStore("grades");
     const leaveOnBothSides = ref(3);
-    const cutOpinions = (opinions, cutAt, leave) => {
-      // Find first the index of cutAt and slice accordingly
-      const idx = opinions.findIndex((item) => item.gradeid == cutAt);
-      const start = Math.max(0, idx - leave);
-      const end = Math.min(opinions.length - 1, idx + leave);
-      return opinions.slice(start, end);
-    };
-    const calendar = ref(null)
+
     onMounted(() => {
+
+      store.dispatch("getProblem",props.problemId)
+      .then(() => {
+        tick.value.ascentType = "tick";
+        tick.value.tries = 1;
+        tick.value.created = new Date();
+        tick.value.grade_opinion = problem.value.grade.id
+        tick.value.problemid = problem.value.id
+           
+
+      })
         calendar.value = f7.calendar.create({
             containerEl: '#demo-calendar-inline-container',
             value: [tick.value.created],
@@ -264,7 +279,28 @@ export default {
         })
 
     })
+    const cutOpinions = (opinions, cutAt, leave) => {
+      // Find first the index of cutAt and slice accordingly
+      if (opinions == null) {
+          return []
+      }
+      const idx = opinions.findIndex((item) => item.gradeid == cutAt);
+      const start = Math.max(0, idx - leave);
+      const end = Math.min(opinions.length - 1, idx + leave);
+      return opinions.slice(start, end);
+    };
+    const calendar = ref(null)
+    const problems = useStore("problems")
+    const problem = computed(() => {
+        if (problems.value == null) {
+            return null
+        }
+        return problems.value.find(item => item.id == props.problemId)
+    })
     const cutGrades = (grades, cutAt, leave) => {
+      if (grades == null) {
+          return []
+      }
       // Find first the index of cutAt and slice accordingly
       const idx = grades.findIndex((item) => item.id == cutAt);
       const start = Math.max(0, idx - leave);
@@ -284,6 +320,9 @@ export default {
         f7.popup.open('.popup_tick_date',true)
     }
     const getGrade = (gradeid) => {
+        if (gradeid == null) {
+            return ""
+        }
         return grades.value[gradeid].name
     }
     const selectTries = (tries) => {
@@ -295,14 +334,6 @@ export default {
         isGradeOpinionSelected.value = true
         f7.popup.close('.popup_grade_opinion')
     }  
-    const tick = ref({});
-    const isGradeOpinionSelected = ref(false)
-    tick.value.ascentType = "tick";
-    tick.value.tries = 1;
-    tick.value.created = new Date();
-    tick.value.grade_opinion = props.problem.grade.id
-    tick.value.problemid = props.problem.id
-    const preTries = ref(1)
     const formatDate = (date) => {
         if (dayjs(date).isSame(new Date(),'day')) {
             return t('problem.today')
@@ -335,7 +366,7 @@ export default {
         })
     }
     return {
-        saveTick,
+      saveTick,
       getTagShort,
       preTries,
       grades,
@@ -353,6 +384,7 @@ export default {
       formatDate,
       calendar,
       dayjs,
+      problem,
       setCalendarDate,
     }
   },

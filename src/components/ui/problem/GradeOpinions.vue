@@ -1,6 +1,6 @@
 <template>
-  <div style="width: 100%">
-    <BarChart v-bind="barChartProps" />
+  <div style="">
+    <BarChart style="height : 200px;" v-bind="barChartProps" />
   </div>
 </template>
 
@@ -41,6 +41,9 @@ export default {
     }));
 
     const options = computed(() => ({
+         responsive: true,
+        maintainAspectRatio: false,
+        height: 200,
         plugins : {
             legend : {
                 display : false,
