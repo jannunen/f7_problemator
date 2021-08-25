@@ -347,6 +347,7 @@ export default {
     const problems = store.state.problems;
     const grades = store.state.grades;
     const leaveOnBothSides = ref(3);
+    const calendar = ref(null)
 
     onMounted(() => {
       store.dispatch("getProblem", props.problemId);
@@ -370,7 +371,6 @@ export default {
       const end = Math.min(opinions.length - 1, idx + leave);
       return opinions.slice(start, end);
     };
-    const calendar = ref(null);
     const problem = computed(() => {
       const p = store.state.problems[props.problemId];
       return p;
