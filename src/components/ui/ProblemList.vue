@@ -57,13 +57,24 @@
                             </li>
                         </ul>
                     </small>
-                    <small v-else-if="filters.problemFilters == 'projects'" class="flex flex-col">
+                    <small v-else-if="filters.problemFilters == 'projects'" class="flex flex-row">
+                        <div class="flex flex-col">
                          <span>{{ $tc('problem.tries', getTryTries(problem)) }} </span>
                          <span>{{ $tc('problem.in_sessions', getTrySessions(problem)) }}</span>
+                         </div>
+                           <span class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-yellow-100 bg-yellow-600 rounded-full">P</span> 
                     </small>
-                    <small v-else>
+                    <small v-else class="flex flex-row">
+                        <div  class="flex flex-col">
                         <small>{{ getAfter(problem) }}</small>
                         {{ $t('home.by') }} {{ problem.author }}
+                        </div>
+                        <div v-if="problem.myProjects != null && problem.myProjects.length > 0">
+                           <span class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-yellow-100 bg-yellow-600 rounded-full">P</span> 
+                        </div>
+                        <div v-else-if="problem.myTicks != null && problem.myTicks.length > 0">
+                           <span class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-100 bg-green-600 rounded-full">✓</span> 
+                        </div>
                     </small>
 
                 </div>

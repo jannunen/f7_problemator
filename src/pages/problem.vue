@@ -217,7 +217,7 @@
               >{{ $t("problem.today") }}
             </f7-button>
           </div>
-          <div id="demo-calendar-inline-container"></div>
+          <div id="calendar-inline-container"></div>
           <div class="mx-2">
             <f7-button popup-close large round fill color="blue">{{
               $t("global.close_action")
@@ -351,7 +351,7 @@ export default {
     onMounted(() => {
       store.dispatch("getProblem", props.problemId);
       calendar.value = f7.calendar.create({
-        containerEl: "#demo-calendar-inline-container",
+        containerEl: "#calendar-inline-container",
         value: [tick.value.created],
         weekHeader: false,
       });
