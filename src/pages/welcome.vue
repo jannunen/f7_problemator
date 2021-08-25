@@ -7,8 +7,6 @@
 </f7-page>
 </template>
 <script>
-  import { ref, onMounted } from 'vue';
-  import { f7 } from 'framework7-vue';
 
   export default {
     props: {

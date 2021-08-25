@@ -35,8 +35,8 @@
 </template>
 <script>
 import { computed, onMounted, ref } from "vue";
-import { useStore } from "framework7-vue";
-import store from "@js/store";
+import { useStore } from "vuex";
+import store from "@js/store/store";
 export default {
   props: {
       grades : {
@@ -44,11 +44,11 @@ export default {
           default : []
       },
     min: {
-      type: String,
+      type: null,
       default: 'na',
     },
     max: {
-      type: String,
+      type: null,
       default: 'na',
     },
   },

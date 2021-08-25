@@ -21,11 +21,16 @@
                 </f7-block>
               </f7-accordion-content>
             </f7-list-item>
+            <f7-list-item @click="$store.commit('resetFilters')">
+                {{ $t('problem.reset_filters') }}
+            </f7-list-item>   
           </f7-list>
+
         </f7-col>
       </f7-row>
     </f7-block>
             
+    <div v-if="filteredProblems.length > 0">
     <f7-list problemlist>
         <f7-block inset>
         <f7-block-title>{{ filteredProblems?.length }} {{ $t('home.visible out of') }} {{ problems?.length }} {{ $t('home.problems') }}</f7-block-title>
@@ -41,8 +46,23 @@
             >
             <template #after>
                 <div style="width : 100px;" class="display-flex flex-direction-column">
-                    <small>{{ getAfter(problem) }}</small>
-                    <small>
+                    <!-- show circuit info if filtering by that -->
+                    <small v-if="filters.problemFilters == 'circuits'">
+                        <ul>
+                            <li v-for="circuit in problem.circuits" :key="circuit.id">
+                                <div class="flex flex-row">
+                                <round-badge :width="12" :bgColor="circuit.color.code"></round-badge>
+                                {{ circuit.circuitname }}
+                                </div>
+                            </li>
+                        </ul>
+                    </small>
+                    <small v-else-if="filters.problemFilters == 'projects'" class="flex flex-col">
+                         <span>{{ $tc('problem.tries', getTryTries(problem)) }} </span>
+                         <span>{{ $tc('problem.in_sessions', getTrySessions(problem)) }}</span>
+                    </small>
+                    <small v-else>
+                        <small>{{ getAfter(problem) }}</small>
                         {{ $t('home.by') }} {{ problem.author }}
                     </small>
 
@@ -74,13 +94,30 @@
             </f7-list-item>
       </div>
     </f7-list>
+    </div>
+     <div v-else class="m-4 mb-14 bg-white p-4  border rounded-xl border-gray-700">
+
+            <div class="flex flex-col justify-center items-center">
+            <h1 class="text-red-500 font-bold text-xl my-1">{{ $t('home.snap'+getRandom(1,maxSnap))}}</h1>
+            <f7-icon class="my-1" material="smart_toy" size="54px" color-gray></f7-icon>
+            <h2 class="font-bold text-xl my-1">{{ $t('home.no_hits_title')}}</h2>
+            <div class="px-14 text-sm">{{ $t('home.no_hits_desc')}}
+                <f7-button @click="resetFilters">{{ $t('home.reset_filters') }}</f7-button>
+
+            </div>
+            
+            </div>
+                
+        </div>
   </div>
 </template>
 <script>
 // TODO: Add list index
 // TODO: Add filter routes, problems
-import { ref, computed, onMounted } from "vue";
-import { useStore } from "framework7-vue";
+import { ref, computed, onMounted , toRefs } from "vue";
+
+import { getRandom ,maxSnap } from '@js/helpers'
+import { useStore } from "vuex";
 import { useI18n } from "vue-i18n";
 import RoundBadge from "./RoundBadge.vue";
 import GradeFilter from "@components/ui/problemlist/GradeFilter.vue";
@@ -90,9 +127,9 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { createLocal, createSession, createStorage } from "the-storages";
 import { debounce,getTagShort } from '@js/helpers'
-import { sortFunction } from '@components/ui/problemlist/sortFunctions.js'
+import { sortFunction , problemStyleFilter} from '@components/ui/problemlist/sortFunctions.js'
 dayjs.extend(relativeTime);
-import store from '@js/store.js'
+import store from '@js/store/store.js'
 
 export default {
   components: { RoundBadge },
@@ -103,16 +140,13 @@ export default {
     },
   },
   setup(props, context) {
-    const mirror = ref(null);
-    mirror.value = createLocal();
-    const storage = ref(null);
-    storage.value = mirror._prx;
-    const { t, d, locale } = useI18n();
-    const problems= useStore("problems");
-    const walls = useStore("walls")
-    const grades = useStore('grades')
-    const filters = useStore('filters')
-    const styles = useStore('styles')
+    const { t,  d, locale } = useI18n();
+    const store = useStore()
+    const problems= computed(() => store.state.gym.problems)
+    const walls = store.state.walls
+    const grades = store.state.grades
+    const filters = computed(() => store.state.filters)
+    const styles = computed(() =>store.state.styles)
     onMounted(() => {});
     const getGroupTitle = (group) => {
       return group.wallchar + " " + group.walldesc;
@@ -125,25 +159,25 @@ export default {
       return date.fromNow();
     };
     const sortedWalls = computed(() => {
-      if (walls.value == null) {
+      if (walls== null) {
         return [];
       }
-      return walls.value.sort((a, b) => a.wallchar.localeCompare(b.wallchar))
+      return walls.sort((a, b) => a.wallchar.localeCompare(b.wallchar))
     });
   
     const minChanged = debounce((value) => {
-        store.dispatch('setGradeMin',value)
+        store.commit('setFilterGradeMin',value)
     })
     const maxChanged = debounce((value) => {
-        store.dispatch('setGradeMax',value)
+        store.commit('setFilterGradeMax',value)
     })
-    const onStylesChanged = (styles) => {
+    const onStylesChanged = (changedStyles) => {
         // set active filters.
-        store.dispatch('setStyles',styles)
+        store.commit('setFilterStyles',changedStyles)
     }
     const getGrade = (routetype,gradeObj) => {
         if (gradeObj == null) {
-            return "N/A"
+            return "N/A"/tore
         }
         const grade = gradeObj.name 
         if (routetype=='boulder') {
@@ -153,33 +187,37 @@ export default {
     }
     const filteredProblems = computed(() => {
         let probs = problems.value
-        if (filters.value.gradeMax!= 'max') {
-            probs = probs.filter((item => item.grade.score <= filters.value.gradeMax.score ))
+        let {  problemFilters,styles, gradeMin, gradeMax, walls, sort } = toRefs(filters.value)
+        if (gradeMax.value!= 'max') {
+            probs = probs.filter((item => item.grade.score <= gradeMax.value.score ))
         }
-        if (filters.value.gradeMin !='min') {
-            probs = probs.filter((item => item.grade.score >= filters.value.gradeMin.score ))
+        if (gradeMin.value !='min') {
+            probs = probs.filter((item => item.grade.score >= gradeMin.value.score ))
         }
-        if (filters.value.styles !=null && filters.value.styles.length > 0) {
-            probs = probs.filter((item) => filters.value.styles.every(i => item.styles.includes(i)))
+        if (styles.value!=null && styles.value.length > 0) {
+            probs = probs.filter((item) => styles.value.every(i => item.styles.includes(i)))
         }
         // Filter by walls
-        if (filters.value.walls !=null && filters.value.walls.length > 0) {
+        if (walls.value !=null && walls.value.length > 0) {
             probs = probs.filter((item) => {
                 if (item.wall == null) {
                     return true
                 }
-                return filters.value.walls.includes(item.wall.id)
+                return walls.value.includes(item.wall.id)
             })
         }
-        const sortKey = filters.value.sort
+        // Filter by route props (all, new, expiring, circuits)
+        if (problemFilters.value != "all") {
+            probs = probs.filter((item) => problemStyleFilter(item,problemFilters.value))
+        }
+        const sortKey = sort.value
         probs = probs.slice().sort((a,b) => sortFunction(a,b,sortKey))
         return probs
     })
     const onSortChanged = (sort) => {
 
-        store.dispatch('setSort',sort)
+        store.commit('setFilterSort',sort)
         // TODO: Save to localStorage
-        // storage.filters.sort = sort
     }
 
         const wallNamesDiffer = (idx) => {
@@ -215,13 +253,39 @@ export default {
             return a.grade.score!= b.grade.score
 
         }
+        const resetFilters = () => {
+            store.commit('resetFilters')
+        }
+        const getTryTries = (problem) => {
+            // Get info x tries in y session
+            if (problem.myProjects != null) {
+                const tries = problem.myProjects.reduce ((acc,item) => {
+                    acc = acc + parseInt(item.tries)
+                    return acc
+                },0)
+                return  tries
+            }
+            return null
+
+        }
+        const getTrySessions = (problem) => {
+            // Get session amount (== day counts as session)
+            if (problem.myProjects != null) {
+                const mySessions = new Set()
+                problem.myProjects.forEach( (item) => {
+                    const date = dayjs(item.tstamp)
+                    const formatted = date.format("YYYY-MM-DD")
+                    mySessions.add(formatted)
+                })
+                return  mySessions.size
+            }
+            return null
+        }
     return {
       sortedWalls,
       wallNamesDiffer,
       routesettersDiffer,
       gradesDiffer,
-      mirror,
-      storage,
       filteredProblems,
       getGrade,
       problems,
@@ -236,6 +300,11 @@ export default {
       maxChanged,
       onStylesChanged,
       onSortChanged,
+      getRandom,
+      maxSnap,
+      resetFilters,
+      getTryTries,
+      getTrySessions,
     };
   },
   components: {

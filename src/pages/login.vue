@@ -29,7 +29,7 @@
 <script>
   import { ref, onMounted } from 'vue';
   import { f7 } from 'framework7-vue';
-  import store from '@js/store'
+  import store from '@js/store/store'
   import axios from 'axios'
 
   export default {
@@ -55,7 +55,7 @@
         })
         .catch(err=> {
             readyToShow.value=true
-            f7.dialog.alert(JSON.stringify(err.response.data))
+            f7.dialog.alert(JSON.stringify(err.response.data || err))
 
         })
       }

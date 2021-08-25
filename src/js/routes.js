@@ -8,7 +8,6 @@ import WelcomePage from '../pages/welcome.vue';
 import DynamicRoutePage from '../pages/dynamic-route.vue';
 import RequestAndLoad from '../pages/request-and-load.vue';
 import NotFoundPage from '../pages/404.vue';
-import store from './store';
 
 var routes = [
   {
@@ -24,7 +23,6 @@ var routes = [
     component: HomePage,
   },
   {
-    name : 'problem_details',
     path: '/problem/:problemId',
     component : ProblemDetails,
   },

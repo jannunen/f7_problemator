@@ -7,13 +7,19 @@ const messages = {
     },
     fi: {
         global : {
+            'join' : 'Jos haluat, että Problemator ois parempi, niin työnnä kädet saveen. Lähdekoodi löytyy <a href="https://github.com/jannunen/f7_problemator.git">Githubista</a>',
             'back' : 'Takaisin',
             'close_action' : 'Sulje',
+            'arr' : 'Kaikki oikeudet pidätetään, takavalotakuu',
         },
-        'btn_all_routes': 'Kaikki reitit',
-        'btn_new_routes': 'Uudet reitit',
-        'btn_expiring_routes': 'Vanhenevat reitit',
+        'btn_projects': 'Projektit',
+        'btn_all': 'Kaikki',
+        'btn_new': 'Uudet',
+        'btn_expiring': 'Poistuvat',
+        'btn_boulders': 'Boulderit',
+        'btn_routes': 'Köysiradat',
         'btn_circuits': 'Circuitit',
+        'btn_ticked': 'Tikatut',
         'volumes' : 'Laatikot',
         'pinches' : 'Nipistykset',
         'jugs' : 'Kahvat',
@@ -53,6 +59,12 @@ const messages = {
             'minimum_grade' : 'Minimigreidi',
         },
         problem : {
+            'reset_filters' : 'Nollaa suodattimet',
+            'tries' : 'ei yrkkiä | 1 yrkkä | {n} yrkkää',
+            'in_sessions' : 'ei sessioita | 1 sessio| {n} sessiota',
+            'in' : '',
+            'projecting' : 'project',
+            'projecting_not_possible' : 'Tikattu, ei voi enää projektoida',
             'yesterday' : 'eilen',
             'popup_title_date' : 'Lähetyspäivän valinta',
             'choose_tick_date' : 'Valitse lähetyspäivä',
@@ -84,6 +96,17 @@ const messages = {
             'dolike' : 'tykkää'
         },
         home : {
+            'reset_filters' : 'Nollaa suodattimet',
+            'snap1' : 'Voi elläissään!',
+            'snap2' : 'Voi pannahinen!',
+            'snap3' : 'Tuhannen tulimmaista!',
+            'snap4' : 'Myrsky ja mylväys!',
+            'snap5' : 'Voi elläimen käsi!',
+            'snap6' : 'Voi raatosanne!',
+            'snap7' : 'Kykin vemmanen!',
+            'snap8' : 'Pitikö vielä tämäkin nähä!',
+            'no_hits_title' : 'Ei yhtään rataa näytettäväksi.',
+            'no_hits_desc' : 'Suodattimet ovat todennäköisesti liian kireällä, höllää niitä vähän',
             'ascents' : 'nousu(a)',
             'click_to_filter_by_wall' : 'Klikkaa sektoria suodattaaksesi sektorin mukaan',
             'filters' : 'Suodattimet',
@@ -95,7 +118,7 @@ const messages = {
         },
         pts : {
             'you_ticked' : 'Tikatut',
-            'you_tried' : 'Yrkätyt',
+            'projects' : 'Projektit',
             'total' : 'Yhteensä',
         }
     }

@@ -1,94 +1,122 @@
 <template>
-    <f7-block>
+  <f7-block>
     <f7-row>
-        <f7-col>
-            <div style="display : flex; flex-direction : row; justify-content: center; ">
-            <div style="display : flex; flex-direction : column; align-content : center;">
-            {{ $t('pts.you_ticked') }}
-            <round-badge border-color="#5fda5f">{{ getOwnTickCount }}</round-badge>     
-            </div>
-            </div>
-        </f7-col>
-        <f7-col>
-            <div style="display : flex; flex-direction : row; justify-content: center; ">
-            <div style="display : flex; flex-direction : column; align-content : center;">
-            {{ $t('pts.you_tried') }}
-            <round-badge border-color="#f08d0c">{{ getTriedCount }}</round-badge>     
-            </div>
-            </div>
-        </f7-col>
-        <f7-col>
-            <div style="display : flex; flex-direction : row; justify-content: center; ">
-            <div style="display : flex; flex-direction : column; align-content : center;">
-            {{ $t('pts.total') }}
-            <round-badge >{{ getTotalRoutes }}</round-badge>     
-            </div>
-            </div>
-
-        </f7-col>
-
-    </f7-row> 
-    <f7-row> 
-        <f7-col>
-                <horizontal-bar-graph :height="10" :items=[10,25] :colours="['#5fda5f','#f08d0c']" :max="76"> </horizontal-bar-graph>
-        </f7-col>
+      <f7-col>
+        <div
+          style="display: flex; flex-direction: row; justify-content: center"
+        >
+          <div
+            style="display: flex; flex-direction: column; align-content: center"
+          >
+            {{ $t("pts.you_ticked") }}
+            <round-badge :width="38" border-color="#5fda5f">{{
+              getOwnTickCount
+            }}</round-badge>
+          </div>
+        </div>
+      </f7-col>
+      <f7-col>
+        <div
+          style="display: flex; flex-direction: row; justify-content: center"
+        >
+          <div
+            style="display: flex; flex-direction: column; align-content: center"
+          >
+            {{ $t("pts.projects") }}
+            <round-badge :width="38" border-color="#f08d0c">{{
+              getTriedCount
+            }}</round-badge>
+          </div>
+        </div>
+      </f7-col>
+      <f7-col>
+        <div
+          style="display: flex; flex-direction: row; justify-content: center"
+        >
+          <div
+            style="display: flex; flex-direction: column; align-content: center"
+          >
+            {{ $t("pts.total") }}
+            <round-badge :width="38" >{{ getTotalRoutes }}</round-badge>
+          </div>
+        </div>
+      </f7-col>
     </f7-row>
-    </f7-block>
+    <f7-row>
+      <f7-col>
+        <horizontal-bar-graph
+          style="height : 18px;"
+          :height="10"
+          :items="[getOwnTickCount, getTriedCount]"
+          :colours="['#5fda5f', '#f08d0c']"
+          :max="getTotalRoutes"
+        >
+        </horizontal-bar-graph>
+      </f7-col>
+    </f7-row>
+  </f7-block>
 </template>
 
 <script>
-import RoundBadge from '@components/ui/RoundBadge.vue'
-import store from '@js/store.js'
- import { computed } from 'vue';
- import { useStore } from 'framework7-vue';
-import HorizontalBarGraph from '../ui/HorizontalBarGraph.vue';
+import RoundBadge from "@components/ui/RoundBadge.vue";
+import store from "@js/store/store.js";
+import { computed } from "vue";
+import { useStore } from "vuex";
+import HorizontalBarGraph from "../ui/HorizontalBarGraph.vue";
 
 export default {
-    components : {
-        RoundBadge,
-    },
-    computed : {
-         
-           getOwnTickCount : function() {
-                if (this.profile.info != null) {
-                    const ticks= this.profile.info.ticked.length || 0
-                    return ticks
-                }
-                return 0
-            },
-            getTriedCount : function() {
-                if (this.profile.info != null) {
-                    const tried= this.profile.info.projects.length
-                    return tried
-                }
-                return 0
-            },
-            getTotalRoutes : function() {
-                if (this.gym != null) {
-                    const total= this.gym.problemcount
-                    return total
-                }
-                return 0
-            }
+  components: {
+    RoundBadge,
+  },
+  setup() {
+    const store = useStore();
+    const profile = store.state.profile
+    const gym = store.state.gym
 
-    },
-    setup() {
-            const profile = useStore('profile')
-            const gym = useStore('gym')
-            return { profile, gym}
+    const getOwnTickCount = computed(() => {
+      if (profile.info != null) {
+        // Count only unique ticks
+        const problemsids = profile.info.ticked.map(tick => tick.problemid)
+        const distinctProblems = [... new Set(problemsids)]
+        return distinctProblems.length;
+      }
+      return 0;
+    });
+    const getTriedCount = computed(() => {
+      if (profile.info != null) {
+        if (profile.info.tried == null) {
+            return 0
+        }
 
-    },
-    methods : {
-    },
-    components : {
-        HorizontalBarGraph,
-        RoundBadge,
-    }
+        const problemsids = profile.info.tried.map(tick => tick.problemid)
+        const distinctProblems = [... new Set(problemsids)]
+        return distinctProblems.length;
+      }
+      return 0;
+    });
+    const getTotalRoutes = computed(() => {
+      if (gym != null) {
+        const total = gym.problemcount;
+        return total;
+      }
+      return 0;
+    });
 
-
-}
+    return {
+      getOwnTickCount,
+      getTriedCount,
+      getTotalRoutes,
+      profile,
+      gym,
+    };
+  },
+  methods: {},
+  components: {
+    HorizontalBarGraph,
+    RoundBadge,
+  },
+};
 </script>
 
 <style>
-
 </style>

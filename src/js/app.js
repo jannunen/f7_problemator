@@ -22,6 +22,11 @@ import vueTheStorages from 'vue-the-storages'
 //import VueI18n from 'vue-i18n'
 import { createI18n } from 'vue-i18n'
 
+/*
+import LogRocket from 'logrocket';
+LogRocket.init('7qbvoo/problemator');
+*/
+
 // Init Framework7-Vue Plugin
 Framework7.use(Framework7Vue);
 
@@ -39,6 +44,8 @@ app.config.globalProperties.$filters = {
   }
 }
 
+import store from '@js/store/store.js'
+app.use(store)
 
 // Register Framework7 Vue components
 registerComponents(app);

@@ -7,7 +7,7 @@
 </template>
 
 <script>
-import { ref,onMounted,watchEffect, onUpdated, onUnmounted } from 'vue'
+import { computed,ref,onMounted,watchEffect, onUpdated, onUnmounted } from 'vue'
 /**
  * Draws a rounded rectangle using the current state of the canvas.
  * If you omit the last three params, it will draw a rectangle
@@ -70,7 +70,10 @@ export default {
             type : Number,
             default : 5,
         },
-        items : Array,
+        items : {
+            type : Array,
+            default : [],
+        },
         max : Number,
         colours : {
             type : Array,
@@ -79,22 +82,28 @@ export default {
     },
     setup(props,context) {
         const graphcontainer = ref(null)
+        /*
         const width = ref(0)
         const height = ref(0)
+        */
         const graph = ref(null)
         const manager = ref(null)
         const ctx = ref(null)
+        const width = computed(() => { return graphcontainer.value?.clientWidth })
+        const height = computed(() => { return graphcontainer.value?.clientHeight})
         watchEffect(() => {
+            /*
             if (graphcontainer.value != null) {
                 width.value = graphcontainer.value.clientWidth
                 height.value = graphcontainer.value.clientHeight
             }
+            */
         },{flush : 'post'})
         const draw = () => {
             const xmargin = 0.05
             const ymargin = 0.4
             const graphWidth = Math.round(width.value * (1-(xmargin*2)))
-            if (ctx != null && !isNaN(graphWidth)) {
+            if (ctx != null && !isNaN(graphWidth) && props.items.length > 0) {
                 const yOffset = Math.round(ymargin*height.value)
                 let xOffset =Math.round(xmargin*width.value)
 
@@ -106,6 +115,7 @@ export default {
 
                 props.items.forEach((item,idx) => {
                     const itemWidth = Math.round((item / props.max)*graphWidth)
+                    if (itemWidth > 0) {
                     let color = props.colours[idx]
                     if (color == null) {
                         color = "#"+Math.floor(Math.random()*16777215).toString(16);
@@ -127,8 +137,10 @@ export default {
                     }
 
                     xOffset += itemWidth
+                    }
                 })
             }
+
         }
         onMounted(() => {
             ctx.value = graph.value.getContext('2d')

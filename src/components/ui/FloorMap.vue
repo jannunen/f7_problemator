@@ -189,7 +189,6 @@ export default {
           },100)
       })
       onUpdated(() => {
-          console.log("update")
           draw()
       })
       return {

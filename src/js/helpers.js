@@ -12,4 +12,8 @@ const getTagShort = (tag) => {
 
     return tag.substring(tag.length - 4);
 };
-export { debounce, getTagShort }
+const getRandom = (min,max) => {
+    return Math.floor(Math.random() * (max - min + 1)) + min
+}
+const maxSnap = 8
+export { debounce, getTagShort , getRandom, maxSnap}
