@@ -9,7 +9,9 @@
             style="display: flex; flex-direction: column; align-content: center"
           >
             {{ $t("pts.you_ticked") }}
-            <round-badge :width="38" border-color="#5fda5f">{{
+            <round-badge 
+            @click="store.commit('setFilterProblems','ticked')"
+            :width="38" border-color="#5fda5f">{{
               getOwnTickCount
             }}</round-badge>
           </div>
@@ -23,7 +25,9 @@
             style="display: flex; flex-direction: column; align-content: center"
           >
             {{ $t("pts.projects") }}
-            <round-badge :width="38" border-color="#f08d0c">{{
+            <round-badge :width="38" border-color="#f08d0c"
+            @click="store.commit('setFilterProblems','projects')"
+            >{{
               getTriedCount
             }}</round-badge>
           </div>
@@ -37,7 +41,10 @@
             style="display: flex; flex-direction: column; align-content: center"
           >
             {{ $t("pts.total") }}
-            <round-badge :width="38" >{{ getTotalRoutes }}</round-badge>
+            <round-badge 
+            @click="store.commit('setFilterProblems','all')"
+
+            :width="38" >{{ getTotalRoutes }}</round-badge>
           </div>
         </div>
       </f7-col>
@@ -59,7 +66,6 @@
 
 <script>
 import RoundBadge from "@components/ui/RoundBadge.vue";
-import store from "@js/store/store.js";
 import { computed } from "vue";
 import { useStore } from "vuex";
 import HorizontalBarGraph from "../ui/HorizontalBarGraph.vue";
@@ -108,6 +114,7 @@ export default {
       getTotalRoutes,
       profile,
       gym,
+      store,
     };
   },
   methods: {},

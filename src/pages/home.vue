@@ -9,7 +9,7 @@
     <!-- Page content-->
     <div v-if="profileLoaded">
     <route-filter-buttons></route-filter-buttons>
-    <personal-tick-status></personal-tick-status>
+    <personal-tick-status ></personal-tick-status>
     <f7-block>
       <h2 class="no-margin" >{{ $t('home.floor_maps') }} <small>{{ gym.floormaps?.length }} {{ $t('home.maps') }}</small></h2>
       <small >{{ $t('home.click_to_filter_by_wall')}}</small>
