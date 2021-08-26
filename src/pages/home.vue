@@ -56,15 +56,19 @@
         </div>
     </div>
 
+    <my-logs></my-logs>
+
     </div><!-- if profileloaded -->
   </f7-page>
 </template>
 
 <script>
 import FloorMap from '@components/ui/FloorMap.vue'
+import MyLogs from '@components/home/MyLogs.vue'
 import { f7, f7ready } from "framework7-vue";
 import { onMounted, computed } from "vue";
 import { useStore } from "vuex";
+
 export default {
   setup() {
     const store = useStore();
@@ -115,6 +119,7 @@ export default {
   },
   components: {
     FloorMap,
+    MyLogs,
   },
 };
 </script>

@@ -40,6 +40,7 @@ const messages = {
         'crimpers' : 'Puristus',
         'pockets' : 'Taskut',
         problems : {
+            'page_title' : 'Reitit',
             'wall_filter_active' : 'Seinäsuodatin käytössä',
         },
         sortby : {
@@ -99,6 +100,9 @@ const messages = {
             'dolike' : 'tykkää'
         },
         home : {
+            'sessions' : 'sessiota',
+            'routes' : 'rataa',
+            'last_n_days_boulder' : 'Viimeiset {n} päivää - boulder',
             'start_by_clicking_a_wall_or' : 'Aloita klikkaamalla seinää tai',
             'show_all_problems' : 'näytä kaikki reitit',
             'add' : 'lisää',

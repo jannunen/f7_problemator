@@ -26,10 +26,13 @@ var routes = [
   {
     path: '/problems',
     component: ProblemsPage,
-  },
-  {
-    path: '/problem/:problemId',
-    component : ProblemDetails,
+    routes : [
+      {
+        path: '/problem/:problemId',
+        component : ProblemDetails,
+      },
+
+    ]
   },
   {
     path: '/dynamic-route/blog/:blogId/post/:postId/',
