@@ -1,5 +1,6 @@
 
 import HomePage from '../pages/home.vue';
+import ProblemsPage from '../pages/problems.vue';
 import LoginPage from '../pages/login.vue';
 import ProblemDetails from '../pages/problem.vue';
 import WelcomePage from '../pages/welcome.vue';
@@ -21,6 +22,10 @@ var routes = [
   {
     path: '/home',
     component: HomePage,
+  },
+  {
+    path: '/problems',
+    component: ProblemsPage,
   },
   {
     path: '/problem/:problemId',

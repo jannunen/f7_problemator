@@ -32,8 +32,12 @@
             
     <div v-if="filteredProblems.length > 0">
     <f7-list problemlist>
-        <f7-block inset>
-        <f7-block-title>{{ filteredProblems?.length }} {{ $t('home.visible out of') }} {{ problems?.length }} {{ $t('home.problems') }}</f7-block-title>
+        <f7-block class="mx-1 my-2">
+            <f7-block-title>{{ filteredProblems?.length }} {{ $t('home.visible out of') }} {{ problems?.length }} {{ $t('home.problems') }}</f7-block-title>
+            <div v-if="filters.walls.length > 0">
+                <div class="font-bold">{{ $t('problems.wall_filter_active')}}:</div>
+                <span v-for="selWall in getSelectedWallNames" :key="selWall">{{ selWall }}</span>
+            </div>
         </f7-block>
 
         <div v-for="(problem,idx) in filteredProblems" :key="problem.id">
@@ -154,7 +158,7 @@ export default {
     const { t,  d, locale } = useI18n();
     const store = useStore()
     const problems= computed(() => store.state.gym.problems)
-    const walls = store.state.walls
+    const walls = computed(() => store.state.walls)
     const grades = store.state.grades
     const filters = computed(() => store.state.filters)
     const styles = computed(() =>store.state.styles)
@@ -170,10 +174,10 @@ export default {
       return date.fromNow();
     };
     const sortedWalls = computed(() => {
-      if (walls== null) {
+      if (walls.value== null) {
         return [];
       }
-      return walls.sort((a, b) => a.wallchar.localeCompare(b.wallchar))
+      return walls.value.sort((a, b) => a.wallchar.localeCompare(b.wallchar))
     });
   
     const minChanged = debounce((value) => {
@@ -292,6 +296,12 @@ export default {
             }
             return null
         }
+        const getSelectedWallNames = computed(() => {
+            return filters.value.walls.map(wallid => {
+                return walls.value.find(wall => wall.id==wallid).walldesc
+            })
+
+        })
     return {
       sortedWalls,
       wallNamesDiffer,
@@ -316,6 +326,7 @@ export default {
       resetFilters,
       getTryTries,
       getTrySessions,
+        getSelectedWallNames,
     };
   },
   components: {

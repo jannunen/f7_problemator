@@ -13,6 +13,7 @@ export const filtersInitial = {
       }
 export default createStore({
   state :  {
+      homeLoaded : false,
       profile: {},
       gym: {
         problems: [],

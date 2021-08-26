@@ -39,6 +39,9 @@ const messages = {
         'hooks' : 'Koukut',
         'crimpers' : 'Puristus',
         'pockets' : 'Taskut',
+        problems : {
+            'wall_filter_active' : 'Seinäsuodatin käytössä',
+        },
         sortby : {
             'sort_problems_by' : 'Järjestä reitit',
             'sector_asc' : 'Sektorit a-ö',
@@ -96,6 +99,13 @@ const messages = {
             'dolike' : 'tykkää'
         },
         home : {
+            'start_by_clicking_a_wall_or' : 'Aloita klikkaamalla seinää tai',
+            'show_all_problems' : 'näytä kaikki reitit',
+            'add' : 'lisää',
+            'tries' : 'yrkkää',
+            'ascents' : 'tikkiä',
+            'today' : 'Tänään',
+            'logs' : 'Lokikirja',
             'reset_filters' : 'Nollaa suodattimet',
             'snap1' : 'Voi elläissään!',
             'snap2' : 'Voi pannahinen!',

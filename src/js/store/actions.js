@@ -31,6 +31,7 @@ export default {
         commit('setGrades',json.grades)
         commit('setWalls',json.walls)
         commit('setStyles',json.styles)
+        commit('setHomeLoaded',json.styles)
       })
       .catch(err => {
       })

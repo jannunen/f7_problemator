@@ -26,6 +26,9 @@ export default  {
     setFilterSort(state, payload) {
         state.filters = { ...state.filters, ['sort']: payload }
     },
+    setHomeLoaded(state, payload) {
+        state.homeLoaded = payload
+    },
     setFilterProblems(state, payload) {
         console.log("filtering problems by",payload)
         state.filters = { ...state.filters, ['problemFilters']: payload }
