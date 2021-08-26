@@ -12,7 +12,7 @@
         ></f7-link>
       </f7-nav-left>
     </f7-navbar>
-    <div v-if="profileLoaded">
+    <div v-if="profileLoaded" class="mb-12">
       <div class="my-2 text-center font-bold text-md">
         {{ user.etunimi }} - {{ $t("home.logs") }}
       </div>
@@ -58,6 +58,24 @@
 
     <my-logs></my-logs>
 
+    <!-- show climbed percentage status -->
+    <div class="grid grid-cols-2">
+
+
+    <div class=" m-4 rounded-md raised shadow-lg p-4 bg-white flex flex-col items-center">
+        <div class="font-bold text-lg" style="color : #3BB273;">{{ gym.name }}</div>
+        <div>{{ $t('home.climbed') }} <span class="text-lg">{{ getClimbedPercentage }}%</span> {{ $t('home.of') }}</div>
+        <div class="text-5xl">{{ getTotalRoutes }}</div>
+        <div>{{ $t('home.of_routes') }}</div>
+    </div>
+    
+    <div class="m-4 rounded-md raised shadow-lg p-4 bg-white flex flex-col items-center">
+        <div class="font-bold text-lg" style="color : #3BB273;">Info</div>
+        <div>Competitions and groups are coming later...</div>
+    </div>
+
+    </div>
+
     </div><!-- if profileloaded -->
   </f7-page>
 </template>
@@ -75,6 +93,7 @@ export default {
     const profileLoaded = computed(() => store.state.homeLoaded);
     const user = computed(() => store.state.user);
     const gym = computed(() => store.state.gym);
+    const profile = computed(() => store.state.profile);
     onMounted(() => {
       f7.preloader.show();
       store.dispatch("getProfile").then(() => {
@@ -108,13 +127,35 @@ export default {
                 'areaSelected' : area
             }})
     }
+    const getTotalRoutes = computed(() => {
+      if (gym.value != null) {
+        const total = gym.value.problemcount;
+        return total;
+      }
+      return 0;
+    });
+    const getOwnTickCount = computed(() => {
+      if (profile.value.info != null) {
+        // Count only unique ticks
+        const problemsids = profile.value.info.ticked.map(tick => tick.problemid)
+        const distinctProblems = [... new Set(problemsids)]
+        return distinctProblems.length;
+      }
+      return 0;
+    });
+    const getClimbedPercentage = computed(() => {
+        const percentage = Math.round( (getOwnTickCount.value / getTotalRoutes.value)*1000 )/10
+        return percentage
+    })
     return {
       profileLoaded,
       user,
       triesToday,
       ticksToday,
       gym,
+      getTotalRoutes,
       onAreaSelected,
+      getClimbedPercentage,
     };
   },
   components: {

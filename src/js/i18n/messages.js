@@ -100,6 +100,9 @@ const messages = {
             'dolike' : 'tykkää'
         },
         home : {
+            'climbed' : 'Olet kiivennyt',
+            'of' : '',
+            'of_routes' : 'radasta',
             'sessions' : 'sessiota',
             'routes' : 'rataa',
             'last_n_days_boulder' : 'Viimeiset {n} päivää - boulder',
