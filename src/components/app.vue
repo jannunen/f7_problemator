@@ -40,6 +40,10 @@ import { createLocal, createSession } from 'the-storages'
         theme: 'auto', // Automatic theme detection
         //store,
         routes,
+        view : {
+          pushState : true,
+          history : true,
+        },
         // Register service worker (only on production build)
         serviceWorker: process.env.NODE_ENV ==='production' ? {
           path: '/service-worker.js',
@@ -59,20 +63,24 @@ import { createLocal, createSession } from 'the-storages'
           // both updated in the store and to the localStorage, so that
           // they will survive through reloads and stuff. 
           // BUt they are stored in the store, so that the reactive properties stay
-          if (mirror.filters.gradeMin != null) {
-            //storage.set('filters',{...mirror.get('filters'),['gradeMin'] : 'min', ['gradeMax'] : 'max'})
-            store.commit('setFilterGradeMin',mirror.filters.gradeMin)
+          //localStorage.clear();
+          debugger
+          if (mirror.filters != null) {
+            if (mirror.filters.gradeMin != null) {
+              //storage.set('filters',{...mirror.get('filters'),['gradeMin'] : 'min', ['gradeMax'] : 'max'})
+              store.commit('setFilterGradeMin',mirror.filters.gradeMin)
+            }
+            if (mirror.filters.gradeMax != null) {
+              store.commit('setFilterGradeMax',mirror.filters.gradeMax)
+            }
+            if (mirror.filters.styles == null) {
+              store.commit('setFilterStyles',mirror.filters.styles)
+            }
+            if (mirror.filters.sort == null) {
+              //storage.set('filters',{...mirror.get('filters'),['sort'] : 'sector_asc'})
+            }
           }
-          if (mirror.filters.gradeMax != null) {
-            store.commit('setFilterGradeMax',mirror.filters.gradeMax)
-          }
-          if (mirror.filters.styles == null) {
-            store.commit('setFilterStyles',mirror.filters.styles)
-          }
-          if (mirror.filters.sort == null) {
-            //storage.set('filters',{...mirror.get('filters'),['sort'] : 'sector_asc'})
-          }
-          
+            
           /*
           TODO: Set these
           */
@@ -96,8 +104,9 @@ import { createLocal, createSession } from 'the-storages'
                 f7.views.main.router.navigate("/login")
 
               })
+          } else {
+                f7.views.main.router.navigate("/login")
           }
-          // Call F7 APIs here
         });
       });
 
