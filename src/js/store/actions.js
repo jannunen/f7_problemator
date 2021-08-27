@@ -63,7 +63,7 @@ export default {
       })
     },
     deleteTick({ commit, state },payload) {
-      return axios.delete(api+"tick/",payload)
+      return axios.delete(api+"tick/"+payload)
       .then(r=>r.data)
       .then(json => {
         commit('updateProblem',json.problem)
