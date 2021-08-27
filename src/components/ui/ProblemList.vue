@@ -1,6 +1,6 @@
 <template >
-  <div>
-    <f7-block>
+  
+    <f7-block class="my-0">
       <f7-row>
         <f7-col>
           <f7-list accordion-list>
@@ -32,8 +32,8 @@
             
     <div v-if="filteredProblems.length > 0">
     <f7-list problemlist>
-        <f7-block class="mx-1 my-2">
-            <f7-block-title>{{ filteredProblems?.length }} {{ $t('home.visible out of') }} {{ problems?.length }} {{ $t('home.problems') }}</f7-block-title>
+        <f7-block class="my-1">
+            <div class="font-bold my-0">{{ filteredProblems?.length }} {{ $t('home.visible out of') }} {{ problems?.length }} {{ $t('home.problems') }}</div>
             <div v-if="filters.walls.length > 0">
                 <div class="font-bold">{{ $t('problems.wall_filter_active')}}:</div>
                 <span v-for="selWall in getSelectedWallNames" :key="selWall">{{ selWall }}</span>
@@ -41,12 +41,13 @@
         </f7-block>
 
         <div v-for="(problem,idx) in filteredProblems" :key="problem.id">
-            <li v-if="filters.sort.match(/sector/) && wallNamesDiffer(idx)" class="list-group-title"><h2>{{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }}</h2></li>
-            <li v-if="filters.sort.match(/routesetter/) && routesettersDiffer(idx)" class="list-group-title"><h2>{{ problem.author }} <small>({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small></h2> </li>
-            <li v-if="filters.sort.match(/(hardest|easiest)/) && gradesDiffer(idx)" class="list-group-title"><h2>{{ problem.grade.name }} <small>({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small></h2> </li>
+            <li v-if="filters.sort.match(/sector/) && wallNamesDiffer(idx)" class="list-group-title"><h3>{{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }}</h3></li>
+            <li v-if="filters.sort.match(/routesetter/) && routesettersDiffer(idx)" class="list-group-title"><h3>{{ problem.author }} <small>({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small></h3> </li>
+            <li v-if="filters.sort.match(/(hardest|easiest)/) && gradesDiffer(idx)" class="list-group-title"><h3>{{ problem.grade.name }} <small>({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small></h3> </li>
+
             <f7-list-item
             :key="problem.id"
-            :link="`/problem/`+problem.id+`/`"
+            :link="`/problems/`+problem.id+`/`"
             >
             <template #after>
                 <div style="width : 100px;" class="display-flex flex-direction-column">
@@ -104,7 +105,7 @@
                         {{ getTagShort(problem.tag) }}
                     </div>
                 </div>
-                <h2 style="width : 20px;" class="font-bold margin-left no-margin">{{ getGrade(problem.routetype,problem.grade) }}</h2>
+                <h4 style="width : 20px;" class="font-bold margin-left no-margin">{{ getGrade(problem.routetype,problem.grade) }}</h4>
             </template>
             </f7-list-item>
       </div>
@@ -124,7 +125,7 @@
             </div>
                 
         </div>
-  </div>
+  
 </template>
 <script>
 // TODO: Add list index

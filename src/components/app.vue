@@ -64,7 +64,6 @@ import { createLocal, createSession } from 'the-storages'
           // they will survive through reloads and stuff. 
           // BUt they are stored in the store, so that the reactive properties stay
           //localStorage.clear();
-          debugger
           if (mirror.filters != null) {
             if (mirror.filters.gradeMin != null) {
               //storage.set('filters',{...mirror.get('filters'),['gradeMin'] : 'min', ['gradeMax'] : 'max'})

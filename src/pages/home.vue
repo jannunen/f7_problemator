@@ -46,23 +46,23 @@
       </div>
 
     <!-- Show floormaps -->
-    <div class="bg-white my-2">
-      <h2 class="no-margin text-center text-lg font-bold" >{{ $t('home.floor_maps') }} <small>{{ gym.floormaps?.length }} {{ $t('home.maps') }}</small></h2>
-      <div class="m-2">{{ $t('home.start_by_clicking_a_wall_or')}}
+    <f7-block>
+      <h3 class="no-margin" >{{ $t('home.floor_maps') }} <small class="text-sm">{{ gym.floormaps?.length }} {{ $t('home.maps') }}</small></h3>
+      <div class="m-1">{{ $t('home.start_by_clicking_a_wall_or')}}
         <f7-link href="/problems" class="font-bold text-blue-700">{{ $t('home.show_all_problems')}}</f7-link>
         </div>
         <div v-for="floormap in gym.floormaps" :key="floormap.id">
           <floor-map @area-selected="onAreaSelected" :map="floormap"></floor-map>
         </div>
-    </div>
+    </f7-block>
 
-    <my-logs></my-logs>
+    <my-logs @click="onMyLogsClicked"></my-logs>
 
     <!-- show climbed percentage status -->
     <div class="grid grid-cols-2">
 
 
-    <div class=" m-4 rounded-md raised shadow-lg p-4 bg-white flex flex-col items-center">
+    <div class=" m-4 rounded-md raised shadow-lg p-4 bg-white flex flex-col items-center" @click="onStatusBadgeClicked">
         <div class="font-bold text-lg" style="color : #3BB273;">{{ gym.name }}</div>
         <div>{{ $t('home.climbed') }} <span class="text-lg">{{ getClimbedPercentage }}%</span> {{ $t('home.of') }}</div>
         <div class="text-5xl">{{ getTotalRoutes }}</div>
@@ -147,6 +147,8 @@ export default {
         const percentage = Math.round( (getOwnTickCount.value / getTotalRoutes.value)*1000 )/10
         return percentage
     })
+    const onMyLogsClicked = () => f7.views.main.router.navigate("/mylogs")
+    const onStatusBadgeClicked = () => f7.views.main.router.navigate("/problems")
     return {
       profileLoaded,
       user,
@@ -156,6 +158,8 @@ export default {
       getTotalRoutes,
       onAreaSelected,
       getClimbedPercentage,
+      onMyLogsClicked,
+      onStatusBadgeClicked,
     };
   },
   components: {

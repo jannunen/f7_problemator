@@ -51,7 +51,6 @@ const sortFunctions = {
 
 const sortFunction = (a, b, sortby) => {
     const sortFunction = sortFunctions[sortby]
-    console.log("sort by",sortby)
     if (sortFunction == undefined) {
         console.log("Sort function not found, surun päivä",sortby)
     }

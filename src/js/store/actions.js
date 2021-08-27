@@ -34,6 +34,7 @@ export default {
         commit('setHomeLoaded',json.styles)
       })
       .catch(err => {
+            f7.views.main.router.navigate("/login")
       })
     },
     getProblem({ commit, state },payload) {
@@ -55,6 +56,17 @@ export default {
         // update ascent counts. Why manually? If we update the count from the server,
         // someone (or many ppl) and then the ascentcount might jump by a multitude... not nice.
         //commit('updateAscentCounts',json.tick.problemid)
+        return json
+      })
+      .catch(err => {
+        return err
+      })
+    },
+    deleteTick({ commit, state },payload) {
+      return axios.delete(api+"tick/",payload)
+      .then(r=>r.data)
+      .then(json => {
+        commit('updateProblem',json.problem)
         return json
       })
       .catch(err => {

@@ -1,18 +1,19 @@
 <template>
   <f7-page name="problems">
     <!-- Top Navbar -->
-    <f7-navbar :sliding="false" :title="$t('problems.page_title')" 
+    <f7-navbar :sliding="false" 
       :back-link="$t('global.back')">
-      <f7-nav-left>
+      <f7-nav-title>{{ $t('problems.page_title') }}</f7-nav-title>
+      <f7-nav-right>
         <f7-link icon-ios="f7:menu" icon-aurora="f7:menu" icon-md="material:menu" panel-open="left"></f7-link>
-      </f7-nav-left>
+      </f7-nav-right>
     </f7-navbar>
     <!-- Page content-->
     
     <route-filter-buttons></route-filter-buttons>
     <personal-tick-status ></personal-tick-status>
     <f7-block>
-      <h2 class="no-margin" >{{ $t('home.floor_maps') }} <small>{{ gym.floormaps?.length }} {{ $t('home.maps') }}</small></h2>
+      <h3 class="no-margin" >{{ $t('home.floor_maps') }} <small class="text-sm">{{ gym.floormaps?.length }} {{ $t('home.maps') }}</small></h3>
       <small >{{ $t('home.click_to_filter_by_wall')}}</small>
         <div v-for="floormap in gym.floormaps" :key="floormap.id">
           <floor-map @area-selected="onAreaSelected" :map="floormap"></floor-map>

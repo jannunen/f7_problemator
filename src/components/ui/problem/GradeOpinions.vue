@@ -34,7 +34,7 @@ export default {
       datasets: [
         {
           data: props.opinions.map(opinion => opinion.count),
-          label : t('Amount'),
+          label : t('amount'),
           backgroundColor: [ "#97B0C4" ],
         },
       ],

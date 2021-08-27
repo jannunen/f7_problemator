@@ -1,6 +1,7 @@
 
 import HomePage from '../pages/home.vue';
 import ProblemsPage from '../pages/problems.vue';
+import MyLogsPage from '../pages/my_logs.vue';
 import LoginPage from '../pages/login.vue';
 import ProblemDetails from '../pages/problem.vue';
 import WelcomePage from '../pages/welcome.vue';
@@ -24,15 +25,17 @@ var routes = [
     component: HomePage,
   },
   {
+    path: '/mylogs',
+    component: MyLogsPage,
+  },
+  {
     path: '/problems',
     component: ProblemsPage,
-    routes : [
-      {
-        path: '/problem/:problemId',
-        component : ProblemDetails,
-      },
 
-    ]
+  },
+  {
+    path: '/problems/:problemId/',
+    component : ProblemDetails,
   },
   {
     path: '/dynamic-route/blog/:blogId/post/:postId/',

@@ -1,11 +1,16 @@
 const messages = {
     en: {
+        problem : {
+            'tick_list_info' : "Swipe left to delete a tick. There's currently no support for editing ticks. If you want to change a tick, delete it and add again.",
+        },
         'btn_all_routes': 'All routes',
         'btn_new_routes': 'New routes',
         'btn_expiring_routes': 'Expiring routes',
         'btn_circuits': 'Circuits',
     },
     fi: {
+        'amount' : 'määrä',
+        'delete' : 'Poista',
         global : {
             'join' : 'Jos haluat, että Problemator ois parempi, niin työnnä kädet saveen. Lähdekoodi löytyy <a href="https://github.com/jannunen/f7_problemator.git">Githubista</a>',
             'back' : 'Takaisin',
@@ -62,7 +67,13 @@ const messages = {
             'maximum_grade' : 'Maksimigreidi',
             'minimum_grade' : 'Minimigreidi',
         },
+        ticklist : {
+            'popup_title' : 'Tikkilista',
+        },
         problem : {
+            'tick_delete_are_you_sure' : 'Oletko varma, että haluat poistaa tikkauksen?',
+            'tick_list_info' : "Pyyhkäise vasemmalle tikin päällä, jos haluat poistaa sen. Tällä hetkellä tukea tikin editointiin ei ikävä kyllä ole.",
+            'see_ticks' : 'Näytä tikit',
             'reset_filters' : 'Nollaa suodattimet',
             'tries' : 'ei yrkkiä | 1 yrkkä | {n} yrkkää',
             'in_sessions' : 'ei sessioita | 1 sessio| {n} sessiota',
@@ -85,7 +96,6 @@ const messages = {
             'send' : 'Lähetä',
             'today' : 'Tänään',
             'ticked' : 'Tikattu',
-            'tries' : 'Ei yrkkiä | yrkkä | {count} yrkkää',
             'grade_opinion' : 'Greidimielipide',
             'still_a_project' : 'Jatka projektointia',
             'dislike' : 'Epätykkää',
@@ -98,6 +108,12 @@ const messages = {
             'ascents' : 'ei nousuja | nousu | {count} nousua',
             'likes' : 'ei tykkäyksiä | tykkäys | tykkäystä',
             'dolike' : 'tykkää'
+        },
+        mylogs : {
+            'page_title' : 'Lokikirjani',
+            'boulder' : 'boulderi',
+            'sport' : 'sportti',
+            'all' : 'kaikki'
         },
         home : {
             'climbed' : 'Olet kiivennyt',
