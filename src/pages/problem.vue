@@ -367,6 +367,7 @@ import { useI18n } from "vue-i18n";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
 dayjs.extend(LocalizedFormat);
 import { f7 } from "framework7-vue";
+import { toaster } from '@js/helpers.js'
 
 export default {
   props: {
@@ -473,14 +474,7 @@ export default {
       store
         .dispatch("saveTick", payload)
         .then((resp) => {
-          f7.toast.show({
-            icon: "<i class='material-icons'>check</i>",
-            text: resp.message,
-            position: "top",
-            closeButtonColor: "red",
-            closeTimeout: 4000,
-            closeButton: true,
-          });
+          toaster(resp.message)
         })
         .catch((err) => {
           f7.dialog.alert(err);

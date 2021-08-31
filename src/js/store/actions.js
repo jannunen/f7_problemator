@@ -1,5 +1,6 @@
 import axios from 'axios'
-const apihost = import.meta.env.VITE_API_HOST
+//const apihost = import.meta.env.VITE_API_HOST
+const apihost = "https://api.problemator.fi"
 const api = apihost + '/api/v03/'
 const gymid = 1;
 // This is needed by the backend to recognize ajax request

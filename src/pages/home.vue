@@ -94,11 +94,11 @@ export default {
     const user = computed(() => store.state.user);
     const gym = computed(() => store.state.gym);
     const profile = computed(() => store.state.profile);
+    f7.preloader.show();
+    store.dispatch("getProfile").then(() => {
+      f7.preloader.hide();
+    });
     onMounted(() => {
-      f7.preloader.show();
-      store.dispatch("getProfile").then(() => {
-        f7.preloader.hide();
-      });
     });
     const ticksToday = computed(() => {
       // Go through gym problems for the ascents
