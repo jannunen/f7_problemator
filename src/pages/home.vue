@@ -46,7 +46,7 @@
       </div>
 
     <!-- Show floormaps -->
-    <f7-block>
+    <f7-block v-if="gym.floormaps.length > 0">
       <h3 class="no-margin" >{{ $t('home.floor_maps') }} <small class="text-sm">{{ gym.floormaps?.length }} {{ $t('home.maps') }}</small></h3>
       <div class="m-1">{{ $t('home.start_by_clicking_a_wall_or')}}
         <f7-link href="/problems" class="font-bold text-blue-700">{{ $t('home.show_all_problems')}}</f7-link>
@@ -54,6 +54,9 @@
         <div v-for="floormap in gym.floormaps" :key="floormap.id">
           <floor-map @area-selected="onAreaSelected" :map="floormap"></floor-map>
         </div>
+    </f7-block>
+    <f7-block else class="text-center">
+        <f7-link href="/problems" class="font-bold text-white bg-blue-500 rounded-full py-2 px-8 block">{{ $t('home.show_all_problems')}}</f7-link>
     </f7-block>
 
     <my-logs @click="onMyLogsClicked"></my-logs>
