@@ -21,23 +21,20 @@
   ],
   "dependencies": {
     "axios": "^0.21.1",
-    "chart.js": "^3.5.1",
     "dayjs": "^1.10.6",
     "dom7": "^3.0.0",
     "dotenv": "^10.0.0",
     "framework7": "^6.2.0",
     "framework7-icons": "^5.0.3",
     "framework7-vue": "^6.2.0",
-    "logrocket": "^2.0.0",
     "maphilight": "github:kemayo/maphilight",
     "material-icons": "^1.1.1",
     "skeleton-elements": "^3.4.0",
     "swiper": "^6.8.1",
     "vue": "^3.2.2",
-    "vue-chart-3": "^0.5.7",
+    "vue-dayjs-plugin": "^1.0.0",
     "vue-i18n": "^9.1.7",
-    "vue-the-storages": "^1.0.2",
-    "vuex": "^4.0.2"
+    "vue-the-storages": "^1.0.2"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^1.4.0",

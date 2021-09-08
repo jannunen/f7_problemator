@@ -83,8 +83,10 @@
         <!-- right col -->
         <div class="col-span-2 p-4">
           <!-- Show author and addition date -->
+          <strong v-if="problem.routetype =='boulder'">{{ $t('problem.problem_info') }}</strong>
+          <strong v-if="problem.routetype =='sport'">{{ $t('problem.route_info') }}</strong>
           <div class="my-2 flex flex-row justify-between">
-            <span class="font-bold">{{ problem.author }}</span>
+            <span class="">{{ problem.author }}</span>
             <span class="">{{ $filters.fromNow(problem.added) }}</span>
           </div>
           <!-- Show additional details -->
@@ -92,6 +94,7 @@
             <span class="font-bold">{{ $t("problem.notes") }}</span>
             <span class="" v-html="problem.addt || 'N/A'"></span>
           </div>
+
           <!-- Show grade opinions -->
           <div class="my-2">
             <f7-block-title>{{ $t("problem.grade_opinions") }}</f7-block-title>
@@ -120,6 +123,12 @@
           </div>
         </div>
       </div>
+      <div class="col-span-3 m-2">
+        <button data-sheet=".sheet_addtick" class="sheet-open button bg-red-500 text-white ">
+        {{ $t('problem.btn_add_tick') }}
+        </button>
+      </div> 
+
       <!-- top part ends -->
 
       <!-- sheet ticks -->
@@ -154,11 +163,13 @@
       <f7-sheet
         animate
         bottom
-        opened
         swipe-to-close
         style="background-color: #e5e4e5"
         class="sheet_addtick border-red-100 rounded-t-2xl"
       >
+      <div class="flex flex-row justify-center" >
+         <div class="bg-white rounded-full h-1 mt-2 w-32 "></div> 
+         </div>
         <div class="flex p-3 mt-2 grid grid-cols-3">
           <div
             class="flex flex-col items-center justify-center font-bold"
@@ -222,8 +233,13 @@
         </div>
       </f7-sheet>
 
+
       <!-- Popups for grade opinion, tries and such -->
-      <f7-popup animate swipe-to-close class="popup_tick_date">
+      <f7-popup 
+      animate
+        @sheet:closed="openAddTickSheet"
+      
+       swipe-to-close class="popup_tick_date">
         <f7-page>
           <f7-navbar :title="$t('problem.popup_title_date')">
             <f7-nav-right>
@@ -263,11 +279,14 @@
         </f7-page>
       </f7-popup>
 
-      <f7-popup animate swipe-to-close class="popup_tries">
+      <f7-popup animate 
+        :opened="popupTriesOpen"
+        swipe-to-close
+         class="popup_tries">
         <f7-page>
           <f7-navbar :title="$t('problem.popup_title_tries')">
             <f7-nav-right>
-              <f7-link popup-close>{{ $t("problem.close_action") }}</f7-link>
+              <f7-link @click="popupTriesOpen=false">{{ $t("problem.close_action") }}</f7-link>
             </f7-nav-right>
           </f7-navbar>
           <f7-block>
@@ -311,14 +330,16 @@
         </f7-page>
       </f7-popup>
 
-      <f7-popup animate swipe-to-close class="popup_grade_opinion">
+      <f7-popup animate swipe-to-close 
+      :opened="popupGradeOpinionOpen"
+      class="popup_grade_opinion">
         <f7-page>
           <f7-navbar :title="$t('problem.popup_title_grade_opinion')">
             <f7-nav-right>
-              <f7-link popup-close>{{ $t("global.close_action") }}</f7-link>
+              <f7-link @click="popupGradeOpinionOpen=false">{{ $t("global.close_action") }}</f7-link>
             </f7-nav-right>
           </f7-navbar>
-          <f7-block>
+          <f7-block class="mb-12">
             <f7-block-title>{{
               $t("problem.what_is_your_grade_opinion")
             }}</f7-block-title>
@@ -332,7 +353,7 @@
                 checked
               ></f7-list-item>
               <f7-list-item
-                @click="gradeOpinionSelected(grade.id)"
+                @click="() => gradeOpinionSelected(grade.id)"
                 v-for="grade in grades"
                 :key="grade.id"
                 radio
@@ -349,6 +370,7 @@
           </f7-block>
         </f7-page>
       </f7-popup>
+
     </div>
   </f7-page>
 </template>
@@ -384,8 +406,10 @@ export default {
     const store = useStore();
     const problems = store.state.problems;
     const grades = store.state.grades;
-    const leaveOnBothSides = ref(3);
-    const calendar = ref(null);
+    const leaveOnBothSides = ref(3)
+    const calendar = ref(null)
+    const popupTriesOpen=ref(false)
+    const popupGradeOpinionOpen = ref(false)
 
     onMounted(() => {
       store.dispatch("getProblem", props.problemId);
@@ -417,6 +441,7 @@ export default {
     tick.value.tries = 1;
     tick.value.created = new Date();
     tick.value.problemid = props.problemId;
+    tick.value.grade_opinion = null
 
     const cutGrades = (grades, cutAt, leave) => {
       if (grades == null) {
@@ -432,10 +457,10 @@ export default {
       tick.value.ticktype = value;
     };
     const openGradeOpinionPopup = () => {
-      f7.popup.open(".popup_grade_opinion", true);
+      popupGradeOpinionOpen.value = true
     };
     const openTriesPopup = () => {
-      f7.popup.open(".popup_tries", true);
+      popupTriesOpen.value = true
     };
     const openTickDatePopup = () => {
       f7.popup.open(".popup_tick_date", true);
@@ -452,7 +477,6 @@ export default {
     };
     const gradeOpinionSelected = (gradeid) => {
       tick.value.grade_opinion = gradeid;
-      isGradeOpinionSelected.value = true;
       f7.popup.close(".popup_grade_opinion");
     };
     const formatDate = (date) => {
@@ -468,9 +492,6 @@ export default {
       // IF use has NOT selected grade opinion, make sure one is
       // NOT sent to the server
       let payload = { ...tick.value };
-      if (!isGradeOpinionSelected.value) {
-        payload.grade_opinion = null;
-      }
       store
         .dispatch("saveTick", payload)
         .then((resp) => {
@@ -493,6 +514,7 @@ export default {
       tick,
       openGradeOpinionPopup,
       getGrade,
+      popupGradeOpinionOpen,
       openTriesPopup,
       selectTries,
       gradeOpinionSelected,
@@ -501,6 +523,7 @@ export default {
       calendar,
       dayjs,
       problem,
+      popupTriesOpen,
       openAddTickSheet,
       setCalendarDate,
     };

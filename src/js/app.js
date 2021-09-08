@@ -31,7 +31,11 @@ LogRocket.init('7qbvoo/problemator');
 Framework7.use(Framework7Vue);
 
 // Init App
-const app = createApp(App);
+const app = createApp(App,{
+  panel : {
+    swipe : true,
+  }
+});
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime)

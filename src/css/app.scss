@@ -10,7 +10,7 @@ body {
 /* Define basic app styles **/
 @layer base {
     .button {
-        @apply rounded-lg px-2 py-1 text-sm shadow-md;
+        @apply rounded-lg px-2 py-1 text-sm shadow-md p-2;
     }
     h1 {
         @apply text-5xl font-bold my-2;

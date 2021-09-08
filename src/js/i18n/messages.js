@@ -71,6 +71,9 @@ const messages = {
             'popup_title' : 'Tikkilista',
         },
         problem : {
+            'problem_info' : 'Radan tiedot',
+            'route_info' : 'Reitin tiedot',
+            'btn_add_tick' : 'Lisää tikki/projekti',
             'tick_delete_are_you_sure' : 'Oletko varma, että haluat poistaa tikkauksen?',
             'tick_list_info' : "Pyyhkäise vasemmalle tikin päällä, jos haluat poistaa sen. Tällä hetkellä tukea tikin editointiin ei ikävä kyllä ole.",
             'see_ticks' : 'Näytä tikit',

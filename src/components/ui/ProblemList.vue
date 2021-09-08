@@ -21,9 +21,9 @@
                 </f7-block>
               </f7-accordion-content>
             </f7-list-item>
-            <f7-list-item @click="$store.commit('resetFilters')">
+            <button @click="$store.commit('resetFilters')" class="button bg-red-500 text-white  my-1">
                 {{ $t('problem.reset_filters') }}
-            </f7-list-item>   
+            </button>   
           </f7-list>
 
         </f7-col>
