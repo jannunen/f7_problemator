@@ -1,8 +1,9 @@
 <template >
     <div>
         <f7-block strong>
+            <f7-block-title>{{ $t('stylefilter.title_stylefilter') }}</f7-block-title>
             <f7-chip outline :color="getColor(style)" @click="(evt) => onClicked(style,evt)" v-for="style in styles" :key="style"  :text="$t(style)"></f7-chip>
-            <f7-chip @click="clearStyles" color="red">reset</f7-chip>
+            <f7-chip v-if="selectedStyles.length > 0" @click="clearStyles" color="red">{{ $t('stylefilter.reset_filter') }}</f7-chip>
         </f7-block>
         
     </div>

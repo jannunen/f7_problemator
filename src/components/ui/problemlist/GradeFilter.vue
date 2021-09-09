@@ -35,8 +35,6 @@
 </template>
 <script>
 import { computed, onMounted, ref } from "vue";
-import { useStore } from "vuex";
-import store from "@js/store/store";
 export default {
   props: {
       grades : {
@@ -45,24 +43,20 @@ export default {
       },
     min: {
       type: null,
-      default: 'na',
+      default: 'min',
     },
     max: {
       type: null,
-      default: 'na',
+      default: 'max',
     },
   },
   emits: ["min","max"],
   setup(props, context) {
-    const gradeMin = ref(0)
-    const gradeMax = ref(props.grades.length -1)
     const onMinGradeChange = (value) => {
-       gradeMin.value = value
-       context.emit('min',props.grades[gradeMin.value])
+       context.emit('min',props.grades[value])
     }
     const onMaxGradeChange = (value) => {
-       gradeMax.value= value
-       context.emit('max',props.grades[gradeMax.value])
+       context.emit('max',props.grades[value])
     }
     const getGradeName = (grade) => {
        if (props.grades== null) {
@@ -72,26 +66,43 @@ export default {
        if (aGrade != null) {
         return aGrade.name
         }
-
     }
     const getGradeMax = computed(() => {
         return  props.grades.length -1 
     })
-    onMounted(() => {
+    const gradeMin = computed(() => {
+        let min = props.min
+        if (typeof(props.min)=="object") {
+          // Find array index in grades
+          min = props.grades.findIndex((item) => item.id == props.min.id)
+        }
         if (props.min == 'min') {
-            gradeMin.value = 0
+            min= 0
         }
-        if (props.max == 'max') {
-            gradeMax.value =props.grades.length -1
-        } else {
-            gradeMax.value = props.max
+        // Reset to min if invalid
+        if (min == null || isNaN(min)) {
+            min= 0
         }
-        if (gradeMax.value == null || isNaN(gradeMax.value)) {
-            gradeMax.value = props.grades.length -1
+        return min
+
+    })
+    const gradeMax = computed(() => {
+      let max = props.max
+        if (typeof(props.max)=="object") {
+          // Find array index in grades
+          max = props.grades.findIndex((item) => item.id == props.max.id)
         }
-        if (gradeMin.value == null || isNaN(gradeMin.value)) {
-            gradeMin.value = 0
+        if (max == 'max') {
+            max = props.grades.length -1
+        } 
+        // Reset to max if invalid
+        if (max == null || isNaN(max)) {
+            max = props.grades.length -1
         }
+        return max
+
+    })
+    onMounted(() => {
 
     });
     return {

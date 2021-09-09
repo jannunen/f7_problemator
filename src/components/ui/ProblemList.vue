@@ -15,6 +15,7 @@
                       @min="minChanged"
                       @max="maxChanged"
                     ></grade-filter>
+
                     <style-filter @styles-changed="onStylesChanged" :styles="styles" :selected-styles="filters.styles"></style-filter>
                     <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
                   </p>

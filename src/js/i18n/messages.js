@@ -44,6 +44,10 @@ const messages = {
         'hooks' : 'Koukut',
         'crimpers' : 'Puristus',
         'pockets' : 'Taskut',
+        stylefilter : {
+            'reset_filter' : 'Nollaa',
+            'title_stylefilter' : 'Ominaisuussuodattimet',
+        },
         problems : {
             'page_title' : 'Reitit',
             'wall_filter_active' : 'Seinäsuodatin käytössä',
