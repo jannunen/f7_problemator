@@ -12,7 +12,7 @@
     
     <route-filter-buttons></route-filter-buttons>
     <personal-tick-status ></personal-tick-status>
-    <f7-block>
+    <f7-block v-if="gym.floormaps.length >0">
       <h3 class="no-margin" >{{ $t('home.floor_maps') }} <small class="text-sm">{{ gym.floormaps?.length }} {{ $t('home.maps') }}</small></h3>
       <small >{{ $t('home.click_to_filter_by_wall')}}</small>
         <div v-for="floormap in gym.floormaps" :key="floormap.id">
