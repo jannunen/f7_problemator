@@ -204,8 +204,10 @@ export default {
     const filteredProblems = computed(() => {
         let probs = problems.value
         let {  problemFilters,styles, gradeMin, gradeMax, walls, sort } = toRefs(filters.value)
+        debugger
         if (gradeMax.value!= 'max') {
-            probs = probs.filter((item => item.grade.score <= gradeMax.value.score ))
+            const maxScore = ( gradeMax.value.score  == 0) ? 99999999 : gradeMax.value.score
+            probs = probs.filter((item => item.grade.score <= maxScore))
         }
         if (gradeMin.value !='min') {
             probs = probs.filter((item => item.grade.score >= gradeMin.value.score ))
