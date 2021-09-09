@@ -1,6 +1,6 @@
 <template>
   <div class="mt-8 m-4 rounded-md raised shadow-lg p-4 bg-white">
-    <div class="font-bold text-lg" style="color: #3bb273">My Logs</div>
+    <div class="font-bold text-lg" style="color: #3bb273">{{ $t('mylogs.my_log') }}</div>
     <div class="grid grid-cols-3">
       <div class="flex flex-col items-end mr-3">
         <div class="text-5xl">{{ getLatestSessionCount }}</div>

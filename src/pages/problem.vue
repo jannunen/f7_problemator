@@ -1,9 +1,6 @@
 <template>
   <f7-page name="problem_details">
-    <f7-navbar
-      :title="$t('problem.details')"
-      :back-link="$t('global.back')"
-    ></f7-navbar>
+    <f7-navbar :title="$t('problem.details')" :back-link="$t('global.back')"></f7-navbar>
     <div v-if="problem != null && problem.id != null">
       <!-- Details title -->
       <h2 class="flex flex-row justify-center font-bold text-xl">
@@ -40,18 +37,9 @@
             </f7-button>
           </div>
           <!-- show ticked if so -->
-          <div
-            class="my-2"
-            v-if="problem.myTicks != null && problem.myTicks.length > 0"
-          >
+          <div class="my-2" v-if="problem.myTicks != null && problem.myTicks.length > 0">
             <div
-              class="
-                bg-green-500
-                px-2
-                py-1
-                text-white text-center text-xs
-                rounded-full
-              "
+              class="bg-green-500 px-2 py-1 text-white text-center text-xs rounded-full"
             >
               {{ $t("problem.ticked") }}
               <f7-icon size="12px" material="check"></f7-icon>
@@ -67,13 +55,7 @@
             v-if="problem.myTicks.length == 0 && problem.myProjects.length > 0"
           >
             <div
-              class="
-                bg-yellow-500
-                px-2
-                py-1
-                text-white text-center text-xs
-                rounded-full
-              "
+              class="bg-yellow-500 px-2 py-1 text-white text-center text-xs rounded-full"
             >
               {{ $t("problem.projecting") }}
             </div>
@@ -83,8 +65,12 @@
         <!-- right col -->
         <div class="col-span-2 p-4">
           <!-- Show author and addition date -->
-          <strong v-if="problem.routetype =='boulder'">{{ $t('problem.problem_info') }}</strong>
-          <strong v-if="problem.routetype =='sport'">{{ $t('problem.route_info') }}</strong>
+          <strong v-if="problem.routetype == 'boulder'">{{
+            $t("problem.problem_info")
+          }}</strong>
+          <strong v-if="problem.routetype == 'sport'">{{
+            $t("problem.route_info")
+          }}</strong>
           <div class="my-2 flex flex-row justify-between">
             <span class="">{{ problem.author }}</span>
             <span class="">{{ $filters.fromNow(problem.added) }}</span>
@@ -101,11 +87,7 @@
             <grade-opinions
               :grades="cutGrades(grades, problem.grade.id, leaveOnBothSides)"
               :opinions="
-                cutOpinions(
-                  problem.grade_opinions,
-                  problem.grade.id,
-                  leaveOnBothSides
-                )
+                cutOpinions(problem.grade_opinions, problem.grade.id, leaveOnBothSides)
               "
             ></grade-opinions>
           </div>
@@ -124,10 +106,10 @@
         </div>
       </div>
       <div class="col-span-3 m-2">
-        <button data-sheet=".sheet_addtick" class="sheet-open button bg-red-500 text-white ">
-        {{ $t('problem.btn_add_tick') }}
+        <button @click="addTickSheetOpened = true" class="button bg-red-500 text-white">
+          {{ $t("problem.btn_add_tick") }}
         </button>
-      </div> 
+      </div>
 
       <!-- top part ends -->
 
@@ -135,7 +117,7 @@
       <f7-popup
         animate
         swipe-to-close
-        @sheet:closed="openAddTickSheet"
+        @sheet:closed="addTickSheetOpened = true"
         style="background-color: #e5e4e5"
         class="popup_ticks border-red-100 rounded-t-2xl"
       >
@@ -146,14 +128,14 @@
             </f7-nav-right>
           </f7-navbar>
           <f7-block>
-            <p>{{ $t('problem.tick_list_info') }}</p>
+            <p>{{ $t("problem.tick_list_info") }}</p>
             <tick-list
               :problem="problem"
               :ticks="problem.myTicks"
               :projects="problem.myProjects"
             ></tick-list>
             <div class="mb-4">
-              <f7-button popup-close>{{ $t('close') }}</f7-button>
+              <f7-button popup-close>{{ $t("close") }}</f7-button>
             </div>
           </f7-block>
         </f7-page>
@@ -163,13 +145,15 @@
       <f7-sheet
         animate
         bottom
-        swipe-to-close
-        style="background-color: #e5e4e5"
+        :opened="addTickSheetOpened"
+        style="background-color: #e5e4e5; height : auto;"
         class="sheet_addtick border-red-100 rounded-t-2xl"
       >
+        <!--
       <div class="flex flex-row justify-center" >
          <div class="bg-white rounded-full h-1 mt-2 w-32 "></div> 
          </div>
+         -->
         <div class="flex p-3 mt-2 grid grid-cols-3">
           <div
             class="flex flex-col items-center justify-center font-bold"
@@ -220,36 +204,39 @@
               @change="() => onAscentTypeChange('pretick')"
             ></f7-radio>
             {{ $t("problem.still_a_project") }}
-            <small
-              v-if="problem.myTicks != null && problem.myTicks.length > 0"
-              >{{ $t("problem.projecting_not_possible") }}</small
-            >
+            <small v-if="problem.myTicks != null && problem.myTicks.length > 0">{{
+              $t("problem.projecting_not_possible")
+            }}</small>
           </div>
         </div>
         <div class="my-2 mx-4">
-          <f7-button @click="saveTick" large round fill color="red"
+          <f7-button @click="saveTick" large round fill color="blue"
             >+ {{ $t("problem.add_a_tick") }}</f7-button
+          >
+          <f7-button class="my-1" @click="addTickSheetOpened = false" large round fill color="red"
+            >{{ $t("global.close_action") }}</f7-button
           >
         </div>
       </f7-sheet>
 
-
       <!-- Popups for grade opinion, tries and such -->
-      <f7-popup 
-      animate
-        @sheet:closed="openAddTickSheet"
-      
-       swipe-to-close class="popup_tick_date">
+      <f7-popup
+        animate
+        :opened="popupTickDateOpen"
+        @popup:closed="addTickSheetOpened = true"
+        @popup:open="onTickDatePopupOpened"
+        class="popup_tick_date"
+      >
         <f7-page>
           <f7-navbar :title="$t('problem.popup_title_date')">
             <f7-nav-right>
-              <f7-link popup-close>{{ $t("problem.close_action") }}</f7-link>
+              <f7-link @click="popupTickDateOpen = false">{{
+                $t("problem.close_action")
+              }}</f7-link>
             </f7-nav-right>
           </f7-navbar>
           <f7-block>
-            <f7-block-title>{{
-              $t("problem.choose_tick_date")
-            }}</f7-block-title>
+            <f7-block-title>{{ $t("problem.choose_tick_date") }}</f7-block-title>
 
             <div class="flex flex-row justify-around">
               <f7-button
@@ -271,7 +258,7 @@
             </div>
             <div id="calendar-inline-container"></div>
             <div class="mx-2">
-              <f7-button popup-close large round fill color="blue">{{
+              <f7-button @click="popupTickDateOpen=false" large round fill color="blue">{{
                 $t("global.close_action")
               }}</f7-button>
             </div>
@@ -279,14 +266,17 @@
         </f7-page>
       </f7-popup>
 
-      <f7-popup animate 
-        :opened="popupTriesOpen"
-        swipe-to-close
-         class="popup_tries">
+      <f7-popup animate :opened="popupTriesOpen" 
+      @popup:open="addTickSheetOpened= false"
+        @popup:closed="addTickSheetOpened = true"
+
+      swipe-to-close class="popup_tries">
         <f7-page>
           <f7-navbar :title="$t('problem.popup_title_tries')">
             <f7-nav-right>
-              <f7-link @click="popupTriesOpen=false">{{ $t("problem.close_action") }}</f7-link>
+              <f7-link @click="popupTriesOpen = false">{{
+                $t("problem.close_action")
+              }}</f7-link>
             </f7-nav-right>
           </f7-navbar>
           <f7-block>
@@ -322,7 +312,7 @@
               </li>
             </f7-list>
             <div class="mx-2">
-              <f7-button popup-close large round fill color="blue">{{
+              <f7-button @click="popupTriesOpen=false" large round fill color="blue">{{
                 $t("global.close_action")
               }}</f7-button>
             </div>
@@ -330,13 +320,20 @@
         </f7-page>
       </f7-popup>
 
-      <f7-popup animate swipe-to-close 
-      :opened="popupGradeOpinionOpen"
-      class="popup_grade_opinion">
+      <f7-popup
+        animate
+        swipe-to-close
+        @popup:closed="addTickSheetOpened = true"
+        @popup:open="addTickSheetOpened= false"
+        :opened="popupGradeOpinionOpen"
+        class="popup_grade_opinion"
+      >
         <f7-page>
           <f7-navbar :title="$t('problem.popup_title_grade_opinion')">
             <f7-nav-right>
-              <f7-link @click="popupGradeOpinionOpen=false">{{ $t("global.close_action") }}</f7-link>
+              <f7-link @click="popupGradeOpinionOpen = false">{{
+                $t("global.close_action")
+              }}</f7-link>
             </f7-nav-right>
           </f7-navbar>
           <f7-block class="mb-12">
@@ -363,14 +360,13 @@
               ></f7-list-item>
             </f7-list>
             <div class="mx-2">
-              <f7-button popup-close large round fill color="blue">{{
+              <f7-button @click="popupGradeOpinionOpen=false" large round fill color="blue">{{
                 $t("global.close_action")
               }}</f7-button>
             </div>
           </f7-block>
         </f7-page>
       </f7-popup>
-
     </div>
   </f7-page>
 </template>
@@ -388,8 +384,8 @@ import dayjs from "dayjs";
 import { useI18n } from "vue-i18n";
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
 dayjs.extend(LocalizedFormat);
-import { f7 } from "framework7-vue";
-import { toaster } from '@js/helpers.js'
+import { f7, f7ready } from "framework7-vue";
+import { toaster } from "@js/helpers.js";
 
 export default {
   props: {
@@ -406,23 +402,34 @@ export default {
     const store = useStore();
     const problems = store.state.problems;
     const grades = store.state.grades;
-    const leaveOnBothSides = ref(3)
-    const calendar = ref(null)
-    const popupTriesOpen=ref(false)
-    const popupGradeOpinionOpen = ref(false)
+    const leaveOnBothSides = ref(3);
+    const calendar = ref(null);
+    const popupTriesOpen = ref(false);
+    const popupGradeOpinionOpen = ref(false);
+    const popupTickDateOpen = ref(false);
+    const addTickSheetOpened = ref(false);
+    const calendarInitialized = ref(false)
 
+    const onTickDatePopupOpened = () => {
+      addTickSheetOpened.value = false
+      if (calendarInitialized.value == false) {
+        debugger
+        calendar.value = f7.calendar.create({
+          containerEl: "#calendar-inline-container",
+          value: [tick.value.created],
+          weekHeader: false,
+        });
+        calendar.value.on("change", (calendar, value) => {
+          tick.value.created = value[0];
+          popupTickDateOpen.value = false;
+        });
+        calendarInitialized.value = true
+      }
+    };
     onMounted(() => {
       store.dispatch("getProblem", props.problemId);
-      calendar.value = f7.calendar.create({
-        containerEl: "#calendar-inline-container",
-        value: [tick.value.created],
-        weekHeader: false,
-      });
-      calendar.value.on("change", (calendar, value) => {
-        tick.value.created = value[0];
-        f7.popup.close(".popup_tick_date");
-      });
     });
+
     const cutOpinions = (opinions, cutAt, leave) => {
       // Find first the index of cutAt and slice accordingly
       if (opinions == null) {
@@ -441,7 +448,7 @@ export default {
     tick.value.tries = 1;
     tick.value.created = new Date();
     tick.value.problemid = props.problemId;
-    tick.value.grade_opinion = null
+    tick.value.grade_opinion = null;
 
     const cutGrades = (grades, cutAt, leave) => {
       if (grades == null) {
@@ -457,13 +464,13 @@ export default {
       tick.value.ticktype = value;
     };
     const openGradeOpinionPopup = () => {
-      popupGradeOpinionOpen.value = true
+      popupGradeOpinionOpen.value = true;
     };
     const openTriesPopup = () => {
-      popupTriesOpen.value = true
+      popupTriesOpen.value = true;
     };
     const openTickDatePopup = () => {
-      f7.popup.open(".popup_tick_date", true);
+      popupTickDateOpen.value = true;
     };
     const getGrade = (gradeid) => {
       if (gradeid == null) {
@@ -473,11 +480,11 @@ export default {
     };
     const selectTries = (tries) => {
       tick.value.tries = tries;
-      f7.popup.close(".popup_tries");
+      popupTriesOpen.value=false
     };
     const gradeOpinionSelected = (gradeid) => {
       tick.value.grade_opinion = gradeid;
-      f7.popup.close(".popup_grade_opinion");
+      popupGradeOpinionOpen.value = false
     };
     const formatDate = (date) => {
       if (dayjs(date).isSame(new Date(), "day")) {
@@ -495,16 +502,17 @@ export default {
       store
         .dispatch("saveTick", payload)
         .then((resp) => {
-          toaster(resp.message)
+          toaster(resp.message);
         })
         .catch((err) => {
           f7.dialog.alert(err);
         });
     };
-    const openAddTickSheet = () => f7.sheet.open(".sheet_addtick");
     return {
       saveTick,
+      addTickSheetOpened,
       getTagShort,
+      calendarInitialized,
       preTries,
       grades,
       cutOpinions,
@@ -515,6 +523,7 @@ export default {
       openGradeOpinionPopup,
       getGrade,
       popupGradeOpinionOpen,
+      popupTickDateOpen,
       openTriesPopup,
       selectTries,
       gradeOpinionSelected,
@@ -524,7 +533,7 @@ export default {
       dayjs,
       problem,
       popupTriesOpen,
-      openAddTickSheet,
+      onTickDatePopupOpened,
       setCalendarDate,
     };
   },
@@ -537,5 +546,4 @@ export default {
 };
 </script>
 
-<style>
-</style>
+<style></style>

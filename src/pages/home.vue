@@ -56,7 +56,7 @@
         </div>
     </f7-block>
     <f7-block else class="text-center">
-        <f7-link href="/problems" class="font-bold text-white bg-blue-500 rounded-full py-2 px-8 block">{{ $t('home.show_all_problems')}}</f7-link>
+        <f7-link href="/problems" class="font-bold text-white bg-blue-500 rounded-full py-2 px-8 block">{{ $filters.capitalize($t('home.show_all_problems')) }}</f7-link>
     </f7-block>
 
     <my-logs @click="onMyLogsClicked"></my-logs>
@@ -67,7 +67,7 @@
 
     <div class=" m-4 rounded-md raised shadow-lg p-4 bg-white flex flex-col items-center" @click="onStatusBadgeClicked">
         <div class="font-bold text-lg" style="color : #3BB273;">{{ gym.name }}</div>
-        <div>{{ $t('home.climbed') }} <span class="text-lg">{{ getClimbedPercentage }}%</span> {{ $t('home.of') }}</div>
+        <div>{{ $t('home.climbed') }} <span class="text-md">{{ getClimbedPercentage }}%</span> {{ $t('home.of') }}</div>
         <div class="text-5xl">{{ getTotalRoutes }}</div>
         <div>{{ $t('home.of_routes') }}</div>
     </div>

@@ -19,6 +19,7 @@ import '../css/app.scss';
 import App from '../components/app.vue';
 import vueTheStorages from 'vue-the-storages'
 
+
 //import VueI18n from 'vue-i18n'
 import { createI18n } from 'vue-i18n'
 
@@ -26,6 +27,7 @@ import { createI18n } from 'vue-i18n'
 import LogRocket from 'logrocket';
 LogRocket.init('7qbvoo/problemator');
 */
+import commonTemplateFilters from './commonTemplateFilters.js'
 
 // Init Framework7-Vue Plugin
 Framework7.use(Framework7Vue);
@@ -66,6 +68,8 @@ import messages from './i18n/messages.js'
  
 app.use(vueTheStorages)
 
+
+app.config.globalProperties.$filters = commonTemplateFilters
 
 // Mount the app
 app.mount('#app');

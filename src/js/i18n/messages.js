@@ -113,6 +113,7 @@ const messages = {
             'dolike' : 'tykkää'
         },
         mylogs : {
+            'my_log': 'Lokikirja',
             'page_title' : 'Lokikirjani',
             'boulder' : 'boulderi',
             'sport' : 'sportti',
