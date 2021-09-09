@@ -41,14 +41,6 @@ const app = createApp(App,{
 import dayjs from 'dayjs';
 import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime)
-app.config.globalProperties.$filters = {
-  fromNow(value) {
-    return dayjs(value).fromNow()
-  },
-  format(value,format) {
-    return dayjs(value).format(format)
-  }
-}
 
 import store from '@js/store/store.js'
 app.use(store)

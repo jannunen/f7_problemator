@@ -44,7 +44,7 @@
               {{ $t("problem.ticked") }}
               <f7-icon size="12px" material="check"></f7-icon>
             </div>
-            <f7-link popup-open=".popup_ticks" class="my-2 text-purple-700">{{
+            <f7-link @click="myTicksPopupOpen=true"  class="my-2 text-purple-700">{{
               $t("problem.see_ticks")
             }}</f7-link>
           </div>
@@ -113,10 +113,12 @@
 
       <!-- top part ends -->
 
-      <!-- sheet ticks -->
+      <!-- sheet: my ticks -->
       <f7-popup
         animate
         swipe-to-close
+        :opened="myTicksPopupOpen"
+        @sheet:opened="addTickSheetOpened = false"
         @sheet:closed="addTickSheetOpened = true"
         style="background-color: #e5e4e5"
         class="popup_ticks border-red-100 rounded-t-2xl"
@@ -124,7 +126,7 @@
         <f7-page>
           <f7-navbar :title="$t('ticklist.popup_title')">
             <f7-nav-right>
-              <f7-link popup-close>Close</f7-link>
+              <f7-link @click="myTicksPopupOpen=false">Close</f7-link>
             </f7-nav-right>
           </f7-navbar>
           <f7-block>
@@ -135,7 +137,9 @@
               :projects="problem.myProjects"
             ></tick-list>
             <div class="mb-4">
-              <f7-button popup-close>{{ $t("close") }}</f7-button>
+              <f7-button @click="myTicksPopupOpen=false" large round fill color="blue">{{
+                $t("global.close_action")
+              }}</f7-button>
             </div>
           </f7-block>
         </f7-page>
@@ -407,7 +411,8 @@ export default {
     const popupTriesOpen = ref(false);
     const popupGradeOpinionOpen = ref(false);
     const popupTickDateOpen = ref(false);
-    const addTickSheetOpened = ref(false);
+    const myTicksPopupOpen = ref(false)
+   const addTickSheetOpened = ref(false);
     const calendarInitialized = ref(false)
 
     const onTickDatePopupOpened = () => {
@@ -525,6 +530,7 @@ export default {
       popupGradeOpinionOpen,
       popupTickDateOpen,
       openTriesPopup,
+      myTicksPopupOpen,
       selectTries,
       gradeOpinionSelected,
       openTickDatePopup,

@@ -46,7 +46,6 @@
       </div>
 
     <!-- Show floormaps -->
-    {{ gym.floormaps }}
     <f7-block v-if="gym.floormaps.length > 0" class="my-0">
       <h3 class="no-margin" >{{ $t('home.floor_maps') }} <small class="text-sm">{{ gym.floormaps?.length }} {{ $t('home.maps') }}</small></h3>
       <div class="m-1">{{ $t('home.start_by_clicking_a_wall_or')}}

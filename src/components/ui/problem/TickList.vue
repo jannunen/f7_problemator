@@ -2,7 +2,7 @@
   <div>
 
   <f7-list>
-      <f7-list-item @swipeout:deleted="(evt) => onDeleted(tick,j)" swipeout v-for="(tick , index) in ticks" :key="tick.id" >
+      <f7-list-item @swipeout:deleted="(evt) => onDeleted(tick,j)" swipeout v-for="(tick , index) in reversedTicks" :key="tick.id" >
         <template #media>
           {{ (index +1) }}.
         </template>
@@ -34,6 +34,7 @@ import { getTagShort} from '@js/helpers.js'
 import dayjs from 'dayjs'
 import { toaster } from '@js/helpers.js'
 import { useI18n } from "vue-i18n";
+import { computed} from 'vue'
 import { useStore } from 'vuex'
 
 export default {
@@ -57,12 +58,14 @@ export default {
       })
     }
     const getTriesText = (tick) => t('problem.tries',{n : tick.tries}) 
+    const reversedTicks = computed(() => props.ticks.reverse())
    
     return {
       dayjs,
       onDeleted,
       getTagShort,
       getTriesText,
+      reversedTicks,
       t,
     }
 
