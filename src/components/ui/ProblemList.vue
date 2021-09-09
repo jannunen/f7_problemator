@@ -3,7 +3,7 @@
     <f7-block class="my-0">
       <f7-row>
         <f7-col>
-          <f7-list accordion-list>
+          <f7-list accordion-list class="my-0">
             <f7-list-item accordion-item :title="$t('home.filters')">
               <f7-accordion-content>
                 <f7-block>
@@ -31,9 +31,9 @@
     </f7-block>
             
     <div v-if="filteredProblems.length > 0">
-    <f7-list problemlist>
+    <f7-list problemlist class="my-0">
         <f7-block class="my-1">
-            <div class="font-bold my-0">{{ filteredProblems?.length }} {{ $t('home.visible out of') }} {{ problems?.length }} {{ $t('home.problems') }}</div>
+            <div class="font-bold my-1 text-center">{{ filteredProblems?.length }} {{ $t('home.visible out of') }} {{ problems?.length }} {{ $t('home.problems') }}</div>
             <div v-if="filters.walls.length > 0">
                 <div class="font-bold">{{ $t('problems.wall_filter_active')}}:</div>
                 <span v-for="selWall in getSelectedWallNames" :key="selWall">{{ selWall }}</span>
@@ -204,7 +204,6 @@ export default {
     const filteredProblems = computed(() => {
         let probs = problems.value
         let {  problemFilters,styles, gradeMin, gradeMax, walls, sort } = toRefs(filters.value)
-        debugger
         if (gradeMax.value!= 'max') {
             const maxScore = ( gradeMax.value.score  == 0) ? 99999999 : gradeMax.value.score
             probs = probs.filter((item => item.grade.score <= maxScore))

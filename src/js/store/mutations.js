@@ -2,7 +2,7 @@ import { filtersInitial } from './store.js'
 
 export default  {
     resetFilters(state, payload) {
-        state.filters = filtersInitial
+        state.filters = {...filtersInitial}
     },
     
     setUser(state, payload) {

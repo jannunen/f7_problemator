@@ -21,38 +21,33 @@ export default {
             default : [],
         },
     },
+    emits : ['styles-changed'],
     setup(props,context) {
-        const activeStyles = ref([])
         const onClicked = (style,chip) => {
 
+            let newStyles = null
             // Toggle style
-            if (activeStyles.value.includes(style)) {
+            if (props.selectedStyles.includes(style)) {
                 //remove
-                activeStyles.value = activeStyles.value.filter(item => item != style)
+                newStyles= props.selectedStyles.filter(item => item != style)
             } else {
                 // add
-                activeStyles.value = [...activeStyles.value, style]
+                newStyles= [...props.selectedStyles, style]
             }
-            context.emit('styles-changed',activeStyles.value)
-
+            context.emit('styles-changed',newStyles)
 
         }
-        onMounted(() => {
-            activeStyles.value = props.selectedStyles
-        })
         const clearStyles = () => {
-            activeStyles.value = []
-            context.emit('styles-changed',activeStyles.value)
+            context.emit('styles-changed',[])
         }
         const getColor = (style) => {
-            if (activeStyles.value.includes(style)) {
+            if (props.selectedStyles.includes(style)) {
                 return "red"
             }
             return null
         }
         return {
             onClicked,
-            activeStyles,
             clearStyles,
             getColor,
         }
