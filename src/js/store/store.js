@@ -21,6 +21,7 @@ export default createStore({
       gym: {
         problems: [],
       },
+      gyms : [],
       user: {},
       grades: [],
       walls: [],

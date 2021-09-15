@@ -20,6 +20,9 @@ export default  {
     setWalls(state, payload) {
         state.walls = payload
     },
+    setGyms(state, payload) {
+        state.gyms = payload
+    },
     setStyles(state, payload) {
         state.styles = payload
     },

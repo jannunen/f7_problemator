@@ -4,8 +4,8 @@ import HomePage from '../pages/home.vue';
 import ProblemsPage from '../pages/problems.vue';
 import MyLogsPage from '../pages/my_logs.vue';
 import LoginPage from '../pages/login.vue';
+import GymsPage from '../pages/gyms.vue';
 import ProblemDetails from '../pages/problem.vue';
-import WelcomePage from '../pages/welcome.vue';
 
 import { authGuard } from '@js/auth/helpers';
 
@@ -16,6 +16,10 @@ const  routes = [
     path: '/',
     component: HomePage,
     beforeEnter : authGuard,
+  },
+  {
+    path: '/gyms',
+    component: GymsPage,
   },
   {
     path: '/login',

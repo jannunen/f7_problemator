@@ -7,7 +7,10 @@
         <f7-navbar title="Left Panel"></f7-navbar>
         <f7-block>
           <h2>{{ $t("sidebar.menu") }}</h2>
-          <f7-link @click="logout">Logout</f7-link>
+          <f7-list>
+          <f7-list-item @click="logout">{{ $t('sidebar.logout') }}</f7-list-item>
+          <f7-list-item @click="navigateToGyms">{{ $t('sidebar.gyms') }}</f7-list-item>
+          </f7-list>
         </f7-block>
       </f7-page>
     </f7-view>
@@ -88,11 +91,15 @@ export default {
     const isSidePanelOpen = computed(() => {
       return store.state.ui.sidePanelOpen
     })
-
+    const  navigateToGyms = ()=> {
+      store.commit('setSidePanelOpen',false)
+      router.push("/gyms")
+    }
     return {
       isSidePanelOpen,
       f7params,
       account,
+      navigateToGyms,
       logout,
     };
   },

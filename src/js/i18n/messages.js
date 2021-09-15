@@ -44,8 +44,14 @@ const messages = {
         'hooks' : 'Koukut',
         'crimpers' : 'Puristus',
         'pockets' : 'Taskut',
+        gyms : {
+            page_title : 'Hallit',
+            search_title : 'Etsi halleja...',
+        },
         sidebar : {
            menu : 'Valikko' ,
+           logout : 'Kirjaudu ulos' ,
+           gyms : 'Hallit' ,
         },
         stylefilter : {
             'reset_filter' : 'Nollaa',

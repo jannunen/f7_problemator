@@ -2,7 +2,6 @@ import axios from 'axios'
 //const apihost = import.meta.env.VITE_API_HOST
 const apihost = "https://api.problemator.fi"
 const api = apihost + '/api/v03/'
-const gymid = 1;
 // This is needed by the backend to recognize ajax request
 axios.defaults.headers['Accept'] = 'application/json'
 import { router} from '@js/auth/helpers'
@@ -25,7 +24,7 @@ export default {
       })
     },
     getProfile({  commit, state }) {
-      return axios.get(api+"profile/?gymid="+gymid)
+      return axios.get(api+"profile/?gymid="+localStorage.gymid)
       .then(r=>r.data)
       .then(json => {
         commit('setProfile',json.profile)
@@ -37,6 +36,19 @@ export default {
       })
       .catch(err => {
             router.push("/login")
+      })
+    },
+    fetchGyms({ commit, state },payload) {
+      if (payload == undefined) {
+        payload = ""
+      }
+      return axios.get(api+"gym/"+payload)
+      .then(r=>r.data)
+      .then(json => {
+        commit('setGyms',json.gyms)
+      })
+      .catch(err => {
+        return err
       })
     },
     getProblem({ commit, state },payload) {
