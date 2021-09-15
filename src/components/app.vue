@@ -1,5 +1,18 @@
 <template>
   <f7-app v-bind="f7params">
+  <!-- Left panel with cover effect-->
+  <f7-panel left cover theme-dark :opened="isSidePanelOpen">
+    <f7-view stackPages>
+      <f7-page>
+        <f7-navbar title="Left Panel"></f7-navbar>
+        <f7-block>
+          <h2>{{ $t("sidebar.menu") }}</h2>
+          <f7-link @click="logout">Logout</f7-link>
+        </f7-block>
+      </f7-page>
+    </f7-view>
+  </f7-panel>
+
 
     <!-- Your main view, should have "view-main" class -->
     <f7-view main class="safe-areas" url="/" v-cloak>
@@ -40,6 +53,10 @@ export default {
     };
     const self = this;
     const store = useStore();
+    const logout = () => {
+      store.commit('setSidePanelOpen',false)
+      accountService.goodOleLogout();
+    };
 
     onMounted(() => {
       f7ready(() => {
@@ -68,10 +85,15 @@ export default {
         }
       });
     });
+    const isSidePanelOpen = computed(() => {
+      return store.state.ui.sidePanelOpen
+    })
 
     return {
+      isSidePanelOpen,
       f7params,
       account,
+      logout,
     };
   },
 };

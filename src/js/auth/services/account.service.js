@@ -75,6 +75,7 @@ async function apiAuthenticate(email, accessToken) {
 function goodOleLogout() {
     axios.post(`${baseUrl}/logout`)
         .then(() => {
+            debugger
             localStorage.account = null
             accountSubject.next(null);
             stopAuthenticateTimer();

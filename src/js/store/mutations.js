@@ -30,7 +30,6 @@ export default  {
         state.homeLoaded = payload
     },
     setSidePanelOpen(state,payload) {
-        debugger
         state.ui.sidePanelOpen = payload
     },
     setFilterProblems(state, payload) {

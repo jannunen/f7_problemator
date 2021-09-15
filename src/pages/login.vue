@@ -23,10 +23,12 @@
           >Some text about login information.<br />Lorem ipsum dolor sit amet, consectetur
           adipiscing elit.</f7-block-footer
         >
-        <button class="btn btn-facebook" @click="login">
+        <div class="flex flex-row justify-center " @click="login">
+        <button class="my-2 flex flex-row justify-center self-center bg-blue-500 text-white py-2 px-4 w-1/2 btn btn-facebook" @click="login">
           <i class="fa fa-facebook mr-1"></i>
           Login with Facebook
         </button>
+        </div>
       </f7-list>
     </f7-block>
   </f7-page>
