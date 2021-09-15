@@ -7,12 +7,20 @@
 </f7-page>
 </template>
 <script>
+import {onMounted} from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 
   export default {
     props: {
       f7router: Object,
     },
     setup() {
+      const router =  useRouter()
+      onMounted(() => {
+
+        router.push("/")
+
+      })
     },
     methods: {
     },

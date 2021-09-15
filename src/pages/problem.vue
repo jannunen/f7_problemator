@@ -418,7 +418,6 @@ export default {
     const onTickDatePopupOpened = () => {
       addTickSheetOpened.value = false
       if (calendarInitialized.value == false) {
-        debugger
         calendar.value = f7.calendar.create({
           containerEl: "#calendar-inline-container",
           value: [tick.value.created],

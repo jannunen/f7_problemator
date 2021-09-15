@@ -15,6 +15,9 @@ export default createStore({
   state :  {
       homeLoaded : false,
       profile: {},
+      ui : {
+        sidePanelOpen : false,
+      },
       gym: {
         problems: [],
       },

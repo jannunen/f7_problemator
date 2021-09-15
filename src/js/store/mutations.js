@@ -29,12 +29,16 @@ export default  {
     setHomeLoaded(state, payload) {
         state.homeLoaded = payload
     },
+    setSidePanelOpen(state,payload) {
+        debugger
+        state.ui.sidePanelOpen = payload
+    },
     setFilterProblems(state, payload) {
         console.log("filtering problems by",payload)
         state.filters = { ...state.filters, ['problemFilters']: payload }
     },
     setFilterStyles(state, payload) {
-        state.filters = { ...state.filters, ['styles']: payload }
+        state.jlters = { ...state.filters, ['styles']: payload }
     },
     setFilterGradeMin(state, payload) {
         state.filters = { ...state.filters, ['gradeMin']: payload }

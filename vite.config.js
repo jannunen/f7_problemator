@@ -21,6 +21,9 @@ export default {
     assetsInlineLimit: 0,
     emptyOutDir: true,
   },
+  server : {
+    https : true,
+  },
   resolve: {
     alias: {
       '@': SRC_DIR,

@@ -44,6 +44,9 @@ const messages = {
         'hooks' : 'Koukut',
         'crimpers' : 'Puristus',
         'pockets' : 'Taskut',
+        sidebar : {
+           menu : 'Valikko' ,
+        },
         stylefilter : {
             'reset_filter' : 'Nollaa',
             'title_stylefilter' : 'Ominaisuussuodattimet',

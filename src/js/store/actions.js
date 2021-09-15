@@ -5,6 +5,7 @@ const api = apihost + '/api/v03/'
 const gymid = 1;
 // This is needed by the backend to recognize ajax request
 axios.defaults.headers['Accept'] = 'application/json'
+import { router} from '@js/auth/helpers'
 
 export default {
     refreshJWT({ commit, state },payload) {
@@ -20,7 +21,7 @@ export default {
       .then(r=>r.data)
       .then(json => {
         commit('setUser',json.user)
-        return {user : state.user, jwt : json.access_token}
+        return {user : state.user, access_token : json.access_token}
       })
     },
     getProfile({  commit, state }) {
@@ -35,7 +36,7 @@ export default {
         commit('setHomeLoaded',json.styles)
       })
       .catch(err => {
-            f7.views.main.router.navigate("/login")
+            router.push("/login")
       })
     },
     getProblem({ commit, state },payload) {
