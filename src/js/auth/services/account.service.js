@@ -64,7 +64,6 @@ async function apiAuthenticate(email, accessToken) {
     // authenticate with the api using a facebook access token,
     // on success the api returns an account object with a JWT auth token
     const response = await axios.post(`${baseUrl}/authenticate`, { email, accessToken });
-    debugger
     const account = response.data;
     localStorage.account = JSON.stringify(account)
     accountSubject.next(account);

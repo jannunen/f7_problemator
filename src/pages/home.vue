@@ -2,18 +2,6 @@
   <!-- FAB Backdrop -->
   <f7-fab-backdrop></f7-fab-backdrop>
 
-  <!-- Left panel with cover effect-->
-  <f7-panel left cover theme-dark v-model:opened="isSidePanelOpen">
-    <f7-view stackPages>
-      <f7-page>
-        <f7-navbar title="Left Panel"></f7-navbar>
-        <f7-block>
-          <h2>{{ $t("sidebar.menu") }}</h2>
-          <f7-link @click="logout">Logout</f7-link>
-        </f7-block>
-      </f7-page>
-    </f7-view>
-  </f7-panel>
 
   <f7-fab position="right-bottom">
     <f7-icon
@@ -244,13 +232,11 @@ export default {
     const onStatusBadgeClicked = () => f7.views.main.router.navigate("/problems");
     const openSearchTick = () => (dlgSearchTickOpen.value = true);
     const isSidePanelOpen = computed(() => {
-      debugger
       return store.state.ui.sidePanelOpen
     })
     const logout = () => {
-      store.commit('setSidePanelOpen',false);
-      debugger
-      accountService.logout();
+      store.commit('setSidePanelOpen',false)
+      accountService.goodOleLogout();
     };
 
     return {

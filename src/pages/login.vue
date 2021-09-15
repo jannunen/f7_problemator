@@ -18,21 +18,23 @@
         ></f7-list-input>
       </f7-list>
       <f7-list>
-        <f7-list-button @click="doLogin">Sign In</f7-list-button>
+        <f7-list-button :class="getLoginButtonClasses" @click="doLogin">Sign In</f7-list-button>
         <f7-block-footer
           >Some text about login information.<br />Lorem ipsum dolor sit amet, consectetur
           adipiscing elit.</f7-block-footer
         >
-        <button class="btn btn-facebook" @click="login">
+        <div class="flex flex-row justify-center " @click="login">
+        <button class="my-2 flex flex-row justify-center self-center bg-blue-500 text-white py-2 px-4 w-1/2 btn btn-facebook" @click="login">
           <i class="fa fa-facebook mr-1"></i>
           Login with Facebook
         </button>
+        </div>
       </f7-list>
     </f7-block>
   </f7-page>
 </template>
 <script>
-import { ref, onMounted } from "vue";
+import { computed, ref, onMounted } from "vue";
 import { f7 } from "framework7-vue";
 import { router } from "@js/auth/helpers";
 import { accountService } from "@/js/auth/services";
@@ -53,10 +55,23 @@ export default {
     const doLogin = () => {
       accountService.goodOleLogin(email.value, password.value);
     };
+    const getLoginButtonClasses = computed(() => {
+      if (email.value != "" && password.value != "") {
+        return {
+          'bg-blue-400' : true,
+          'text-white' : true,
+        }
+      }
+      return {
+
+      }
+
+    })
     onMounted(() => {});
     return {
       doLogin,
       email,
+      getLoginButtonClasses,
       password,
       login: accountService.login,
       readyToShow,
