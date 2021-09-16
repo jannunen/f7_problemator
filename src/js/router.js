@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory} from 'vue-router';
+import { createRouter, createWebHashHistory, createWebHistory} from 'vue-router';
 
 import HomePage from '../pages/home.vue';
 import ProblemsPage from '../pages/problems.vue';
@@ -7,45 +7,15 @@ import LoginPage from '../pages/login.vue';
 import GymsPage from '../pages/gyms.vue';
 import ProblemDetails from '../pages/problem.vue';
 
-import { authGuard } from '@js/auth/helpers';
+//import { authGuard } from '@js/auth/helpers';
 
-import NotFoundPage from '../pages/404.vue';
+import { routes } from '@js/auth/helpers'
 
-const  routes = [
-  {
-    path: '/',
-    component: HomePage,
-    beforeEnter : authGuard,
-  },
-  {
-    path: '/gyms',
-    component: GymsPage,
-  },
-  {
-    path: '/login',
-    component: LoginPage,
-  },
-  {
-    path: '/mylogs',
-    component: MyLogsPage,
-    beforeEnter : authGuard,
-  },
-  {
-    path: '/problems',
-    component: ProblemsPage,
-    beforeEnter : authGuard,
+/*
 
-  },
-  {
-    path: '/problems/:problemId/',
-    component : ProblemDetails,
-    beforeEnter : authGuard,
-  },
-  { path: '/:pathMatch(.*)*', redirect: '/' }
-];
-
-//export default routes;
 export const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes
 });
+
+*/

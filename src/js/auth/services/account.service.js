@@ -3,7 +3,6 @@ import axios from 'axios';
 import store from '@js/store/store'
 import { f7 } from 'framework7-vue';
 
-import { router } from '@js/auth/helpers';
 
 const baseUrl = import.meta.env.VITE_API_HOST + "/api/auth"
 const accountSubject = new BehaviorSubject(null);
@@ -18,6 +17,7 @@ export const accountService = {
     getById,
     update,
     delete: _delete,
+    loggedIn : accountSubject.value!= null,
     account: accountSubject.asObservable(),
     get accountValue() { return accountSubject.value; }
 };
@@ -32,8 +32,7 @@ async function login() {
             FB.api('/me', { fields: 'name,email' }, function (response) {
                 apiAuthenticate(response.email, authResponse.accessToken).then(resp => {
                     // get return url from query parameters or default to home page
-                    const returnUrl = router.currentRoute.value.query['returnUrl'] || '/';
-                    router.push(returnUrl);
+                    f7.views.main.router.navigate('/');
                 });
             });
         }
@@ -51,7 +50,7 @@ async function goodOleLogin(email, password) {
             accountSubject.next(account);
             localStorage.access_token = data.access_token
             startAuthenticateTimer();
-            router.push("/")
+            f7.views.main.router.navigate("/");
             return account;
         })
         .catch(err => {
@@ -74,20 +73,21 @@ async function apiAuthenticate(email, accessToken) {
 function goodOleLogout() {
     axios.post(`${baseUrl}/logout`)
         .then(() => {
-            debugger
             localStorage.account = null
             accountSubject.next(null);
             stopAuthenticateTimer();
-            router.push("/login")
+            f7.views.main.router.navigate("/login");
         })
 }
 
 function logout() {
     // revoke app permissions to logout completely because FB.logout() doesn't remove FB cookie
+    /*
     FB.api('/me/permissions', 'delete', null, () => FB.logout());
     stopAuthenticateTimer();
     accountSubject.next(null);
-    router.push('/login');
+    f7.views.main.router.navigate("/login");
+    */
 }
 
 function getAll() {

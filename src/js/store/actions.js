@@ -1,10 +1,11 @@
 import axios from 'axios'
+import { f7 } from 'framework7-vue'
 //const apihost = import.meta.env.VITE_API_HOST
-const apihost = "https://api.problemator.fi"
-const api = apihost + '/api/v03/'
+export const apihost = "https://api.problemator.fi"
+export const api = apihost + '/api/v03/'
 // This is needed by the backend to recognize ajax request
 axios.defaults.headers['Accept'] = 'application/json'
-import { router} from '@js/auth/helpers'
+//import { router} from '@js/auth/helpers'
 
 export default {
     refreshJWT({ commit, state },payload) {
@@ -35,7 +36,7 @@ export default {
         commit('setHomeLoaded',json.styles)
       })
       .catch(err => {
-            router.push("/login")
+          f7.views.main.router.navigate("/login")
       })
     },
     fetchGyms({ commit, state },payload) {

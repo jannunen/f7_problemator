@@ -2,7 +2,15 @@
   <f7-page name="gyms">
     <f7-navbar :title="$t('gyms.page_title')" :back-link="$t('global.back')"> </f7-navbar>
     <f7-block>
-      <f7-input :label="$t('gyms.search_for_gyms')" class="px-2 py-2" :outline="true" v-model:value="gymSearchText" type="text" :placeholder="$t('gyms.search_title')" clear-button ></f7-input>
+      <f7-input
+        :label="$t('gyms.search_for_gyms')"
+        class="px-2 py-2"
+        :outline="true"
+        v-model:value="gymSearchText"
+        type="text"
+        :placeholder="$t('gyms.search_title')"
+        clear-button
+      ></f7-input>
     </f7-block>
     <f7-list media-list class="search-list searchbar-found">
       <f7-list-item
@@ -30,12 +38,20 @@
 import { f7, f7ready } from "framework7-vue";
 import { onMounted, computed, ref } from "vue";
 import { useStore } from "vuex";
-import { router } from "@js/auth/helpers";
+import { useI18n } from "vue-i18n";
 
 export default {
-  setup() {
+  props: {
+    f7router: Object,
+    gymNotSelected : {
+        type : Boolean,
+        default : true,
+    }
+  },
+  setup(props) {
     const store = useStore();
-    const gymSearchText= ref("") 
+    const gymSearchText = ref("");
+    const { t, d, locale } = useI18n();
 
     onMounted(() => {
       store.dispatch("fetchGyms");
@@ -56,10 +72,11 @@ export default {
       let sortedGyms = gyms.value.sort((a, b) => a.name.localeCompare(b.name));
       // Check if search text is applied
       if (gymSearchText.value != "") {
-
-          sortedGyms = sortedGyms.filter(gym => gym.name.toLowerCase().indexOf(gymSearchText.value.toLowerCase()) != -1)
+        sortedGyms = sortedGyms.filter(
+          (gym) => gym.name.toLowerCase().indexOf(gymSearchText.value.toLowerCase()) != -1
+        );
       }
-      return sortedGyms
+      return sortedGyms;
     });
     const convertDescr = (descr) => {
       if (descr == null) {
@@ -70,7 +87,11 @@ export default {
     };
     const enterGym = (gym) => {
       localStorage.gymid = gym.id;
-      router.push("/");
+      store.dispatch('getProfile')
+      f7.views.main.router.navigate("/problems", {
+        browserHistory: true,
+        history: true,
+      });
     };
     return {
       gyms,

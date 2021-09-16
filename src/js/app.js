@@ -23,68 +23,59 @@ import vueTheStorages from 'vue-the-storages'
 //import VueI18n from 'vue-i18n'
 import { createI18n } from 'vue-i18n'
 
-import {accountService } from '@js/auth/services'
+import { accountService } from '@js/auth/services'
 /*
 import LogRocket from 'logrocket';
 LogRocket.init('7qbvoo/problemator');
 */
 import commonTemplateFilters from './commonTemplateFilters.js'
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+import store from '@js/store/store.js'
+import messages from './i18n/messages.js'
 
 // Init Framework7-Vue Plugin
 Framework7.use(Framework7Vue);
 import { initFacebookSdk, jwtInterceptor, errorInterceptor } from '@js/auth/helpers';
-import { router } from '@js/auth/helpers'
+//import { router } from '@js/auth/helpers'
 // enable interceptors for http requests
 jwtInterceptor();
 errorInterceptor();
 
-
-// Init App
-const app = createApp(App,{
-  panel : {
-    swipe : true,
-  }
-});
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
 dayjs.extend(relativeTime)
 
-import store from '@js/store/store.js'
-app.use(store)
-
-// Register Framework7 Vue components
-registerComponents(app);
-
-import messages from './i18n/messages.js'
-  
-  // 2. Create i18n instance with options
-  const i18n = createI18n({
-    locale: 'fi', // set locale
-    fallbackLocale: 'en', // set fallback locale
-    messages, 
-  })
-  app.use(i18n)
- 
-app.use(vueTheStorages)
-app.config.globalProperties.$filters = commonTemplateFilters
-app.use(router)
+// 2. Create i18n instance with options
+const i18n = createI18n({
+  locale: 'fi', // set locale
+  fallbackLocale: 'en', // set fallback locale
+  messages,
+})
 
 // Check if account info is saved..
 if (localStorage.account != null) {
   try {
-  const account = JSON.parse(localStorage.account)
-  if (account != null) {
-    accountService.update(account)
-  }
+    const account = JSON.parse(localStorage.account)
+    if (account != null) {
+      accountService.update(account)
+    }
   } catch (e) {
-    
+
   }
 }
+const app = createApp(App)
+
+// Register Framework7 Vue components
+registerComponents(app);
+//app.use(router)
+app.config.globalProperties.$filters = commonTemplateFilters
+
+app.use(vueTheStorages)
+app.use(i18n)
+app.use(store)
+
 const startApp = () => {
-  // Mount the app
   app.mount('#app');
 }
-
 
 // wait for facebook sdk to start app
 initFacebookSdk().then((foo) => {

@@ -1,7 +1,7 @@
 <template>
   <f7-page name="problems">
     <!-- Top Navbar -->
-    <f7-navbar :sliding="false" :back-link="$t('global.back')">
+    <f7-navbar :sliding="false"  :back-link="$t('global.back')">
       <f7-nav-title>{{ $t("problems.page_title") }}</f7-nav-title>
       <f7-nav-right>
         <f7-link
@@ -16,7 +16,7 @@
 
     <route-filter-buttons></route-filter-buttons>
     <personal-tick-status></personal-tick-status>
-    <f7-block v-if="gym.floormaps.length > 0">
+    <f7-block v-if="gym.floormaps != null && gym.floormaps.length > 0">
       <h3 class="no-margin">
         {{ $t("home.floor_maps") }}
         <small class="text-sm">{{ gym.floormaps?.length }} {{ $t("home.maps") }}</small>
@@ -26,7 +26,7 @@
         <floor-map @area-selected="onAreaSelected" :map="floormap"></floor-map>
       </div>
     </f7-block>
-    <problem-list :filters="filters" :wall="wall"></problem-list>
+    <problem-list  :wall="wall"></problem-list>
     <div v-html="$t('global.join')" class="mx-4 text-sm"></div>
     <div class="m-4 pb-4">&copy;{{ year }} {{ $t("global.arr") }}</div>
   </f7-page>

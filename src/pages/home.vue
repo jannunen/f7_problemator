@@ -1,22 +1,8 @@
 <template>
-  <!-- FAB Backdrop -->
-  <f7-fab-backdrop></f7-fab-backdrop>
-
-
-  <f7-fab position="right-bottom">
-    <f7-icon
-      @click="openSearchTick"
-      :text="$t('home.fab_add_route')"
-      ios="f7:plus"
-      aurora="f7:plus"
-      md="material:add"
-    ></f7-icon>
-    <f7-icon ios="f7:xmark" aurora="f7:xmark" md="material:close"></f7-icon>
-  </f7-fab>
 
   <f7-page name="home">
     <!-- Top Navbar -->
-    <f7-navbar :sliding="false">
+    <f7-navbar :sliding="false" :title="Problemator">
       <f7-nav-left>
         <f7-link
           icon-ios="f7:menu"
@@ -27,11 +13,20 @@
         ></f7-link>
       </f7-nav-left>
     </f7-navbar>
+    <div v-if="gymNotSelected">
+      <f7-block>
+       <h3>Oletushallia ei ole valittu</h3>
+       <div class="my-4">
+          Jotta pääset tikkailemaan ratoja, valitse ensin halli.
+       </div>
+       <f7-button href="/gyms">Siirry hallivalintaan</f7-button>
+      </f7-block>
+    </div>
     <div v-if="profileLoaded" class="mb-12">
       <div class="my-2 text-center font-bold text-md">
         {{ user.etunimi }} - {{ $t("home.logs") }}
       </div>
-      <div class="my-2 text-center text-md">{{ $t("home.today") }}</div>
+      <div class="my-2 text-center text-lg font-bold">{{ $t("home.today") }}</div>
       <div class="flex flex-row justify-center mt-3">
         <div class="flex flex-col mx-4 text-center">
           <div class="text-5xl font-bold leading-8">{{ ticksToday }}<br /></div>
@@ -40,15 +35,15 @@
           <small>{{ $t("home.tries") }}</small>
         </div>
         <div class="mt-2">
-          <button
+          <f7-link
+            @click="sheetSearchProblemsOpened=true"
             class="w-14 h-14 rounded-full bg-purple-800 p-2 text-white flex flex-col justify-center items-center font-bold"
           >
             <f7-icon material="add" color="white" size="12px"></f7-icon>
             <small>{{ $t("home.add") }}</small>
-          </button>
+          </f7-link>
         </div>
       </div>
-      
 
       <!-- Show floormaps -->
       <f7-block v-if="gym.floormaps.length > 0" class="my-0">
@@ -68,8 +63,8 @@
       </f7-block>
       <f7-block else class="text-center">
         <f7-link
-          href="/problems"
-          class="font-bold text-white bg-blue-500 rounded-full py-2 px-8 block"
+        href="/problems"
+          class="font-bold text-white text-md bg-blue-500 rounded-full py-3 mx-2 px-8 block"
           >{{ $filters.capitalize($t("home.show_all_problems")) }}</f7-link
         >
       </f7-block>
@@ -101,7 +96,7 @@
     </div>
     <!-- if profileloaded -->
   </f7-page>
-  <search-problems-sheet></search-problems-sheet>
+  <search-problems-sheet @close="sheetSearchProblemsOpened=false" :opened="sheetSearchProblemsOpened"></search-problems-sheet>
 </template>
 
 <script>
@@ -117,11 +112,13 @@ export default {
   setup() {
     const store = useStore();
     const profileLoaded = computed(() => store.state.homeLoaded);
-    const user = computed(() => store.state.user);
+    const user = computed(() => accountService.accountValue.user);
     const gym = computed(() => store.state.gym);
     const profile = computed(() => store.state.profile);
     const dlgSearchTickOpen = ref(false);
+    const sheetSearchProblemsOpened = ref(false)
     const accounts = ref();
+    const gymNotSelected = ref(false)
 
     const deleteAccount = (id) => {
       const account = accounts.value.find((x) => x.id === id);
@@ -132,12 +129,14 @@ export default {
     };
 
     onMounted(() => {
-      f7ready(() => {
-        f7.preloader.show();
-        store.dispatch("getProfile").then(() => {
-          f7.preloader.hide();
-        });
-      });
+      if (localStorage.gymid != null) {
+        store.dispatch("getProfile")
+      } else {
+        gymNotSelected.value = true
+        // No gym is selected, ask user to select a gym
+        //f7.views.main.router.navigate("/gyms",{ props : { gymNotSelected : true }})
+        //f7.views.main.router.navigate("/gyms")
+      }
     });
     const ticksToday = computed(() => {
       // Go through gym problems for the ascents
@@ -193,10 +192,10 @@ export default {
     const onStatusBadgeClicked = () => f7.views.main.router.navigate("/problems");
     const openSearchTick = () => (dlgSearchTickOpen.value = true);
     const isSidePanelOpen = computed(() => {
-      return store.state.ui.sidePanelOpen
-    })
+      return store.state.ui.sidePanelOpen;
+    });
     const logout = () => {
-      store.commit('setSidePanelOpen',false)
+      store.commit("setSidePanelOpen", false);
       accountService.goodOleLogout();
     };
 
@@ -212,8 +211,11 @@ export default {
       getTotalRoutes,
       onAreaSelected,
       getClimbedPercentage,
+      f7,
       onMyLogsClicked,
+      gymNotSelected,
       onStatusBadgeClicked,
+      sheetSearchProblemsOpened,
       openSearchTick,
       accounts,
       deleteAccount,

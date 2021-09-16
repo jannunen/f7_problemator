@@ -28,7 +28,8 @@ export default {
     alias: {
       '@': SRC_DIR,
       '@js': SRC_DIR+"/js",
-      '@components' : SRC_DIR+"/components"
+      '@components' : SRC_DIR+"/components",
+      '@pages' : SRC_DIR+"/pages"
     },
   },
 

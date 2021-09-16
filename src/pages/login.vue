@@ -36,7 +36,7 @@
 <script>
 import { computed, ref, onMounted } from "vue";
 import { f7 } from "framework7-vue";
-import { router } from "@js/auth/helpers";
+//import { router } from "@js/auth/helpers";
 import { accountService } from "@/js/auth/services";
 
 export default {
@@ -50,7 +50,7 @@ export default {
     const readyToShow = ref(false);
 
     if (accountService.accountValue) {
-      router.push("/");
+      //router.push("/");
     }
     const doLogin = () => {
       accountService.goodOleLogin(email.value, password.value);

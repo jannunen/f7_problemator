@@ -507,6 +507,7 @@ export default {
         .dispatch("saveTick", payload)
         .then((resp) => {
           toaster(resp.message);
+          addTickSheetOpened.value = false
         })
         .catch((err) => {
           f7.dialog.alert(err);

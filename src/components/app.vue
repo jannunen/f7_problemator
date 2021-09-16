@@ -1,26 +1,9 @@
 <template>
   <f7-app v-bind="f7params">
-  <!-- Left panel with cover effect-->
-  <f7-panel left cover theme-dark :opened="isSidePanelOpen">
-    <f7-view stackPages>
-      <f7-page>
-        <f7-navbar title="Left Panel"></f7-navbar>
-        <f7-block>
-          <h2>{{ $t("sidebar.menu") }}</h2>
-          <f7-list>
-          <f7-list-item @click="logout">{{ $t('sidebar.logout') }}</f7-list-item>
-          <f7-list-item @click="navigateToGyms">{{ $t('sidebar.gyms') }}</f7-list-item>
-          </f7-list>
-        </f7-block>
-      </f7-page>
-    </f7-view>
-  </f7-panel>
-
+    <left-sidebar></left-sidebar>
 
     <!-- Your main view, should have "view-main" class -->
-    <f7-view main class="safe-areas" url="/" v-cloak>
-      <router-view></router-view>
-    </f7-view>
+    <f7-view :main="true" class="safe-areas" url="/" v-cloak> </f7-view>
   </f7-app>
 </template>
 <script>
@@ -29,9 +12,10 @@ import { f7, f7ready } from "framework7-vue";
 import { useStore } from "vuex";
 
 import { accountService } from "@js/auth/services";
+import LeftSidebar from '@components/home/LeftSidebar.vue'
 
 import { createLocal, createSession } from "the-storages";
-import { router } from "@js/auth/helpers";
+import { routes } from "@js/auth/helpers";
 
 export default {
   setup(props, context) {
@@ -41,10 +25,10 @@ export default {
     const f7params = {
       name: "Problemator", // App name
       theme: "auto", // Automatic theme detection
-      router,
+      routes,
       view: {
-        pushState: true,
-        history: true,
+        stackPages : true,
+        browserHistory : false,
       },
       // Register service worker (only on production build)
       serviceWorker:
@@ -56,10 +40,6 @@ export default {
     };
     const self = this;
     const store = useStore();
-    const logout = () => {
-      store.commit('setSidePanelOpen',false)
-      accountService.goodOleLogout();
-    };
 
     onMounted(() => {
       f7ready(() => {
@@ -89,19 +69,16 @@ export default {
       });
     });
     const isSidePanelOpen = computed(() => {
-      return store.state.ui.sidePanelOpen
-    })
-    const  navigateToGyms = ()=> {
-      store.commit('setSidePanelOpen',false)
-      router.push("/gyms")
-    }
+      return store.state.ui.sidePanelOpen;
+    });
     return {
       isSidePanelOpen,
       f7params,
       account,
-      navigateToGyms,
-      logout,
     };
   },
+  components : {
+    LeftSidebar,
+  }
 };
 </script>

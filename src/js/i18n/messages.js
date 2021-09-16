@@ -9,10 +9,15 @@ const messages = {
         'btn_circuits': 'Circuits',
     },
     fi: {
+        searchprob : {
+            search_for_problems : 'Etsi reittejä...',
+            find_a_route : 'Etsi reittiä',
+            read_qr : 'Skannaa',
+        },
         'amount' : 'määrä',
         'delete' : 'Poista',
         global : {
-            'join' : 'Jos haluat, että Problemator ois parempi, niin työnnä kädet saveen. Lähdekoodi löytyy <a href="https://github.com/jannunen/f7_problemator.git">Githubista</a>',
+            'join' : 'Jos haluat, että Problemator ois parempi, niin työnnä kädet saveen. Lähdekoodi löytyy Githubista',
             'back' : 'Takaisin',
             'close_action' : 'Sulje',
             'arr' : 'Kaikki oikeudet pidätetään, takavalotakuu',
@@ -47,6 +52,7 @@ const messages = {
         gyms : {
             page_title : 'Hallit',
             search_title : 'Etsi halleja...',
+            search_for_gyms : 'Etsi halli',
         },
         sidebar : {
            menu : 'Valikko' ,
