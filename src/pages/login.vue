@@ -1,5 +1,10 @@
 <template>
   <f7-page no-toolbar no-navbar no-swipeback login-screen v-cloak>
+    <div class="flex flex-row justify-center">
+      <img
+        src="https://www.problemator.fi/problemator/assets/images/problemator_logo_new_small.png"
+      />
+    </div>
     <f7-login-screen-title>Problemator</f7-login-screen-title>
     <f7-block v-if="readyToShow"> Initializing... </f7-block>
     <f7-block v-else>
@@ -18,17 +23,24 @@
         ></f7-list-input>
       </f7-list>
       <f7-list>
-        <f7-list-button :class="getLoginButtonClasses" @click="doLogin">Sign In</f7-list-button>
-        <f7-block-footer
-          >Some text about login information.<br />Lorem ipsum dolor sit amet, consectetur
-          adipiscing elit.</f7-block-footer
-        >
-        <div class="flex flex-row justify-center " @click="login">
-        <button class="my-2 flex flex-row justify-center self-center bg-blue-500 text-white py-2 px-4 w-1/2 btn btn-facebook" @click="login">
-          <i class="fa fa-facebook mr-1"></i>
-          Login with Facebook
-        </button>
+        <button :class="getLoginButtonClasses" @click="doLogin">Sign In</button>
+        <div class="flex flex-row justify-center" @click="login">
+          <button
+            class="my-2 flex flex-row justify-center self-center bg-blue-500 text-white py-2 px-4 w-1/2 btn btn-facebook"
+            @click="login"
+          >
+            <i class="fa fa-facebook mr-1"></i>
+            Login with Facebook
+          </button>
         </div>
+        <f7-block-footer>
+          This is Problemator. It's made by a climber for climbers. This is made as a side
+          project so you will experience bugs, bad UX and such. Instead of complaining,
+          fork the code from Github, make it better and create a pull request.
+          <br />
+          <br />
+          After all, we don't treat you as a commodity.
+        </f7-block-footer>
       </f7-list>
     </f7-block>
   </f7-page>
@@ -50,23 +62,26 @@ export default {
     const readyToShow = ref(false);
 
     if (accountService.accountValue) {
-      //router.push("/");
+      debugger
+      f7.views.main.router.navigate("/");
     }
     const doLogin = () => {
-      accountService.goodOleLogin(email.value, password.value);
+      accountService.goodOleLogin(email.value, password.value)
+      .then(ret => {
+        window.location.reload()
+      })
     };
     const getLoginButtonClasses = computed(() => {
       if (email.value != "" && password.value != "") {
         return {
-          'bg-blue-400' : true,
-          'text-white' : true,
-        }
+          "px-8": true,
+          "py-3": true,
+          "bg-blue-500": true,
+          "text-white": true,
+        };
       }
-      return {
-
-      }
-
-    })
+      return {};
+    });
     onMounted(() => {});
     return {
       doLogin,
@@ -76,15 +91,6 @@ export default {
       login: accountService.login,
       readyToShow,
     };
-  },
-  methods: {
-    signIn() {
-      const self = this;
-
-      f7.dialog.alert(`Username: ${self.username}<br>Password: ${self.password}`, () => {
-        self.f7router.back();
-      });
-    },
   },
 };
 </script>

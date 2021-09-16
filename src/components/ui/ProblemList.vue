@@ -77,78 +77,8 @@
           </h3>
         </li>
 
-        <f7-list-item :key="problem.id" :link="`/problems/` + problem.id ">
-          <template #after>
-            <div style="width: 100px" class="display-flex flex-direction-column">
-              <!-- show circuit info if filtering by that -->
-              <small v-if="filters.problemFilters == 'circuits'">
-                <ul>
-                  <li v-for="circuit in problem.circuits" :key="circuit.id">
-                    <div class="flex flex-row">
-                      <round-badge
-                        :width="12"
-                        :bgColor="circuit.color.code"
-                      ></round-badge>
-                      {{ circuit.circuitname }}
-                    </div>
-                  </li>
-                </ul>
-              </small>
-              <small
-                v-else-if="filters.problemFilters == 'projects'"
-                class="flex flex-row"
-              >
-                <div class="flex flex-col">
-                  <span>{{ $tc("problem.tries", getTryTries(problem)) }} </span>
-                  <span>{{ $tc("problem.in_sessions", getTrySessions(problem)) }}</span>
-                </div>
-                <span
-                  class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-yellow-100 bg-yellow-600 rounded-full"
-                  >P</span
-                >
-              </small>
-              <small v-else class="flex flex-row">
-                <div class="flex flex-col">
-                  <small>{{ getAfter(problem) }}</small>
-                  {{ $t("home.by") }} {{ problem.author }}
-                </div>
-                <div v-if="problem.myProjects != null && problem.myProjects.length > 0">
-                  <span
-                    class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-yellow-100 bg-yellow-600 rounded-full"
-                    >P</span
-                  >
-                </div>
-                <div v-else-if="problem.myTicks != null && problem.myTicks.length > 0">
-                  <span
-                    class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-100 bg-green-600 rounded-full"
-                    >✓</span
-                  >
-                </div>
-              </small>
-            </div>
-          </template>
-          <template #title>
-            <div class="flex flex-col">
-              <strong class="margin-left margin-right" v-if="problem.c_like > 0">
-                <f7-icon size="15" color="red" material="favorite"></f7-icon>
-                {{ problem.c_like }}
-              </strong>
-              <small> {{ problem.ascentCount }} {{ $t("home.ascents") }}</small>
-            </div>
-          </template>
-          <template #after-start> </template>
-          <template #media>
-            <div class="display-flex flex-direction-column">
-              <div class="display-flex flex-direction-row">
-                <round-badge :width="20" :bgColor="problem.colour.code"></round-badge>
-                {{ getTagShort(problem.tag) }}
-              </div>
-            </div>
-            <h4 style="width: 20px" class="font-bold margin-left no-margin">
-              {{ getGrade(problem.routetype, problem.grade) }}
-            </h4>
-          </template>
-        </f7-list-item>
+        <search-hit-item  :key="problem.id" :problem="problem"  ></search-hit-item>
+        
       </div>
     </f7-list>
   </div>
@@ -170,18 +100,19 @@
 // TODO: Add list index
 // TODO: Add filter routes, problems
 import { ref, computed, onMounted, toRefs } from "vue";
+import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
 
 import { getRandom, maxSnap } from "@js/helpers";
 import { useStore } from "vuex";
 import { useI18n } from "vue-i18n";
-import RoundBadge from "./RoundBadge.vue";
+import RoundBadge from "@components/ui/RoundBadge.vue";
 import GradeFilter from "@components/ui/problemlist/GradeFilter.vue";
 import StyleFilter from "@components/ui/problemlist/StyleFilter.vue";
 import SortBy from "@components/ui/problemlist/SortBy.vue";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { createLocal, createSession, createStorage } from "the-storages";
-import { debounce, getTagShort } from "@js/helpers";
+import { debounce } from "@js/helpers";
 import {
   sortFunction,
   problemStyleFilter,
@@ -209,13 +140,6 @@ export default {
     const getGroupTitle = (group) => {
       return group.wallchar + " " + group.walldesc;
     };
-    const getAuthor = (group) => {
-      return group.ascentCount + " " + t("home.ascents");
-    };
-    const getAfter = (group) => {
-      const date = dayjs(group.added);
-      return date.fromNow();
-    };
     const sortedWalls = computed(() => {
       if (walls.value == null) {
         return [];
@@ -232,16 +156,6 @@ export default {
     const onStylesChanged = (changedStyles) => {
       // set active filters.
       store.commit("setFilterStyles", changedStyles);
-    };
-    const getGrade = (routetype, gradeObj) => {
-      if (gradeObj == null) {
-        return "N/A" / tore;
-      }
-      const grade = gradeObj.name;
-      if (routetype == "boulder") {
-        return grade.toUpperCase();
-      }
-      return grade.toLowerCase();
     };
     const filteredProblems = computed(() => {
       let probs = problems.value;
@@ -315,30 +229,6 @@ export default {
     const resetFilters = () => {
       store.commit("resetFilters");
     };
-    const getTryTries = (problem) => {
-      // Get info x tries in y session
-      if (problem.myProjects != null) {
-        const tries = problem.myProjects.reduce((acc, item) => {
-          acc = acc + parseInt(item.tries);
-          return acc;
-        }, 0);
-        return tries;
-      }
-      return null;
-    };
-    const getTrySessions = (problem) => {
-      // Get session amount (== day counts as session)
-      if (problem.myProjects != null) {
-        const mySessions = new Set();
-        problem.myProjects.forEach((item) => {
-          const date = dayjs(item.tstamp);
-          const formatted = date.format("YYYY-MM-DD");
-          mySessions.add(formatted);
-        });
-        return mySessions.size;
-      }
-      return null;
-    };
     const getSelectedWallNames = computed(() => {
       return filters.value.walls.map((wallid) => {
         return walls.value.find((wall) => wall.id == wallid).walldesc;
@@ -350,12 +240,8 @@ export default {
       routesettersDiffer,
       gradesDiffer,
       filteredProblems,
-      getGrade,
       problems,
       getGroupTitle,
-      getAuthor,
-      getTagShort,
-      getAfter,
       grades,
       filters,
       styles,
@@ -366,14 +252,13 @@ export default {
       getRandom,
       maxSnap,
       resetFilters,
-      getTryTries,
-      getTrySessions,
       getSelectedWallNames,
     };
   },
   components: {
     RoundBadge,
     GradeFilter,
+    SearchHitItem,
     StyleFilter,
     SortBy,
   },

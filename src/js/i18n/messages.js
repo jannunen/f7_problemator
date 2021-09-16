@@ -11,7 +11,9 @@ const messages = {
     fi: {
         searchprob : {
             search_for_problems : 'Etsi reittejä...',
+            hits : 'Ei osumia | {n} osuma | {n} osumaa',
             find_a_route : 'Etsi reittiä',
+            no_hits : 'Ei osumia',
             read_qr : 'Skannaa',
         },
         'amount' : 'määrä',

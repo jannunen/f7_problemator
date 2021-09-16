@@ -27,6 +27,7 @@
 <script>
 import { useStore } from "vuex";
 import { computed, ref, onMounted } from "vue";
+import { accountService } from "@js/auth/services";
 import { f7, f7ready } from "framework7-vue";
 export default {
   setup() {

@@ -2,7 +2,7 @@
 
   <f7-page name="home">
     <!-- Top Navbar -->
-    <f7-navbar :sliding="false" :title="Problemator">
+    <f7-navbar :sliding="false" >
       <f7-nav-left>
         <f7-link
           icon-ios="f7:menu"
@@ -12,6 +12,7 @@
           panel-open="left"
         ></f7-link>
       </f7-nav-left>
+      Problemator
     </f7-navbar>
     <div v-if="gymNotSelected">
       <f7-block>
@@ -39,7 +40,7 @@
             @click="sheetSearchProblemsOpened=true"
             class="w-14 h-14 rounded-full bg-purple-800 p-2 text-white flex flex-col justify-center items-center font-bold"
           >
-            <f7-icon material="add" color="white" size="12px"></f7-icon>
+            <f7-icon material="add" color="white" size="20px"></f7-icon>
             <small>{{ $t("home.add") }}</small>
           </f7-link>
         </div>

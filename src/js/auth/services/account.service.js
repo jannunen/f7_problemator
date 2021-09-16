@@ -43,18 +43,19 @@ async function login() {
 
 async function goodOleLogin(email, password) {
     const payload = { email, password }
-    store.dispatch('login', payload)
+    return store.dispatch('login', payload)
         .then((data) => {
             const account = data;
             localStorage.account = JSON.stringify(account)
             accountSubject.next(account);
             localStorage.access_token = data.access_token
             startAuthenticateTimer();
-            f7.views.main.router.navigate("/");
-            return account;
+            //f7.views.main.router.navigate("/");
+            return true
         })
         .catch(err => {
             f7.dialog.alert(JSON.stringify(err.response.data || err))
+            return false
         })
 
 }
