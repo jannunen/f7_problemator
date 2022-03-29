@@ -1,50 +1,42 @@
-import HomePage from '@pages/home.vue';
-import ProblemsPage from '@pages/problems.vue';
-import MyLogsPage from '@pages/my_logs.vue';
-import LoginPage from '@pages/login.vue';
-import GymsPage from '@pages/gyms.vue';
-import ProblemDetails from '@pages/problem.vue';
-import SearchProblemsSheet from '@components/ui/problem/SearchProblemsSheet.vue'
+import Home from '../pages/Home.vue';
+import Discovery from '../pages/discover.f7.jsx';
+import Backlog from '../pages/backlog.f7.jsx';
+import Wishlist from '../pages/wishlist.f7.jsx';
+import Archive from '../pages/archive.f7.jsx';
+import Game from '../pages/game.f7.jsx';
+import Search from '../pages/search.f7.jsx';
 
-import { authGuard } from '@js/auth/helpers';
-
-export const  routes = [
+const routes = [
   {
     path: '/',
-    component: HomePage,
-    beforeEnter: authGuard,
+    component: Home,
   },
   {
-    path: '/gyms',
-    component: GymsPage,
-    //beforeEnter: authGuard,
+    path: '/backlog/',
+    component: Backlog,
   },
   {
-    path: '/login',
-    component: LoginPage,
+    path: '/wishlist/',
+    component: Wishlist,
   },
   {
-    path: '/searchproblems',
-    component: SearchProblemsSheet,
-    beforeEnter: authGuard,
+    path: '/archive/',
+    component: Archive,
   },
   {
-    path: '/mylogs',
-    component: MyLogsPage,
-    beforeEnter: authGuard,
+    path: '/game/:id/',
+    popup: {
+      component: Game,
+      swipeToClose: 'to-bottom',
+    },
   },
   {
-    path: '/problems',
-    component: ProblemsPage,
-    beforeEnter: authGuard,
-    routes :[
-        {
-            path: '/:problemId',
-            component : ProblemDetails,
-            beforeEnter: authGuard,
-        },
-
-    ]
-
+    path: '/search/',
+    popup: {
+      component: Search,
+      swipeToClose: 'to-bottom',
+    },
   },
 ];
+
+export default routes;

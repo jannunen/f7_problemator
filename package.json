@@ -1,15 +1,16 @@
 {
-  "name": "problemator",
+  "name": "backlogger",
   "private": true,
   "version": "1.0.0",
-  "description": "Problemator",
+  "description": "Backlogger",
   "repository": "",
   "license": "UNLICENSED",
   "scripts": {
     "start": "npm run dev",
     "dev": "cross-env NODE_ENV=development vite",
     "build": "cross-env NODE_ENV=production vite build && npx workbox generateSW workbox-config.js",
-    "postinstall": "cpy ./node_modules/framework7-icons/fonts/*.* ./src/fonts/ && cpy ./node_modules/material-icons/iconfont/*.* ./src/fonts/"
+    "postinstall": "cpy ./node_modules/framework7-icons/fonts/*.* ./src/fonts/ && cpy ./node_modules/material-icons/iconfont/*.* ./src/fonts/",
+    "lint": "eslint --ext .js,.jsx ."
   },
   "browserslist": [
     "Android >= 7",
@@ -20,37 +21,31 @@
     "Samsung >= 5"
   ],
   "dependencies": {
-    "axios": "^0.21.1",
-    "chart.js": "^3.5.1",
-    "dayjs": "^1.10.6",
     "dom7": "^3.0.0",
-    "dotenv": "^10.0.0",
-    "framework7": "^6.2.0",
+    "framework7": "^6.3.4",
     "framework7-icons": "^5.0.3",
-    "framework7-vue": "^6.2.0",
-    "maphilight": "github:kemayo/maphilight",
-    "material-icons": "^1.1.1",
-    "skeleton-elements": "^3.4.0",
-    "swiper": "^6.8.1",
-    "vue": "^3.2.2",
-    "vue-chart-3": "^0.5.8",
-    "vue-dayjs-plugin": "^1.0.0",
-    "vue-i18n": "^9.1.7",
-    "vue-router": "^4.0.11",
-    "vue-the-storages": "^1.0.2",
-    "vuex": "^4.0.2"
+    "framework7-vue": "^6.3.16",
+    "material-icons": "^1.2.1",
+    "skeleton-elements": "^3.5.0",
+    "swiper": "^6.8.4",
+    "tailwindcss": "^3.0.23",
+    "vue-i18n": "^9.2.0-beta.33"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^1.4.0",
-    "@vue/compiler-sfc": "^3.2.2",
-    "autoprefixer": "^10.3.2",
+    "@vitejs/plugin-vue": "^2.2.4",
+    "autoprefixer": "^10.4.4",
     "cpy-cli": "^3.1.1",
     "cross-env": "^7.0.3",
-    "postcss": "^8.3.6",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-prettier": "^4.0.0",
+    "less": "^4.1.1",
+    "postcss": "^8.4.12",
     "postcss-preset-env": "^6.7.0",
-    "sass": "^1.37.5",
-    "tailwindcss": "^2.2.7",
-    "vite": "^2.4.4",
-    "workbox-cli": "^6.2.4"
+    "prettier": "^2.4.0",
+    "rollup-plugin-framework7": "^1.2.0",
+    "vite": "^2.5.7",
+    "workbox-cli": "^6.3.0"
   }
 }

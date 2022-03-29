@@ -1,0 +1,26 @@
+.scroll-block {
+  overflow: auto;
+  scrollbar-width: none;
+  scroll-snap-type: x mandatory;
+  scroll-padding-left: calc(
+    var(--f7-block-padding-horizontal) + var(--f7-safe-area-left)
+  );
+  &::-webkit-scrollbar {
+    display: none;
+    opacity: 0;
+  }
+  &-item {
+    scroll-snap-align: start;
+  }
+  .device-ios &,
+  .device-macos & {
+    &::after {
+      content: '';
+      flex-shrink: 0;
+      width: calc(
+        var(--f7-block-padding-horizontal) + var(--f7-safe-area-right)
+      );
+      height: 16px;
+    }
+  }
+}

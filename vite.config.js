@@ -1,18 +1,13 @@
-
 import path from 'path';
-import vue from '@vitejs/plugin-vue';
-
-
+import framework7 from 'rollup-plugin-framework7';
+import vue from '@vitejs/plugin-vue'
 
 const SRC_DIR = path.resolve(__dirname, './src');
 const PUBLIC_DIR = path.resolve(__dirname, './public');
-const BUILD_DIR = path.resolve(__dirname, './www',);
+const BUILD_DIR = path.resolve(__dirname, './www');
 
 export default {
-  plugins: [
-    vue(),
-
-  ],
+  plugins: [vue(), framework7({ emitCss: false })],
   root: SRC_DIR,
   base: '',
   publicDir: PUBLIC_DIR,
@@ -21,16 +16,16 @@ export default {
     assetsInlineLimit: 0,
     emptyOutDir: true,
   },
-  server : {
-    https : true,
-  },
   resolve: {
     alias: {
       '@': SRC_DIR,
-      '@js': SRC_DIR+"/js",
-      '@components' : SRC_DIR+"/components",
-      '@pages' : SRC_DIR+"/pages"
     },
   },
-
+  server: {
+    host: true,
+  },
+  esbuild: {
+    jsxFactory: '$jsx',
+    jsxFragment: '"Fragment"',
+  },
 };

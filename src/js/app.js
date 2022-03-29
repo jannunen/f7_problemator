@@ -1,83 +1,55 @@
-// Import Vue
-import { createApp } from 'vue';
+//import Framework7 from './framework7-custom.js';
+import { createI18n } from "vue-i18n";
 
-// Import Framework7
-import Framework7 from 'framework7/lite-bundle';
-
-// Import Framework7-Vue Plugin
-import Framework7Vue, { registerComponents } from 'framework7-vue/bundle';
-
-// Import Framework7 Styles
-import 'framework7/framework7-bundle.css';
-
-
-// Import Icons and App Custom Styles
+import '../css/framework7-custom.less';
 import '../css/icons.css';
-import '../css/app.scss';
+import '../css/app.less';
+import '../css/tailwind.css';
 
-// Import App Component
-import App from '../components/app.vue';
-import vueTheStorages from 'vue-the-storages'
+//import routes from './routes.js';
+import store from './store.js';
+//import App from '../app.f7.jsx';
 
+import { createApp } from 'vue'
 
-//import VueI18n from 'vue-i18n'
-import { createI18n } from 'vue-i18n'
+// Import F7 Bundle
+import Framework7 from 'framework7/lite-bundle'
 
-import { accountService } from '@js/auth/services'
-/*
-import LogRocket from 'logrocket';
-LogRocket.init('7qbvoo/problemator');
-*/
-import commonTemplateFilters from './commonTemplateFilters.js'
-import dayjs from 'dayjs';
-import relativeTime from 'dayjs/plugin/relativeTime';
-import store from '@js/store/store.js'
-import messages from './i18n/messages.js'
+// Import F7-Vue Plugin Bundle (with all F7 components registered)
+import Framework7Vue, { registerComponents } from 'framework7-vue/bundle'
 
-// Init Framework7-Vue Plugin
+// Init F7-Vue Plugin
 Framework7.use(Framework7Vue);
-import { initFacebookSdk, jwtInterceptor, errorInterceptor } from '@js/auth/helpers';
-//import { router } from '@js/auth/helpers'
-// enable interceptors for http requests
-jwtInterceptor();
-errorInterceptor();
 
-dayjs.extend(relativeTime)
+// Import Main App component
+import App from '../app.vue';
 
-// 2. Create i18n instance with options
-const i18n = createI18n({
-  locale: 'fi', // set locale
-  fallbackLocale: 'en', // set fallback locale
-  messages,
-})
+// Init App
+const app = createApp(App);
 
-// Check if account info is saved..
-if (localStorage.account != null) {
-  try {
-    const account = JSON.parse(localStorage.account)
-    if (account != null) {
-      accountService.update(account)
-    }
-  } catch (e) {
-
-  }
-}
-const app = createApp(App)
-
-// Register Framework7 Vue components
+// Register all Framework7 Vue components
 registerComponents(app);
-//app.use(router)
-app.config.globalProperties.$filters = commonTemplateFilters
 
-app.use(vueTheStorages)
-app.use(i18n)
-app.use(store)
+// Mounte Vue App
+app.mount('#app');
 
-const startApp = () => {
-  app.mount('#app');
-}
-
-// wait for facebook sdk to start app
-initFacebookSdk().then((foo) => {
-  startApp();
+// eslint-disable-next-line
+/*
+const app = new Framework7({
+  name: 'Backlogger', // App name
+  theme: 'auto', // Automatic theme detection
+  el: '#app', // App root element
+  component: App, // App main component
+  store,
+  routes,
+  i18n,
+  // Register service worker (only on production build)
+  serviceWorker:
+    process.env.NODE_ENV === 'production'
+      ? {
+          path: '/service-worker.js',
+        }
+      : {},
 });
+window.i18n = i18n
+*/
