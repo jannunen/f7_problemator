@@ -1,5 +1,9 @@
  <script setup>
- const t = (t) => t
+    import { useI18n } from 'vue-i18n'
+    import { useStore } from 'framework7-vue'
+    const { t } = useI18n() 
+    const profile = useStore('profile')
+    console.log(profile)
  </script>
  <template>
  <div class="my-2 text-center text-lg font-bold">{{ t("home.today") }}</div>

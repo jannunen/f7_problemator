@@ -1,5 +1,6 @@
 const API_KEY = import.meta.env.VITE_API_KEY;
-const endpoint = 'https://api.rawg.io/api';
+const API_HOST = import.meta.env.VITE_API_HOST;
+const endpoint = API_HOST + "/api/v03/"
 
 const formatDate = (date) => {
   const year = date.getFullYear();
@@ -10,7 +11,23 @@ const formatDate = (date) => {
   }`;
 };
 
+const fetchPost = (url, payload) => {
+  return fetch(url, {
+    method : 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(payload) 
+  });
+}
+
 const api = {
+  login( payload) {
+    const url = API_HOST + "/api/auth/login"
+    return fetchPost(url, payload)
+    .then((res) => res.json())
+
+  },
   getTopGames() {
     return fetch(
       `${endpoint}/games?key=${API_KEY}&page_size=40&ordering=-metacritic`,

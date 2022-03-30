@@ -8,17 +8,19 @@
     :autoDarkTheme="true"
   >
     <!-- initial page is specified in routes.js -->
-    <div>{{ darkTheme }}</div>
     <f7-view main url="/"></f7-view>
   </f7-app>
 </template>
 <script>
   import routes from './js/routes.js';
   import store from './js/store.js';
+  import { useI18n } from 'vue-i18n'
 
   export default {
     setup() {
+        const { t } = useI18n() 
         return {
+            t,
             store,
             routes,
         }

@@ -1,14 +1,9 @@
 //import Framework7 from './framework7-custom.js';
-import { createI18n } from "vue-i18n";
 
-import '../css/framework7-custom.less';
+import 'framework7/framework7-bundle.css';
 import '../css/icons.css';
 import '../css/app.less';
 import '../css/tailwind.css';
-
-//import routes from './routes.js';
-import store from './store.js';
-//import App from '../app.f7.jsx';
 
 import { createApp } from 'vue'
 
@@ -23,12 +18,22 @@ Framework7.use(Framework7Vue);
 
 // Import Main App component
 import App from '../app.vue';
+import messages from './i18n/messages'
+import { createI18n } from 'vue-i18n'
 
 // Init App
 const app = createApp(App);
 
 // Register all Framework7 Vue components
 registerComponents(app);
+
+const i18n = createI18n({
+  legacy: false, // you must set `false`, to use Composition API
+  locale: 'en', // set locale
+  fallbackLocale: 'en', // set fallback locale
+  messages, // set locale messages
+})
+app.use(i18n);
 
 // Mounte Vue App
 app.mount('#app');
@@ -51,5 +56,4 @@ const app = new Framework7({
         }
       : {},
 });
-window.i18n = i18n
 */

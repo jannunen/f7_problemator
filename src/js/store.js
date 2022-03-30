@@ -1,5 +1,8 @@
 import { createStore } from 'framework7';
 import api from './api.js';
+import { f7 } from 'framework7-vue'
+const apihost = import.meta.env.VITE_API_HOST
+const apiprefix = "/api/v03"
 
 const getFromLocalStorage = (key, defaultValue) => {
   return localStorage[key] ? JSON.parse(localStorage[key]) : defaultValue;
@@ -21,8 +24,14 @@ const store = createStore({
     upcomingGames: [],
     test : 'kekkuli',
     dark : true,
+    profile : null,
+    user : null,
+    access_token : null,
   },
   getters: {
+    profile: ({ state }) => state.profile,
+    user: ({ state }) => state.user,
+    access_token: ({ state }) => state.access_token,
     test: ({ state }) => state.test,
     dark: ({ state }) => state.dark,
     searchResults: ({ state }) => state.searchResults,
@@ -38,6 +47,18 @@ const store = createStore({
     upcomingGames: ({ state }) => state.upcomingGames,
   },
   actions: {
+    async login({ state}, payload) {
+      const ret = await api.login(payload)
+      debugger
+      if (ret.user != null) {
+        // Login ok
+        state.user = ret.user
+        state.access_token = ret.access_token
+      } else {
+        return {error : true, message : 'Incorrect login'}
+      }
+
+    },
     setDark({ state } , payload) {
       state.dark = payload
     },

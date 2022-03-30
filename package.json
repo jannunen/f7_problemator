@@ -21,11 +21,13 @@
     "Samsung >= 5"
   ],
   "dependencies": {
+    "axios": "^0.26.1",
     "dom7": "^3.0.0",
     "framework7": "^6.3.4",
     "framework7-icons": "^5.0.3",
     "framework7-vue": "^6.3.16",
     "material-icons": "^1.2.1",
+    "rxjs": "^7.5.5",
     "skeleton-elements": "^3.5.0",
     "swiper": "^6.8.4",
     "tailwindcss": "^3.0.23",

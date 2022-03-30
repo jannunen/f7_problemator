@@ -19,6 +19,11 @@ export default {
   resolve: {
     alias: {
       '@': SRC_DIR,
+      '@js': SRC_DIR+"/js",
+      '@helpers' : SRC_DIR+"/js/helpers",
+      '@auth' : SRC_DIR+"/js/auth",
+      '@components' : SRC_DIR+"/components",
+      '@pages' : SRC_DIR+"/pages"
     },
   },
   server: {
