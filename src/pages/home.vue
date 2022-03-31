@@ -13,12 +13,21 @@ const profile = useStore('profile')
 const localDark = ref(true)
 const isOpened = ref(false)
 const { t } = useI18n()
+const props = defineProps({
+  f7router : Object,
+})
 const toggleDark = (newValue) => {
   const nowChecked = newValue.target.checked
   store.dispatch('setDark', nowChecked)
 }
 const onAddTick = () => {
   isOpened.value = true
+}
+const onStartNavigate = (problem) => {
+  isOpened.value = false
+  props.f7router.navigate("/problem/"+problem.id,{
+    props : { problem }
+  })
 }
 
 onMounted(() => {
@@ -56,7 +65,7 @@ watch(dark, (isDarkTheme, oldValue) => {
     close-by-outside-click	
     swipe-to-close
     @sheet:closed="isOpened=false">
-      <SearchProblemsSheetVue @close="isOpened=false" />
+      <SearchProblemsSheetVue @close="isOpened=false" @start-navigate="onStartNavigate" />
       
     </f7-sheet>
 

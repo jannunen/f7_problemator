@@ -1,23 +1,21 @@
 <template>
   <div class="col-span-2 p-4">
     <!-- Show author and addition date -->
-    <strong v-if="problem.routetype == 'boulder'">{{
-      $t('problem.problem_info')
-    }}</strong>
-    <strong v-if="problem.routetype == 'sport'">{{ $t('problem.route_info') }}</strong>
+    <strong v-if="problem.routetype == 'boulder'">{{ t('problem.problem_info') }}</strong>
+    <strong v-if="problem.routetype == 'sport'">{{ t('problem.route_info') }}</strong>
     <div class="my-2 flex flex-row justify-between">
       <span class="">{{ problem.author }}</span>
-      <span class="">{{ $filters.fromNow(problem.added) }}</span>
+      <span class="">{{ fromNow(problem.added) }}</span>
     </div>
     <!-- Show additional details -->
     <div class="my-2 flex flex-row justify-between">
-      <span class="font-bold">{{ $t('problem.notes') }}</span>
+      <span class="font-bold">{{ t('problem.notes') }}</span>
       <span class="" v-html="problem.addt || 'N/A'"></span>
     </div>
 
     <!-- Show grade opinions -->
     <div class="my-2">
-      <div>{{ $t('problem.grade_opinions') }}</div>
+      <div>{{ t('problem.grade_opinions') }}</div>
       <grade-opinions
         :grades="cutGrades(grades, problem.grade.id, leaveOnBothSides)"
         :opinions="
@@ -25,30 +23,26 @@
         "
       ></grade-opinions>
     </div>
-    <!-- Show dislikes -->
-    <div class="my-2 flex-col">
-      <div class="my-2">
-        {{ $tc('problem.dislikes', problem.dislikeCount) }}
-      </div>
-      <div class="font-bold my-2">
-        <button class="bg-white text-purple-900" raised>
-          <div material="sentiment_dissatisfied"></div>
-          {{ $t('problem.dislike') }}
-        </button>
-      </div>
-    </div>
+    
+    
   </div>
 </template>
 
 <script setup>
-import { useStore } from "vuex";
-import { getTagShort } from '@js/helpers.js'
+import { useI18n } from 'vue-i18n'
+import store from '@js/store.js'
+import { useStore } from "framework7-vue";
+import { getTagShort } from '@js/helpers'
 import { ref, onMounted, computed } from "vue";
 import GradeOpinions from "@components/ui/problem/GradeOpinions.vue";
+import { fromNow } from '@helpers/filters.js'
+const { t } = useI18n()
 
 const leaveOnBothSides = ref(3);
-const store = useStore();
-const grades = store.state.grades;
+const grades = useStore('grades');
+const props = defineProps({
+  problem: Object,
+})
 const cutOpinions = (opinions, cutAt, leave) => {
   // Find first the index of cutAt and slice accordingly
   if (opinions == null) {
@@ -69,9 +63,6 @@ const cutGrades = (grades, cutAt, leave) => {
   const end = Math.min(grades.length - 1, idx + leave)
   return grades.slice(start, end)
 }
-const props = defineProps({
-  problem: Object,
-})
 </script>
 
 <style></style>

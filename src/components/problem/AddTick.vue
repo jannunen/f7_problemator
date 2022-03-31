@@ -1,5 +1,5 @@
 <template>
-  <twm-sheet v-if="opened" :opened="opened"
+  <f7-sheet v-if="opened" :opened="opened"
   @backdropclick="() => ($emit('close'))"
   
   >
@@ -68,7 +68,7 @@
         {{ $t('global.close_action') }}
       </button>
     </div>
-  </twm-sheet>
+  </f7-sheet>
 </template>
 
 <script setup>
@@ -76,7 +76,6 @@ import dayjs from 'dayjs'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { twmSheet } from 'tailwind-mobile/vue'
 import TickDate from '@components/problem/TickDate.vue'
 import GradeOpinion from '@components/problem/GradeOpinion.vue'
 import Tries from '@components/problem/Tries.vue'

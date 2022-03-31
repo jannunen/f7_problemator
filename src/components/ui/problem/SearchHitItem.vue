@@ -1,9 +1,9 @@
 <template>
   <li
-    @click="$emit('start-navigate')"
+    @click="$emit('start-navigate',problem)"
     class="w-full px-1 py-2"
   >
-    <a :href="`/problems/` + problem.id" class="flex flex-row w-full justify-between">
+    <div class="flex flex-row w-full justify-between">
         <div class="w-8 mt-2">
           <div v-if="problem.myProjects != null && problem.myProjects.length > 0">
             <span
@@ -54,7 +54,7 @@
           </div>
         </div>
       </div>
-    </a>
+    </div>
     <hr class="w-11/12 mx-auto divide-slate-700/25 "  />
   </li>
 </template>

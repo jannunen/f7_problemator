@@ -70,11 +70,17 @@ export default {
   setup(props, context) {
     const { t,tc } = useI18n()
     const gymid = useStore('gymid')
-    console.log(gymid)
     const searchProblemText = ref('')
     const problems = ref([])
-    const onStartNavigate = () => {
-      context.emit('close')
+    const onStartNavigate = (problem, sec) => {
+      context.emit('start-navigate',problem)
+      /*
+      props.f7router.navigate("/problem/"+problem.id,{
+        props : { problem }
+      })
+      */
+      
+      //context.emit('onst')
     }
     const searchProblemTextChanged = debounce((value) => {
       if (searchProblemText.value != '') {

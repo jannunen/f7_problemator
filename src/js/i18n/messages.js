@@ -10,6 +10,20 @@ const messages = {
         },
         problem : {
             'tick_list_info' : "Swipe left to delete a tick. There's currently no support for editing ticks. If you want to change a tick, delete it and add again.",
+            'problem' : 'Problem',
+            'route' : 'Route',
+            'btn_add_tick' : 'Add tick',
+            'dislike' : 'Dislike',
+            'ascents' : '{n} ascents',
+            'likes' : '{n} likes',
+            'dislikes' : '{n} dislikes',
+            'dolike': 'Like +',
+            'grade_opinions' : 'Grade opinions',
+            'problem_info' : 'Problem info',
+            notes : 'Notes',
+            problem_details : 'Problem details',
+            attributes : 'Attributes',
+
         },
         home : {
             'tries' : 'Tries',

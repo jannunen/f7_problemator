@@ -30,12 +30,12 @@
 
 <script>
 import RoundBadge from "../RoundBadge.vue"
-import { getTagShort} from '@js/helpers.js'
+import { getTagShort} from '@js/helpers'
 import dayjs from 'dayjs'
-import { toaster } from '@js/helpers.js'
+//import { toaster } from '@js/helpers'
 import { useI18n } from "vue-i18n";
 import { computed} from 'vue'
-import { useStore } from 'vuex'
+import { useStore } from 'framework7-vue'
 
 export default {
   props : {
