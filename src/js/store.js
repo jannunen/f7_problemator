@@ -23,12 +23,22 @@ const store = createStore({
     recentGames: [],
     upcomingGames: [],
     test : 'kekkuli',
+    gymid : 1,
     dark : true,
     profile : null,
     user : null,
     access_token : null,
+    gym : null,
+    styles : [],
+    grades : [],
+    walls : [],
   },
   getters: {
+    gym: ({ state }) => state.gym,
+    styles: ({ state }) => state.styles,
+    grades: ({ state }) => state.grades,
+    walls: ({ state }) => state.walls,
+    gymid: ({ state }) => state.gymid,
     profile: ({ state }) => state.profile,
     user: ({ state }) => state.user,
     access_token: ({ state }) => state.access_token,
@@ -49,15 +59,29 @@ const store = createStore({
   actions: {
     async login({ state}, payload) {
       const ret = await api.login(payload)
-      debugger
       if (ret.user != null) {
         // Login ok
         state.user = ret.user
         state.access_token = ret.access_token
+        state.expires_in = ret.expires_in
+        return ret
       } else {
         return {error : true, message : 'Incorrect login'}
       }
 
+    },
+    async getProfile({ state } , payload) {
+      const ret = await api.getProfile(state.gymid)
+      if (state.profile != null) {
+        debugger
+        state.profile = ret.profile
+        state.gym = ret.gym
+        state.styles = ret.styles
+        state.grades = ret.grades
+        state.walls = ret.walls
+        return state.profile
+      }
+      return null
     },
     setDark({ state } , payload) {
       state.dark = payload

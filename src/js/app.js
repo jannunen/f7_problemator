@@ -1,5 +1,3 @@
-//import Framework7 from './framework7-custom.js';
-
 import 'framework7/framework7-bundle.css';
 import '../css/icons.css';
 import '../css/app.less';
@@ -20,6 +18,12 @@ Framework7.use(Framework7Vue);
 import App from '../app.vue';
 import messages from './i18n/messages'
 import { createI18n } from 'vue-i18n'
+import { jwtInterceptor } from '@js/helpers';
+
+
+// enable interceptors for http requests
+jwtInterceptor();
+//errorInterceptor();
 
 // Init App
 const app = createApp(App);

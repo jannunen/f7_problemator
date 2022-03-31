@@ -6,7 +6,6 @@ import store from '@js/store.js'
 const baseUrl = import.meta.env.VITE_API_HOST + "/api/auth"
 const accountSubject = new BehaviorSubject(null);
 
-
 async function login() {
     // login with facebook then authenticate with the API to get a JWT auth token
     FB.login((response) => {
@@ -32,7 +31,8 @@ async function goodOleLogin(email, password) {
             if (data.error) {
                 return false
             } else {
-                const account = data;
+                const account = {...data, 'type' : 'old'};
+
                 localStorage.account = JSON.stringify(account)
                 accountSubject.next(account);
                 localStorage.access_token = data.access_token
@@ -48,24 +48,55 @@ async function goodOleLogin(email, password) {
 
 }
 
+async function checkIfLogin() {
+    const account = JSON.parse(localStorage.account)
+    if (account == null || account.error === true) {
+        return false
+    }
+    const { email } = account.user
+    const access_token = localStorage.access_token
+    let ret = true
+    if (account.type == 'old') {
+        // IF old email+pwd  login, assume valid. It will be checked when doing the
+        // first call.
+        accountSubject.next(account);
+    } else if (account.type == 'fb') {
+        ret = await apiAuthenticate(email, access_token)
+    }
+    return ret
+}
+
+
 async function apiAuthenticate(email, accessToken) {
     // authenticate with the api using a facebook access token,
     // on success the api returns an account object with a JWT auth token
     const response = await axios.post(`${baseUrl}/authenticate`, { email, accessToken });
-    const account = response.data;
-    localStorage.account = JSON.stringify(account)
-    accountSubject.next(account);
-    startAuthenticateTimer();
-    return account;
+    const account = {...response.data, 'type' : 'fb'};
+    if (account.error) {
+        // Invalidate login
+        localStorage.account = null
+        accountSubject.next(null);
+        stopAuthenticateTimer();
+        return null;
+    } else {
+
+        localStorage.account = JSON.stringify(account)
+        accountSubject.next(account);
+        startAuthenticateTimer();
+        return account;
+    }
 }
 
-function goodOleLogout() {
-    axios.post(`${baseUrl}/logout`)
-        .then(() => {
-            localStorage.account = null
-            accountSubject.next(null);
-            stopAuthenticateTimer();
-        })
+async function goodOleLogout() {
+    debugger
+    try {
+        const ret = await axios.post(`${baseUrl}/logout`)
+    } catch (e) {
+        // Might fail if no access_token present
+    }
+    localStorage.account = null
+    accountSubject.next(null);
+    stopAuthenticateTimer();
 }
 
 function logout() {
@@ -86,10 +117,11 @@ async function update(account) {
     /*const response = await axios.put(`${baseUrl}/${id}`, params);
     let account = response.data;
     // update the current account if it was updated
-    if (account.id === accountSubject.value?.id) {
+    if (account.id === accountSubject./logovalue?.id) {
         // publish updated account to subscribers
         account = { ...accountSubject.value, ...account };
         */
+       debugger
     accountSubject.next(account);
     //}
     return account;
@@ -131,6 +163,7 @@ export const accountService = {
     logout,
     getAll,
     getById,
+    checkIfLogin,
     update,
     delete: _delete,
     loggedIn : accountSubject.value!= null,

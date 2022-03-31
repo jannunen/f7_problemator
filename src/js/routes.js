@@ -12,6 +12,11 @@ import { authGuard } from '@js/auth/authguard.js';
 
 const routes = [
   {
+    path: '/home/',
+    component: Home,
+    beforeEnter: authGuard,
+  },
+  {
     path: '/',
     component: Loading,
     beforeEnter: authGuard,

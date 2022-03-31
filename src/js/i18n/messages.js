@@ -2,6 +2,11 @@ const messages = {
     en: {
         searchprob : {
             instructions : 'Routes are identified by route tags. Try entering B as a search.',
+            find_a_route : 'Find a route',
+            search_for_problems : 'Search for problems',
+            read_qr : 'Read QR',
+            hits : '{n} hits',
+            no_hits : 'No problem(s) found',
         },
         problem : {
             'tick_list_info' : "Swipe left to delete a tick. There's currently no support for editing ticks. If you want to change a tick, delete it and add again.",
@@ -16,6 +21,9 @@ const messages = {
         'btn_new_routes': 'New routes',
         'btn_expiring_routes': 'Expiring routes',
         'btn_circuits': 'Circuits',
+        global : {
+            close_action : 'Close',
+        }
     },
     fi: {
         searchprob : {

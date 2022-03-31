@@ -1,6 +1,11 @@
+import { accountService } from '@js/auth/accountservice';
+import axios from 'axios'
+import { errorNotify  } from './helpers/notifications';
+
+import {f7 } from 'framework7-vue'
 const API_KEY = import.meta.env.VITE_API_KEY;
 const API_HOST = import.meta.env.VITE_API_HOST;
-const endpoint = API_HOST + "/api/v03/"
+const endpoint = API_HOST + "/api/v03"
 
 const formatDate = (date) => {
   const year = date.getFullYear();
@@ -12,20 +17,79 @@ const formatDate = (date) => {
 };
 
 const fetchPost = (url, payload) => {
+  return axios.post(url, payload)
+  /*
   return fetch(url, {
     method : 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
     },
     body: JSON.stringify(payload) 
   });
+  */
+}
+const fetchGet = (url, payload) => {
+  return axios.get(url, payload)
+  /*
+  return fetch(url, {
+    method : 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
+    },
+    body: JSON.stringify(payload) 
+  });
+  */
 }
 
+const errorHandler = async (err) => {
+  const json = err.response.data
+  errorNotify('Error from server',json.message)
+  if (json.message != null && json.message.match(/unauthenticated/i)) {
+    // Logout locally
+    accountService.logout()
+    // Navigate to login
+    console.log("Invalidated login")
+    f7.views.main.router.navigate("/")
+    return null
+  }
+
+    
+}
+const resultHandler = async (res) => {
+  const json = res?.data
+  if (json.message != null && json.message.match(/unauthenticated/i)) {
+    // Logout locally
+    accountService.logout()
+    // Navigate to login
+    console.log("Invalidated login")
+    f7.views.main.router.navigate("/")
+    return null
+  }
+  return json
+}
 const api = {
+  searchProblems(payload) {
+    return axios
+      .post(endpoint + '/problem/search', {
+        text: payload.text,
+        gymid: payload.gymid,
+      })
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
+  getProfile(gymid) {
+    const url = endpoint + `/profile?gymid=${gymid}`
+    return fetchGet(url)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
   login( payload) {
     const url = API_HOST + "/api/auth/login"
     return fetchPost(url, payload)
-    .then((res) => res.json())
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
 
   },
   getTopGames() {

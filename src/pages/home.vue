@@ -1,18 +1,30 @@
 <script setup>
-import TodayHeader from '../components/TodayHeader.vue'
+import TodayHeader from '@components/home/TodayHeader.vue'
+import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.vue' 
+import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import $ from 'dom7'
-import { useStore } from 'framework7-vue'
+import { f7, useStore } from 'framework7-vue'
 import { watch } from 'vue'
 import { ref } from 'vue'
 import store from '../js/store.js'
 const dark = useStore('dark')
+const profile = useStore('profile')
 const localDark = ref(true)
+const isOpened = ref(false)
 const { t } = useI18n()
 const toggleDark = (newValue) => {
   const nowChecked = newValue.target.checked
   store.dispatch('setDark', nowChecked)
 }
+const onAddTick = () => {
+  isOpened.value = true
+}
+
+onMounted(() => {
+  console.log("store -> getProfile")
+  store.dispatch('getProfile')
+})
 
 // Handles changing the dark/light theme. Seems a bit kludge, because it is.
 watch(dark, (isDarkTheme, oldValue) => {
@@ -35,6 +47,21 @@ watch(dark, (isDarkTheme, oldValue) => {
       </f7-nav-right>
     </f7-navbar>
     <!-- Page content -->
-    <TodayHeader />
+    <TodayHeader :profile="profile" @addtick="onAddTick" />
+
+<f7-sheet 
+    v-model:opened="isOpened" 
+    style="height:auto; "
+    close-on-escape	
+    close-by-outside-click	
+    swipe-to-close
+    @sheet:closed="isOpened=false">
+      <SearchProblemsSheetVue @close="isOpened=false" />
+      
+    </f7-sheet>
+
+
+    
+
   </f7-page>
 </template>
