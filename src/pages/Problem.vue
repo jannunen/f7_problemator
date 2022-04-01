@@ -18,6 +18,7 @@ dayjs.extend(relativeTime)
 const { t } = useI18n()
 const props = defineProps({
   problem: Object,
+  f7router : Object,
 })
 const { problem } = props
 const problems = useStore('problems')
@@ -25,6 +26,14 @@ onMounted(() => {
   // Load additional details and merge to problem
  store.dispatch("getProblemDetails", props.problem.id);
 })
+const popupOpened = ref(true)
+const openAddTick = () => {
+  debugger
+  //popupOpened.value = false
+  //props.f7router.back();
+  const url = `/problem/${problem.id}/addtick`;
+  props.f7router.navigate(url)
+}
 // This is used so that when the additional problem details are
 // loaded, they will be merged to the problem got as a parameter.
 // This enables a smoother experience when the basic details
@@ -40,7 +49,7 @@ const problemDetails = computed(() => {
 })
 </script>
 <template>
-  <f7-popup class="demo-popup" :opened="true" @popup:closed="popupOpened = false">
+  <f7-popup class="demo-popup" :opened="popupOpened" @popup:closed="popupOpened = false">
     <f7-page>
       <f7-navbar :title="t('problem.problem_details')">
         <f7-nav-right>
@@ -71,21 +80,11 @@ const problemDetails = computed(() => {
             <!-- top part ends -->
           </div>
           <div class="m-2">
-            <f7-button
-              @click="addTickSheetOpened = true"
-              class="uppercase block text-center button py-2 h-12 px-4 dark:bg-blue-900 bg-green-500 text-white"
-            >
-              {{ t('problem.btn_add_tick') }}
-            </f7-button>
+              <h1 class="text-xl font-bold my-2 text-center">{{ t('problem.add_new_tick') }}</h1>
+              <AddTick :problem="problemDetails" />
+            
           </div>
 
-          <!--bottom sheet -->
-          <add-tick
-            v-if="problem != null"
-            :problem="problem"
-            :tick="tick"
-            :opened="addTickSheetOpened"
-          ></add-tick>
         
       </div>
     </f7-page>

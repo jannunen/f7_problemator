@@ -77,12 +77,13 @@ export default {
     const searchProblemText = ref('')
     const problems = ref([])
     const onStartNavigate = (problem, sec) => {
+      searchProblemText.value = "" // empty search text when selection is done.
       context.emit('start-navigate',problem)
     }
     const clearSearch = () => {
       searchProblemText.value = null
       problems.value = []
-      this.emit('clear')
+      context.emit('clear')
     }
     const searchProblemTextChanged = debounce((value) => {
       if (searchProblemText.value != '') {

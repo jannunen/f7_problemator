@@ -51,7 +51,6 @@
            text-align : center;
            border-radius : 18px;
            border-width : 1px;
-           background-color:  #fff;
            margin : 2px;
 
        }

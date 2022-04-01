@@ -6,6 +6,12 @@ import { f7 } from 'framework7-vue'
 const prompt = (title=null,text=null,okcb=null,cancelcb=null) => {
     f7.dialog.confirm(text,title,okcb,cancelcb)
 }
+const confirm = (title=null,text=null,okcb=null,cancelcb=null) => {
+    f7.dialog.confirm(text,title,okcb,cancelcb)
+}
+const alert = (title=null,text=null,okcb=null,cancelcb=null) => {
+    f7.dialog.alert(text,title,okcb,cancelcb)
+}
 const errorNotify = (title=null, subtitle=null) => {
         f7.notification.create({
           title,
@@ -16,4 +22,6 @@ const errorNotify = (title=null, subtitle=null) => {
 export {
     errorNotify,
     prompt,
+    alert,
+    confirm,
 }

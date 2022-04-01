@@ -62,7 +62,7 @@
 import { useI18n } from 'vue-i18n'
 import store from '@js/store.js'
 import { getTagShort } from '@js/helpers'
-import  { prompt } from '@js/helpers/notifications.js'
+import  { confirm } from '@js/helpers/notifications.js'
 import ListStyles from '@components/ui/problem/ListStyles.vue'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 const { t } = useI18n()
@@ -70,7 +70,7 @@ const props = defineProps({
   problem: Object,
 })
 const askLike = () => {
-  prompt(t('global.are_you_sure'),t('problem.confirm_like'),() => {
+  confirm(t('global.are_you_sure'),t('problem.confirm_like'),() => {
     store.dispatch('likeProblem', {id : props.problem.id})
   })
 }

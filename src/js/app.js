@@ -2,6 +2,7 @@ import 'framework7/framework7-bundle.css';
 import '../css/icons.css';
 import '../css/app.less';
 import '../css/tailwind.css';
+import 'v-calendar/dist/style.css';
 
 import { createApp } from 'vue'
 

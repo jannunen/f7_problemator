@@ -6,6 +6,7 @@ const fromNow = (value) => {
 const format = (value, format) => {
     return dayjs(value).format(format)
 }
+const dateFormat = format
 const capitalize = (str) => {
     if (str == null) {
         return ""
@@ -15,5 +16,6 @@ const capitalize = (str) => {
 export {
     fromNow,
     format,
+    dateFormat,
     capitalize,
 }
