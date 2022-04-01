@@ -70,6 +70,16 @@ const resultHandler = async (res) => {
   return json
 }
 const api = {
+  deleteTick(payload) {
+    return axios.delete(endpoint+"/tick/"+payload)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
+  saveTick(payload) {
+    return axios.post(endpoint+"/tick/",payload)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
   likeProblem(id) {
     return axios.post(endpoint+`/problem/${id}/like`)
     .then((res) => resultHandler(res))

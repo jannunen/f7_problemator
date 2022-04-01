@@ -37,7 +37,7 @@
         {{ t('problem.ticked') }}
         <div size="12px" material="check"></div>
       </div>
-      <button @click="myTicksPopupOpen = true" class="my-2 text-purple-700">
+      <button @click="myTicksPopupOpen=true" class="my-2 font-bold">
         {{ t('problem.see_ticks') }}
       </button>
     </div>
@@ -54,21 +54,35 @@
       <div class="bg-yellow-500 px-2 py-1 text-white text-center text-xs rounded-full">
         {{ t('problem.projecting') }}
       </div>
+      <div class="my-1">{{ t('problem.sessions',sessionCount) }}</div>
     </div>
+    <popup-list-ticks
+    :problem="problem"
+    :ticks="problem.myTicks"
+    :opened="myTicksPopupOpen"
+    key="popuplistticks"
+    @close="myTicksPopupOpen=false" 
+    />
   </div>
 </template>
 
 <script setup>
 import { useI18n } from 'vue-i18n'
 import store from '@js/store.js'
+import { useStore } from 'framework7-vue'
 import { getTagShort } from '@js/helpers'
+import { ref, computed } from 'vue'
 import  { confirm } from '@js/helpers/notifications.js'
 import ListStyles from '@components/ui/problem/ListStyles.vue'
 import RoundBadge from '@components/ui/RoundBadge.vue'
+import PopupListTicks from '@components/ui/problem/TickList.vue'
+
 const { t } = useI18n()
 const props = defineProps({
   problem: Object,
 })
+const emit = defineEmits(['open-my-ticks'])
+const myTicksPopupOpen = ref(false)
 const askLike = () => {
   confirm(t('global.are_you_sure'),t('problem.confirm_like'),() => {
     store.dispatch('likeProblem', {id : props.problem.id})
@@ -78,8 +92,22 @@ const askDislike = () => {
   prompt(t('global.are_you_sure'),t('problem.confirm_dislike'),() => {
     store.dispatch('dislikeProblem', {id : props.problem.id})
   })
-
 }
+const sessionCount = computed(() => {
+  // Session count is the amount of different days the project has
+  // been projected on.
+  const projecting = props.problem.myProjects
+  const projectDays = projecting.reduce((acc,item) => {
+    // Reduce the timestamp to date.
+    const date = item.tstamp.substring(0,10);
+    if (!acc.includes(date)) {
+      acc.push(date)
+    }
+    return acc
+  },[])
+  return projectDays.length
+
+})
 </script>
 
 <style></style>

@@ -51,7 +51,9 @@ const email = ref('')
 const password = ref('')
 const errorNotification = ref(null)
 const beforeUnmount = () => {
-  errorNotification.value.destroy()
+    if (errorNotification.value != null) {
+        errorNotification.value.destroy()
+    }
 }
 const signIn = () => {
   accountService.goodOleLogin(email.value, password.value).then((ret) => {
@@ -70,7 +72,7 @@ const signIn = () => {
     }
   })
 }
-//onMounted(() => {
+onMounted(() => {
   const ret = accountService.checkIfLogin().then(() => {
     const account = accountService.accountValue
     if (!account) {
@@ -79,5 +81,5 @@ const signIn = () => {
       props.f7router.navigate('/home/')
     }
   })
-//})
+})
 </script>

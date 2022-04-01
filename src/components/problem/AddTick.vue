@@ -5,7 +5,7 @@ import dayjs from 'dayjs'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { alert } from '@js/helpers/notifications.js'
+import { toaster, alert } from '@js/helpers/notifications.js'
 import PopupGradeOpinion from '@components/problem/GradeOpinion.vue'
 import PopupTickDate from '@components/problem/TickDate.vue'
 
@@ -41,16 +41,15 @@ const dateSelected = (date) => {
 
 
 const saveTick = () => {
-  // IF use has NOT selected grade opinion, make sure one is
-  // NOT sent to the server
+  debugger
   let payload = { ...tick.value }
-  store
-    .dispatch('saveTick', payload)
+  store.dispatch('saveTick', payload)
     .then((resp) => {
+      debugger
       toaster(resp.message)
-      addTickSheetOpened.value = false
     })
     .catch((err) => {
+      debugger
       alert(err)
     })
 }
@@ -105,36 +104,43 @@ const formatDate = (date) => {
   </div>
   <div class="flex flex-row p-3 mt-1 font-bold grid grid-cols-2">
     <div class="flex justify-center">
-      <input
-        :checked="tick.ticktype == 'tick'"
-        name="ticktype"
-        type="radio"
-        value="tick"
-        @change="() => onAscentTypeChange('tick')"
-      />
-      <span class="px-2"> {{ t('problem.send') }} </span>
+      <label for="ascent">
+        <input
+            :checked="tick.ticktype == 'tick'"
+            name="ticktype"
+            type="radio"
+            id="ascent"
+            value="tick"
+            @change="() => onAscentTypeChange('tick')"
+        />
+        <span class="px-2"> {{ t('problem.send') }} </span>
+      </label>
     </div>
     <div>
-      <input
-        type="radio"
-        :checked="tick.ticktype == 'pretick'"
-        :disabled="problem.myTicks != null && problem.myTicks.length > 0"
-        name="ticktype"
-        value="pretick"
-        @change="() => onAscentTypeChange('pretick')"
-      />
-      {{ t('problem.still_a_project') }}
-      <span class="px-2" v-if="problem.myTicks != null && problem.myTicks.length > 0">{{
-        t('problem.projecting_not_possible')
-      }}</span>
+      <label for="projecting">
+        <input
+            type="radio"
+            :checked="tick.ticktype == 'pretick'"
+            :disabled="problem.myTicks != null && problem.myTicks.length > 0"
+            id="projecting"
+            name="ticktype"
+            value="pretick"
+            @change="() => onAscentTypeChange('pretick')"
+        />
+        
+        <span class="px-2" v-if="problem.myTicks != null && problem.myTicks.length > 0">{{ t('problem.projecting_not_possible') }}</span>
+        <span v-else class="px-2">{{ t('problem.still_a_project') }}</span>
+      </label>
     </div>
   </div>
+      <div class="w-full text-center px-2" v-if="problem.myTicks != null && problem.myTicks.length > 0">{{ t('problem.projecting_not_possible_desc') }}</div>
   <div class="my-2 mx-4">
     <f7-button
       @click="saveTick"
       class="uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
     >
       {{ t('problem.btn_add_tick') }}
+
     </f7-button>
 
     <PopupGradeOpinion 

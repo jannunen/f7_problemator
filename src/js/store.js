@@ -59,12 +59,20 @@ const store = createStore({
     upcomingGames: ({ state }) => state.upcomingGames,
   },
   actions: {
+    async deleteTick({ state}, payload) {
+      const ret = await api.deleteTick(payload)
+      state.problems = {...state.problems,[ret.problem.id] : ret.problem}
+    },
+    async saveTick({ state}, payload) {
+      const ret = await api.saveTick(payload)
+      state.problems = {...state.problems,[ret.problem.id] : ret.problem}
+      return ret
+    },
     async likeProblem({ state}, payload) {
       const pid = payload.id
       const ret = await api.likeProblem(pid)
       // Update problem likes
       const problem = state.problems[pid]
-      debugger
       state.problems = { ...state.problems, [pid]: {...problem,['likeCount'] : ret.likeCount, ['dislikeCount'] : ret.dislikeCount } }
     },
     async dislikeProblem({ state}, payload) {
@@ -98,7 +106,7 @@ const store = createStore({
     },
     async getProfile({ state } , payload) {
       const ret = await api.getProfile(state.gymid)
-      if (ret.profile != null) {
+      if (ret!=null && ret.profile != null) {
         state.profile = ret.profile
         state.gym = ret.gym
         state.styles = ret.styles
