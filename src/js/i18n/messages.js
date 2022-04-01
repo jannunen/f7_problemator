@@ -1,5 +1,38 @@
 const messages = {
     en: {
+        problemlist : {
+            sort_problems_by : 'Sort problems',
+            gradefilter : 'Grade filter',
+            stylefilter : 'Style filter',
+            sortby : 'Sort by',
+            reset_filters : 'Reset filters',
+            visible : 'visible',
+            problems : 'problems',
+        },
+        sortby : {
+            routesetter_asc : 'Routesetter asc.',
+            routesetter_desc : 'Routesetter desc',
+            most_ticks : 'Most ticks',
+            least_ticks : 'Least ticks',
+            best : 'Most liked',
+            worst : 'Least liked',
+            hardest : 'Hardest grade first',
+            easiest : 'Easiest grade first',
+            newest : 'Newest',
+            oldest : 'Oldest',
+            sector_asc : 'Sector asc.',
+            sector_desc : 'Sector desc',
+            visible : 'visible',
+            problems : 'problem(s)',
+        },
+        gradefilter : {
+            minimum_grade : 'Min. grade',
+            maximum_grade : 'Max. grade',
+        },
+        stylefilter : {
+            title_stylefilter : 'Filter by style',
+
+        },
         searchprob : {
             instructions : 'Routes are identified by route tags. Try entering B as a search.',
             find_a_route : 'Find a route',
@@ -57,6 +90,8 @@ const messages = {
 
         },
         home : {
+            floor_map_missing : 'The gym floor map is missing',
+            show_all_problems : 'Show all problems',
             by : 'by',
             'tries' : 'Tries',
             'ascents' : 'Ascents',

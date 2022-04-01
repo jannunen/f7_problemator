@@ -4,6 +4,16 @@ import { f7 } from 'framework7-vue'
 const apihost = import.meta.env.VITE_API_HOST
 const apiprefix = "/api/v03"
 
+export const filtersInitial = {
+  gradeMin: 'min',
+  gradeMax: 'max',
+  sort: 'sector_asc',
+  problemFilters : 'all',
+  styles: [],
+  walls: [],
+  problemStates: ['all'], // all, ticked, projects
+}
+
 const getFromLocalStorage = (key, defaultValue) => {
   return localStorage[key] ? JSON.parse(localStorage[key]) : defaultValue;
 };
@@ -28,6 +38,7 @@ const store = createStore({
     profile : null,
     user : null,
     access_token : null,
+    filters : {...filtersInitial},
     problems : [],
     gym : null,
     styles : [],
@@ -35,6 +46,7 @@ const store = createStore({
     walls : [],
   },
   getters: {
+    filters: ({ state }) => state.filters,
     problems: ({ state }) => state.problems,
     gym: ({ state }) => state.gym,
     styles: ({ state }) => state.styles,
@@ -59,6 +71,10 @@ const store = createStore({
     upcomingGames: ({ state }) => state.upcomingGames,
   },
   actions: {
+    
+    resetFilters({ state}) {
+      state.filters = {...filtersInitial}
+    },
     async deleteTick({ state}, payload) {
       const ret = await api.deleteTick(payload)
       state.problems = {...state.problems,[ret.problem.id] : ret.problem}

@@ -8,7 +8,7 @@
     
 </template>
 
-<script>
+<script setup>
 import { watchEffect,onUpdated,onUnmounted, onMounted, ref ,reactive} from 'vue'
 import { useI18n } from 'vue-i18n'
 
@@ -20,16 +20,12 @@ const chunkArray = (inputArray,perChunk) => {
     }, [])
 }
 
-export default {
 
-    props : {
+    const props = defineProps({
         map : Object,
-    },
-    methods : {
-    },
+    })
 
-  setup(props,context) {
-       const { t, d, locale } = useI18n()
+       const { t } = useI18n()
       const x = ref(0)
       const y = ref(0)
       const inside = (x,y, vs) => {
@@ -192,21 +188,7 @@ export default {
       onUpdated(() => {
           draw()
       })
-      return {
-          width,
-          height,
-          imagemapcontainer,
-          graph,
-          checkForHits,
-          selectPolygon,
-          onImageLoaded,
-          active,
-          x,
-          y,
-      }
 
-  }
-}
 </script>
 
 <style>

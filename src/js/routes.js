@@ -2,6 +2,7 @@ import Home from '../pages/Home.vue';
 import Loading from '../pages/Loading.vue';
 import Login from '../pages/Login.vue';
 import Problem from '../pages/Problem.vue';
+import ProblemList from '../pages/ProblemList.vue';
 import Backlog from '../pages/backlog.f7.jsx';
 import Wishlist from '../pages/wishlist.f7.jsx';
 import Archive from '../pages/archive.f7.jsx';
@@ -26,8 +27,8 @@ const routes = [
     beforeEnter: authGuard,
   },
   {
-    path: '/backlog/',
-    component: Backlog,
+    path: '/problems',
+    component: ProblemList,
     beforeEnter: authGuard,
   },
   {

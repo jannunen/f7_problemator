@@ -1,6 +1,6 @@
 <template >
   <div v-if="grades != null && grades.length > 0">
-    {{ $t('gradefilter.minimum_grade') }} <span>{{ getGradeName(gradeMin) }}</span>
+    {{ t('gradefilter.minimum_grade') }} <span>{{ getGradeName(gradeMin) }}</span>
           <f7-range
             :min="0"
             :max="getGradeMax"
@@ -13,7 +13,7 @@
           />
         
     <h4 class="display-flex justify-content-space-between"
-      >{{ $t('gradefilter.maximum_grade') }}
+      >{{ t('gradefilter.maximum_grade') }}
       <span>{{ getGradeName(gradeMax) }}</span></h4 >
           <f7-range
             :min="0"
@@ -25,13 +25,11 @@
             color="green"
             @range:change="onMaxGradeChange"
           />
-        
-      
-    
   </div>
 </template>
 <script>
 import { computed, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
 export default {
   props: {
       grades : {
@@ -49,6 +47,7 @@ export default {
   },
   emits: ["min","max"],
   setup(props, context) {
+    const { t } = useI18n();
     const onMinGradeChange = (value) => {
        context.emit('min',props.grades[value])
     }
@@ -107,7 +106,7 @@ export default {
         gradeMax,
         onMinGradeChange,
         onMaxGradeChange,
-
+        t,
         getGradeName,
         getGradeMax,
     }

@@ -1,6 +1,7 @@
 <script setup>
 import TodayHeader from '@components/home/TodayHeader.vue'
 import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.vue' 
+import FloorMapBlock from '@components/home/FloorMapBlock.vue' 
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import $ from 'dom7'
@@ -57,6 +58,7 @@ watch(dark, (isDarkTheme, oldValue) => {
     </f7-navbar>
     <!-- Page content -->
     <TodayHeader :profile="profile" @addtick="onAddTick" />
+    <floor-map-block />
 
 <f7-sheet 
     v-model:opened="isOpened" 

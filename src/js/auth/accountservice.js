@@ -98,7 +98,7 @@ async function goodOleLogout() {
     localStorage.account = null
     accountSubject.next(null);
     stopAuthenticateTimer();
-    f7.views.main.router.navigate("/login/")
+    f7.views.main.router.navigate("/")
 }
 
 function logout() {
