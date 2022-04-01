@@ -4,6 +4,22 @@
     <div class="text-lg font-bold text-center my-3" v-if="problem.routetype == 'boulder'">{{ t('problem.problem_info') }}</div>
     <div class="text-lg font-bold text-center my-3" v-if="problem.routetype == 'sport'">{{ t('problem.route_info') }}</div>
     <div class="my-2 flex flex-row justify-between">
+      <strong class="">{{ t('problem.start') }}</strong>
+      <span class="">
+        {{ problem.startdefinition }}</span>
+    </div>
+    <div class="my-2 flex flex-row justify-between">
+      <strong class="">{{ t('problem.start') }}</strong>
+      <span class="">
+        {{ problem.enddefinition }}</span>
+    </div>
+    <div class="my-2 flex flex-row justify-between">
+      <strong class="">{{ t('problem.wall') }}</strong>
+      <span class="">
+        <span class="font-bold">{{ problem.wall.wallchar }}</span>,
+        {{ problem.wall.walldesc }}</span>
+    </div>
+    <div class="my-2 flex flex-row justify-between">
       <strong class="">{{ t('problem.routesetter') }}</strong>
       <span class="">
         {{ problem.author }}<br />

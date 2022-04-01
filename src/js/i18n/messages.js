@@ -9,7 +9,10 @@ const messages = {
             no_hits : 'No problem(s) found',
         },
         problem : {
+            start : 'Start',
+            end : 'End',
             routesetter : 'Routesetter',
+            wall : 'Wall/Sector',
             'tick_list_info' : "Swipe left to delete a tick. There's currently no support for editing ticks. If you want to change a tick, delete it and add again.",
             'problem' : 'Problem',
             'route' : 'Route',
@@ -30,6 +33,7 @@ const messages = {
 
         },
         home : {
+            by : 'by',
             'tries' : 'Tries',
             'ascents' : 'Ascents',
             'add' : 'Add',
