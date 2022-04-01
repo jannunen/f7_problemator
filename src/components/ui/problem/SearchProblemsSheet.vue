@@ -43,9 +43,13 @@
     </ul>
   </div>
   <div class="">
-    <button @click="$emit('close')" class="px-8 py-2 w-full bg-red-500 text-white block">
+    <button v-if="problems.length > 0" @click="clearSearch" class="px-8 py-2 mx-auto w-11/12 bg-orange-500 text-white block">
+      {{ t('global.clear_search_action') }}
+    </button>
+    <button @click="$emit('close')" class="px-8 py-2 w-11/12 mx-auto bg-red-500 text-white block">
       {{ t('global.close_action') }}
     </button>
+    <br class="block my-4 " />
   </div>
 </template>
 
@@ -66,7 +70,7 @@ export default {
       default: false,
     },
   },
-  emits: ['close'],
+  emits: ['close','clear'],
   setup(props, context) {
     const { t,tc } = useI18n()
     const gymid = useStore('gymid')
@@ -74,13 +78,11 @@ export default {
     const problems = ref([])
     const onStartNavigate = (problem, sec) => {
       context.emit('start-navigate',problem)
-      /*
-      props.f7router.navigate("/problem/"+problem.id,{
-        props : { problem }
-      })
-      */
-      
-      //context.emit('onst')
+    }
+    const clearSearch = () => {
+      searchProblemText.value = null
+      problems.value = []
+      this.$emit('clear')
     }
     const searchProblemTextChanged = debounce((value) => {
       if (searchProblemText.value != '') {
@@ -103,6 +105,7 @@ export default {
       searchProblemTextChanged,
       onClearSearchText,
       problems,
+      clearSearch,
       t,
     }
   },

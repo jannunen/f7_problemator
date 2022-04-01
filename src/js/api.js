@@ -70,6 +70,11 @@ const resultHandler = async (res) => {
   return json
 }
 const api = {
+  getProblemDetails(id) {
+    return axios.get(endpoint+"/problem/"+id)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
   searchProblems(payload) {
     return axios
       .post(endpoint + '/problem/search', {
@@ -77,7 +82,7 @@ const api = {
         gymid: payload.gymid,
       })
     .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+    .catch((err) => errorHandler(err))
   },
   getProfile(gymid) {
     const url = endpoint + `/profile?gymid=${gymid}`

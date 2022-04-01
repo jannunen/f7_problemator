@@ -9,6 +9,7 @@ const messages = {
             no_hits : 'No problem(s) found',
         },
         problem : {
+            routesetter : 'Routesetter',
             'tick_list_info' : "Swipe left to delete a tick. There's currently no support for editing ticks. If you want to change a tick, delete it and add again.",
             'problem' : 'Problem',
             'route' : 'Route',
@@ -37,6 +38,7 @@ const messages = {
         'btn_circuits': 'Circuits',
         global : {
             close_action : 'Close',
+            clear_search_action : 'Clear search',
         }
     },
     fi: {

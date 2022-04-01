@@ -1,11 +1,13 @@
 <template>
-  <div class="col-span-2 p-4">
+  <div class="col-span-2 px-4 py-1">
     <!-- Show author and addition date -->
-    <strong v-if="problem.routetype == 'boulder'">{{ t('problem.problem_info') }}</strong>
-    <strong v-if="problem.routetype == 'sport'">{{ t('problem.route_info') }}</strong>
+    <div class="text-lg font-bold text-center my-3" v-if="problem.routetype == 'boulder'">{{ t('problem.problem_info') }}</div>
+    <div class="text-lg font-bold text-center my-3" v-if="problem.routetype == 'sport'">{{ t('problem.route_info') }}</div>
     <div class="my-2 flex flex-row justify-between">
-      <span class="">{{ problem.author }}</span>
-      <span class="">{{ fromNow(problem.added) }}</span>
+      <strong class="">{{ t('problem.routesetter') }}</strong>
+      <span class="">
+        {{ problem.author }}<br />
+        {{ fromNow(problem.added) }}</span>
     </div>
     <!-- Show additional details -->
     <div class="my-2 flex flex-row justify-between">
@@ -15,7 +17,7 @@
 
     <!-- Show grade opinions -->
     <div class="my-2">
-      <div>{{ t('problem.grade_opinions') }}</div>
+      <div class="font-bold">{{ t('problem.grade_opinions') }}</div>
       <grade-opinions
         :grades="cutGrades(grades, problem.grade.id, leaveOnBothSides)"
         :opinions="
@@ -44,6 +46,7 @@ const props = defineProps({
   problem: Object,
 })
 const cutOpinions = (opinions, cutAt, leave) => {
+  debugger
   // Find first the index of cutAt and slice accordingly
   if (opinions == null) {
     return []
@@ -54,6 +57,7 @@ const cutOpinions = (opinions, cutAt, leave) => {
   return opinions.slice(start, end)
 }
 const cutGrades = (grades, cutAt, leave) => {
+  debugger
   if (grades == null) {
     return []
   }

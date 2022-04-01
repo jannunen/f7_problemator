@@ -13,7 +13,6 @@
     <div class="mt-2 text-sm font-bold">
       {{ t('problem.likes', problem.likeCount) }}
     </div>
-
     <div class="mb-2 flex flex-row my-1 w-4/5">
       <button raised class="bg-white text-purple-900 px-1 py-1 ">
         <div material="favorite" color="red"></div>
@@ -25,12 +24,12 @@
     <div class="mt-2 text-sm font-bold">
       {{ t('problem.dislikes', problem.dislikeCount) }}
     </div>
-      <div class="mb-2 flex flex-row my-1 w-4/5">
+    <div class="mb-2 flex flex-row my-1 w-4/5">
       <button raised class="bg-white text-purple-900 px-1 py-1 w-full">
           <f7-icon f7="hand_thumbsdown_fill" size="20" color="black"></f7-icon>
           <span class="font-bold">{{ t('problem.dislike') }} +</span>
         </button>
-      </div>
+    </div>
 
     <!-- show ticked if so -->
     <div class="my-2" v-if="problem.myTicks != null && problem.myTicks.length > 0">
@@ -61,6 +60,7 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
+import store from '@js/store.js'
 import { getTagShort } from '@js/helpers'
 import ListStyles from '@components/ui/problem/ListStyles.vue'
 import RoundBadge from '@components/ui/RoundBadge.vue'

@@ -28,12 +28,14 @@ const store = createStore({
     profile : null,
     user : null,
     access_token : null,
+    problems : [],
     gym : null,
     styles : [],
     grades : [],
     walls : [],
   },
   getters: {
+    problems: ({ state }) => state.problems,
     gym: ({ state }) => state.gym,
     styles: ({ state }) => state.styles,
     grades: ({ state }) => state.grades,
@@ -70,10 +72,18 @@ const store = createStore({
       }
 
     },
+    async getProblemDetails({ state }, payload) {
+      const ret = await api.getProblemDetails(payload);
+      debugger
+      const problem = ret.problem
+      if (problem) {
+        state.problems = {...state.problems,[problem.id] : problem}
+      }
+      return problem
+    },
     async getProfile({ state } , payload) {
       const ret = await api.getProfile(state.gymid)
-      if (state.profile != null) {
-        debugger
+      if (ret.profile != null) {
         state.profile = ret.profile
         state.gym = ret.gym
         state.styles = ret.styles

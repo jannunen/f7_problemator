@@ -1,7 +1,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { debounce, getTagShort } from '@js/helpers'
-import { computed, ref, onMounted } from 'vue'
+import {  computed, ref, onMounted } from 'vue'
 import RoundBadge from "@components/ui/RoundBadge.vue";
 import TickList from "@components/ui/problem/TickList.vue";
 import MyTicks from '@components/problem/MyTicks.vue'
@@ -11,6 +11,8 @@ import RightDetails from '@components/problem/RightDetails.vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import LocalizedFormat from "dayjs/plugin/localizedFormat";
+import store from '@js/store.js'
+import { useStore } from 'framework7-vue'
 dayjs.extend(LocalizedFormat);
 dayjs.extend(relativeTime)
 const { t } = useI18n()
@@ -18,7 +20,21 @@ const props = defineProps({
   problem: Object,
 })
 const { problem } = props
-console.log(problem)
+const problems = useStore('problems')
+onMounted(() => {
+  // Load additional details and merge to problem
+ store.dispatch("getProblemDetails", props.problem.id);
+})
+const problemDetails = computed(() => {
+    // Merge parameter problem and store problem
+    const aProblem = problems.value[problem.id]
+    debugger
+    if (aProblem != null) {
+        const mergedProblem = {...problem, ...aProblem}
+        return mergedProblem
+    }
+    return problem
+})
 </script>
 <template>
   <f7-popup class="demo-popup" :opened="true" @popup:closed="popupOpened = false">
@@ -45,8 +61,8 @@ console.log(problem)
 
             <!-- problem details -->
             <div class="grid grid-cols-3 gap-4 my-3">
-              <left-details :problem="problem"></left-details>
-              <right-details :problem="problem"></right-details>
+              <left-details :problem="problemDetails"></left-details>
+              <right-details :problem="problemDetails"></right-details>
             </div>
 
             <!-- top part ends -->
