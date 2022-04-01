@@ -73,7 +73,6 @@ export default {
   emits: ['start-navigate'],
   setup(props, context) {
     const { t,tc } = useI18n()
-  
 
     const getAuthor = (group) => {
       return group.ascentCount + ' ' + t('home.ascents')

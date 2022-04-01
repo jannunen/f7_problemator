@@ -1,7 +1,8 @@
 import Home from '../pages/Home.vue';
 import Loading from '../pages/Loading.vue';
 import Login from '../pages/Login.vue';
-import Problem from '../pages/Problem.vue';
+import ProblemPage from '../pages/ProblemPage.vue';
+import ProblemPopup from '../pages/ProblemPopup.vue';
 import ProblemList from '../pages/ProblemList.vue';
 import Backlog from '../pages/backlog.f7.jsx';
 import Wishlist from '../pages/wishlist.f7.jsx';
@@ -46,12 +47,17 @@ const routes = [
     beforeEnter: authGuard,
   },
   {
-    path: '/problem/:id',
+    path: '/problem/:id/popup',
     beforeEnter: authGuard,
     popup: {
-      component: Problem,
+      component: ProblemPopup,
       swipeToClose: 'to-bottom',
     },
+  },
+  {
+    path: '/problem/:id',
+    beforeEnter: authGuard,
+    component: ProblemPage,
   },
   {
     path: '/game/:id/',

@@ -5,8 +5,9 @@ const messages = {
             gradefilter : 'Grade filter',
             stylefilter : 'Style filter',
             sortby : 'Sort by',
+            problemlist : 'Problem list',
             reset_filters : 'Reset filters',
-            visible : 'visible',
+            visible_out_of : 'visible out of',
             problems : 'problems',
         },
         sortby : {
@@ -31,6 +32,7 @@ const messages = {
         },
         stylefilter : {
             title_stylefilter : 'Filter by style',
+            reset_filter : 'Clear filters',
 
         },
         searchprob : {

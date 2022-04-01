@@ -71,7 +71,25 @@ const store = createStore({
     upcomingGames: ({ state }) => state.upcomingGames,
   },
   actions: {
-    
+    setFilterProblems({state}, payload) {
+      state.filters = { ...state.filters, ['problemFilters']: payload }
+    },
+    setFilterStyles({state}, payload) {
+      state.filters = { ...state.filters, ['styles']: payload }
+    },
+    setFilterGradeMin({state}, payload) {
+      state.filters = { ...state.filters, ['gradeMin']: payload }
+    },
+    setFilterGradeMax({state}, payload) {
+      state.filters = { ...state.filters, ['gradeMax']: payload }
+    },
+    setFilterWalls({state}, payload) {
+      state.filters = { ...state.filters, ['walls']: payload }
+    },
+    setFilterSort({state}, payload) {
+      console.log("Changing sorting to",payload)
+      state.filters = { ...state.filters, ['sort']: payload }
+    },
     resetFilters({ state}) {
       state.filters = {...filtersInitial}
     },

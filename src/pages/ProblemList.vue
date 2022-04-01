@@ -1,6 +1,6 @@
 <template>
     <f7-page>
-      <f7-navbar :title="t('problemlist.problemlist')">
+      <f7-navbar :title="t('problemlist.problemlist')" back-link>
       </f7-navbar>
       <f7-block>
   <div class="my-0 mx-2">
@@ -34,9 +34,8 @@
   </div>
 
   <div v-if="filteredProblems.length > 0">
-    <ul problemlist class="my-0">
         <div class="font-bold my-1 text-center">
-          {{ filteredProblems?.length }} {{ t("problemlist.visible out of") }}
+          {{ filteredProblems?.length }} {{ t("problemlist.visible_out_of") }}
           {{ problems?.length }} {{ t("problemlist.problems") }}
         </div>
         <div v-if="filters.walls.length > 0">
@@ -46,6 +45,8 @@
           }}</span>
         </div>
       
+      
+      <f7-list problemlist class="my-0">
 
       <div v-for="(problem, idx) in filteredProblems" :key="problem.id">
         <li
@@ -72,10 +73,12 @@
             <small>({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small>
           </h3>
         </li>
-
-        <search-hit-item :key="problem.id" :problem="problem"></search-hit-item>
+        <search-hit-item 
+        @start-navigate="onStartNavigate"
+        :key="problem.id" 
+        :problem="problem"></search-hit-item>
       </div>
-    </ul>
+    </f7-list>
   </div>
   <div v-else class="m-4 mb-14 bg-white p-4 border rounded-xl border-gray-700">
     <div class="flex flex-col justify-center items-center">
@@ -110,7 +113,6 @@ import StyleFilter from "@components/ui/problemlist/StyleFilter.vue";
 import SortBy from "@components/ui/problemlist/SortBy.vue";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
-//import { createLocal, createSession, createStorage } from "the-storages";
 import { debounce } from "@js/helpers";
 import {
   sortFunction,
@@ -123,14 +125,25 @@ dayjs.extend(relativeTime);
       type: String,
       default: null,
     },
+    f7router : {
+      type : Object,
+    }
   })
   const { t, d, locale } = useI18n();
   const problems = computed(() => store.state.gym.problems);
   const walls = computed(() => store.state.walls);
   const grades = store.state.grades;
+  /*
   const filters = computed(() => store.state.filters);
+  */
+ const filters = useStore('filters')
   const styles = computed(() => store.state.styles);
   onMounted(() => {});
+  const onStartNavigate = (problem) => {
+    props.f7router.navigate("/problem/"+problem.id,{
+      props : { problem }
+    })
+  }
   const getGroupTitle = (group) => {
     return group.wallchar + " " + group.walldesc;
   };
@@ -142,14 +155,14 @@ dayjs.extend(relativeTime);
   });
 
   const minChanged = debounce((value) => {
-    store.commit("setFilterGradeMin", value);
+    store.dispatch("setFilterGradeMin", value);
   });
   const maxChanged = debounce((value) => {
-    store.commit("setFilterGradeMax", value);
+    store.dispatch("setFilterGradeMax", value);
   });
   const onStylesChanged = (changedStyles) => {
     // set active filters.
-    store.commit("setFilterStyles", changedStyles);
+    store.dispatch("setFilterStyles", changedStyles);
   };
   const filteredProblems = computed(() => {
     let probs = problems.value;
@@ -187,8 +200,7 @@ dayjs.extend(relativeTime);
     return probs;
   });
   const onSortChanged = (sort) => {
-    debugger
-    store.commit("setFilterSort", sort);
+    store.dispatch("setFilterSort", sort);
     // TODO: Save to localStorage
   };
 
@@ -223,7 +235,7 @@ dayjs.extend(relativeTime);
     return a.grade.score != b.grade.score;
   };
   const resetFilters = () => {
-    store.commit("resetFilters");
+    store.dispatch("resetFilters");
   };
   const getSelectedWallNames = computed(() => {
     return filters.value.walls.map((wallid) => {

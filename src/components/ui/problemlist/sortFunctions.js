@@ -35,7 +35,7 @@ const sortFunctions = {
         return parseInt(a.grade.score) - parseInt(b.grade.score)
     },
     'most_ticks': (a, b) => {
-        return parseInt(a.ascentCount) - parseInt(b.ascentCount)
+        return parseInt(b.ascentCount) - parseInt(a.ascentCount)
     },
     'least_ticks': (a, b) => {
         return parseInt(a.ascentCount) - parseInt(b.ascentCount)

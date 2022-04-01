@@ -26,7 +26,7 @@ const onAddTick = () => {
 }
 const onStartNavigate = (problem) => {
   isOpened.value = false
-  props.f7router.navigate("/problem/"+problem.id,{
+  props.f7router.navigate("/problem/"+problem.id+"/popup",{
     props : { problem }
   })
 }
