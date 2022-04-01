@@ -14,7 +14,7 @@
       {{ t('problem.likes', problem.likeCount) }}
     </div>
     <div class="mb-2 flex flex-row my-1 w-4/5">
-      <button raised class="bg-white text-purple-900 px-1 py-1 ">
+      <button @click="askLike" raised class="bg-white text-purple-900 px-1 py-1 ">
         <div material="favorite" color="red"></div>
         <f7-icon f7="heart_fill" size="20" color="red"></f7-icon>
         <span class="font-bold">{{ t('problem.dolike') }}</span>
@@ -25,7 +25,7 @@
       {{ t('problem.dislikes', problem.dislikeCount) }}
     </div>
     <div class="mb-2 flex flex-row my-1 w-4/5">
-      <button raised class="bg-white text-purple-900 px-1 py-1 w-full">
+      <button @click="askDislike" raised class="bg-white text-purple-900 px-1 py-1 w-full">
           <f7-icon f7="hand_thumbsdown_fill" size="20" color="black"></f7-icon>
           <span class="font-bold">{{ t('problem.dislike') }} +</span>
         </button>
@@ -62,12 +62,24 @@
 import { useI18n } from 'vue-i18n'
 import store from '@js/store.js'
 import { getTagShort } from '@js/helpers'
+import  { prompt } from '@js/helpers/notifications.js'
 import ListStyles from '@components/ui/problem/ListStyles.vue'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 const { t } = useI18n()
 const props = defineProps({
   problem: Object,
 })
+const askLike = () => {
+  prompt(t('global.are_you_sure'),t('problem.confirm_like'),() => {
+    store.dispatch('likeProblem', {id : props.problem.id})
+  })
+}
+const askDislike = () => {
+  prompt(t('global.are_you_sure'),t('problem.confirm_dislike'),() => {
+    store.dispatch('dislikeProblem', {id : props.problem.id})
+  })
+
+}
 </script>
 
 <style></style>

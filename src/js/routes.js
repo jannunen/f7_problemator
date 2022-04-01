@@ -17,6 +17,10 @@ const routes = [
     beforeEnter: authGuard,
   },
   {
+    path: '/login/',
+    component: Loading,
+  },
+  {
     path: '/',
     component: Loading,
     beforeEnter: authGuard,

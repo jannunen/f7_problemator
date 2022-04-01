@@ -46,7 +46,6 @@ const props = defineProps({
   problem: Object,
 })
 const cutOpinions = (opinions, cutAt, leave) => {
-  debugger
   // Find first the index of cutAt and slice accordingly
   if (opinions == null) {
     return []
@@ -57,7 +56,6 @@ const cutOpinions = (opinions, cutAt, leave) => {
   return opinions.slice(start, end)
 }
 const cutGrades = (grades, cutAt, leave) => {
-  debugger
   if (grades == null) {
     return []
   }

@@ -51,7 +51,7 @@ const errorHandler = async (err) => {
     accountService.logout()
     // Navigate to login
     console.log("Invalidated login")
-    f7.views.main.router.navigate("/")
+    f7.views.main.router.navigate("/login/")
     return null
   }
 
@@ -70,6 +70,16 @@ const resultHandler = async (res) => {
   return json
 }
 const api = {
+  likeProblem(id) {
+    return axios.post(endpoint+`/problem/${id}/like`)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
+  dislikeProblem(id) {
+    return axios.post(endpoint+`/problem/${id}/dislike`)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
   getProblemDetails(id) {
     return axios.get(endpoint+"/problem/"+id)
     .then((res) => resultHandler(res))

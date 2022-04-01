@@ -59,6 +59,22 @@ const store = createStore({
     upcomingGames: ({ state }) => state.upcomingGames,
   },
   actions: {
+    async likeProblem({ state}, payload) {
+      const pid = payload.id
+      const ret = await api.likeProblem(pid)
+      // Update problem likes
+      const problem = state.problems[pid]
+      debugger
+      state.problems = { ...state.problems, [pid]: {...problem,['likeCount'] : ret.likeCount, ['dislikeCount'] : ret.dislikeCount } }
+    },
+    async dislikeProblem({ state}, payload) {
+      const pid = payload.id
+      const ret = await api.dislikeProblem(pid)
+      // Update problem dislikes
+      const problem = state.problems[pid]
+      debugger
+      state.problems = { ...state.problems, [pid]: {...problem,['likeCount'] : ret.likeCount, ['dislikeCount'] : ret.dislikeCount } }
+    },
     async login({ state}, payload) {
       const ret = await api.login(payload)
       if (ret.user != null) {
@@ -74,7 +90,6 @@ const store = createStore({
     },
     async getProblemDetails({ state }, payload) {
       const ret = await api.getProblemDetails(payload);
-      debugger
       const problem = ret.problem
       if (problem) {
         state.problems = {...state.problems,[problem.id] : problem}

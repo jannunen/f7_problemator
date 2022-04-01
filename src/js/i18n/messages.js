@@ -24,6 +24,9 @@ const messages = {
             notes : 'Notes',
             problem_details : 'Problem details',
             attributes : 'Attributes',
+            confirm_like :"Are you sure you want to like this problem?",
+            confirm_dislike : "Are you sure you want to dislike this problem? The routesetter will get a notification about this, but it will be anonymous.",
+
 
         },
         home : {
@@ -39,6 +42,7 @@ const messages = {
         global : {
             close_action : 'Close',
             clear_search_action : 'Clear search',
+            are_you_sure : 'Are you sure?',
         }
     },
     fi: {

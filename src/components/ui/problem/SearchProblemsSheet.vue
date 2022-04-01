@@ -82,7 +82,7 @@ export default {
     const clearSearch = () => {
       searchProblemText.value = null
       problems.value = []
-      this.$emit('clear')
+      this.emit('clear')
     }
     const searchProblemTextChanged = debounce((value) => {
       if (searchProblemText.value != '') {

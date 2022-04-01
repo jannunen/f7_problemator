@@ -1,6 +1,7 @@
 import { BehaviorSubject } from 'rxjs';
 import axios from 'axios';
 import store from '@js/store.js'
+import { f7 } from 'framework7-vue'
 
 
 const baseUrl = import.meta.env.VITE_API_HOST + "/api/auth"
@@ -97,6 +98,7 @@ async function goodOleLogout() {
     localStorage.account = null
     accountSubject.next(null);
     stopAuthenticateTimer();
+    f7.views.main.router.navigate("/login/")
 }
 
 function logout() {

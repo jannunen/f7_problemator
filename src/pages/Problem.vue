@@ -25,10 +25,13 @@ onMounted(() => {
   // Load additional details and merge to problem
  store.dispatch("getProblemDetails", props.problem.id);
 })
+// This is used so that when the additional problem details are
+// loaded, they will be merged to the problem got as a parameter.
+// This enables a smoother experience when the basic details
+// are available immediately and the heavier come later 
 const problemDetails = computed(() => {
     // Merge parameter problem and store problem
     const aProblem = problems.value[problem.id]
-    debugger
     if (aProblem != null) {
         const mergedProblem = {...problem, ...aProblem}
         return mergedProblem
@@ -70,7 +73,7 @@ const problemDetails = computed(() => {
           <div class="m-2">
             <f7-button
               @click="addTickSheetOpened = true"
-              class="uppercase block text-center button py-2 h-12 px-4 bg-green-500 text-white"
+              class="uppercase block text-center button py-2 h-12 px-4 dark:bg-blue-900 bg-green-500 text-white"
             >
               {{ t('problem.btn_add_tick') }}
             </f7-button>
