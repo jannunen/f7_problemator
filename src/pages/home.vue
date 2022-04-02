@@ -1,7 +1,8 @@
 <script setup>
 import TodayHeader from '@components/home/TodayHeader.vue'
-import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.vue' 
-import FloorMapBlock from '@components/home/FloorMapBlock.vue' 
+import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.vue'
+import FloorMapBlock from '@components/home/FloorMapBlock.vue'
+import MyLogs from '@components/home/MyLogs.vue'
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import $ from 'dom7'
@@ -15,7 +16,7 @@ const localDark = ref(true)
 const isOpened = ref(false)
 const { t } = useI18n()
 const props = defineProps({
-  f7router : Object,
+  f7router: Object,
 })
 const toggleDark = (newValue) => {
   const nowChecked = newValue.target.checked
@@ -26,14 +27,18 @@ const onAddTick = () => {
 }
 const onStartNavigate = (problem) => {
   isOpened.value = false
-  props.f7router.navigate("/problem/"+problem.id+"/popup",{
-    props : { problem }
+  props.f7router.navigate('/problem/' + problem.id + '/popup', {
+    props: { problem },
   })
 }
+const profileLoaded = ref(false)
 
 onMounted(() => {
-  console.log("store -> getProfile")
+  console.log('store -> getProfile')
   store.dispatch('getProfile')
+  .then((data) => {
+    profileLoaded.value = true
+  })
 })
 
 // Handles changing the dark/light theme. Seems a bit kludge, because it is.
@@ -59,20 +64,20 @@ watch(dark, (isDarkTheme, oldValue) => {
     <!-- Page content -->
     <TodayHeader :profile="profile" @addtick="onAddTick" />
     <floor-map-block />
+    <my-logs v-if="profileLoaded" :show-selector="true" />
 
-<f7-sheet 
-    v-model:opened="isOpened" 
-    style="height:auto; "
-    close-on-escape	
-    close-by-outside-click	
-    swipe-to-close
-    @sheet:closed="isOpened=false">
-      <SearchProblemsSheetVue @close="isOpened=false" @start-navigate="onStartNavigate" />
-      
+    <f7-sheet
+      v-model:opened="isOpened"
+      style="height: auto"
+      close-on-escape
+      close-by-outside-click
+      swipe-to-close
+      @sheet:closed="isOpened = false"
+    >
+      <SearchProblemsSheetVue
+        @close="isOpened = false"
+        @start-navigate="onStartNavigate"
+      />
     </f7-sheet>
-
-
-    
-
   </f7-page>
 </template>

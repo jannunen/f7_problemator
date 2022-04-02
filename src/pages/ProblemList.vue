@@ -138,7 +138,6 @@ dayjs.extend(relativeTime);
   */
  const filters = useStore('filters')
   const styles = computed(() => store.state.styles);
-  onMounted(() => {});
   const onStartNavigate = (problem) => {
     props.f7router.navigate("/problem/"+problem.id,{
       props : { problem }

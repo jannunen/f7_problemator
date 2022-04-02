@@ -1,5 +1,15 @@
 const messages = {
     en: {
+        mylogs : {
+            my_log : 'My log',
+            sessions : 'Sessions',
+            routes : 'Routes',
+            problems : 'Problems',
+            last_n_days_boulder : 'Last {n} days boulders',
+            sport : 'Sport',
+            all : 'All types',
+            boulder : 'Boulder',
+        },
         problemlist : {
             sort_problems_by : 'Sort problems',
             gradefilter : 'Grade filter',
