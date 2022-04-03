@@ -46,6 +46,7 @@
         </div>
       
       
+      <wall-selector :selected="selectedWalls" @select="onWallSelect" @clear="onClearWalls" />
       <f7-list problemlist class="my-0">
 
       <div v-for="(problem, idx) in filteredProblems" :key="problem.id">
@@ -104,6 +105,7 @@ import SearchHitItem from "@components/ui/problem/SearchHitItem.vue";
 
 import store from '@js/store.js'
 import { getRandom } from "@js/helpers";
+import WallSelector from '@components/ui/problemlist/WallSelector.vue'
 import {  maxSnap } from "@js/constants.js";
 import { useStore } from "framework7-vue";
 import { useI18n } from "vue-i18n";
@@ -133,6 +135,7 @@ dayjs.extend(relativeTime);
   const problems = computed(() => store.state.gym.problems);
   const walls = computed(() => store.state.walls);
   const grades = store.state.grades;
+  const selectedWalls = ref([])
   /*
   const filters = computed(() => store.state.filters);
   */
@@ -142,6 +145,12 @@ dayjs.extend(relativeTime);
     props.f7router.navigate("/problem/"+problem.id,{
       props : { problem }
     })
+  }
+  const onClearWalls = () => {
+    selectedWalls.value = []
+  }
+  const onWallSelect = (selection) => {
+    selectedWalls.value = selection
   }
   const getGroupTitle = (group) => {
     return group.wallchar + " " + group.walldesc;
@@ -182,12 +191,12 @@ dayjs.extend(relativeTime);
       );
     }
     // Filter by walls
-    if (walls.value != null && walls.value.length > 0) {
+    if (selectedWalls.value != null && selectedWalls.value.length > 0) {
       probs = probs.filter((item) => {
         if (item.wall == null) {
           return true;
         }
-        return walls.value.includes(item.wall.id);
+        return selectedWalls.value.includes(item.wall.id);
       });
     }
     // Filter by route props (all, new, expiring, circuits)

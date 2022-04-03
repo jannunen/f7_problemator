@@ -3,6 +3,10 @@ const messages = {
         gymselector : {
             active_gym : 'Active gym',
         },
+        wallselector : {
+            all_walls : 'All walls/sectors',
+            active_wall: 'Wall filter',
+        },
         badge_gym : {
             climbed_routes: "Climbed {n}% of {n} routes",
             climbed_problems: "Climbed {n}% of {n} problems",

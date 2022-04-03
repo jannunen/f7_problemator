@@ -1,0 +1,48 @@
+<template>
+  <div>
+    <f7-list class="mx-0 my-2">
+      <f7-list-item
+        :title="t('wallselector.active_wall')"
+        smart-select
+        :smart-select-params="{
+          closeOnSelect: true,
+          openIn: 'popup',
+          searchbar: true,
+          searchbarPlaceholder: 'Search walls',
+        }"
+      >
+        <select @change="selectWall" name="active_wall" multiple>
+          <option value="">{{ t('wallselector.all_walls') }}</option>
+          <option
+            :value="awall.id"
+            v-for="awall in walls"
+            :key="awall.id"
+            :selected="selected.includes(awall.id)"
+          >
+            {{ awall.wallchar }} {{ awall.walldesc }}
+          </option>
+        </select>
+      </f7-list-item>
+      <f7-list-button @click="emit('clear')"> Clear wall filter </f7-list-button>
+    </f7-list>
+  </div>
+</template>
+<script setup>
+import store from '@js/store.js'
+import { useStore } from 'framework7-vue'
+import { useI18n } from 'vue-i18n'
+import { onMounted, computed, ref } from 'vue'
+const { t } = useI18n()
+const gyms = ref([])
+const walls = useStore('walls')
+const emit = defineEmits(['select','clear'])
+const gym = useStore('gym')
+const props = defineProps({
+    selected : Array
+})
+const selectWall = ({ target }) => {
+  const selectedOptions = [...target.selectedOptions]
+  const ids = selectedOptions.map(item => parseInt(item.value))
+  emit('select', ids)
+}
+</script>
