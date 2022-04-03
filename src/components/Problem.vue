@@ -28,9 +28,6 @@ onMounted(() => {
 })
 const popupOpened = ref(true)
 const openAddTick = () => {
-  debugger
-  //popupOpened.value = false
-  //props.f7router.back();
   const url = `/problem/${problem.id}/addtick`
   props.f7router.navigate(url)
 }

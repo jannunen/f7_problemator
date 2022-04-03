@@ -33,7 +33,7 @@ export default {
   },
   components: { BarChart },
   setup(props) {
-    const { t, d, locale } = useI18n();
+    const { t } = useI18n();
     const ascents = Array.from(props.ascents.values());
     const grades = props.grades;
     const labels = Array.from(props.ascents.keys()).map(
@@ -77,6 +77,7 @@ export default {
       options,
       barChartRef,
       barChartProps,
+      t,
     };
   },
 };

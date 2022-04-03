@@ -76,6 +76,7 @@ import  { confirm } from '@js/helpers/notifications.js'
 import ListStyles from '@components/ui/problem/ListStyles.vue'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 import PopupListTicks from '@components/ui/problem/TickList.vue'
+import { getSessionCount } from '@helpers/component.helpers.js'
 
 const { t } = useI18n()
 const props = defineProps({
@@ -93,21 +94,7 @@ const askDislike = () => {
     store.dispatch('dislikeProblem', {id : props.problem.id})
   })
 }
-const sessionCount = computed(() => {
-  // Session count is the amount of different days the project has
-  // been projected on.
-  const projecting = props.problem.myProjects
-  const projectDays = projecting.reduce((acc,item) => {
-    // Reduce the timestamp to date.
-    const date = item.tstamp.substring(0,10);
-    if (!acc.includes(date)) {
-      acc.push(date)
-    }
-    return acc
-  },[])
-  return projectDays.length
-
-})
+const sessionCount = () => getSessionCount(props.problem)
 </script>
 
 <style></style>

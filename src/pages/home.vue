@@ -2,7 +2,10 @@
 import TodayHeader from '@components/home/TodayHeader.vue'
 import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.vue'
 import FloorMapBlock from '@components/home/FloorMapBlock.vue'
+import GymSelector from '@components/GymSelector.vue'
 import MyLogs from '@components/home/MyLogs.vue'
+import BadgeGymStats  from '@components/home/BadgeGymStats.vue'
+import { toaster } from '@helpers/notifications.js'
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import $ from 'dom7'
@@ -12,11 +15,17 @@ import { ref } from 'vue'
 import store from '../js/store.js'
 const dark = useStore('dark')
 const profile = useStore('profile')
+const gym = useStore('gym')
 const localDark = ref(true)
 const isOpened = ref(false)
 const { t } = useI18n()
 const props = defineProps({
   f7router: Object,
+})
+watch(gym,(newValue,oldValue) => {
+  if (newValue != null && oldValue != null && newValue.id != oldValue.id) {
+    toaster('The gym has been changed!')
+  }
 })
 const toggleDark = (newValue) => {
   const nowChecked = newValue.target.checked
@@ -62,9 +71,18 @@ watch(dark, (isDarkTheme, oldValue) => {
       </f7-nav-right>
     </f7-navbar>
     <!-- Page content -->
+    <gym-selector v-if="profileLoaded" />
     <TodayHeader :profile="profile" @addtick="onAddTick" />
     <floor-map-block />
     <my-logs v-if="profileLoaded" :show-selector="true" />
+
+    <div class="m-4 grid grid-cols-2 gap-2" v-if="profile">
+      <badge-gym-stats :gym="gym" />
+      <badge-groups />
+      <badge-competitions />
+      <badge-ranking />
+
+    </div>
 
     <f7-sheet
       v-model:opened="isOpened"

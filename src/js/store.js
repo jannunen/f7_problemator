@@ -52,6 +52,7 @@ const store = createStore({
     styles: ({ state }) => state.styles,
     grades: ({ state }) => state.grades,
     walls: ({ state }) => state.walls,
+    gyms: ({ state }) => state.gyms,
     gymid: ({ state }) => state.gymid,
     profile: ({ state }) => state.profile,
     user: ({ state }) => state.user,
@@ -71,6 +72,15 @@ const store = createStore({
     upcomingGames: ({ state }) => state.upcomingGames,
   },
   actions: {
+    async changeGym({state, dispatch}, gymid) {
+      state.gymid = gymid
+      dispatch('getProfile')
+    },
+    async getGyms({state}, payload) {
+      const ret = await api.getGyms()
+      state.gyms = ret.gyms
+      return ret
+    },
     setFilterProblems({state}, payload) {
       state.filters = { ...state.filters, ['problemFilters']: payload }
     },

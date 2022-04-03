@@ -1,8 +1,16 @@
 const messages = {
     en: {
+        gymselector : {
+            active_gym : 'Active gym',
+        },
+        badge_gym : {
+            climbed_routes: "Climbed {n}% of {n} routes",
+            climbed_problems: "Climbed {n}% of {n} problems",
+        },
         mylogs : {
-            my_log : 'My log',
+            my_logs : 'My logs',
             sessions : 'Sessions',
+            ascents : 'Ascents',
             routes : 'Routes',
             problems : 'Problems',
             last_n_days_boulder : 'Last {n} days boulders',

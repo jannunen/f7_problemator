@@ -70,6 +70,11 @@ const resultHandler = async (res) => {
   return json
 }
 const api = {
+  getGyms() {
+    return axios.get(endpoint+"/gym")
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
   deleteTick(payload) {
     return axios.delete(endpoint+"/tick/"+payload)
     .then((res) => resultHandler(res))
