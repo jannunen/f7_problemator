@@ -11,19 +11,19 @@
           searchbarPlaceholder: 'Search walls',
         }"
       >
-        <select @change="selectWall" name="active_wall" multiple>
-          <option value="">{{ t('wallselector.all_walls') }}</option>
+        <select @change="selectWall" name="active_wall">
+          <option value="">{{ t('wallselector.all_walls') }}</option>
           <option
             :value="awall.id"
             v-for="awall in walls"
             :key="awall.id"
-            :selected="selected.includes(awall.id)"
+            :selected="modelValue.includes(awall.id)"
           >
             {{ awall.wallchar }} {{ awall.walldesc }}
           </option>
         </select>
       </f7-list-item>
-      <f7-list-button @click="emit('clear')"> Clear wall filter </f7-list-button>
+      <f7-list-button @click="clear"> Clear wall filter </f7-list-button>
     </f7-list>
   </div>
 </template>
@@ -35,14 +35,21 @@ import { onMounted, computed, ref } from 'vue'
 const { t } = useI18n()
 const gyms = ref([])
 const walls = useStore('walls')
-const emit = defineEmits(['select','clear'])
+const emit = defineEmits(['select','clear','update:modelValue'])
 const gym = useStore('gym')
 const props = defineProps({
-    selected : Array
+    selected : Array,
+    modelValue : 
+    { type : Array, default : []},
+
 })
 const selectWall = ({ target }) => {
   const selectedOptions = [...target.selectedOptions]
   const ids = selectedOptions.map(item => parseInt(item.value))
   emit('select', ids)
+  emit('update:modelValue',ids)
+}
+const clear = () => {
+  emit('clear')
 }
 </script>
