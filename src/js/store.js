@@ -32,8 +32,7 @@ const store = createStore({
     topGames: [],
     recentGames: [],
     upcomingGames: [],
-    test : 'kekkuli',
-    gymid : 1,
+    gymid : null,
     dark : true,
     profile : null,
     user : null,
@@ -44,8 +43,10 @@ const store = createStore({
     styles : [],
     grades : [],
     walls : [],
+    profileLoaded : false,
   },
   getters: {
+    profileLoaded: ({ state }) => state.profileLoaded,
     filters: ({ state }) => state.filters,
     problems: ({ state }) => state.problems,
     gym: ({ state }) => state.gym,
@@ -57,7 +58,6 @@ const store = createStore({
     profile: ({ state }) => state.profile,
     user: ({ state }) => state.user,
     access_token: ({ state }) => state.access_token,
-    test: ({ state }) => state.test,
     dark: ({ state }) => state.dark,
     searchResults: ({ state }) => state.searchResults,
     searchState: ({ state }) => state.searchState,
@@ -67,13 +67,11 @@ const store = createStore({
     backlog: ({ state }) => state.backlog,
     archive: ({ state }) => state.archive,
     wishlist: ({ state }) => state.wishlist,
-    topGames: ({ state }) => state.topGames,
-    recentGames: ({ state }) => state.recentGames,
-    upcomingGames: ({ state }) => state.upcomingGames,
   },
   actions: {
     async changeGym({state, dispatch}, gymid) {
-      state.gymid = gymid
+      localStorage.gymid = gymid
+      state.gymid =gymid
       dispatch('getProfile')
     },
     async getGyms({state}, payload) {
@@ -124,7 +122,6 @@ const store = createStore({
       const ret = await api.dislikeProblem(pid)
       // Update problem dislikes
       const problem = state.problems[pid]
-      debugger
       state.problems = { ...state.problems, [pid]: {...problem,['likeCount'] : ret.likeCount, ['dislikeCount'] : ret.dislikeCount } }
     },
     async login({ state}, payload) {
@@ -149,6 +146,8 @@ const store = createStore({
       return problem
     },
     async getProfile({ state } , payload) {
+      state.profileLoaded = false
+      console.log("Loading profile",state.gymid)
       const ret = await api.getProfile(state.gymid)
       if (ret!=null && ret.profile != null) {
         state.profile = ret.profile
@@ -156,6 +155,7 @@ const store = createStore({
         state.styles = ret.styles
         state.grades = ret.grades
         state.walls = ret.walls
+        state.profileLoaded = {...state, ['profileLoaded'] : true} 
         return state.profile
       }
       return null

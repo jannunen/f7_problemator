@@ -41,15 +41,12 @@ const dateSelected = (date) => {
 
 
 const saveTick = () => {
-  debugger
   let payload = { ...tick.value }
   store.dispatch('saveTick', payload)
     .then((resp) => {
-      debugger
       toaster(resp.message)
     })
     .catch((err) => {
-      debugger
       alert(err)
     })
 }

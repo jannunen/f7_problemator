@@ -16,6 +16,7 @@ import store from '../js/store.js'
 const dark = useStore('dark')
 const profile = useStore('profile')
 const gym = useStore('gym')
+const gymid = useStore('gymid')
 const localDark = ref(true)
 const isOpened = ref(false)
 const { t } = useI18n()
@@ -25,6 +26,19 @@ const props = defineProps({
 watch(gym,(newValue,oldValue) => {
   if (newValue != null && oldValue != null && newValue.id != oldValue.id) {
     toaster('The gym has been changed!')
+  }
+})
+const profileLoaded = useStore('profileLoaded')
+const gymSelectorOpen = ref(false)
+
+
+console.log("home gymid",gymid.value)
+if (gymid.value == null || gymid.value == "" || isNaN(gymid.value)) {
+  gymSelectorOpen.value = true
+}
+watch(gymid,(newValue, oldValue) => {
+  if (!isNaN(newValue)) {
+    gymSelectorOpen.value = false
   }
 })
 const toggleDark = (newValue) => {
@@ -37,18 +51,12 @@ const onAddTick = () => {
 const onStartNavigate = (problem) => {
   isOpened.value = false
   props.f7router.navigate('/problem/' + problem.id + '/popup', {
-    props: { problem },
+    props: { problem }
   })
 }
-const profileLoaded = ref(false)
 
-onMounted(() => {
-  console.log('store -> getProfile')
-  store.dispatch('getProfile')
-  .then((data) => {
-    profileLoaded.value = true
-  })
-})
+console.log('store -> getProfile')
+store.dispatch('getProfile')
 
 // Handles changing the dark/light theme. Seems a bit kludge, because it is.
 watch(dark, (isDarkTheme, oldValue) => {
@@ -71,18 +79,37 @@ watch(dark, (isDarkTheme, oldValue) => {
       </f7-nav-right>
     </f7-navbar>
     <!-- Page content -->
-    <gym-selector v-if="profileLoaded" />
-    <badge-gym-stats :gym="gym" />
-    <TodayHeader :profile="profile" @addtick="onAddTick" />
-    <floor-map-block />
-    <my-logs v-if="profileLoaded" :show-selector="true" />
+    <div v-if="profileLoaded">
+      <gym-selector />
+      <badge-gym-stats :gym="gym" />
+      <TodayHeader :profile="profile" @addtick="onAddTick" />
+      <floor-map-block />
+      <my-logs  :show-selector="true" />
 
-    <div class="m-4 grid grid-cols-2 gap-2" v-if="profile">
-      <badge-groups />
-      <badge-competitions />
-      <badge-ranking />
+      <div class="m-4 grid grid-cols-2 gap-2" v-if="profile">
+        <badge-groups />
+        <badge-competitions />
+        <badge-ranking />
 
+      </div>
     </div>
+    <div v-else class="text-center mt-20">
+      <f7-preloader class="my-2"></f7-preloader>
+      <br />
+      Loading ...
+     </div>
+
+    <f7-sheet class="choose_gym_sheet" :opened="gymSelectorOpen" @sheet:closed="gymSelectorOpen= false">
+        <f7-page-content>
+          <f7-block>
+            <h1 class="text-2xl font-bold text-center">{{ t('home.gym_not_selected') }}</h1>
+            <p class="my-3">{{ t('home.gym_selection_info') }}</p>
+            <gym-selector />
+          </f7-block>
+        </f7-page-content>
+    </f7-sheet>
+
+
 
     <f7-sheet
       v-model:opened="isOpened"

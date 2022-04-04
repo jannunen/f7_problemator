@@ -22,11 +22,12 @@
         </template>
         <select @change="selectGym" name="active_gym">
           <!--<optgroup label="American">-->
+          <option value="">No gym selected</option>
           <option
             :value="agym.id"
             v-for="agym in gyms"
             :key="agym.id"
-            :selected="agym.id == gym.id"
+            :selected="agym.id == gymid"
           >
             {{ agym.name }}
           </option>
@@ -44,11 +45,12 @@ import { onMounted, computed, ref } from 'vue'
 const { t } = useI18n()
 const gyms = ref([])
 store.dispatch('getGyms').then((ret) => (gyms.value = ret.gyms))
-const gym = useStore('gym')
+const gymid = useStore('gymid')
 const selectGym = ({ target }) => {
   const idx = target.selectedIndex
   const opt = target[idx]
   const selectedGym = opt.value
+  console.log("Changing gym to",selectedGym)
   store.dispatch('changeGym', selectedGym)
 }
 </script>

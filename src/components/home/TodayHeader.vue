@@ -1,20 +1,21 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
+import store from '@js/store.js'
+import dayjs from 'dayjs'
 import { useStore } from 'framework7-vue'
 const { t } = useI18n()
 const props = defineProps({
   profile: Object,
 })
 const emit = defineEmits(['addtick'])
-const gym = useStore('gym')
+const problems = computed(() => store.state.gym.problems)
 const ticksToday = computed(() => {
   // Go through gym problems for the ascents
-  const probs = gym?.problems
-  if (probs == null) {
+  if (problems.value == null) {
     return 0
   }
-  return probs.reduce((acc, prob) => {
+  return problems.value.reduce((acc, prob) => {
     // Check if ticks are from today.
     acc += prob.myTicks.reduce((acc, tick) => {
       if (dayjs().isSame(dayjs(tick.tstamp), 'date')) {
@@ -27,12 +28,10 @@ const ticksToday = computed(() => {
 })
 
 const triesToday = computed(() => {
-  // Go through gym problems for the ascents
-  const probs = gym?.problems
-  if (probs == null) {
+  if (problems.value == null) {
     return 0
   }
-  const triesToday = probs.reduce((acc, prob) => {
+  return  problems.value.reduce((acc, prob) => {
     acc += prob.myTicks.reduce((ticks, tick) => {
       // Check if ticks are from today.
       if (dayjs().isSame(dayjs(tick.tstamp), 'date')) {
@@ -42,7 +41,6 @@ const triesToday = computed(() => {
     }, 0)
     return acc
   }, 0)
-  return triesToday
 })
 </script>
 <template>

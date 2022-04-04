@@ -19,6 +19,7 @@
   export default {
     setup() {
         const { t } = useI18n() 
+        store.dispatch("changeGym",localStorage.gymid)
         return {
             t,
             store,
