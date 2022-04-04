@@ -72,12 +72,12 @@ watch(dark, (isDarkTheme, oldValue) => {
     </f7-navbar>
     <!-- Page content -->
     <gym-selector v-if="profileLoaded" />
+    <badge-gym-stats :gym="gym" />
     <TodayHeader :profile="profile" @addtick="onAddTick" />
     <floor-map-block />
     <my-logs v-if="profileLoaded" :show-selector="true" />
 
     <div class="m-4 grid grid-cols-2 gap-2" v-if="profile">
-      <badge-gym-stats :gym="gym" />
       <badge-groups />
       <badge-competitions />
       <badge-ranking />

@@ -1,12 +1,14 @@
 <template>
-    <div v-if="gym != null" class="p-2 border border-gray-700 text-center">
-        <h1 class="text-3xl text-sea-300 my-2">{{ gym.name }}</h1>
-        Boulders
-        <hr class="mx-auto w-2/5" />
+    <div v-if="gym != null" class="p-2 border border-gray-700 text-center grid grid-cols-2">
+        <div>
+        <div class="font-bold">Boulders</div>
         <p class="w-3/5 flex mx-auto flex-row justify-between gap-2 text-xl"><span class="text-2xl">{{ percentageBoulders }}%</span> of <span class="text-2xl">{{ totalBoulders }}</span></p>
-        Routes
-        <hr class="mx-auto w-2/5 "  />
+        </div>
+        <div>
+        <div class="font-bold">Routes</div>
         <p class="w-3/5 flex mx-auto flex-row justify-between gap-2 text-xl"><span class="text-2xl">{{ percentageRoutes }}%</span> of <span class="text-2xl">{{ totalRoutes }}</span></p>
+        </div>
+        
     </div>
 </template>
 <script setup>
