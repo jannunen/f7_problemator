@@ -54,11 +54,14 @@
       <div class="bg-yellow-500 px-2 py-1 text-white text-center text-xs rounded-full">
         {{ t('problem.projecting') }}
       </div>
+      <button @click="myTicksPopupOpen=true" class="my-2 font-bold">
       <div class="my-1">{{ t('problem.sessions',sessionCount) }}</div>
+      </button>
     </div>
     <popup-list-ticks
     :problem="problem"
     :ticks="problem.myTicks"
+    :projects="problem.myProjects"
     :opened="myTicksPopupOpen"
     key="popuplistticks"
     @close="myTicksPopupOpen=false" 

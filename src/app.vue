@@ -8,7 +8,7 @@
     :autoDarkTheme="true"
   >
     <!-- initial page is specified in routes.js -->
-    <f7-view main url="/"></f7-view>
+    <f7-view main url="/" :browser-history="true"></f7-view>
   </f7-app>
 </template>
 <script>

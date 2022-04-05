@@ -4,7 +4,7 @@ import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.v
 import FloorMapBlock from '@components/home/FloorMapBlock.vue'
 import GymSelector from '@components/GymSelector.vue'
 import MyLogs from '@components/home/MyLogs.vue'
-import BadgeGymStats  from '@components/home/BadgeGymStats.vue'
+import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import { toaster } from '@helpers/notifications.js'
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -23,7 +23,7 @@ const { t } = useI18n()
 const props = defineProps({
   f7router: Object,
 })
-watch(gym,(newValue,oldValue) => {
+watch(gym, (newValue, oldValue) => {
   if (newValue != null && oldValue != null && newValue.id != oldValue.id) {
     toaster('The gym has been changed!')
   }
@@ -31,12 +31,11 @@ watch(gym,(newValue,oldValue) => {
 const profileLoaded = useStore('profileLoaded')
 const gymSelectorOpen = ref(false)
 
-
-console.log("home gymid",gymid.value)
-if (gymid.value == null || gymid.value == "" || isNaN(gymid.value)) {
+console.log('home gymid', gymid.value)
+if (gymid.value == null || gymid.value == '' || isNaN(gymid.value)) {
   gymSelectorOpen.value = true
 }
-watch(gymid,(newValue, oldValue) => {
+watch(gymid, (newValue, oldValue) => {
   if (!isNaN(newValue)) {
     gymSelectorOpen.value = false
   }
@@ -51,12 +50,27 @@ const onAddTick = () => {
 const onStartNavigate = (problem) => {
   isOpened.value = false
   props.f7router.navigate('/problem/' + problem.id + '/popup', {
-    props: { problem }
+    props: { problem },
   })
 }
 
 console.log('store -> getProfile')
 store.dispatch('getProfile')
+.then(ret => {
+  // If the return is null, it means that we are not authenticated.
+  // go back to login view...
+  debugger
+console.log("plop0")
+  f7.views.main.router.navigate("/")
+
+})
+.catch(err => {
+  debugger
+console.log("plop1")
+  f7.views.main.router.navigate("/")
+
+})
+console.log("plop2")
 
 // Handles changing the dark/light theme. Seems a bit kludge, because it is.
 watch(dark, (isDarkTheme, oldValue) => {
@@ -84,32 +98,29 @@ watch(dark, (isDarkTheme, oldValue) => {
       <badge-gym-stats :gym="gym" />
       <TodayHeader :profile="profile" @addtick="onAddTick" />
       <floor-map-block />
-      <my-logs  :show-selector="true" />
+      <my-logs :show-selector="true" />
 
       <div class="m-4 grid grid-cols-2 gap-2" v-if="profile">
         <badge-groups />
         <badge-competitions />
         <badge-ranking />
-
       </div>
     </div>
     <div v-else class="text-center mt-20">
-      <f7-preloader class="my-2"></f7-preloader>
-      <br />
-      Loading ...
-     </div>
-
-    <f7-sheet class="choose_gym_sheet" :opened="gymSelectorOpen" @sheet:closed="gymSelectorOpen= false">
-        <f7-page-content>
-          <f7-block>
-            <h1 class="text-2xl font-bold text-center">{{ t('home.gym_not_selected') }}</h1>
-            <p class="my-3">{{ t('home.gym_selection_info') }}</p>
-            <gym-selector />
-          </f7-block>
-        </f7-page-content>
-    </f7-sheet>
-
-
+      <!-- If should show preloader, show only if gym IS selected -->
+      <div v-if="!gymSelectorOpen">
+        <f7-preloader class="my-2"></f7-preloader>
+        <br />
+        Loading ...
+      </div> 
+      <div v-else>
+            <f7-block>
+              <h1 class="text-2xl font-bold text-center">{{ t('home.gym_not_selected') }}</h1>
+              <p class="my-3">{{ t('home.gym_selection_info') }}</p>
+              <gym-selector />
+            </f7-block>
+      </div>
+    </div>
 
     <f7-sheet
       v-model:opened="isOpened"

@@ -50,10 +50,14 @@ const errorHandler = async (err) => {
     // Logout locally
     accountService.logout()
     // Navigate to login
-    console.log("Invalidated login")
-    f7.views.main.router.navigate("/login/")
+    console.log("Invalidated login in errorhandler")
+    /*
+    const views = f7.views
+    f7.views.main.router.navigate("/")
+    */
     return null
   }
+  return null
 
     
 }
@@ -63,7 +67,7 @@ const resultHandler = async (res) => {
     // Logout locally
     accountService.logout()
     // Navigate to login
-    console.log("Invalidated login")
+    console.log("Invalidated login in resultHandler")
     f7.views.main.router.navigate("/")
     return null
   }
@@ -72,6 +76,11 @@ const resultHandler = async (res) => {
 const api = {
   getGyms() {
     return axios.get(endpoint+"/gym")
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
+  deleteProject(payload) {
+    return axios.delete(endpoint+"/pretick/"+payload)
     .then((res) => resultHandler(res))
     .catch(err => errorHandler(err))
   },
@@ -111,7 +120,7 @@ const api = {
   },
   getProfile(gymid) {
     const url = endpoint + `/profile?gymid=${gymid}`
-    return fetchGet(url)
+    return axios.get(url)
     .then((res) => resultHandler(res))
     .catch(err => errorHandler(err))
   },

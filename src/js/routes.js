@@ -33,10 +33,6 @@ const routes = [
     beforeEnter: authGuard,
   },
   {
-    path: '/login/',
-    component: Login,
-  },
-  {
     path: '/wishlist/',
     component: Wishlist,
     beforeEnter: authGuard,

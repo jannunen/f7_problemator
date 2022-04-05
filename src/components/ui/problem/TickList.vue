@@ -8,7 +8,9 @@
       </f7-navbar>
       <f7-block>
         <div class="text-center" v-html="t('problem.myticks_intro')"></div>
-        <f7-list v-if="reversedTicks.length > 0">
+        <div v-if="reversedTicks.length > 0 || reversedProjects.length > 0">
+         <f7-block-title>Ticks</f7-block-title>
+        <f7-list v-if="reversedTicks.length > 0"> 
           <f7-list-item
             @swipeout:deleted="(evt) => onDeleted(tick, j)"
             swipeout
@@ -47,6 +49,43 @@
             </f7-swipeout-actions>
           </f7-list-item>
         </f7-list>
+         <f7-block-title>Tries / Projecting</f7-block-title>
+        <f7-list v-if="reversedProjects.length > 0"> 
+          <f7-list-item
+            @swipeout:deleted="(evt) => onProjectDeleted(tick, j)"
+            swipeout
+            v-for="(tick, index) in reversedProjects"
+            :key="tick.id"
+          >
+            <template #media> {{ index + 1 }}. </template>
+            <template #title>
+              <div class="flex flex-col">
+                <div
+                  class="rounded-full font-bold text-yellow-400"
+                >
+                  {{ t('a burn') }}
+                </div>
+                <div class="text-sm">{{ t('problem.tick_in_tries', parseInt(tick.tries)) }}</div>
+              </div>
+            </template>
+            <template #after>
+              <div class="flex flex-col">
+                <div class="text-sm">{{ dayjs.utc(tick.tstamp).fromNow() }}</div>
+                <div class="text-sm">
+                  {{ dayjs.utc(tick.tstamp).local().format('DD.MM.YYYY HH:mm') }}
+                </div>
+              </div>
+            </template>
+            <f7-swipeout-actions right>
+              <f7-swipeout-button
+                delete
+                :confirm-text="t('problem.tick_delete_are_you_sure')"
+                >{{ t('delete') }}</f7-swipeout-button
+              >
+            </f7-swipeout-actions>
+          </f7-list-item>
+        </f7-list>
+        </div>
         <div v-else class="my-2 text-center font-bold text-orange">
           {{ t('problem.you_have_no_ticks') }}
         </div>
@@ -78,6 +117,10 @@ const props = defineProps({
     type: Object,
     default: null,
   },
+  projects: {
+    type: Array,
+    default: [],
+  },
   ticks: {
     type: Array,
     default: [],
@@ -88,15 +131,21 @@ const props = defineProps({
 })
 
 const { t } = useI18n()
+const onProjectDeleted = (tick) => {
+  store.dispatch('deleteProject', tick.id).then((resp) => {
+    toaster(resp.message)
+  })
+}
 const onDeleted = (tick) => {
-  debugger
   store.dispatch('deleteTick', tick.id).then((resp) => {
     toaster(resp.message)
   })
 }
 const emit = defineEmits(['close'])
 const getTriesText = (tick) => t('problem.tries', { n: tick.tries })
-const reversedTicks = computed(() => props.ticks.reverse())
+const reversedTicks = computed(() => props.ticks?.reverse())
+const reversedProjects = computed(() => props.projects?.reverse())
+
 </script>
 
 <style></style>

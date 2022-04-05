@@ -42,7 +42,6 @@ async function goodOleLogin(email, password) {
             }
         })
         .catch(err => {
-            debugger
             alert(JSON.stringify(err.response.data || err))
             return false
         })
@@ -50,21 +49,30 @@ async function goodOleLogin(email, password) {
 }
 
 async function checkIfLogin() {
-    const account = JSON.parse(localStorage.account)
-    if (account == null || account.error === true) {
-        return false
+    try {
+        const accountRaw = localStorage.account
+
+        if (accountRaw == null || accountRaw == "") {
+            return false
+        }
+        const account = JSON.parse(accountRaw)
+        if (account == null || account.error === true) {
+            return false
+        }
+        const { email } = account.user
+        const access_token = localStorage.access_token
+        let ret = true
+        if (account.type == 'old') {
+            // IF old email+pwd  login, assume valid. It will be checked when doing the
+            // first call.
+            accountSubject.next(account);
+        } else if (account.type == 'fb') {
+            ret = await apiAuthenticate(email, access_token)
+        }
+        return ret
+    }  catch (e) {
+        // If something fails, most likely unauthenticated
     }
-    const { email } = account.user
-    const access_token = localStorage.access_token
-    let ret = true
-    if (account.type == 'old') {
-        // IF old email+pwd  login, assume valid. It will be checked when doing the
-        // first call.
-        accountSubject.next(account);
-    } else if (account.type == 'fb') {
-        ret = await apiAuthenticate(email, access_token)
-    }
-    return ret
 }
 
 
@@ -89,16 +97,20 @@ async function apiAuthenticate(email, accessToken) {
 }
 
 async function goodOleLogout() {
-    debugger
     try {
-        const ret = await axios.post(`${baseUrl}/logout`)
+        axios.post(`${baseUrl}/logout`)
+        .then(ret => {
+            localStorage.account = null
+            accountSubject.next(null);
+            stopAuthenticateTimer();
+            f7.views.main.router.navigate("/")
+        })
+        .catch(err => {
+            f7.views.main.router.navigate("/")
+        })
     } catch (e) {
         // Might fail if no access_token present
     }
-    localStorage.account = null
-    accountSubject.next(null);
-    stopAuthenticateTimer();
-    f7.views.main.router.navigate("/")
 }
 
 function logout() {
@@ -123,7 +135,6 @@ async function update(account) {
         // publish updated account to subscribers
         account = { ...accountSubject.value, ...account };
         */
-       debugger
     accountSubject.next(account);
     //}
     return account;

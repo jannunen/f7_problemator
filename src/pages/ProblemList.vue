@@ -136,7 +136,7 @@ const props = defineProps({
   },
 })
 const { t, d, locale } = useI18n()
-const problems = computed(() => store.state.gym.problems)
+const problems = computed(() => store.state.gym?.problems)
 const walls = computed(() => store.state.walls)
 const grades = store.state.grades
 const selectedWalls = ref([])
@@ -178,6 +178,9 @@ const onStylesChanged = (changedStyles) => {
 }
 const filteredProblems = computed(() => {
   let probs = problems.value
+  if (probs == null) {
+    return []
+  }
   const filters = useStore('filters')
   let { problemFilters, styles, gradeMin, gradeMax, walls, sort } = toRefs(filters.value)
   if (gradeMax.value != 'max') {
@@ -244,6 +247,7 @@ const gradesDiffer = (idx) => {
 }
 const resetFilters = () => {
   store.dispatch('resetFilters')
+  selectedWalls.value = []
 }
 const getSelectedWallNames = computed(() => {
   return filters.value.walls.map((wallid) => {

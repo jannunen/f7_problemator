@@ -101,6 +101,10 @@ const store = createStore({
     resetFilters({ state}) {
       state.filters = {...filtersInitial}
     },
+    async deleteProject({ state}, payload) {
+      const ret = await api.deleteProject(payload)
+      state.problems = {...state.problems,[ret.problem.id] : ret.problem}
+    },
     async deleteTick({ state}, payload) {
       const ret = await api.deleteTick(payload)
       state.problems = {...state.problems,[ret.problem.id] : ret.problem}
@@ -122,7 +126,7 @@ const store = createStore({
       const ret = await api.dislikeProblem(pid)
       // Update problem dislikes
       const problem = state.problems[pid]
-      state.problems = { ...state.problems, [pid]: {...problem,['likeCount'] : ret.likeCount, ['dislikeCount'] : ret.dislikeCount } }
+      s.problems = { ...state.problems, [pid]: {...problem,['likeCount'] : ret.likeCount, ['dislikeCount'] : ret.dislikeCount } }
     },
     async login({ state}, payload) {
       const ret = await api.login(payload)
@@ -147,6 +151,10 @@ const store = createStore({
     },
     async getProfile({ state } , payload) {
       state.profileLoaded = false
+      if (state.gymid == null || state.gymid == "undefined") {
+        // Don't load... Gym not selected.
+        return null
+      }
       console.log("Loading profile",state.gymid)
       const ret = await api.getProfile(state.gymid)
       if (ret!=null && ret.profile != null) {
