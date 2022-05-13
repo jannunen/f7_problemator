@@ -5,6 +5,8 @@ import FloorMapBlock from '@components/home/FloorMapBlock.vue'
 import GymSelector from '@components/GymSelector.vue'
 import MyLogs from '@components/home/MyLogs.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
+import { useAuth0 } from '@auth0/auth0-vue';
+const { idTokenClaims, getAccessTokenSilently, loginWithRedirect, logout, user, isAuthenticated } = useAuth0();
 import { toaster } from '@helpers/notifications.js'
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -30,6 +32,21 @@ watch(gym, (newValue, oldValue) => {
 })
 const profileLoaded = useStore('profileLoaded')
 const gymSelectorOpen = ref(false)
+if (isAuthenticated) {
+  store.dispatch('setAccessToken', )
+}
+/*
+watch(isAuthenticated, async (newValue, oldValue) => {
+  debugger
+  if (newValue === true) {
+    // Get token and send to api
+    const token = await getAccessTokenSilently();
+    const ret = await store.dispatch('setToken',token)
+    console.log('store -> getProfile')
+    store.dispatch('getProfile')
+  }
+})
+*/
 
 console.log('home gymid', gymid.value)
 if (gymid.value == null || gymid.value == '' || isNaN(gymid.value)) {
@@ -54,23 +71,17 @@ const onStartNavigate = (problem) => {
   })
 }
 
-console.log('store -> getProfile')
-store.dispatch('getProfile')
-.then(ret => {
-  // If the return is null, it means that we are not authenticated.
-  // go back to login view...
-  debugger
-console.log("plop0")
-  f7.views.main.router.navigate("/")
-
+onMounted(() => {
+  if (!isAuthenticated) {
+    loginWithRedirect();
+  }
+  getAccessTokenSilently().then(token => {
+    store.dispatch('setToken',token)
+    .then(() => {
+      store.dispatch('getProfile',{ user})
+    })
+  })
 })
-.catch(err => {
-  debugger
-console.log("plop1")
-  f7.views.main.router.navigate("/")
-
-})
-console.log("plop2")
 
 // Handles changing the dark/light theme. Seems a bit kludge, because it is.
 watch(dark, (isDarkTheme, oldValue) => {

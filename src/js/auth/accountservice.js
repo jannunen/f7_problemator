@@ -173,6 +173,7 @@ export const accountService = {
     goodOleLogin,
     goodOleLogout,
     apiAuthenticate,
+    accountSubject,
     logout,
     getAll,
     getById,

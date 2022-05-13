@@ -51,6 +51,7 @@
         </div>
 
         <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
+
         <f7-list problemlist class="my-0">
           <div v-for="(problem, idx) in filteredProblems" :key="problem.id">
             <li

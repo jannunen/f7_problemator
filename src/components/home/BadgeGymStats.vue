@@ -55,9 +55,9 @@ if (profile.value.info != null) {
         const problem = problems.value.find(item => item.id==pid)
         if (problem != null) {
             if (problem.routetype == 'boulder') {
-                acc.routes = acc.routes + 1
+                acc.boulders = acc.boulders + 1
             } else if (problem.routetype == 'sport') {
-                acc.problems = acc.problems + 1
+                acc.routes = acc.routes + 1
             }
             acc.total = acc.total + 1
         }
@@ -70,6 +70,7 @@ if (profile.value.info != null) {
 if (totalRoutes.value > 0) {
     percentageRoutes.value = Math.round((tickedAmountRoutes.value / totalRoutes.value) * 1000) / 10;
 }
+
 if (totalBoulders.value > 0) {
     percentageBoulders.value = Math.round((tickedAmountBoulders.value / totalBoulders.value) * 1000) / 10;
 }

@@ -6,8 +6,7 @@
         <div class="text-4xl">{{ getLatestSessionCount }}</div>
         <div>{{ t('mylogs.sessions') }}</div>
         <div class="text-4xl">{{ getLatestProblemCount }}</div>
-        <div v-if="showOfType == 'route'">{{ t('mylogs.ascents') }}</div>
-        <div v-if="showOfType == 'boulder'">{{ t('mylogs.ascents') }}</div>
+        <div >{{ t('mylogs.ascents') }}</div>
       </div>
       <div class="flex flex-col justify-between col-span-2">
         <div>

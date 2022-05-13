@@ -1,6 +1,7 @@
 import { createStore } from 'framework7';
 import api from './api.js';
 import { f7 } from 'framework7-vue'
+import { useAuth0 } from '@auth0/auth0-vue';
 const apihost = import.meta.env.VITE_API_HOST
 const apiprefix = "/api/v03"
 
@@ -69,10 +70,12 @@ const store = createStore({
     wishlist: ({ state }) => state.wishlist,
   },
   actions: {
+    setAccessToken ({state, dispatch}, payload) {
+      state.access_token = payload
+    },
     async changeGym({state, dispatch}, gymid) {
       localStorage.gymid = gymid
       state.gymid =gymid
-      dispatch('getProfile')
     },
     async getGyms({state}, payload) {
       const ret = await api.getGyms()
@@ -102,6 +105,7 @@ const store = createStore({
       state.filters = {...filtersInitial}
     },
     async deleteProject({ state}, payload) {
+      state.access_token = await getAccess
       const ret = await api.deleteProject(payload)
       state.problems = {...state.problems,[ret.problem.id] : ret.problem}
     },
@@ -128,6 +132,10 @@ const store = createStore({
       const problem = state.problems[pid]
       s.problems = { ...state.problems, [pid]: {...problem,['likeCount'] : ret.likeCount, ['dislikeCount'] : ret.dislikeCount } }
     },
+    setUser({ state}, payload) {
+      state.user = payload
+      return payload
+    },
     async login({ state}, payload) {
       const ret = await api.login(payload)
       if (ret.user != null) {
@@ -149,14 +157,20 @@ const store = createStore({
       }
       return problem
     },
+    setToken({ state } , payload) {
+      //const ret = await api.setToken(payload)
+      state.access_token = payload
+    },
     async getProfile({ state } , payload) {
       state.profileLoaded = false
       if (state.gymid == null || state.gymid == "undefined") {
         // Don't load... Gym not selected.
         return null
       }
-      console.log("Loading profile",state.gymid)
-      const ret = await api.getProfile(state.gymid)
+      
+      const user = payload.user.value
+      console.log("Loading profile for gym id",state.gymid,user.email)
+      const ret = await api.getProfile(state.gymid, user.email)
       if (ret!=null && ret.profile != null) {
         state.profile = ret.profile
         state.gym = ret.gym

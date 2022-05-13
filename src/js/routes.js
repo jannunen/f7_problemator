@@ -1,5 +1,6 @@
 import Home from '../pages/Home.vue';
 import Loading from '../pages/Loading.vue';
+import Temporary from '../pages/Temporary.vue';
 import Login from '../pages/Login.vue';
 import ProblemPage from '../pages/ProblemPage.vue';
 import ProblemPopup from '../pages/ProblemPopup.vue';
@@ -10,41 +11,29 @@ import Archive from '../pages/archive.f7.jsx';
 import Game from '../pages/game.f7.jsx';
 import Search from '../pages/search.f7.jsx';
 import { authGuard } from '@js/auth/authguard.js';
+import { useAuth0 } from '@auth0/auth0-vue';
+const {  isAuthenticated } = useAuth0;
 
 
 const routes = [
   {
+    path: '/',
+    component:  Loading ,
+    //beforeEnter: authGuard,
+  },
+  {
     path: '/home/',
     component: Home,
-    beforeEnter: authGuard,
-  },
-  {
-    path: '/login/',
-    component: Loading,
-  },
-  {
-    path: '/',
-    component: Loading,
-    beforeEnter: authGuard,
+    //beforeEnter: authGuard,
   },
   {
     path: '/problems',
     component: ProblemList,
-    beforeEnter: authGuard,
-  },
-  {
-    path: '/wishlist/',
-    component: Wishlist,
-    beforeEnter: authGuard,
-  },
-  {
-    path: '/archive/',
-    component: Archive,
-    beforeEnter: authGuard,
+    //beforeEnter: authGuard,
   },
   {
     path: '/problem/:id/popup',
-    beforeEnter: authGuard,
+    //beforeEnter: authGuard,
     popup: {
       component: ProblemPopup,
       swipeToClose: 'to-bottom',
@@ -52,24 +41,8 @@ const routes = [
   },
   {
     path: '/problem/:id',
-    beforeEnter: authGuard,
+    //beforeEnter: authGuard,
     component: ProblemPage,
-  },
-  {
-    path: '/game/:id/',
-    beforeEnter: authGuard,
-    popup: {
-      component: Game,
-      swipeToClose: 'to-bottom',
-    },
-  },
-  {
-    path: '/search/',
-    beforeEnter: authGuard,
-    popup: {
-      component: Search,
-      swipeToClose: 'to-bottom',
-    },
   },
 ];
 

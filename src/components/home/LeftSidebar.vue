@@ -23,7 +23,6 @@
 <script>
 import { useStore } from "vuex";
 import { computed, ref, onMounted } from "vue";
-import { accountService } from "@js/auth/services";
 import { router } from '@js/auth/helpers';
 
 export default {
@@ -34,7 +33,7 @@ export default {
     });
     const logout = () => {
       store.commit("setSidePanelOpen", false);
-      accountService.goodOleLogout();
+      alert(' todo: logout')
     };
     const navigateToGyms = () => {
       store.commit("setSidePanelOpen", false);

@@ -1,6 +1,7 @@
 import { accountService } from '@js/auth/accountservice';
 import axios from 'axios'
 import { errorNotify  } from './helpers/notifications';
+import { useAuth0 } from '@auth0/auth0-vue';
 
 import {f7 } from 'framework7-vue'
 const API_KEY = import.meta.env.VITE_API_KEY;
@@ -44,18 +45,23 @@ const fetchGet = (url, payload) => {
 }
 
 const errorHandler = async (err) => {
-  const json = err.response.data
-  errorNotify('Error from server',json.message)
-  if (json.message != null && json.message.match(/unauthenticated/i)) {
-    // Logout locally
-    accountService.logout()
-    // Navigate to login
-    console.log("Invalidated login in errorhandler")
-    /*
-    const views = f7.views
-    f7.views.main.router.navigate("/")
-    */
-    return null
+  debugger
+  try {
+    const json = err.response.data
+    errorNotify('Error from server',json.message)
+    if (json.message != null && json.message.match(/unauthenticated/i)) {
+      // Logout locally
+      //accountService.logout()
+      // Navigate to login
+      //console.log("Invalidated login in errorhandler")
+      /*
+      const views = f7.views
+      f7.views.main.router.navigate("/")
+      */
+      return null
+    }
+  } catch (e) {
+
   }
   return null
 
@@ -65,31 +71,16 @@ const resultHandler = async (res) => {
   const json = res?.data
   if (json.message != null && json.message.match(/unauthenticated/i)) {
     // Logout locally
-    accountService.logout()
+    //accountService.logout()
     // Navigate to login
     console.log("Invalidated login in resultHandler")
-    f7.views.main.router.navigate("/")
+    //f7.views.main.router.navigate("/")
     return null
   }
   return json
 }
 const api = {
-  getGyms() {
-    return axios.get(endpoint+"/gym")
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
-  },
-  deleteProject(payload) {
-    return axios.delete(endpoint+"/pretick/"+payload)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
-  },
-  deleteTick(payload) {
-    return axios.delete(endpoint+"/tick/"+payload)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
-  },
-  saveTick(payload) {
+  setToken(payload) {
     return axios.post(endpoint+"/tick/",payload)
     .then((res) => resultHandler(res))
     .catch(err => errorHandler(err))
@@ -118,61 +109,33 @@ const api = {
     .then((res) => resultHandler(res))
     .catch((err) => errorHandler(err))
   },
-  getProfile(gymid) {
-    const url = endpoint + `/profile?gymid=${gymid}`
+  getGyms() {
+    return axios
+      .get(endpoint + '/gym')
+    .then((res) => resultHandler(res))
+    .catch((err) => errorHandler(err))
+  },
+  getProfile(gymid,email) {
+    // Email is sent because this is the first call (usually?) and
+    // when we get the auth0 in the backend, we can couple the 
+    // user (email) and the auth0 user id for future use
+    const url = endpoint + `/profile?gymid=${gymid}&email=${email}`
     return axios.get(url)
     .then((res) => resultHandler(res))
     .catch(err => errorHandler(err))
   },
   login( payload) {
-    const url = API_HOST + "/api/auth/login"
+    const url = endpoint + "/api/auth/login"
     return fetchPost(url, payload)
     .then((res) => resultHandler(res))
     .catch(err => errorHandler(err))
 
   },
-  getTopGames() {
-    return fetch(
-      `${endpoint}/games?key=${API_KEY}&page_size=40&ordering=-metacritic`,
-    ).then((res) => res.json());
-  },
-  getUpcomingGames() {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const yearLater = new Date();
-    yearLater.setMonth(yearLater.getMonth() + 6);
-
-    return fetch(
-      `${endpoint}/games?key=${API_KEY}&dates=${formatDate(
-        tomorrow,
-      )},${formatDate(yearLater)}&page_size=12&ordering=-added`,
-    ).then((res) => res.json());
-  },
-  getRecentGames() {
-    const today = new Date();
-    const monthAgo = new Date();
-    monthAgo.setMonth(monthAgo.getMonth() - 1);
-
-    return fetch(
-      `${endpoint}/games?key=${API_KEY}&dates=${formatDate(
-        monthAgo,
-      )},${formatDate(today)}&page_size=12`,
-    ).then((res) => res.json());
-  },
-  getGame(id) {
-    return Promise.all([
-      // fetch screenshots
-      fetch(`${endpoint}/games/${id}/screenshots?key=${API_KEY}`).then((res) =>
-        res.json(),
-      ),
-      // fetch game
-      fetch(`${endpoint}/games/${id}?key=${API_KEY}`).then((res) => res.json()),
-    ]).then(([screenshots, game]) => {
-      return {
-        ...game,
-        screenshots: screenshots.results,
-      };
-    });
+  saveTick(payload) {
+    const url = endpoint + "/tick/"
+    return axios.post(url, payload)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
   },
   search(query) {
     return fetch(

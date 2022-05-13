@@ -1,6 +1,13 @@
 <template>
   <f7-page no-toolbar no-navbar no-swipeback login-screen>
     <f7-login-screen-title>Problemator login</f7-login-screen-title>
+    <f7-list-button @click="loginWithRedirect()">Tää on sellainen auth0login</f7-list-button>"
+    user: {{ user }}
+    <hr />
+    token claims: {{ idTokenClaims }}
+    <hr />
+    errors: {{ error }}
+    <f7-list-button @click="logout()">Logout</f7-list-button>"
     <f7-list form>
       <f7-list-input
         label="Email"
@@ -27,6 +34,8 @@
 <script setup>
 import { f7 } from 'framework7-vue'
 import { ref } from 'vue'
+import { useAuth0 } from '@auth0/auth0-vue';
+const { idTokenClaims, getAccessTokenSilently, loginWithRedirect, logout, user, isAuthenticated } = useAuth0();
 const props = defineProps({
   f7router: Object,
   f7route: Object,

@@ -15,15 +15,35 @@
   import routes from './js/routes.js';
   import store from './js/store.js';
   import { useI18n } from 'vue-i18n'
+  import { useAuth0 } from '@auth0/auth0-vue';
+  import { watch } from 'vue'
+  import { f7 } from 'framework7-vue'
 
   export default {
+    props : {
+      f7router : Object,
+    },
     setup() {
         const { t } = useI18n() 
         store.dispatch("changeGym",localStorage.gymid)
+        const { loginWithRedirect, user, isAuthenticated } = useAuth0()
+
+        watch(user,(newValue, oldValue) => {
+          if (newValue != null && newValue.email != null) {
+            //store.dispatch('getProfile')
+          }
+        })
+        watch(isAuthenticated,(newValue, oldValue) => {
+          if (isAuthenticated.value) {
+            f7.views.main.router.navigate({url : '/home/'  });
+          }
+        })
+
         return {
             t,
             store,
             routes,
+            isAuthenticated,
         }
     },
     data() {

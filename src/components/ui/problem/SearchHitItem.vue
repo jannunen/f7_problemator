@@ -5,7 +5,7 @@
   >
     <div class="flex flex-row w-full justify-between">
         <div class="w-8 mt-2">
-          <div v-if="problem.myProjects != null && problem.myProjects.length > 0">
+          <div v-if="problem.myProjects != null && problem.myProjects.length > 0 && (problem.myTicks == null || problem.myTicks.length ==0)">
             <span
               class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-yellow-100 bg-yellow-600 rounded-full"
               >P</span

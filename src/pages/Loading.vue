@@ -1,12 +1,20 @@
 <template>
   <f7-page
-    v-if="loginScreenOpened"
     no-toolbar
     no-navbar
     no-swipeback
     login-screen
     @vnode-before-unmount="beforeUnmount"
+    @page:beforein="beforeShow"
   >
+    <div v-if="user != null">
+        <div v-if="!user.email_verified">
+          You need to verify your email before you can use the app
+        </div>
+    </div>
+    <f7-list-button @click="loginWithRedirect()">Tää on sellainen auth0login</f7-list-button>"
+    user: {{ user }}
+    <f7-list-button @click="logout()">Logout</f7-list-button>"
     <f7-login-screen-title>Framework7</f7-login-screen-title>
     <f7-list form>
       <f7-list-input
@@ -33,9 +41,12 @@
   </f7-page>
 </template>
 <script setup>
+import { useAuth0 } from '@auth0/auth0-vue';
 import { accountService } from '@js/auth/accountservice'
+
 import { ref } from 'vue'
-import { f7 } from 'framework7-vue'
+import store from '../js/store.js'
+import { f7, useStore } from 'framework7-vue'
 /*
  * This component is a kludge. Framework7 does not use authGuard for its
  * first page, for whatever reason. This just moves the app beyond
@@ -46,16 +57,32 @@ const props = defineProps({
   f7router: Object,
 })
 import { onMounted } from 'vue'
+const { loginWithRedirect, logout, user, isAuthenticated } = useAuth0();
 const loginScreenOpened = ref(false)
+const userStore = useStore('user')
 const email = ref('')
 const password = ref('')
 const errorNotification = ref(null)
+
+/*
+const beforeShow = () => {
+    debugger
+  if (isAuthenticated.value) {
+    console.log("nav to home")
+    if (userStore.value == null) {
+      store.dispatch('setUser',user)
+    } 
+    props.f7router.navigate({url : "/home/"})
+  }
+}
+*/
 const beforeUnmount = () => {
     if (errorNotification.value != null) {
         errorNotification.value.destroy()
     }
 }
 const signIn = () => {
+  /*
   accountService.goodOleLogin(email.value, password.value).then((ret) => {
     if (ret === false) {
       if (errorNotification.value == null) {
@@ -71,8 +98,10 @@ const signIn = () => {
       props.f7router.navigate('/home/')
     }
   })
+  */
 }
 onMounted(() => {
+  /*
   const ret = accountService.checkIfLogin().then(() => {
     const account = accountService.accountValue
     if (!account) {
@@ -81,5 +110,6 @@ onMounted(() => {
       props.f7router.navigate('/home/')
     }
   })
+  */
 })
 </script>

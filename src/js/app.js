@@ -3,6 +3,7 @@ import '../css/icons.css';
 import '../css/app.less';
 import '../css/tailwind.css';
 import 'v-calendar/dist/style.css';
+import { createAuth0 , } from '@auth0/auth0-vue';
 
 import { createApp } from 'vue'
 
@@ -40,25 +41,14 @@ const i18n = createI18n({
 })
 app.use(i18n);
 
+app.use(
+  createAuth0({
+    domain: import.meta.env.VITE_AUTH0_DOMAIN,
+    client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
+    audience : import.meta.env.VITE_AUTH0_AUDIENCE,
+    redirect_uri: window.location.origin
+  })
+);
+
 // Mounte Vue App
 app.mount('#app');
-
-// eslint-disable-next-line
-/*
-const app = new Framework7({
-  name: 'Backlogger', // App name
-  theme: 'auto', // Automatic theme detection
-  el: '#app', // App root element
-  component: App, // App main component
-  store,
-  routes,
-  i18n,
-  // Register service worker (only on production build)
-  serviceWorker:
-    process.env.NODE_ENV === 'production'
-      ? {
-          path: '/service-worker.js',
-        }
-      : {},
-});
-*/
