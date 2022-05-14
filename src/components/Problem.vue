@@ -13,20 +13,33 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import store from '@js/store.js'
 import { useStore } from 'framework7-vue'
+import { f7 } from 'framework7-vue'
+import { useAuth0 } from '@auth0/auth0-vue';
+const { idTokenClaims, getAccessTokenSilently, loginWithRedirect, logout, user, isAuthenticated } = useAuth0();
 dayjs.extend(LocalizedFormat)
 dayjs.extend(relativeTime)
 const { t } = useI18n()
 const props = defineProps({
   problem: Object,
   f7router: Object,
+  id : Number,
 })
-const { problem } = props
 const problems = useStore('problems')
-// Check if problem is null
+const onLoginClick = () => {
+  //props.f7router.navigate('/')
+  f7.views.main.router.navigate({url : '/'  });
+}
+const problem = computed(() => {
+  console.log(problems.value)
+  if (problems.value == null) {
+    return {} 
+  }
+  const prob= problems.value[props.id]
+  return prob
+})
 onMounted(() => {
-  // Load additional details and merge to problem
-  if (props.problem != null) {
-    store.dispatch('getProblemDetails', props.problem.id)
+  if (props.id != null) {
+    store.dispatch('getProblemDetails', props.id)
   }
 })
 const popupOpened = ref(true)
@@ -34,22 +47,6 @@ const openAddTick = () => {
   const url = `/problem/${problem.id}/addtick`
   props.f7router.navigate(url)
 }
-// This is used so that when the additional problem details are
-// loaded, they will be merged to the problem got as a parameter.
-// This enables a smoother experience when the basic details
-// are available immediately and the heavier come later
-const problemDetails = computed(() => {
-  // Merge parameter problem and store problem
-  if (problem == null) {
-    return null
-  }
-  const aProblem = problems.value[problem.id]
-  if (aProblem != null) {
-    const mergedProblem = { ...problem, ...aProblem }
-    return mergedProblem
-  }
-  return problem
-})
 </script>
 <template>
   <div v-if="problem != null && problem.id != null">
@@ -70,15 +67,21 @@ const problemDetails = computed(() => {
 
       <!-- problem details -->
       <div class="grid grid-cols-3 gap-4 my-3">
-        <left-details :problem="problemDetails"></left-details>
-        <right-details :problem="problemDetails"></right-details>
+        <left-details :problem="problem"></left-details>
+        <right-details :problem="problem"></right-details>
       </div>
 
       <!-- top part ends -->
     </div>
-    <div class="m-2">
+    <div class="m-2" v-if="isAuthenticated">
       <h1 class="text-xl font-bold my-2 text-center">{{ t('problem.add_new_tick') }}</h1>
-      <AddTick :problem="problemDetails" />
+      <AddTick :problem="problem" />
+    </div>
+    <div v-else class="text-center my-2 font-bold">
+      {{ t('You are not logged in, login to be able to tick the problem')}}
+      <f7-button
+      class="my-2 mx-2 uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
+       @click="onLoginClick">{{ t('Register / Login') }}</f7-button>
     </div>
   </div>
 </template>

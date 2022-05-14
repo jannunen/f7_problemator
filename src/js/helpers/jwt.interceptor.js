@@ -13,7 +13,7 @@ export async function jwtInterceptor() {
         const isApiUrl = request.url.startsWith(import.meta.env.VITE_API_HOST);
         const access_token_obj  = useStore('access_token')
         const access_token= access_token_obj.value
-        console.log("puppa",access_token)
+        //console.log("access token",access_token)
 
         if (isLoggedIn && isApiUrl) {
             request.headers.common.Authorization = `Bearer ${access_token}`;

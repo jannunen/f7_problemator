@@ -13,7 +13,7 @@
     <div class="mt-2 text-sm font-bold">
       {{ t('problem.likes', problem.likeCount) }}
     </div>
-    <div class="mb-2 flex flex-row my-1 w-4/5">
+    <div class="mb-2 flex flex-row my-1 w-4/5" v-if="isAuthenticated">
       <button @click="askLike" raised class="bg-white text-purple-900 px-1 py-1 ">
         <div material="favorite" color="red"></div>
         <f7-icon f7="heart_fill" size="20" color="red"></f7-icon>
@@ -24,7 +24,7 @@
     <div class="mt-2 text-sm font-bold">
       {{ t('problem.dislikes', problem.dislikeCount) }}
     </div>
-    <div class="mb-2 flex flex-row my-1 w-4/5">
+    <div class="mb-2 flex flex-row my-1 w-4/5" v-if="isAuthenticated">
       <button @click="askDislike" raised class="bg-white text-purple-900 px-1 py-1 w-full">
           <f7-icon f7="hand_thumbsdown_fill" size="20" color="black"></f7-icon>
           <span class="font-bold">{{ t('problem.dislike') }} +</span>
@@ -80,6 +80,8 @@ import ListStyles from '@components/ui/problem/ListStyles.vue'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 import PopupListTicks from '@components/ui/problem/TickList.vue'
 import { getSessionCount } from '@helpers/component.helpers.js'
+import { useAuth0 } from '@auth0/auth0-vue';
+const { idTokenClaims, getAccessTokenSilently, loginWithRedirect, logout, user, isAuthenticated } = useAuth0();
 
 const { t } = useI18n()
 const props = defineProps({
