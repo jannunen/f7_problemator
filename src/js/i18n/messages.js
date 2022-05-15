@@ -58,6 +58,9 @@ const messages = {
 
         },
         searchprob : {
+            scan_qr_code_title : 'Scan QR Code from the problem',
+            scan_qr_code_explainer : 'You can identify the problem with its code (eg. B002) or reading the QR code which opens the problem info page.',
+            scan_qr_code : 'Scan QR Code',
             instructions : 'Routes are identified by route tags. Try entering B as a search.',
             find_a_route : 'Find a route',
             search_for_problems : 'Search for problems',

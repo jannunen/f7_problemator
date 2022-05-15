@@ -1,4 +1,5 @@
 <template>
+  <qr-search-sheet @close="qrReaderOpened=false" :opened="qrReaderOpened" @read="onReadQRCode"></qr-search-sheet>
   <div class="mt-4 mb-1 font-bold text-2xl text-center">
     {{ t('searchprob.find_a_route') }}
   </div>
@@ -9,8 +10,7 @@
     <div class="flex flex-row w-full p-1">
       <div class="mt-2 flex">
         <a
-          sheet-open=".search-problems"
-          open-in="sheet"
+          @click="qrReaderOpened=true"
           class="w-20 h-20 rounded-full bg-purple-800 p-2 text-white flex flex-col justify-center items-center font-bold"
         >
           <font-awesome-icon icon="qr_code" color="white" size="20px"></font-awesome-icon>
@@ -62,6 +62,7 @@ import { debounce, getTagShort } from '@js/helpers'
 import store from '@js/store.js'
 import { useStore } from 'framework7-vue'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
+import QrSearchSheet from '@components/ui/problem/QrSearchSheet.vue'
 import axios from 'axios'
 export default {
   props: {
@@ -76,6 +77,10 @@ export default {
     const gymid = useStore('gymid')
     const searchProblemText = ref('')
     const problems = ref([])
+    const qrReaderOpened = ref(false)
+    const onReadQRCode = (code) => {
+    debugger
+    }
     const onStartNavigate = (problem, sec) => {
       searchProblemText.value = "" // empty search text when selection is done.
       context.emit('start-navigate',problem)
@@ -101,6 +106,8 @@ export default {
       problems.value = []
     }
     return {
+      onReadQRCode,
+      qrReaderOpened,
       onStartNavigate,
       searchProblemText,
       searchProblemTextChanged,
@@ -111,6 +118,7 @@ export default {
     }
   },
   components: {
+    QrSearchSheet,
     SearchHitItem,
   },
 }

@@ -45,7 +45,6 @@ const fetchGet = (url, payload) => {
 }
 
 const errorHandler = async (err) => {
-  debugger
   try {
     const json = err.response.data
     errorNotify('Error from server',json.message)

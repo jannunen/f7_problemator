@@ -43,8 +43,8 @@ import { useStore } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
 import { onMounted, computed, ref } from 'vue'
 const { t } = useI18n()
-const gyms = ref([])
-store.dispatch('getGyms').then((ret) => (gyms.value = ret.gyms))
+const gyms = useStore('gyms')
+store.dispatch('getGyms')
 const gymid = useStore('gymid')
 const selectGym = ({ target }) => {
   const idx = target.selectedIndex

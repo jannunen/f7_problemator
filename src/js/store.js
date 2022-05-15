@@ -39,6 +39,7 @@ const store = createStore({
     user : null,
     access_token : null,
     filters : {...filtersInitial},
+    gyms : [],
     problems : [],
     gym : null,
     styles : [],
@@ -76,6 +77,7 @@ const store = createStore({
     async changeGym({state, dispatch}, gymid) {
       localStorage.gymid = gymid
       state.gymid =gymid
+      dispatch('getProfile')
     },
     async getGyms({state}, payload) {
       const ret = await api.getGyms()
@@ -150,7 +152,7 @@ const store = createStore({
 
     },
     async getProblemDetails({ state }, payload) {
-      const ret = await api.getProblemDetails(payload);
+      const ret = await api.getProblemDetaijls(payload);
       const problem = ret.problem
       if (problem) {
         state.problems = {...state.problems,[problem.id] : problem}
@@ -168,7 +170,11 @@ const store = createStore({
         return null
       }
       
-      const user = payload.user.value
+      const user = state.user
+      if (user == null) {
+        // Don't load, no user
+        return null
+      }
       console.log("Loading profile for gym id",state.gymid,user.email)
       const ret = await api.getProfile(state.gymid, user.email)
       if (ret!=null && ret.profile != null) {

@@ -18,11 +18,11 @@ const {  isAuthenticated } = useAuth0;
 const routes = [
   {
     path: '/',
-    component:  Loading ,
+    component:  Home ,
     //beforeEnter: authGuard,
   },
   {
-    path: '/home/',
+    path: '/home',
     component: Home,
     //beforeEnter: authGuard,
   },

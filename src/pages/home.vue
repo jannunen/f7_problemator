@@ -17,6 +17,7 @@ import { ref } from 'vue'
 import store from '../js/store.js'
 const dark = useStore('dark')
 const profile = useStore('profile')
+const accessToken = useStore('access_token')
 const gym = useStore('gym')
 const gymid = useStore('gymid')
 const localDark = ref(true)
@@ -32,21 +33,18 @@ watch(gym, (newValue, oldValue) => {
 })
 const profileLoaded = useStore('profileLoaded')
 const gymSelectorOpen = ref(false)
-if (isAuthenticated) {
-  store.dispatch('setAccessToken', )
-}
-/*
+
 watch(isAuthenticated, async (newValue, oldValue) => {
-  debugger
   if (newValue === true) {
-    // Get token and send to api
     const token = await getAccessTokenSilently();
     const ret = await store.dispatch('setToken',token)
-    console.log('store -> getProfile')
-    store.dispatch('getProfile')
   }
 })
-*/
+watch(user, async (newValue, oldValue) => {
+  if (newValue != null) {
+    const ret = await store.dispatch('setUser',newValue)
+  }
+})
 
 console.log('home gymid', gymid.value)
 if (gymid.value == null || gymid.value == '' || isNaN(gymid.value)) {
@@ -125,7 +123,7 @@ watch(dark, (isDarkTheme, oldValue) => {
         Loading ...
       </div> 
       <div v-else>
-            <f7-block>
+            <f7-block v-if="accessToken != null">
               <h1 class="text-2xl font-bold text-center">{{ t('home.gym_not_selected') }}</h1>
               <p class="my-3">{{ t('home.gym_selection_info') }}</p>
               <gym-selector />

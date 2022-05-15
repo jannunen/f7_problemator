@@ -34,8 +34,8 @@
           }
         })
         watch(isAuthenticated,(newValue, oldValue) => {
-          if (isAuthenticated.value) {
-            f7.views.main.router.navigate({url : '/home/'  });
+          if (isAuthenticated===true) {
+            f7.views.main.router.navigate({url : '/home'  });
           }
         })
 

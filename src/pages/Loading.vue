@@ -44,7 +44,7 @@
 import { useAuth0 } from '@auth0/auth0-vue';
 import { accountService } from '@js/auth/accountservice'
 
-import { ref } from 'vue'
+import { watch, ref } from 'vue'
 import store from '../js/store.js'
 import { f7, useStore } from 'framework7-vue'
 /*
@@ -57,13 +57,23 @@ const props = defineProps({
   f7router: Object,
 })
 import { onMounted } from 'vue'
-const { loginWithRedirect, logout, user, isAuthenticated } = useAuth0();
+const { loginWithRedirect, getAccessTokenSilently, logout, user, isAuthenticated } = useAuth0();
 const loginScreenOpened = ref(false)
 const userStore = useStore('user')
 const email = ref('')
 const password = ref('')
 const errorNotification = ref(null)
 
+watch(isAuthenticated, async (newValue, oldValue) => {
+  if (newValue === true) {
+    // Get token and send to api
+    const token = await getAccessTokenSilently();
+    const ret = await store.dispatch('setToken',token)
+    console.log('store -> getProfile')
+    store.dispatch('getProfile')
+    f7.views.main.router.navigate({url : '/home'  });
+  }
+})
 /*
 const beforeShow = () => {
     debugger

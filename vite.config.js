@@ -28,6 +28,7 @@ export default {
   },
   server: {
     host: true,
+    https : true,
   },
   esbuild: {
     jsxFactory: '$jsx',
