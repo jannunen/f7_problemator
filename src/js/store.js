@@ -23,6 +23,7 @@ const store = createStore({
   state: {
     searchQuery: '',
     searchState: 'idle',
+    initializing : true,
     searchResults: [],
     searchRecent: getFromLocalStorage('searchRecent', []),
     searchNext: true,
@@ -56,6 +57,7 @@ const store = createStore({
     problems: ({ state }) => state.problems,
     gym: ({ state }) => state.gym,
     styles: ({ state }) => state.styles,
+    initializing: ({ state }) => state.initializing,
     grades: ({ state }) => state.grades,
     walls: ({ state }) => state.walls,
     gyms: ({ state }) => state.gyms,
@@ -77,6 +79,9 @@ const store = createStore({
     wishlist: ({ state }) => state.wishlist,
   },
   actions: {
+    setInitializing({state, dispatch}, payload) {
+      state.initializing = payload
+    },
     setSelectedLeftPanelItem({state, dispatch}, payload) {
       state.selectedLeftPanelItem = payload
     },
@@ -170,21 +175,10 @@ const store = createStore({
     async getProblemDetails({ state }, payload) {
       const ret = await api.getProblemDetails(payload);
       const problem = ret.problem
+      const curProblem = state.problems[problem.id]
+      const merged = {...curProblem, ...problem}
       if (problem) {
-        //state.problems = {...state.problems,[problem.id] : problem}
-        state.problems = state.problems.map((item, index) => {
-          if (item.id !== problem.id) {
-            // This isn't the item we care about - keep it as-is
-            return item
-          }
-      
-          // Otherwise, this is the one we want - return an updated value
-          return {
-            ...item,
-            ...problem
-          }
-        })
-        
+        state.problems = {...state.problems,[problem.id] : merged}
       }
       return problem
     },
@@ -205,7 +199,6 @@ const store = createStore({
         return null
       }
       console.log("Loading profile for gym id",state.gymid,user.email)
-      debugger
       const ret = await api.getProfile(state.gymid, user.email)
       if (ret!=null && ret.profile != null) {
         state.profile = ret.profile
@@ -222,51 +215,6 @@ const store = createStore({
     setDark({ state } , payload) {
       state.dark = payload
     },
-    getGameInLists({ state }, gameId) {
-      return {
-        inBacklog:
-          state.backlog.filter((game) => game.id === gameId).length > 0,
-        inArchive:
-          state.archive.filter((game) => game.id === gameId).length > 0,
-        inWishlist:
-          state.wishlist.filter((game) => game.id === gameId).length > 0,
-      };
-    },
-    async getTopGames({ state }) {
-      const response = await api.getTopGames();
-      state.topGames = [...response.results]
-        .filter((game) => !!game.background_image)
-        .slice(0, 25);
-    },
-    async getRecentGames({ state }) {
-      const response = await api.getRecentGames();
-      state.recentGames = [...response.results];
-    },
-    async getUpcomingGames({ state }) {
-      const response = await api.getUpcomingGames();
-      state.upcomingGames = [...response.results];
-    },
-    addGameToList({ state }, { listName, game }) {
-      const list = state[listName];
-      const inList = list.filter((el) => el.id === game.id).length > 0;
-      if (inList) return;
-      list.push(game);
-      state[listName] = [...list];
-      localStorage[listName] = JSON.stringify(state[listName]);
-    },
-    removeGameFromList({ state }, { listName, game }) {
-      const list = state[listName];
-      const itemInList = list.filter((el) => el.id === game.id)[0];
-      if (!itemInList) return;
-      list.splice(list.indexOf(itemInList), 1);
-      state[listName] = [...list];
-      localStorage[listName] = JSON.stringify(state[listName]);
-    },
-
-    getGame(ctx, id) {
-      return api.getGame(id);
-    },
-
     async search({ state }, query) {
       if (query === state.searchQuery) {
         return;

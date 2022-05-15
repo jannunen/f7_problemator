@@ -36,9 +36,7 @@ const problem = computed(() => {
   if (problems.value == null) {
     return {} 
   }
-  debugger
-  const prob= problems.value.find(prob => prob.id == props.id)
-  return prob
+  return problems.value[props.id]
 })
 onMounted(() => {
 })

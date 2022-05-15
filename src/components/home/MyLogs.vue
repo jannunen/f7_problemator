@@ -107,15 +107,15 @@ const profile = useStore('profile')
 const lastDays = ref(30)
 const showOfType = ref('boulder')
 const ascentsByGrade = computed(() => getAscentsByGrade(lastDays.value,showOfType.value))
-// TBD: Bug with this ascentsByGrade, the graph is not showing...
-const ascentsFound = (ascentsByGrade.size > 0)
+const ascentsFound = (ascentsByGrade.value.size > 0)
 const changeOfType = (type) => {
   showOfType.value = type
 }
 const getLatestProblemCount = computed(() => {
   const deadline = dayjs().subtract(lastDays.value, 'day')
   const problemDates = new Set()
-  problems.value.forEach((prob) => {
+  Object.keys(problems.value).forEach((key) => {
+    const prob = problems.value[key]
     // Filter by route type
     if (prob.routetype == showOfType.value || showOfType.value == 'all') {
       // Calculating last problems within 'lastDays' must be calculated
@@ -135,7 +135,8 @@ const getLatestSessionCount = computed(() => {
   // Sessions are defined as unique days (we don't count morning and evening session as two)
   // Easiest way is to use set, as it's unique in nature. So let's get to it.
   const sessions = new Set()
-  problems.value.forEach((problem) => {
+  Object.keys(problems.value).forEach((key) => {
+    const problem = problems.value[key]
     // Then go through each tick and put the date into the set.
     const deadline = dayjs().subtract(lastDays.value, 'day')
     if (problem.routetype == showOfType.value || showOfType.value == 'all') {

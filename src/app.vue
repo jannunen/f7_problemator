@@ -29,20 +29,19 @@
         const { getAccessTokenSilently, loginWithRedirect, user, isAuthenticated } = useAuth0()
 
         watch(user, async (newValue, oldValue) => {
-          debugger
           if (newValue != null) {
             const ret = await store.dispatch('setUser', newValue)
           }
         })
 
         watch(isAuthenticated, async (newValue, oldValue) => {
-          debugger
           if (newValue === true) {
             const token = await getAccessTokenSilently()
             const ret = await store.dispatch('setToken', token)
             console.log("access token",token)
             await store.dispatch('setIsAuthenticated',true)
           }
+          store.dispatch('setInitializing',false)
         })
 
         /*

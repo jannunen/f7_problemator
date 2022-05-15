@@ -5,6 +5,7 @@ import FloorMapBlock from '@components/home/FloorMapBlock.vue'
 import GymSelector from '@components/GymSelector.vue'
 import MyLogs from '@components/home/MyLogs.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
+import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import { useAuth0 } from '@auth0/auth0-vue'
 const {
   idTokenClaims,
@@ -25,11 +26,11 @@ const dark = useStore('dark')
 const profile = useStore('profile')
 const accessToken = useStore('access_token')
 const sidePanelOpen = useStore('sidePanelOpen')
-const selectedItem = useStore('selectedLeftPanelItem')
 const gym = useStore('gym')
 const gymid = useStore('gymid')
 const localDark = ref(true)
 const isOpened = ref(false)
+const initializing = useStore('initializing')
 const { t } = useI18n()
 const props = defineProps({
   f7router: Object,
@@ -88,68 +89,8 @@ watch(dark, (isDarkTheme, oldValue) => {
 </script>
 
 <template>
-  <f7-panel left v-model:opened="sidePanelOpen">
-    <f7-view>
-      <f7-page>
-        <f7-block>Problemator menu</f7-block>
-        <f7-list menu-list>
-          <f7-list-item
-            link
-            title="Home"
-            :selected="selectedItem === 'home'"
-            @click="() => (store.dispatch('setSelectedLeftPanelItem','home'))"
-          >
-            <template #media>
-              <f7-icon md="material:home" aurora="f7:house_fill" ios="f7:house_fill" />
-            </template>
-          </f7-list-item>
-          <f7-list-item
-            link
-            title="Profile"
-            :selected="selectedItem === 'profile'"
-            @click="() => (store.dispatch('setSelectedLeftPanelItem','profile'))"
-          >
-            <template #media>
-              <f7-icon
-                md="material:person"
-                aurora="f7:person_fill"
-                ios="f7:person_fill"
-              />
-            </template>
-          </f7-list-item>
-          <f7-list-item
-            link
-            title="Settings"
-            :selected="selectedItem === 'settings'"
-            @click="() => (store.dispatch('setSelectedLeftPanelItem','settings'))"
-          >
-            <template #media>
-              <f7-icon
-                md="material:settings"
-                aurora="f7:gear_alt_fill"
-                ios="f7:gear_alt_fill"
-              />
-            </template>
-          </f7-list-item>
-          <f7-list-item
-            link
-            title="Logout"
-            :selected="selectedItem === 'logout'"
-            @click="() => {store.dispatch('setSelectedLeftPanelItem','logout');logout()}"
-          >
-            <template #media>
-              <f7-icon
-                md="material:logout"
-                aurora="f7:square_arrow_left"
-                ios="f7:square_arrow_left"
-              />
-            </template>
-          </f7-list-item>
-
-        </f7-list>
-      </f7-page>
-    </f7-view>
-  </f7-panel>
+  <left-sidepanel :opened="sidePanelOpen"></left-sidepanel>
+  
   <f7-page name="home">
     <f7-navbar>
       <f7-nav-left>
@@ -175,6 +116,7 @@ watch(dark, (isDarkTheme, oldValue) => {
       </div>
     </div>
     <div v-else class="text-center mt-20">
+      <!-- If profile is not yet loaded -->
       <!-- If should show preloader, show only if gym IS selected -->
       <div v-if="accessToken != null">
         <div v-if="!gymSelectorOpen">
@@ -193,12 +135,18 @@ watch(dark, (isDarkTheme, oldValue) => {
         </div>
       </div>
       <div v-else>
-        You are not logged in, login
-        <f7-button
-          class="my-2 mx-2 uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
-          @click="loginWithRedirect()"
-          >{{ t('Login') }}</f7-button
-        >
+        <div v-if="initializing">
+           Initializing, please wait 
+        </div>
+        <div v-else>
+          You are not logged in, login
+        </div>
+          <f7-button
+            class="my-2 mx-2 uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
+            @click="loginWithRedirect()"
+            >{{ t('Login') }}</f7-button
+          >
+
       </div>
     </div>
 

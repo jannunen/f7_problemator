@@ -1,6 +1,5 @@
 import Home from '../pages/Home.vue';
 import Loading from '../pages/Loading.vue';
-import Temporary from '../pages/Temporary.vue';
 import Login from '../pages/Login.vue';
 import ProblemPage from '../pages/ProblemPage.vue';
 import ProblemPopup from '../pages/ProblemPopup.vue';

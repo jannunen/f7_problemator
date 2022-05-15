@@ -181,8 +181,7 @@ const onStylesChanged = (changedStyles) => {
   store.dispatch('setFilterStyles', changedStyles)
 }
 const filteredProblems = computed(() => {
-  debugger
-  let probs = problems.value
+  let probs = Object.keys(problems.value).map(key => problems.value[key])
   if (probs == null) {
     return []
   }
@@ -208,7 +207,6 @@ const filteredProblems = computed(() => {
       return selectedWalls.value.includes(item.wall.id)
     })
   }
-  debugger
   // Filter by route props (all, new, expiring, circuits)
   if (problemFilters.value != 'all') {
     probs = probs.filter((item) => problemStyleFilter(item, problemFilters.value))
