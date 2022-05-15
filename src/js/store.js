@@ -27,6 +27,8 @@ const store = createStore({
     searchRecent: getFromLocalStorage('searchRecent', []),
     searchNext: true,
     searchNextLoading: false,
+    sidePanelOpen : false,
+    selectedLeftPanelItem : 'home',
     backlog: getFromLocalStorage('backlog', []),
     archive: getFromLocalStorage('archive', []),
     wishlist: getFromLocalStorage('wishlist', []),
@@ -66,13 +68,22 @@ const store = createStore({
     searchRecent: ({ state }) => state.searchRecent,
     searchNext: ({ state }) => state.searchNext,
     searchNextLoading: ({ state }) => state.searchNextLoading,
+    sidePanelOpen: ({ state }) => state.sidePanelOpen,
+    selectedLeftPanelItem: ({ state }) => state.selectedLeftPanelItem,
     backlog: ({ state }) => state.backlog,
     archive: ({ state }) => state.archive,
     wishlist: ({ state }) => state.wishlist,
   },
   actions: {
+    setSelectedLeftPanelItem({state, dispatch}, payload) {
+      state.selectedLeftPanelItem = payload
+    },
     setAccessToken ({state, dispatch}, payload) {
       state.access_token = payload
+    },
+    setSidePanel ({state, dispatch}, payload) {
+      console.log("Sidepanel open",payload)
+      state.sidePanelOpen = payload
     },
     async changeGym({state, dispatch}, gymid) {
       localStorage.gymid = gymid

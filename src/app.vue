@@ -16,8 +16,8 @@
   import store from './js/store.js';
   import { useI18n } from 'vue-i18n'
   import { useAuth0 } from '@auth0/auth0-vue';
-  import { watch } from 'vue'
-  import { f7 } from 'framework7-vue'
+  import { watch, computed } from 'vue'
+  import { f7, useStore } from 'framework7-vue'
 
   export default {
     props : {
@@ -29,11 +29,13 @@
         const { loginWithRedirect, user, isAuthenticated } = useAuth0()
 
         watch(user,(newValue, oldValue) => {
+          debugger
           if (newValue != null && newValue.email != null) {
             //store.dispatch('getProfile')
           }
         })
         watch(isAuthenticated,(newValue, oldValue) => {
+          debugger
           if (isAuthenticated===true) {
             f7.views.main.router.navigate({url : '/home'  });
           }

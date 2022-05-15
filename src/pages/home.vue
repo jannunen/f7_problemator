@@ -5,8 +5,15 @@ import FloorMapBlock from '@components/home/FloorMapBlock.vue'
 import GymSelector from '@components/GymSelector.vue'
 import MyLogs from '@components/home/MyLogs.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
-import { useAuth0 } from '@auth0/auth0-vue';
-const { idTokenClaims, getAccessTokenSilently, loginWithRedirect, logout, user, isAuthenticated } = useAuth0();
+import { useAuth0 } from '@auth0/auth0-vue'
+const {
+  idTokenClaims,
+  getAccessTokenSilently,
+  loginWithRedirect,
+  logout,
+  user,
+  isAuthenticated,
+} = useAuth0()
 import { toaster } from '@helpers/notifications.js'
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -18,6 +25,8 @@ import store from '../js/store.js'
 const dark = useStore('dark')
 const profile = useStore('profile')
 const accessToken = useStore('access_token')
+const sidePanelOpen = useStore('sidePanelOpen')
+const selectedItem = useStore('selectedLeftPanelItem')
 const gym = useStore('gym')
 const gymid = useStore('gymid')
 const localDark = ref(true)
@@ -37,14 +46,14 @@ const gymSelectorOpen = ref(false)
 watch(isAuthenticated, async (newValue, oldValue) => {
   debugger
   if (newValue === true) {
-    const token = await getAccessTokenSilently();
-    const ret = await store.dispatch('setToken',token)
+    const token = await getAccessTokenSilently()
+    const ret = await store.dispatch('setToken', token)
   }
 })
 watch(user, async (newValue, oldValue) => {
   debugger
   if (newValue != null) {
-    const ret = await store.dispatch('setUser',newValue)
+    const ret = await store.dispatch('setUser', newValue)
   }
 })
 
@@ -73,13 +82,12 @@ const onStartNavigate = (problem) => {
 
 onMounted(() => {
   debugger
-  if (isAuthenticated===false) {
-    loginWithRedirect();
+  if (isAuthenticated === false) {
+    loginWithRedirect()
   }
-  getAccessTokenSilently().then(token => {
-    store.dispatch('setToken',token)
-    .then(() => {
-      store.dispatch('getProfile',{ user})
+  getAccessTokenSilently().then((token) => {
+    store.dispatch('setToken', token).then(() => {
+      store.dispatch('getProfile', { user })
     })
   })
 })
@@ -98,8 +106,74 @@ watch(dark, (isDarkTheme, oldValue) => {
 </script>
 
 <template>
+  <f7-panel left v-model:opened="sidePanelOpen">
+    <f7-view>
+      <f7-page>
+        <f7-block>Problemator menu</f7-block>
+        <f7-list menu-list>
+          <f7-list-item
+            link
+            title="Home"
+            :selected="selectedItem === 'home'"
+            @click="() => (store.dispatch('setSelectedLeftPanelItem','home'))"
+          >
+            <template #media>
+              <f7-icon md="material:home" aurora="f7:house_fill" ios="f7:house_fill" />
+            </template>
+          </f7-list-item>
+          <f7-list-item
+            link
+            title="Profile"
+            :selected="selectedItem === 'profile'"
+            @click="() => (store.dispatch('setSelectedLeftPanelItem','profile'))"
+          >
+            <template #media>
+              <f7-icon
+                md="material:person"
+                aurora="f7:person_fill"
+                ios="f7:person_fill"
+              />
+            </template>
+          </f7-list-item>
+          <f7-list-item
+            link
+            title="Settings"
+            :selected="selectedItem === 'settings'"
+            @click="() => (store.dispatch('setSelectedLeftPanelItem','settings'))"
+          >
+            <template #media>
+              <f7-icon
+                md="material:settings"
+                aurora="f7:gear_alt_fill"
+                ios="f7:gear_alt_fill"
+              />
+            </template>
+          </f7-list-item>
+          <f7-list-item
+            link
+            title="Logout"
+            :selected="selectedItem === 'logout'"
+            @click="() => {store.dispatch('setSelectedLeftPanelItem','logout');logout()}"
+          >
+            <template #media>
+              <f7-icon
+                md="material:logout"
+                aurora="f7:square_arrow_left"
+                ios="f7:square_arrow_left"
+              />
+            </template>
+          </f7-list-item>
+
+        </f7-list>
+      </f7-page>
+    </f7-view>
+  </f7-panel>
   <f7-page name="home">
-    <f7-navbar title="Home">
+    <f7-navbar>
+      <f7-nav-left>
+        <f7-link @click.prevent="store.dispatch('setSidePanel', true)">Menu</f7-link>
+      </f7-nav-left>
+      <f7-nav-title>Problemator</f7-nav-title>
       <f7-nav-right>
         <f7-toggle :checked="localDark" @change="toggleDark" />
       </f7-nav-right>
@@ -125,21 +199,24 @@ watch(dark, (isDarkTheme, oldValue) => {
           <f7-preloader class="my-2"></f7-preloader>
           <br />
           Loading ...
-        </div> 
+        </div>
         <div v-else>
-              <f7-block >
-                <h1 class="text-2xl font-bold text-center">{{ t('home.gym_not_selected') }}</h1>
-                <p class="my-3">{{ t('home.gym_selection_info') }}</p>
-                <gym-selector />
-              </f7-block>
+          <f7-block>
+            <h1 class="text-2xl font-bold text-center">
+              {{ t('home.gym_not_selected') }}
+            </h1>
+            <p class="my-3">{{ t('home.gym_selection_info') }}</p>
+            <gym-selector />
+          </f7-block>
         </div>
       </div>
       <div v-else>
-        You are not logged in, login 
-      <f7-button
-      class="my-2 mx-2 uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
-       @click="loginWithRedirect()">{{ t('Login') }}</f7-button>
-
+        You are not logged in, login
+        <f7-button
+          class="my-2 mx-2 uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
+          @click="loginWithRedirect()"
+          >{{ t('Login') }}</f7-button
+        >
       </div>
     </div>
 
