@@ -12,7 +12,6 @@ const {
   loginWithRedirect,
   logout,
   user,
-  isAuthenticated,
 } = useAuth0()
 import { toaster } from '@helpers/notifications.js'
 import { onMounted } from 'vue'
@@ -41,21 +40,9 @@ watch(gym, (newValue, oldValue) => {
   }
 })
 const profileLoaded = useStore('profileLoaded')
+const isAuthenticated = useStore('isAuthenticated')
 const gymSelectorOpen = ref(false)
 
-watch(isAuthenticated, async (newValue, oldValue) => {
-  debugger
-  if (newValue === true) {
-    const token = await getAccessTokenSilently()
-    const ret = await store.dispatch('setToken', token)
-  }
-})
-watch(user, async (newValue, oldValue) => {
-  debugger
-  if (newValue != null) {
-    const ret = await store.dispatch('setUser', newValue)
-  }
-})
 
 console.log('home gymid', gymid.value)
 if (gymid.value == null || gymid.value == '' || isNaN(gymid.value)) {
@@ -81,14 +68,9 @@ const onStartNavigate = (problem) => {
 }
 
 onMounted(() => {
-  debugger
-  if (isAuthenticated === false) {
-    loginWithRedirect()
-  }
-  getAccessTokenSilently().then((token) => {
-    store.dispatch('setToken', token).then(() => {
-      store.dispatch('getProfile', { user })
-    })
+  // wait for auth and then load profile
+  watch(isAuthenticated, (newValue, oldValue) => {
+    store.dispatch('getProfile', { user })
   })
 })
 

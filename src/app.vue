@@ -26,8 +26,26 @@
     setup() {
         const { t } = useI18n() 
         store.dispatch("changeGym",localStorage.gymid)
-        const { loginWithRedirect, user, isAuthenticated } = useAuth0()
+        const { getAccessTokenSilently, loginWithRedirect, user, isAuthenticated } = useAuth0()
 
+        watch(user, async (newValue, oldValue) => {
+          debugger
+          if (newValue != null) {
+            const ret = await store.dispatch('setUser', newValue)
+          }
+        })
+
+        watch(isAuthenticated, async (newValue, oldValue) => {
+          debugger
+          if (newValue === true) {
+            const token = await getAccessTokenSilently()
+            const ret = await store.dispatch('setToken', token)
+            console.log("access token",token)
+            await store.dispatch('setIsAuthenticated',true)
+          }
+        })
+
+        /*
         watch(user,(newValue, oldValue) => {
           debugger
           if (newValue != null && newValue.email != null) {
@@ -40,6 +58,7 @@
             f7.views.main.router.navigate({url : '/home'  });
           }
         })
+        */
 
         return {
             t,

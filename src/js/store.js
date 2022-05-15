@@ -32,6 +32,7 @@ const store = createStore({
     backlog: getFromLocalStorage('backlog', []),
     archive: getFromLocalStorage('archive', []),
     wishlist: getFromLocalStorage('wishlist', []),
+    isAuthenticated : false,
     topGames: [],
     recentGames: [],
     upcomingGames: [],
@@ -59,6 +60,7 @@ const store = createStore({
     walls: ({ state }) => state.walls,
     gyms: ({ state }) => state.gyms,
     gymid: ({ state }) => state.gymid,
+    isAuthenticated: ({ state }) => state.isAuthenticated,
     profile: ({ state }) => state.profile,
     user: ({ state }) => state.user,
     access_token: ({ state }) => state.access_token,
@@ -77,6 +79,9 @@ const store = createStore({
   actions: {
     setSelectedLeftPanelItem({state, dispatch}, payload) {
       state.selectedLeftPanelItem = payload
+    },
+    setIsAuthenticated ({state, dispatch}, payload) {
+      state.isAuthenticated = payload
     },
     setAccessToken ({state, dispatch}, payload) {
       state.access_token = payload
@@ -163,10 +168,23 @@ const store = createStore({
 
     },
     async getProblemDetails({ state }, payload) {
-      const ret = await api.getProblemDetaijls(payload);
+      const ret = await api.getProblemDetails(payload);
       const problem = ret.problem
       if (problem) {
-        state.problems = {...state.problems,[problem.id] : problem}
+        //state.problems = {...state.problems,[problem.id] : problem}
+        state.problems = state.problems.map((item, index) => {
+          if (item.id !== problem.id) {
+            // This isn't the item we care about - keep it as-is
+            return item
+          }
+      
+          // Otherwise, this is the one we want - return an updated value
+          return {
+            ...item,
+            ...problem
+          }
+        })
+        
       }
       return problem
     },
@@ -187,10 +205,12 @@ const store = createStore({
         return null
       }
       console.log("Loading profile for gym id",state.gymid,user.email)
+      debugger
       const ret = await api.getProfile(state.gymid, user.email)
       if (ret!=null && ret.profile != null) {
         state.profile = ret.profile
         state.gym = ret.gym
+        state.problems = ret.gym.problems
         state.styles = ret.styles
         state.grades = ret.grades
         state.walls = ret.walls

@@ -5,7 +5,8 @@ import dayjs from 'dayjs'
 
 const getAscentsByGrade = (lastDays, showOfType) => {
     let gradeMap = new Map()
-    const problems = computed(() => store.state.gym.problems)
+    debugger
+    const problems = useStore('problems')
     const deadline = dayjs().subtract(lastDays, 'day')
 
     problems.value.forEach(problem => {

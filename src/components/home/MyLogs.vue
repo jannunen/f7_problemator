@@ -17,7 +17,7 @@
             :days="lastDays"
             :type="showOfType"
           ></last-ascents>
-          <div v-else class="text-3xl font-bold text-center text-orange-400">No ascents found </div>
+          <div v-else class="text-2xl font-bold text-center text-orange-400">No ascents to list</div>
         </div>
 
         <div class="flex flex-row gap-2 justify-center">
@@ -99,14 +99,15 @@ const props = defineProps({
   },
 })
 const { t } = useI18n()
-const grades = computed(() => store.state.grades)
-const gym = computed(() => store.state.gym)
-const problems = computed(() => store.state.gym.problems)
-const profile = computed(() => store.state.profile)
+const grades = useStore('grades')
+const gym = useStore('gym')
+const problems = useStore('problems')
+const profile = useStore('profile')
 
 const lastDays = ref(30)
 const showOfType = ref('boulder')
 const ascentsByGrade = computed(() => getAscentsByGrade(lastDays.value,showOfType.value))
+// TBD: Bug with this ascentsByGrade, the graph is not showing...
 const ascentsFound = (ascentsByGrade.size > 0)
 const changeOfType = (type) => {
   showOfType.value = type
