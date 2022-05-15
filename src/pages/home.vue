@@ -35,12 +35,14 @@ const profileLoaded = useStore('profileLoaded')
 const gymSelectorOpen = ref(false)
 
 watch(isAuthenticated, async (newValue, oldValue) => {
+  debugger
   if (newValue === true) {
     const token = await getAccessTokenSilently();
     const ret = await store.dispatch('setToken',token)
   }
 })
 watch(user, async (newValue, oldValue) => {
+  debugger
   if (newValue != null) {
     const ret = await store.dispatch('setUser',newValue)
   }
@@ -70,7 +72,8 @@ const onStartNavigate = (problem) => {
 }
 
 onMounted(() => {
-  if (!isAuthenticated) {
+  debugger
+  if (isAuthenticated===false) {
     loginWithRedirect();
   }
   getAccessTokenSilently().then(token => {
@@ -117,17 +120,26 @@ watch(dark, (isDarkTheme, oldValue) => {
     </div>
     <div v-else class="text-center mt-20">
       <!-- If should show preloader, show only if gym IS selected -->
-      <div v-if="!gymSelectorOpen">
-        <f7-preloader class="my-2"></f7-preloader>
-        <br />
-        Loading ...
-      </div> 
+      <div v-if="accessToken != null">
+        <div v-if="!gymSelectorOpen">
+          <f7-preloader class="my-2"></f7-preloader>
+          <br />
+          Loading ...
+        </div> 
+        <div v-else>
+              <f7-block >
+                <h1 class="text-2xl font-bold text-center">{{ t('home.gym_not_selected') }}</h1>
+                <p class="my-3">{{ t('home.gym_selection_info') }}</p>
+                <gym-selector />
+              </f7-block>
+        </div>
+      </div>
       <div v-else>
-            <f7-block v-if="accessToken != null">
-              <h1 class="text-2xl font-bold text-center">{{ t('home.gym_not_selected') }}</h1>
-              <p class="my-3">{{ t('home.gym_selection_info') }}</p>
-              <gym-selector />
-            </f7-block>
+        You are not logged in, login 
+      <f7-button
+      class="my-2 mx-2 uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
+       @click="loginWithRedirect()">{{ t('Login') }}</f7-button>
+
       </div>
     </div>
 
