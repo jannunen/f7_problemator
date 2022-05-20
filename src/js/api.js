@@ -49,14 +49,6 @@ const errorHandler = async (err) => {
     const json = err.response.data
     errorNotify('Error from server',json.message)
     if (json.message != null && json.message.match(/unauthenticated/i)) {
-      // Logout locally
-      //accountService.logout()
-      // Navigate to login
-      //console.log("Invalidated login in errorhandler")
-      /*
-      const views = f7.views
-      f7.views.main.router.navigate("/")
-      */
       return null
     }
   } catch (e) {
@@ -69,11 +61,7 @@ const errorHandler = async (err) => {
 const resultHandler = async (res) => {
   const json = res?.data
   if (json.message != null && json.message.match(/unauthenticated/i)) {
-    // Logout locally
-    //accountService.logout()
-    // Navigate to login
     console.log("Invalidated login in resultHandler")
-    //f7.views.main.router.navigate("/")
     return null
   }
   return json
@@ -129,6 +117,12 @@ const api = {
     .then((res) => resultHandler(res))
     .catch(err => errorHandler(err))
 
+  },
+  deleteTick(payload) {
+    const url = endpoint + "/tick/"+payload
+    return axios.delete(url, payload)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
   },
   saveTick(payload) {
     const url = endpoint + "/tick/"

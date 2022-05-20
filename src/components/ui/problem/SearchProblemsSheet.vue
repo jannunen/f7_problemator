@@ -9,22 +9,25 @@
     </div>
     <div class="flex flex-row w-full p-1">
       <div class="mt-2 flex">
-        <a
-          @click="qrReaderOpened=true"
-          class="w-20 h-20 rounded-full bg-purple-800 p-2 text-white flex flex-col justify-center items-center font-bold"
+        <f7-link
+          @click="openQRReader"
+          href="#"
+          no-link-class
+          class="ml-4 w-20 h-20 rounded-full bg-purple-800 p-2 text-white flex flex-col justify-center items-center font-bold"
         >
-          <font-awesome-icon icon="qr_code" color="white" size="20px"></font-awesome-icon>
+          <i class="icon f7-icons">qrcode</i>
           <small>{{ t('searchprob.read_qr') }}</small>
-        </a>
+        </f7-link>
       </div>
       <div class="self-center w-full px-2">
-        <input
+        <f7-input
           :label="t('searchprob.search_for_problems')"
-          class="w-full px-2 py-2 border border-white h-14 "
+          class="w-full mt-1 px-2 py-2 border border-gray-300 h-10 "
           @input:clear="onClearSearchText"
           @keyup="searchProblemTextChanged"
           v-model="searchProblemText"
           type="text"
+          clear-button
           :placeholder="t('searchprob.search_for_problems')"
         />
       </div>
@@ -32,7 +35,7 @@
     <div class="my-1 text-small text-center">
       {{ t('searchprob.hits', problems.length) }}
     </div>
-    <ul class="my-0">
+    <ul class="my-0" v-if="problems.length > 0">
       <li v-if="problems.length == 0" :title="t('searchprob.no_hits')"></li>
       <search-hit-item
         @start-navigate="onStartNavigate"
@@ -79,18 +82,27 @@ export default {
     const problems = ref([])
     const qrReaderOpened = ref(false)
     const onReadQRCode = (code) => {
-    debugger
+      debugger
+    }
+    const openQRReader = () => {
+      qrReaderOpened.value=true
+      // Emit close for the sheet
+      context.emit('close')
+
     }
     const onStartNavigate = (problem, sec) => {
       searchProblemText.value = "" // empty search text when selection is done.
       context.emit('start-navigate',problem)
     }
     const clearSearch = () => {
-      searchProblemText.value = null
+      searchProblemText.value = ""
       problems.value = []
       context.emit('clear')
     }
-    const searchProblemTextChanged = debounce((value) => {
+    const searchProblemTextChanged = debounce((el) => {
+      debugger
+      const value = el.target.value
+      searchProblemText.value = value
       if (searchProblemText.value != '') {
         const payload = {
           text: searchProblemText.value,
@@ -107,6 +119,7 @@ export default {
     }
     return {
       onReadQRCode,
+      openQRReader,
       qrReaderOpened,
       onStartNavigate,
       searchProblemText,

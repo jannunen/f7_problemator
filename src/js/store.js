@@ -135,6 +135,7 @@ const store = createStore({
     async deleteTick({ state}, payload) {
       const ret = await api.deleteTick(payload)
       state.problems = {...state.problems,[ret.problem.id] : ret.problem}
+      return ret
     },
     async saveTick({ state}, payload) {
       const ret = await api.saveTick(payload)
@@ -153,7 +154,7 @@ const store = createStore({
       const ret = await api.dislikeProblem(pid)
       // Update problem dislikes
       const problem = state.problems[pid]
-      s.problems = { ...state.problems, [pid]: {...problem,['likeCount'] : ret.likeCount, ['dislikeCount'] : ret.dislikeCount } }
+      state.problems = { ...state.problems, [pid]: {...problem,['likeCount'] : ret.likeCount, ['dislikeCount'] : ret.dislikeCount } }
     },
     setUser({ state}, payload) {
       state.user = payload
@@ -203,7 +204,11 @@ const store = createStore({
       if (ret!=null && ret.profile != null) {
         state.profile = ret.profile
         state.gym = ret.gym
-        state.problems = ret.gym.problems
+        state.problems = ret.gym.problems.reduce(( acc, prob) => {
+          acc[prob.id] = prob
+          return acc
+
+        },{})
         state.styles = ret.styles
         state.grades = ret.grades
         state.walls = ret.walls

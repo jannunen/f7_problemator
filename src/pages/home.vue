@@ -43,6 +43,10 @@ watch(gym, (newValue, oldValue) => {
 const profileLoaded = useStore('profileLoaded')
 const isAuthenticated = useStore('isAuthenticated')
 const gymSelectorOpen = ref(false)
+const onSearchSheetClosed = () => {
+  debugger
+  isOpened.value = false
+}
 
 
 console.log('home gymid', gymid.value)
@@ -89,7 +93,7 @@ watch(dark, (isDarkTheme, oldValue) => {
 </script>
 
 <template>
-  <left-sidepanel :opened="sidePanelOpen"></left-sidepanel>
+  <left-sidepanel></left-sidepanel>
   
   <f7-page name="home">
     <f7-navbar>
@@ -159,7 +163,7 @@ watch(dark, (isDarkTheme, oldValue) => {
       @sheet:closed="isOpened = false"
     >
       <SearchProblemsSheetVue
-        @close="isOpened = false"
+        @close="onSearchSheetClosed"
         @start-navigate="onStartNavigate"
       />
     </f7-sheet>

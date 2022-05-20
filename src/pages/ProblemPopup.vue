@@ -5,6 +5,7 @@ import Problem from '@components/Problem.vue'
 const props = defineProps({
   problem: Object,
   f7router : Object,
+  id : Number,
 })
 </script>
 <template>
@@ -15,7 +16,7 @@ const props = defineProps({
           <f7-link popup-close>Close</f7-link>
         </f7-nav-right>
       </f7-navbar>
-      <problem :problem="problem" />
+      <problem :problem="problem" :id="id" />
     </f7-page>
   </f7-popup>
 </template>

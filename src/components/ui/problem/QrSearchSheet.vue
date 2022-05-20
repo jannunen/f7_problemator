@@ -9,13 +9,15 @@
       <f7-block>
         <h1 class="font-bold my-2 text-2xl">{{ t('searchprob.scan_qr_code_title') }}</h1>
         <p class="p-1">{{ t('searchprob.scan_qr_code_explainer') }}</p>
-        <qrcode-stream @decode="onDecode" />
+        <qrcode-stream v-if="opened" @decode="onDecode" />
+        <f7-button @click="onDecode('http://localhost:3000/#!/problem/67243')">Test decode</f7-button>
       </f7-block>
     </f7-page>
   </f7-popup>
 </template>
 <script setup>
   import { useI18n } from 'vue-i18n'
+import { f7 } from 'framework7-vue'
   import { QrcodeStream } from 'vue3-qrcode-reader'
   const { t } = useI18n()
   const props = defineProps({
@@ -23,10 +25,19 @@
     })
   const emit = defineEmits(['close'])
   const onDecode = (code) => {
+
+    // The QR code has format https://pwa.problemator.fi/#!/problem/67243
+    code = "https://pwa.problemator.fi/#!/problem/67243"
+    const matches = code.match(/.*?(\d+)/)
     debugger
+    if (matches !== false) {
+      const problemid = matches[1]
+      emit('close')
+       f7.views.main.router.navigate('/problem/' + problemid + '/popup')
+    }
+
   }
    const  onInit = async (promise) => {
-debugger
 
     try {
       const { capabilities } = await promise

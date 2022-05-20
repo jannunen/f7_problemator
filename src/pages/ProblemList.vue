@@ -1,8 +1,11 @@
 <template>
   <f7-page>
-    <f7-navbar :title="t('problemlist.problemlist')" back-link> </f7-navbar>
+    <f7-navbar >
+       <f7-nav-left><f7-link href="/">&lt; home</f7-link></f7-nav-left>
+       <f7-nav-title> {{ t('problemlist.problemlist') }} </f7-nav-title>
+       </f7-navbar>
     <f7-block>
-      <div v-if="filteredProblems.length > 0">
+      <div v-if="unfilteredProblemsExist">
         <div class="my-0 mx-2">
           <h2 class="uppercase text-xl my-2 font-bold">
             {{ t('problemlist.gradefilter') }}
@@ -30,6 +33,18 @@
               </h2>
               <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
             </li>
+          <li>
+          <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
+          </li>
+          <f7-list no-hairlines-md>
+            <f7-list-input
+              type="text"
+              :placeholder="t('Filter by problem name')"
+              v-model:value="nameFilter"
+              clear-button
+            ></f7-list-input>
+          </f7-list>
+
             <button
               @click="store.dispatch('resetFilters')"
               class="button bg-red-500 text-white my-2"
@@ -51,7 +66,6 @@
             }}</span>
           </div>
 
-          <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
 
           <f7-list problemlist class="my-0">
             <div v-for="(problem, idx) in filteredProblems" :key="problem.id">
@@ -91,17 +105,18 @@
             </div>
           </f7-list>
         </div>
-        <div v-else class="m-4 mb-14 bg-white p-4 border rounded-xl border-gray-700">
+        <div v-else class="m-4 mb-14 bg-red-300 p-4 border rounded-xl border-red-700">
           <div class="flex flex-col justify-center items-center">
-            <h1 class="text-red-500 font-bold text-2xl my-1">
+            <h1 class="text-red-800 font-bold text-2xl my-1">
               {{ t('problemlist.snap' + getRandom(1, maxSnap)) }}
             </h1>
-            icon smart toy?
-            <h2 class="font-bold text-lg my-1">{{ t('problemlist.no_hits_title') }}</h2>
-            <div class="px-2 text-sm my-2">
-              {{ t('problemlist.no_hits_desc') }}
-              <button @click="resetFilters">{{ t('problemlist.reset_filters') }}</button>
-            </div>
+            <p class="text-red-600 text-center">
+              <h2 class="font-bold text-lg my-1">{{ t('problemlist.no_hits_title') }}</h2>
+              <div class="px-2 text-sm my-2">
+                {{ t('problemlist.no_hits_desc') }}
+                <!--<button @click="resetFilters">{{ t('problemlist.reset_filters') }}</button>-->
+              </div>
+            </p>
           </div>
         </div>
       </div>
@@ -148,7 +163,14 @@ const walls = useStore('walls')
 const grades = useStore('grades')
 const selectedWalls = ref([])
 const filters = useStore('filters')
+const nameFilter = ref('')
 const styles = useStore('styles')
+const unfilteredProblemsExist = computed(() => {
+  if (problems.value == null) {
+    return 0
+  }
+  return Object.keys(problems.value).length > 0
+})
 const onStartNavigate = (problem) => {
   props.f7router.navigate('/problem/' + problem.id, {
     props: { problem },
@@ -196,6 +218,12 @@ const filteredProblems = computed(() => {
   }
   if (styles.value != null && styles.value.length > 0) {
     probs = probs.filter((item) => styles.value.every((i) => item.styles.includes(i)))
+  }
+
+  // Filter by nameFilter
+  if (nameFilter.value != "") {
+    const filter = nameFilter.value.toLowerCase()
+    probs = probs.filter((prob) => prob.tag.toLowerCase().indexOf(filter) != -1)
   }
 
   // Filter by walls
@@ -252,6 +280,7 @@ const gradesDiffer = (idx) => {
   return a.grade.score != b.grade.score
 }
 const resetFilters = () => {
+  nameFilter.value = ''
   store.dispatch('resetFilters')
   selectedWalls.value = []
 }

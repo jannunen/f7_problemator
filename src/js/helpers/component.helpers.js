@@ -8,7 +8,8 @@ const getAscentsByGrade = (lastDays, showOfType) => {
     const problems = useStore('problems')
     const deadline = dayjs().subtract(lastDays, 'day')
 
-    problems.value.forEach(problem => {
+    Object.keys(problems.value).forEach(key => {
+        const problem = problems.value[key]
         if (problem.routetype == showOfType || showOfType == 'all') {
 
             // If problem has ticks, count as ascent

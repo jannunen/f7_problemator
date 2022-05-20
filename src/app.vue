@@ -44,20 +44,6 @@
           store.dispatch('setInitializing',false)
         })
 
-        /*
-        watch(user,(newValue, oldValue) => {
-          debugger
-          if (newValue != null && newValue.email != null) {
-            //store.dispatch('getProfile')
-          }
-        })
-        watch(isAuthenticated,(newValue, oldValue) => {
-          debugger
-          if (isAuthenticated===true) {
-            f7.views.main.router.navigate({url : '/home'  });
-          }
-        })
-        */
 
         return {
             t,

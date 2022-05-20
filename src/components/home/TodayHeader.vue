@@ -56,10 +56,10 @@ const triesToday = computed(() => {
       <div class="mt-2">
         <button
           @click="emit('addtick')"
-          class="w-14 h-14 rounded-full bg-purple-800 p-2 text-white flex flex-col justify-center items-center font-bold"
+          class="w-20 h-20 rounded-full bg-purple-800 p-2 text-white flex flex-col justify-center items-center font-bold"
         >
-          <f7-icon material="add" color="white" size="20px"></f7-icon>
-          <small>{{ t('home.add') }}</small>
+          <f7-icon material="add" color="white" size="26px"></f7-icon>
+          <span class="uppercase">{{ t('home.add') }}</span>
         </button>
       </div>
     </div>

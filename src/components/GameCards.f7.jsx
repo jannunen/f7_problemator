@@ -1,4 +1,4 @@
-import { gamePlatforms } from '../js/game-platforms.js';
+//import { gamePlatforms } from '../js/game-platforms.js';
 import './GameCards.less';
 
 export default function GameCards(props) {

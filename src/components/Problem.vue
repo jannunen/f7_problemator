@@ -12,8 +12,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 import store from '@js/store.js'
-import { useStore } from 'framework7-vue'
-import { f7 } from 'framework7-vue'
+import { f7, useStore, f7ready } from 'framework7-vue'
 import { useAuth0 } from '@auth0/auth0-vue';
 const { idTokenClaims, getAccessTokenSilently, loginWithRedirect, logout, user } = useAuth0();
 dayjs.extend(LocalizedFormat)
@@ -24,6 +23,7 @@ const props = defineProps({
   f7router: Object,
   id : Number,
 })
+debugger
 if (props.id != null) {
   store.dispatch('getProblemDetails', props.id)
 }
@@ -41,6 +41,7 @@ const problem = computed(() => {
 onMounted(() => {
 })
 const popupOpened = ref(true)
+
 const openAddTick = () => {
   const url = `/problem/${problem.id}/addtick`
   props.f7router.navigate(url)

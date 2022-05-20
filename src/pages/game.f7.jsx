@@ -1,5 +1,5 @@
-import { gameActions } from '../js/game-actions.js';
-import { gamePlatforms } from '../js/game-platforms.js';
+//import { gameActions } from '../js/game-actions.js';
+//import { gamePlatforms } from '../js/game-platforms.js';
 import './game.less';
 
 export default (

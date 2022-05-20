@@ -1,4 +1,4 @@
-import GameCards from '../components/GameCards.f7.jsx';
+//import GameCards from '../components/GameCards.f7.jsx';
 
 export default (props, { $store, $theme }) => {
   const { archive } = $store.getters;

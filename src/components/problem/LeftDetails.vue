@@ -95,7 +95,7 @@ const askLike = () => {
   })
 }
 const askDislike = () => {
-  prompt(t('global.are_you_sure'),t('problem.confirm_dislike'),() => {
+  confirm(t('global.are_you_sure'),t('problem.confirm_dislike'),() => {
     store.dispatch('dislikeProblem', {id : props.problem.id})
   })
 }
