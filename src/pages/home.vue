@@ -17,18 +17,15 @@ const {
 import { toaster } from '@helpers/notifications.js'
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import $ from 'dom7'
 import { f7, useStore } from 'framework7-vue'
 import { watch } from 'vue'
 import { ref } from 'vue'
 import store from '../js/store.js'
-const dark = useStore('dark')
 const profile = useStore('profile')
 const accessToken = useStore('access_token')
 const sidePanelOpen = useStore('sidePanelOpen')
 const gym = useStore('gym')
 const gymid = useStore('gymid')
-const localDark = ref(true)
 const isOpened = ref(false)
 const initializing = useStore('initializing')
 const { t } = useI18n()
@@ -58,10 +55,6 @@ watch(gymid, (newValue, oldValue) => {
     gymSelectorOpen.value = false
   }
 })
-const toggleDark = (newValue) => {
-  const nowChecked = newValue.target.checked
-  store.dispatch('setDark', nowChecked)
-}
 const onAddTick = () => {
   isOpened.value = true
 }
@@ -79,17 +72,6 @@ onMounted(() => {
   })
 })
 
-// Handles changing the dark/light theme. Seems a bit kludge, because it is.
-watch(dark, (isDarkTheme, oldValue) => {
-  const self = this
-  const $html = $('html')
-  $html.removeClass('theme-dark theme-light')
-  if (isDarkTheme) {
-    $html.addClass(`theme-dark`)
-  } else {
-    $html.addClass(`theme-light`)
-  }
-})
 </script>
 
 <template>
@@ -98,11 +80,16 @@ watch(dark, (isDarkTheme, oldValue) => {
   <f7-page name="home">
     <f7-navbar>
       <f7-nav-left>
-        <f7-link @click.prevent="store.dispatch('setSidePanel', true)">Menu</f7-link>
       </f7-nav-left>
       <f7-nav-title>Problemator</f7-nav-title>
       <f7-nav-right>
-        <f7-toggle :checked="localDark" @change="toggleDark" />
+        <f7-link @click.prevent="store.dispatch('setSidePanel', true)">
+            <f7-icon
+                md="material:menu"
+                aurora="f7:menu"
+                ios="f7:menu"
+              />
+        </f7-link>
       </f7-nav-right>
     </f7-navbar>
     <!-- Page content -->
@@ -138,18 +125,21 @@ watch(dark, (isDarkTheme, oldValue) => {
           </f7-block>
         </div>
       </div>
-      <div v-else>
-        <div v-if="initializing">
-           Initializing, please wait 
-        </div>
-        <div v-else>
-          You are not logged in, login
-        </div>
+      <div v-else class="flex flex-col justify-center">
+           
+          <h1 class="text-3xl text-white font-bold">Problemator</h1>
+          <img class="w-3/5 mx-auto" src="images/problemator_logo_new.png" alt="metacritic" />
+          <p>
+            You are not logged in, please click the login or register button below
+          </p>
           <f7-button
-            class="my-2 mx-2 uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
+            class="my-2 mx-12 uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
             @click="loginWithRedirect()"
-            >{{ t('Login') }}</f7-button
-          >
+            >{{ t('Login') }}</f7-button >
+          <f7-button
+            class="my-2 mx-12 uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
+            @click="loginWithRedirect()"
+            >{{ t('Register') }}</f7-button >
 
       </div>
     </div>

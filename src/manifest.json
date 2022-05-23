@@ -1,7 +1,7 @@
 {
-  "name": "Backlogger",
-  "short_name": "Backlogger",
-  "description": "Backlogger",
+  "name": "Problemator",
+  "short_name": "Problemator",
+  "description": "Problemator",
   "lang": "en-US",
   "start_url": "/",
   "display": "standalone",

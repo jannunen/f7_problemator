@@ -2,6 +2,7 @@ import Home from '../pages/Home.vue';
 import Loading from '../pages/Loading.vue';
 import Login from '../pages/Login.vue';
 import ProblemPage from '../pages/ProblemPage.vue';
+import SettingsPage from '../pages/SettingsPage.vue';
 import ProblemPopup from '../pages/ProblemPopup.vue';
 import ProblemList from '../pages/ProblemList.vue';
 import Backlog from '../pages/backlog.f7.jsx';
@@ -23,6 +24,11 @@ const routes = [
   {
     path: '/home',
     component: Home,
+    //beforeEnter: authGuard,
+  },
+  {
+    path: '/settings',
+    component: SettingsPage,
     //beforeEnter: authGuard,
   },
   {

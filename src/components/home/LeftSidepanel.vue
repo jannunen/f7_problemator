@@ -18,6 +18,7 @@
               <f7-icon md="material:home" aurora="f7:house_fill" ios="f7:house_fill" />
             </template>
           </f7-list-item>
+          <!--
           <f7-list-item
             link
             title="Profile"
@@ -32,11 +33,12 @@
               />
             </template>
           </f7-list-item>
+          -->
           <f7-list-item
             link
             title="Settings"
             :selected="selectedItem === 'settings'"
-            @click="() => store.dispatch('setSelectedLeftPanelItem', 'settings')"
+            @click="openSettings"
           >
             <template #media>
               <f7-icon
@@ -46,6 +48,13 @@
               />
             </template>
           </f7-list-item>
+           <f7-list-item>
+            Dark mode
+            <f7-toggle v-model:checked="localDarkMode"></f7-toggle>
+            <template #media>
+              <f7-icon md="material:home" aurora="f7:house_fill" ios="f7:house_fill" />
+            </template>
+           </f7-list-item>
           <f7-list-item
             link
             title="Logout"
@@ -77,7 +86,9 @@
 import { useI18n } from 'vue-i18n'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { f7, useStore } from 'framework7-vue'
+import { ref, watch} from 'vue'
 import store from '@/js/store.js'
+import $ from 'dom7'
 
 const { t } = useI18n()
 const {
@@ -87,6 +98,29 @@ const {
   logout,
   user,
 } = useAuth0()
+const darkMode = useStore('darkMode')
+const localDarkMode = ref(darkMode)
+
+const openSettings = () => {
+ store.dispatch('setSelectedLeftPanelItem', 'settings')
+ store.dispatch('setSelectedLeftPanelItem', 'settings')
+ store.dispatch('setSidePanel', false)
+ f7.views.main.router.navigate("/settings")
+}
+// Handles changing the dark/light theme. Seems a bit kludge, because it is.
+watch(localDarkMode, (isDarkTheme, oldValue) => {
+  debugger
+  const self = this
+  store.dispatch('setDark', isDarkTheme)
+  const $html = $('html')
+  $html.removeClass('theme-dark theme-light')
+  if (isDarkTheme) {
+    $html.addClass(`theme-dark`)
+  } else {
+    $html.addClass(`theme-light`)
+  }
+})
+
 
 const doLogout = () => {
   store.dispatch('setSelectedLeftPanelItem', 'logout')

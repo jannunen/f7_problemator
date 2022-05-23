@@ -1,5 +1,11 @@
 const messages = {
     en: {
+        global : {
+            'join' : 'If you want Problemator to be better, The easiest way is to create a pull request. The source code can be found from Github.',
+        },
+        settings : {
+            settings_title : 'Settings',
+        },
         gymselector : {
             active_gym : 'Active gym',
         },

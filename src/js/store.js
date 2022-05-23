@@ -21,6 +21,9 @@ const getFromLocalStorage = (key, defaultValue) => {
 
 const store = createStore({
   state: {
+    settings : {
+      darkMode : true,
+    },
     searchQuery: '',
     searchState: 'idle',
     initializing : true,
@@ -38,7 +41,6 @@ const store = createStore({
     recentGames: [],
     upcomingGames: [],
     gymid : null,
-    dark : true,
     profile : null,
     user : null,
     access_token : null,
@@ -66,7 +68,6 @@ const store = createStore({
     profile: ({ state }) => state.profile,
     user: ({ state }) => state.user,
     access_token: ({ state }) => state.access_token,
-    dark: ({ state }) => state.dark,
     searchResults: ({ state }) => state.searchResults,
     searchState: ({ state }) => state.searchState,
     searchRecent: ({ state }) => state.searchRecent,
@@ -77,6 +78,7 @@ const store = createStore({
     backlog: ({ state }) => state.backlog,
     archive: ({ state }) => state.archive,
     wishlist: ({ state }) => state.wishlist,
+    darkMode: ({ state }) => state.settings.darkMode,
   },
   actions: {
     setInitializing({state, dispatch}, payload) {
@@ -104,6 +106,9 @@ const store = createStore({
       const ret = await api.getGyms()
       state.gyms = ret.gyms
       return ret
+    },
+    setDarkMode({state}, payload) {
+      state.settings.darkMode = payload
     },
     setFilterProblems({state}, payload) {
       state.filters = { ...state.filters, ['problemFilters']: payload }
@@ -216,9 +221,6 @@ const store = createStore({
         return state.profile
       }
       return null
-    },
-    setDark({ state } , payload) {
-      state.dark = payload
     },
     async search({ state }, query) {
       if (query === state.searchQuery) {

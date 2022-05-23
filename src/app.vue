@@ -8,7 +8,16 @@
     :autoDarkTheme="true"
   >
     <!-- initial page is specified in routes.js -->
-    <f7-view main url="/" :browser-history="true"></f7-view>
+    
+    <f7-block v-if="loading">
+          <img class="w-3/5 mx-auto" src="images/problemator_logo_new.png" alt="metacritic" />
+          <div class="text-center my-2 text-lg">
+            Loading...
+           <f7-preloader></f7-preloader>
+           </div>
+
+      </f7-block>
+    <f7-view v-else main url="/" :browser-history="true"></f7-view>
   </f7-app>
 </template>
 <script>
@@ -16,7 +25,7 @@
   import store from './js/store.js';
   import { useI18n } from 'vue-i18n'
   import { useAuth0 } from '@auth0/auth0-vue';
-  import { watch, computed } from 'vue'
+  import { ref, watch, computed } from 'vue'
   import { f7, useStore } from 'framework7-vue'
 
   export default {
@@ -26,16 +35,32 @@
     setup() {
         const { t } = useI18n() 
         store.dispatch("changeGym",localStorage.gymid)
-        const { getAccessTokenSilently, loginWithRedirect, user, isAuthenticated } = useAuth0()
+        const { getInstance, getAccessTokenSilently, loginWithRedirect, user, isAuthenticated } = useAuth0()
+        const loading = ref(true)
+
+
+        debugger
+        getAccessTokenSilently()
+        .then(ret => {
+          loading.value = false
+        })
+        .catch(async (err) => {
+          // Not logged in, show login...
+          await store.dispatch('setIsAuthenticated',false)
+          loading.value = false
+
+        })
 
         watch(user, async (newValue, oldValue) => {
           if (newValue != null) {
+            loading.value = false
             const ret = await store.dispatch('setUser', newValue)
           }
         })
 
         watch(isAuthenticated, async (newValue, oldValue) => {
           if (newValue === true) {
+            loading.value = false
             const token = await getAccessTokenSilently()
             const ret = await store.dispatch('setToken', token)
             console.log("access token",token)
@@ -50,6 +75,7 @@
             store,
             routes,
             isAuthenticated,
+            loading,
         }
     },
     data() {
