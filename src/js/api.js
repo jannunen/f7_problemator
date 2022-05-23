@@ -67,6 +67,11 @@ const resultHandler = async (res) => {
   return json
 }
 const api = {
+  saveSettings(payload) {
+    return axios.post(endpoint+"/settings/user",payload)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
   setToken(payload) {
     return axios.post(endpoint+"/tick/",payload)
     .then((res) => resultHandler(res))

@@ -81,6 +81,9 @@ const store = createStore({
     darkMode: ({ state }) => state.settings.darkMode,
   },
   actions: {
+    async saveSettings({state, dispatch}, payload) {
+      return await api.saveSettings(payload)
+    },
     setInitializing({state, dispatch}, payload) {
       state.initializing = payload
     },

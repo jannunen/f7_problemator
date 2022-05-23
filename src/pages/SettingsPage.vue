@@ -2,6 +2,7 @@
 import { useI18n } from 'vue-i18n'
 import { ref, watch, onMounted } from 'vue'
 import { useStore } from 'framework7-vue'
+import { toaster, alert } from '@js/helpers/notifications.js'
 import store from '../js/store.js'
 const { t } = useI18n()
 const props = defineProps({
@@ -17,13 +18,17 @@ const ascentTypes = ref([
     { id : '0', name : 'lead' },
     { id : '1', name : 'top-rope' },
 ])
+const saveSettings = () => {
+    store.dispatch('saveSettings',settings.value)
+    .then(ret => {
+      toaster(ret.message)
+    })
+}
 const isChecked = (field) => {
-    debugger
     const val =  settings.value[field];
     return parseInt(val) == 1
 }
 const toggleTrueFalseWithNumber = (field, boolikka) => {
-    debugger
     if (boolikka) {
         settings.value[field] = 1
     } else {
@@ -59,8 +64,6 @@ watch(profile,(newValue, oldValue) => {
              and some convenience settings.
             </p>
         </f7-block>
-        {{ settings }}
-
         <f7-list>
               <f7-block-title>Personal details (optional)</f7-block-title>
                <f7-list-input
@@ -115,6 +118,7 @@ watch(profile,(newValue, oldValue) => {
             </template>
             </f7-list-item>
         </f7-list>
+        <button class="btn-primary" @click="saveSettings" block>Save settings</button>
     </f7-block>
   
   </f7-page>
