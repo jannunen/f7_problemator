@@ -1,5 +1,23 @@
 const messages = {
     en: {
+        comps : {
+                upcoming_competitions : 'Upcoming competitions',
+                ongoing_competitions : 'Ongoing competitions',
+                ongoing_between : 'Comp is held between',
+                comp_time_ends_in : 'Comp time ends in',
+                registration_ends : 'Registration ends',
+                not_registered : 'Not registered (yet)',
+                contender : 'Contenders',
+                prices : 'Entry fee',
+                special_price : 'Special entry fee',
+                contenders_in_total : 'Contenders in total',
+                categories : 'Categories',
+                competition_title : 'Competition details',
+                registration_has_ended : 'Registration has ended',
+                paidregistrations : 'paid',
+                unpaidregistrations : 'unpaid',
+                fastest_hands_wins : 'If categories have max. participants, paid contenders will get the spot over unpaid registrations.'
+        },
         global : {
             'join' : 'If you want Problemator to be better, The easiest way is to create a pull request. The source code can be found from Github.',
         },

@@ -67,6 +67,16 @@ const resultHandler = async (res) => {
   return json
 }
 const api = {
+  getCompetition(payload) {
+    return axios.get(endpoint+"/competitions/"+payload)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
+  getUpcomingCompetitions(payload) {
+    return axios.get(endpoint+"/competitions/upcoming",payload)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
   saveSettings(payload) {
     return axios.post(endpoint+"/settings/user",payload)
     .then((res) => resultHandler(res))

@@ -5,6 +5,10 @@ import ProblemPage from '../pages/ProblemPage.vue';
 import SettingsPage from '../pages/SettingsPage.vue';
 import ProblemPopup from '../pages/ProblemPopup.vue';
 import ProblemList from '../pages/ProblemList.vue';
+import UpcomingCompetitionsPage from '../pages/UpcomingCompetitionsPage.vue';
+import OngoingCompetitionsPage from '../pages/OngoingCompetitionsPage.vue';
+import SingleCompetitionPage from '../pages/SingleCompetitionPage.vue';
+
 import Backlog from '../pages/backlog.f7.jsx';
 import Wishlist from '../pages/wishlist.f7.jsx';
 import Archive from '../pages/archive.f7.jsx';
@@ -29,6 +33,21 @@ const routes = [
   {
     path: '/settings',
     component: SettingsPage,
+    //beforeEnter: authGuard,
+  },
+  {
+    path: '/competitions/upcoming',
+    component: UpcomingCompetitionsPage,
+    //beforeEnter: authGuard,
+  },
+  {
+    path: '/competitions/ongoing',
+    component: OngoingCompetitionsPage,
+    //beforeEnter: authGuard,
+  },
+  {
+    path: '/competitions/:compid',
+    component: SingleCompetitionPage,
     //beforeEnter: authGuard,
   },
   {

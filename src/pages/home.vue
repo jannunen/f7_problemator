@@ -4,6 +4,7 @@ import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.v
 import FloorMapBlock from '@components/home/FloorMapBlock.vue'
 import GymSelector from '@components/GymSelector.vue'
 import MyLogs from '@components/home/MyLogs.vue'
+import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import { useAuth0 } from '@auth0/auth0-vue'
@@ -41,7 +42,6 @@ const profileLoaded = useStore('profileLoaded')
 const isAuthenticated = useStore('isAuthenticated')
 const gymSelectorOpen = ref(false)
 const onSearchSheetClosed = () => {
-  debugger
   isOpened.value = false
 }
 
@@ -98,6 +98,7 @@ onMounted(() => {
       <badge-gym-stats :gym="gym" />
       <TodayHeader :profile="profile" @addtick="onAddTick" />
       <floor-map-block />
+      <competitions-badge />
       <my-logs :show-selector="true" />
 
       <div class="m-4 grid grid-cols-2 gap-2" v-if="profile">
@@ -128,12 +129,12 @@ onMounted(() => {
       <div v-else class="flex flex-col justify-center">
            
           <h1 class="text-3xl text-white font-bold">Problemator</h1>
-          <img class="w-3/5 mx-auto" src="images/problemator_logo_new.png" alt="metacritic" />
+          <!--<img class="w-3/5 mx-auto" src="images/problemator_logo_new.png" alt="metacritic" />-->
           <p>
             You are not logged in, please click the login or register button below
           </p>
           <f7-button
-            class="my-2 mx-12 uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
+            class="btn-primary"
             @click="loginWithRedirect()"
             >{{ t('Login') }}</f7-button >
           <f7-button

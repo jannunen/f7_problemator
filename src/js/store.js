@@ -24,6 +24,12 @@ const store = createStore({
     settings : {
       darkMode : true,
     },
+    competition : null,
+    upcomingcomps : {
+      loaded : false,
+      upcoming : [],
+      ongoing : [],
+    },
     searchQuery: '',
     searchState: 'idle',
     initializing : true,
@@ -54,6 +60,8 @@ const store = createStore({
     profileLoaded : false,
   },
   getters: {
+    competition: ({ state }) => state.competition,
+    upcomingcompetitions: ({ state }) => state.upcomingcomps,
     profileLoaded: ({ state }) => state.profileLoaded,
     filters: ({ state }) => state.filters,
     problems: ({ state }) => state.problems,
@@ -81,6 +89,20 @@ const store = createStore({
     darkMode: ({ state }) => state.settings.darkMode,
   },
   actions: {
+    async getCompetition({state, dispatch}, payload) {
+      const ret = await api.getCompetition(payload)
+      state.competition = ret
+      return ret
+    },
+    async getUpcomingCompetitions ({state, dispatch}, payload) {
+      const comps = await api.getUpcomingCompetitions(payload)
+      state.upcomingcomps = {
+        upcoming : comps.upcoming,
+        ongoing : comps.ongoing,
+        loaded : true
+      }
+      return comps
+    },
     async saveSettings({state, dispatch}, payload) {
       return await api.saveSettings(payload)
     },

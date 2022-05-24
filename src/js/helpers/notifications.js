@@ -12,11 +12,13 @@ const confirm = (title=null,text=null,okcb=null,cancelcb=null) => {
 const alert = (title=null,text=null,okcb=null,cancelcb=null) => {
     f7.dialog.alert(text,title,okcb,cancelcb)
 }
-const toaster = (title=null, subtitle=null) => {
+const toaster = (subtitle, title='Problemator') => {
         f7.notification.create({
           title,
           subtitle,
+          titleRightText: 'now',
           closeTimeout: 5000,
+          closeOnClick: true,
         }).open()
     }
  
@@ -24,7 +26,8 @@ const errorNotify = (title=null, subtitle=null) => {
         f7.notification.create({
           title,
           subtitle,
-          closeTimeout: 5000,
+          closeTimeout: 4000,
+          closeOnClick : true,
         }).open()
 }
 export {

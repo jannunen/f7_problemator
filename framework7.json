@@ -2,7 +2,7 @@
   "type": [
     "pwa"
   ],
-  "name": "Backlogger",
+  "name": "Problemator",
   "framework": "core",
   "template": "blank",
   "bundler": "vite",
