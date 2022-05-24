@@ -9,8 +9,8 @@
   >
     <!-- initial page is specified in routes.js -->
     
-    <f7-block v-if="loading">
-          <img class="w-3/5 mx-auto" src="images/problemator_logo_new.png" alt="metacritic" />
+    <f7-block v-if="loading" class="flex flex-col justify-center items-center">
+          <!--<img class="w-3/5 mx-auto" src="images/problemator_logo_new.png" alt="metacritic" />-->
           <div class="text-center my-2 text-lg">
             Loading...
            <f7-preloader></f7-preloader>
@@ -38,35 +38,33 @@
         const { getInstance, getAccessTokenSilently, loginWithRedirect, user, isAuthenticated } = useAuth0()
         const loading = ref(true)
 
-
-        debugger
         getAccessTokenSilently()
-        .then(ret => {
+        .then(async (token) => {
+          const ret = await store.dispatch('setToken', token)
+          console.log("access token",token)
           loading.value = false
         })
         .catch(async (err) => {
           // Not logged in, show login...
           await store.dispatch('setIsAuthenticated',false)
           loading.value = false
-
         })
 
         watch(user, async (newValue, oldValue) => {
           if (newValue != null) {
-            loading.value = false
             const ret = await store.dispatch('setUser', newValue)
           }
         })
 
         watch(isAuthenticated, async (newValue, oldValue) => {
           if (newValue === true) {
-            loading.value = false
             const token = await getAccessTokenSilently()
             const ret = await store.dispatch('setToken', token)
             console.log("access token",token)
             await store.dispatch('setIsAuthenticated',true)
           }
           store.dispatch('setInitializing',false)
+          loading.value = false
         })
 
 
