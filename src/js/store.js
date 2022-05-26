@@ -89,6 +89,32 @@ const store = createStore({
     darkMode: ({ state }) => state.settings.darkMode,
   },
   actions: {
+    async registerToComp({state, dispatch}, payload) {
+      const ret = await api.registerToComp(payload)
+      // Update the status of participation status
+      debugger
+      let newData = {
+        ...state.upcomingcomps
+      } 
+      newData.upcoming = newData.upcoming.map(comp => {
+        if (comp.id == payload.compid) {
+          return {...comp,
+            participates : true,
+          }
+        }
+        return comp
+      })
+      newData.ongoing = newData.ongoing.map(comp => {
+        if (comp.id == payload.compid) {
+          return {...comp,
+            participates : true,
+          }
+        }
+        return comp
+      })
+      state.upcomingcompetitions = newData
+      return ret
+    },
     async getCompetition({state, dispatch}, payload) {
       const ret = await api.getCompetition(payload)
       state.competition = ret

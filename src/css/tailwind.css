@@ -8,4 +8,7 @@
     .btn-primary {
       @apply my-2  uppercase block text-center  py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white 
     }
+    .btn-small {
+      @apply btn-primary px-2 py-0 h-8 
+    }
   }

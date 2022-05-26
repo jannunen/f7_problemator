@@ -9,54 +9,80 @@
         <div class="demo-facebook-date">{{ comp.compdate }}</div>
       </f7-card-header>
       <f7-card-content>
-          <div class="my-2 ">Location: <strong>@{{ comp.location }}</strong></div>
-          <div class="my-2 ">Time span: <strong>{{ comp.timespan_start }} - {{ comp.timespan_end }} </strong></div>
+        <div class="my-2">
+          Location: <strong>@{{ comp.location }}</strong>
+        </div>
+        <div class="my-2">
+          Time span: <strong>{{ comp.timespan_start }} - {{ comp.timespan_end }} </strong>
+        </div>
 
         <p v-html="comp.register_form_text"></p>
         <h1 class="my-1 font-bold text-lg">{{ t('comps.categories') }}</h1>
         <p class="text-blue-300">{{ t('comps.fastest_hands_wins') }}</p>
         <div class="my-2">
-        <f7-list media-list>
-            <f7-list-item v-for="cat in comp.categories" :key="cat.id"
-            :title="cat.nimi" 
-            > 
-            <template #subtitle>
+          <f7-list media-list>
+            <f7-list-item v-for="cat in comp.categories" :key="cat.id" :title="cat.nimi">
+              <template #subtitle>
                 Max. participants
-                <span class="text-green-400" v-if="cat.pivot.maxparticipants==null">
-                      unlimited
+                <span class="text-green-400" v-if="cat.pivot.maxparticipants == null">
+                  unlimited
                 </span>
                 <span v-else>
-                    {{ cat.pivot.maxparticipants }}
+                  {{ cat.pivot.maxparticipants }}
                 </span>
-            </template>
-            <template #after>
-               <span class="text-green-600 text-sm p-1">
-               {{ t('comps.paidregistrations') }}
-               {{ cat.participants.length }} 
-               </span>
-               <span class="text-orange-600 text-sm mx-1 p-1">
-               {{ t('comps.unpaidregistrations') }}
-               {{ cat.unpaidparticipants || 0}} 
-               </span>
-            </template>
-            <template #text>
+              </template>
+              <template #after>
+                <div v-if="isCategoryFull(cat)">
+                  {{ t('comps.category_full_text') }}
+                </div>
+                <div v-else>
+                  <div v-if="cat.participatesunpaid" class="text-yellow-400 font-bold">
+                      {{ t('comps.registered_unpaid') }}
+                    <f7-button  
+                    class="btn-primary dark:bg-green-500 btn-small " 
+                      :link="getPaymentLink(cat)"
+                    >{{ t('comps.pay_comp') }}</f7-button>
+                  </div>
+                  <div v-else-if="cat.participates" class="text-green-400 font-bold">
+                      {{ t('comps.registered_paid') }}
+                  </div>
+                  <div v-else>
+                    <f7-button  @click="askRegister(cat)" class="btn-primary btn-small" >{{ t('comps.register_button') }}</f7-button>
+                  </div>
+                </div>
+              </template>
+              <template #text>
                 {{ t('comps.prices') }}
-                    <span v-if="!isNaN(parseFloat(cat.pivot.price))" class="font-bold text-indigo-400">
-                    {{ cat.pivot.price }}€
-                    </span>
-                    <span v-if="!isNaN(parseFloat(cat.pivot.memberprice))" >
-                        {{ t('comps.special_price') }}
-                    <span class="font-bold text-indigo-300">{{ cat.pivot.memberprice }}€</span>
-                    </span>
-            </template>
+                <span
+                  v-if="!isNaN(parseFloat(cat.pivot.price))"
+                  class="font-bold text-indigo-400"
+                >
+                  {{ cat.pivot.price }}€
+                </span>
+                <span v-if="!isNaN(parseFloat(cat.pivot.memberprice))">
+                  {{ t('comps.special_price') }}
+                  <span class="font-bold text-indigo-300"
+                    >{{ cat.pivot.memberprice }}€</span
+                  >
+                </span>
+                <br />
+                <span class="text-green-600 text-sm ">
+                  {{ t('comps.paidregistrations') }}
+                  {{ cat.participants.length }}
+                </span>
+                <span class="text-orange-600 text-sm mx-1 ">
+                  {{ t('comps.unpaidregistrations') }}
+                  {{ cat.unpaidparticipants || 0 }}
+                </span>
+              </template>
             </f7-list-item>
-        </f7-list>
+          </f7-list>
         </div>
-        <p class="likes mt-2">{{ t('comps.contenders_in_total') }}: {{ comp.paidregistrations.length }} </p>
+        <p class="likes mt-2">
+          {{ t('comps.paid_contenders_in_total') }}: {{ comp.paidregistrations.length }}
+        </p>
       </f7-card-content>
       <f7-card-footer class="no-border">
-        <!--<f7-button class="btn-primary">Share</f7-button>-->
-        <f7-button class="btn-primary">Register</f7-button>
       </f7-card-footer>
     </f7-card>
   </div>
@@ -68,14 +94,37 @@ import { f7ready, f7, useStore } from 'framework7-vue'
 import { onMounted, computed, ref } from 'vue'
 import CompetitionRegisterInfo from '@components/comps/CompetitionRegisterInfo.vue'
 import dayjs from 'dayjs'
+import { confirm, toaster } from '@helpers/notifications.js'
 const { t } = useI18n()
 const props = defineProps({
   comp: Object,
 })
+const isCategoryFull = (cat) => cat.maxparticipants - cat.participants.length <= 0
+const user = useStore('user')
+const getPaymentLink = (cat) => {
+    return `https://www.problemator.fi/t/problemator/competitions/payment/${cat.compid}?contid=${user.id}`
+}
+
+const askRegister = (cat) => {
+    confirm(t('global.are_you_sure'),null,() => {
+        // send registration
+        const payload = {
+            compid : props.comp.id,
+            category : cat.id,
+        }
+        store.dispatch('registerToComp',payload)
+        .then(ret => {
+            toaster(ret.message)
+        })
+    },() => {
+        // cancle
+    })
+}
+
 const getContenderCount = (cat) => {
- if (cat.paidregistrations == null) {
-     return 0
- } 
- return cat.paidregistrations.length
+  if (cat.paidregistrations == null) {
+    return 0
+  }
+  return cat.paidregistrations.length
 }
 </script>

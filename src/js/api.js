@@ -67,6 +67,11 @@ const resultHandler = async (res) => {
   return json
 }
 const api = {
+  registerToComp(payload) {
+    return axios.post(endpoint+"/competitions/join_comp",payload)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
   getCompetition(payload) {
     return axios.get(endpoint+"/competitions/"+payload)
     .then((res) => resultHandler(res))
