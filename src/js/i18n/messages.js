@@ -22,6 +22,10 @@ const messages = {
                 registered_unpaid : 'Registered, unpaid',
                 registered_paid : 'Registered, paid',
                 pay_comp : 'Pay',
+                tick_saved : 'Tick saved',
+                problems : 'Problems',
+                timespan : 'Time span',
+                participants : 'Participants',
         },
         global : {
             'join' : 'If you want Problemator to be better, The easiest way is to create a pull request. The source code can be found from Github.',

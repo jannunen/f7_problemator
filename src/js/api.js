@@ -138,6 +138,13 @@ const api = {
     .catch(err => errorHandler(err))
 
   },
+  deleteTickByProblem(payload) {
+    const url = endpoint + "/tick/byproblem/"+payload
+    return axios.delete(url, payload)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+
+  },
   deleteTick(payload) {
     const url = endpoint + "/tick/"+payload
     return axios.delete(url, payload)

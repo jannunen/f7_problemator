@@ -9,7 +9,7 @@
           <competition-register-info :comp="comp" />
       </div>
       <div v-else>
-          puppeaaa
+          <competition-entry :comp="comp" />
       </div>
 
       
@@ -22,6 +22,7 @@ import store from '@js/store.js'
 import { f7ready, f7, useStore } from 'framework7-vue'
 import { onMounted, computed, ref } from 'vue'
 import CompetitionRegisterInfo from '@components/comps/CompetitionRegisterInfo.vue'
+import CompetitionEntry from '@components/comps/CompetitionEntry.vue'
 import dayjs from 'dayjs'
 const props = defineProps({
     compid : Number,

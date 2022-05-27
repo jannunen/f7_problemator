@@ -188,6 +188,10 @@ const store = createStore({
       const ret = await api.deleteProject(payload)
       state.problems = {...state.problems,[ret.problem.id] : ret.problem}
     },
+     async deleteTickByProblem({ state}, payload) {
+      const ret = await api.deleteTickByProblem(payload.problemid)
+      return ret
+    },
     async deleteTick({ state}, payload) {
       const ret = await api.deleteTick(payload)
       state.problems = {...state.problems,[ret.problem.id] : ret.problem}
