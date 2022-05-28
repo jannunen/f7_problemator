@@ -37,8 +37,6 @@ const problem = computed(() => {
   }
   return problems.value[props.id]
 })
-onMounted(() => {
-})
 const popupOpened = ref(true)
 
 const openAddTick = () => {

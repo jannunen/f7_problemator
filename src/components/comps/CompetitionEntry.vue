@@ -1,6 +1,9 @@
 <template>
   <div>
     <h1 class="my-2 text-2xl font-bold">{{ comp.name }}</h1>
+    <h2 class="">
+      {{ t('comps.competition_type') }} : {{ t('comps.'+comp.tyyppi) }}
+    </h2>
     <h2 class="text-xl">
         {{ t('comps.problems') }}
         <small>{{ sortedProblems.length }} problem(s)</small>
@@ -16,13 +19,13 @@
 
     <f7-list v-if="compOngoing">
         <f7-block-title>Swipe left to delete an ascent</f7-block-title>
+           <f7-block-title>
+           <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
+           </f7-block-title>
       
-      <f7-list-item class="">
+      <f7-list-item >
        <template #title>
-        <span class="text-3xl font-bold">{{ tickCount }}</span> / <span class="text-xl">{{ sortedProblems.length }}</span> ticked
-       </template>
-       <template #after>
-           <span class="text-white text-lg">{{ timeLeft }}</span>
+        <span class="text-3xl font-bold">{{ tickCount }}</span> /<span class="text-lg">{{ sortedProblems.length }}</span> {{ t('comps.ticked') }}
        </template>
       </f7-list-item>
       

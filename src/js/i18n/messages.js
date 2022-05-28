@@ -30,6 +30,9 @@ const messages = {
                 you_are_registered_not_paid : 'You have registered, but not paid.',
                 no_entry_fee : 'No entry fee',
                 comp_registration_ends : 'Registration ends',
+                competition_type : 'Competition type',
+                variable_points : 'Variable points',
+                ticked : 'ticked',
         },
         global : {
             'join' : 'If you want Problemator to be better, The easiest way is to create a pull request. The source code can be found from Github.',

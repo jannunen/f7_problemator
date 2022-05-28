@@ -5,7 +5,7 @@
     id ="fi.problemator.v2"
     :routes="routes" 
     :store="store" 
-    :autoDarkTheme="true"
+    theme="aurora"
   >
     <!-- initial page is specified in routes.js -->
     
@@ -27,6 +27,7 @@
   import { useAuth0 } from '@auth0/auth0-vue';
   import { ref, watch, computed } from 'vue'
   import { f7, useStore } from 'framework7-vue'
+import $ from 'dom7'
 
   export default {
     props : {
@@ -56,6 +57,13 @@
           }
         })
 
+        debugger
+        const isDark = localStorage.getItem('dark')
+        if (isDark != 'false' ) {
+          const $html = $('html')
+          $html.removeClass('theme-dark theme-light')
+          $html.addClass(`theme-dark`)
+        }
         watch(isAuthenticated, async (newValue, oldValue) => {
           if (newValue === true) {
             const token = await getAccessTokenSilently()

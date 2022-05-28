@@ -98,7 +98,7 @@ const {
   logout,
   user,
 } = useAuth0()
-const darkMode = useStore('darkMode')
+const darkMode = localStorage.getItem('dark') === 'true'
 const localDarkMode = ref(darkMode)
 
 const openSettings = () => {
@@ -110,7 +110,8 @@ const openSettings = () => {
 // Handles changing the dark/light theme. Seems a bit kludge, because it is.
 watch(localDarkMode, (isDarkTheme, oldValue) => {
   const self = this
-  store.dispatch('setDark', isDarkTheme)
+  //store.dispatch('setDark', isDarkTheme)
+  localStorage.setItem('dark',isDarkTheme.toString())
   const $html = $('html')
   $html.removeClass('theme-dark theme-light')
   if (isDarkTheme) {

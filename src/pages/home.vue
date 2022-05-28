@@ -1,6 +1,4 @@
 <template>
-  <left-sidepanel></left-sidepanel>
-  
   <f7-page name="home">
     <f7-navbar>
       <f7-nav-left>
@@ -16,6 +14,7 @@
         </f7-link>
       </f7-nav-right>
     </f7-navbar>
+  <left-sidepanel></left-sidepanel>
     <!-- Page content -->
     <div v-if="profileLoaded">
       <gym-selector />
@@ -95,6 +94,7 @@ import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import { useAuth0 } from '@auth0/auth0-vue'
+import $ from 'dom7'
 const {
   idTokenClaims,
   getAccessTokenSilently,
