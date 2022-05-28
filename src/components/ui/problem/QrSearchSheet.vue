@@ -29,7 +29,6 @@ import { f7 } from 'framework7-vue'
     // The QR code has format https://pwa.problemator.fi/#!/problem/67243
     code = "https://pwa.problemator.fi/#!/problem/67243"
     const matches = code.match(/.*?(\d+)/)
-    debugger
     if (matches !== false) {
       const problemid = matches[1]
       emit('close')

@@ -1,79 +1,3 @@
-<script setup>
-import TodayHeader from '@components/home/TodayHeader.vue'
-import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.vue'
-import FloorMapBlock from '@components/home/FloorMapBlock.vue'
-import GymSelector from '@components/GymSelector.vue'
-import MyLogs from '@components/home/MyLogs.vue'
-import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
-import BadgeGymStats from '@components/home/BadgeGymStats.vue'
-import LeftSidepanel from '@components/home/LeftSidepanel.vue'
-import { useAuth0 } from '@auth0/auth0-vue'
-const {
-  idTokenClaims,
-  getAccessTokenSilently,
-  loginWithRedirect,
-  logout,
-  user,
-} = useAuth0()
-import { toaster } from '@helpers/notifications.js'
-import { onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { f7, useStore } from 'framework7-vue'
-import { watch } from 'vue'
-import { ref } from 'vue'
-import store from '../js/store.js'
-const profile = useStore('profile')
-const accessToken = useStore('access_token')
-const sidePanelOpen = useStore('sidePanelOpen')
-const gym = useStore('gym')
-const gymid = useStore('gymid')
-const isOpened = ref(false)
-const initializing = useStore('initializing')
-const { t } = useI18n()
-const props = defineProps({
-  f7router: Object,
-})
-watch(gym, (newValue, oldValue) => {
-  if (newValue != null && oldValue != null && newValue.id != oldValue.id) {
-    toaster('The gym has been changed!')
-  }
-})
-const profileLoaded = useStore('profileLoaded')
-const isAuthenticated = useStore('isAuthenticated')
-const gymSelectorOpen = ref(false)
-const onSearchSheetClosed = () => {
-  isOpened.value = false
-}
-
-
-console.log('home gymid', gymid.value)
-if (gymid.value == null || gymid.value == '' || isNaN(gymid.value)) {
-  gymSelectorOpen.value = true
-}
-watch(gymid, (newValue, oldValue) => {
-  if (!isNaN(newValue)) {
-    gymSelectorOpen.value = false
-  }
-})
-const onAddTick = () => {
-  isOpened.value = true
-}
-const onStartNavigate = (problem) => {
-  isOpened.value = false
-  props.f7router.navigate('/problem/' + problem.id + '/popup', {
-    props: { problem },
-  })
-}
-
-onMounted(() => {
-  // wait for auth and then load profile
-  watch(isAuthenticated, (newValue, oldValue) => {
-    store.dispatch('getProfile', { user })
-  })
-})
-
-</script>
-
 <template>
   <left-sidepanel></left-sidepanel>
   
@@ -112,6 +36,7 @@ onMounted(() => {
       <!-- If should show preloader, show only if gym IS selected -->
       <div v-if="accessToken != null">
         <div v-if="!gymSelectorOpen">
+          Profile not loaded<br />
           <f7-preloader class="my-2"></f7-preloader>
           <br />
           Loading ...
@@ -160,3 +85,81 @@ onMounted(() => {
     </f7-sheet>
   </f7-page>
 </template>
+<script setup>
+import TodayHeader from '@components/home/TodayHeader.vue'
+import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.vue'
+import FloorMapBlock from '@components/home/FloorMapBlock.vue'
+import GymSelector from '@components/GymSelector.vue'
+import MyLogs from '@components/home/MyLogs.vue'
+import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
+import BadgeGymStats from '@components/home/BadgeGymStats.vue'
+import LeftSidepanel from '@components/home/LeftSidepanel.vue'
+import { useAuth0 } from '@auth0/auth0-vue'
+const {
+  idTokenClaims,
+  getAccessTokenSilently,
+  loginWithRedirect,
+  logout,
+  user,
+} = useAuth0()
+import { toaster } from '@helpers/notifications.js'
+import { onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { f7, useStore } from 'framework7-vue'
+import { watch } from 'vue'
+import { ref } from 'vue'
+import store from '../js/store.js'
+const profile = useStore('profile')
+const accessToken = useStore('access_token')
+const sidePanelOpen = useStore('sidePanelOpen')
+const gym = useStore('gym')
+const gymid = useStore('gymid')
+const isOpened = ref(false)
+const initializing = useStore('initializing')
+const { t } = useI18n()
+const props = defineProps({
+  f7router: Object,
+})
+watch(gym, (newValue, oldValue) => {
+  if (newValue != null && oldValue != null && newValue.id != oldValue.id) {
+    toaster('The gym has been changed!')
+  }
+})
+const profileLoaded = useStore('profileLoaded')
+const isAuthenticated = useStore('isAuthenticated')
+const gymSelectorOpen = ref(false)
+if (profileLoaded.value===false) {
+  store.dispatch('getProfile')
+}
+const onSearchSheetClosed = () => {
+  isOpened.value = false
+}
+
+
+console.log('home gymid', gymid.value)
+if (gymid.value == null || gymid.value == '' || isNaN(gymid.value)) {
+  gymSelectorOpen.value = true
+}
+watch(gymid, (newValue, oldValue) => {
+  if (!isNaN(newValue)) {
+    gymSelectorOpen.value = false
+  }
+})
+const onAddTick = () => {
+  isOpened.value = true
+}
+const onStartNavigate = (problem) => {
+  isOpened.value = false
+  props.f7router.navigate('/problem/' + problem.id + '/popup', {
+    props: { problem },
+  })
+}
+
+onMounted(() => {
+  // wait for auth and then load profile
+  watch(isAuthenticated, (newValue, oldValue) => {
+    store.dispatch('getProfile', { user })
+  })
+})
+
+</script>

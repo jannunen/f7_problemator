@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { useAuth0 } from '@auth0/auth0-vue';
-import { accountService } from '@js/auth/accountservice';
 import store from '@js/store.js'
 import { f7, useStore } from 'framework7-vue'
 

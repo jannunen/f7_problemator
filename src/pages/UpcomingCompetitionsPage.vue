@@ -1,7 +1,7 @@
 <template>
-  <f7-page>
+  <f7-page >
     <f7-navbar>
-      <f7-nav-left><f7-link back></f7-link></f7-nav-left>
+      <f7-nav-left><f7-link back>back</f7-link></f7-nav-left>
       <f7-nav-title> {{ t('comps.upcoming_competitions') }} </f7-nav-title>
     </f7-navbar>
     <f7-block>
@@ -18,7 +18,8 @@
         </template>
         <template #subtitle>
           {{ comp.location }}
-          <span v-if="comp.participates"></span>
+          <span v-if="comp.participates" class="font-bold text-green-500">{{ t('comps.you_are_registered') }}</span>
+          <span v-else-if="comp.participatesunpaid" class="font-bold text-red-500">{{ t('comps.you_are_registered_not_paid') }}</span>
           <span v-else>
                <span v-if="isRegistrationPossible(comp)" class="text-orange-400 font-bold">{{ t('comps.not_registered') }}</span>
         </span>

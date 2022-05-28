@@ -9,6 +9,7 @@
         <div class="demo-facebook-date">{{ comp.compdate }}</div>
       </f7-card-header>
       <f7-card-content>
+        <small class="text-gray-300 my-0">ID: {{ comp.id }}</small>
         <div class="my-2">
           Location: <strong>@{{ comp.location }}</strong>
         </div>
@@ -52,13 +53,14 @@
                 </div>
               </template>
               <template #text>
-                {{ t('comps.prices') }}
                 <span
                   v-if="!isNaN(parseFloat(cat.pivot.price))"
                   class="font-bold text-indigo-400"
                 >
+                  {{ t('comps.prices') }}
                   {{ cat.pivot.price }}€
                 </span>
+                <span class="text-white font-bold" v-else>{{ t('comps.no_entry_fee') }}</span>
                 <span v-if="!isNaN(parseFloat(cat.pivot.memberprice))">
                   {{ t('comps.special_price') }}
                   <span class="font-bold text-indigo-300"
@@ -70,8 +72,9 @@
                   {{ t('comps.paidregistrations') }}
                   {{ cat.participants.length }}
                 </span>
+                <span class="px-1 text-white">|</span>
                 <span class="text-orange-600 text-sm mx-1 ">
-                  {{ t('comps.unpaidregistrations') }}
+                  {{ t('comps.unpaidregistrations') }}  
                   {{ cat.unpaidparticipants || 0 }}
                 </span>
               </template>

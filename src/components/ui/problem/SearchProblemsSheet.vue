@@ -100,7 +100,7 @@ export default {
       context.emit('clear')
     }
     const searchProblemTextChanged = debounce((el) => {
-      debugger
+      
       const value = el.target.value
       searchProblemText.value = value
       if (searchProblemText.value != '') {

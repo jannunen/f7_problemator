@@ -42,7 +42,6 @@
 </template>
 <script setup>
 import { useAuth0 } from '@auth0/auth0-vue';
-import { accountService } from '@js/auth/accountservice'
 
 import { watch, ref } from 'vue'
 import store from '../js/store.js'
@@ -74,52 +73,13 @@ watch(isAuthenticated, async (newValue, oldValue) => {
     f7.views.main.router.navigate({url : '/home'  });
   }
 })
-/*
-const beforeShow = () => {
-    debugger
-  if (isAuthenticated.value) {
-    console.log("nav to home")
-    if (userStore.value == null) {
-      store.dispatch('setUser',user)
-    } 
-    props.f7router.navigate({url : "/home/"})
-  }
-}
-*/
 const beforeUnmount = () => {
     if (errorNotification.value != null) {
         errorNotification.value.destroy()
     }
 }
 const signIn = () => {
-  /*
-  accountService.goodOleLogin(email.value, password.value).then((ret) => {
-    if (ret === false) {
-      if (errorNotification.value == null) {
-        errorNotification.value = f7.notification.create({
-          icon: '<i class="icon icon-f7"></i>',
-          title: 'Login failed',
-          subtitle: 'Empty username/password or incorrect info',
-          closeTimeout: 5000,
-        })
-      }
-      errorNotification.value.open()
-    } else {
-      props.f7router.navigate('/home/')
-    }
-  })
-  */
 }
 onMounted(() => {
-  /*
-  const ret = accountService.checkIfLogin().then(() => {
-    const account = accountService.accountValue
-    if (!account) {
-      loginScreenOpened.value = true
-    } else {
-      props.f7router.navigate('/home/')
-    }
-  })
-  */
 })
 </script>

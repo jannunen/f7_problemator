@@ -18,10 +18,14 @@
           </template>
           <template #subtitle>
             {{ comp.location }}
-            <span v-if="comp.participates"></span>
-            <span v-else class="text-orange-400 font-bold">{{
-              t('comps.not_registered')
-            }}</span>
+            <span v-if="comp.participates">{{ t('comps.you_are_registered') }}</span>
+            <span v-else>
+                <div class="text-orange-400 font-bold">{{ t('comps.not_registered') }}</div>
+                <span v-if="isRegistrationPossible(comp)">
+                    <div>{{ t('comps.comp_registration_ends') }} {{ comp.registration_end }}</div>
+                </span>
+                <div v-else>{{ t('comp.registration_has_ended') }}</div>
+          </span>
           </template>
         </f7-list-item>
       </f7-list>

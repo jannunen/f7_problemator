@@ -109,7 +109,6 @@ const openSettings = () => {
 }
 // Handles changing the dark/light theme. Seems a bit kludge, because it is.
 watch(localDarkMode, (isDarkTheme, oldValue) => {
-  debugger
   const self = this
   store.dispatch('setDark', isDarkTheme)
   const $html = $('html')

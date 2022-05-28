@@ -92,7 +92,6 @@ const store = createStore({
     async registerToComp({state, dispatch}, payload) {
       const ret = await api.registerToComp(payload)
       // Update the status of participation status
-      debugger
       let newData = {
         ...state.upcomingcomps
       } 
@@ -112,7 +111,7 @@ const store = createStore({
         }
         return comp
       })
-      state.upcomingcompetitions = newData
+      state.upcomingcomps = newData
       return ret
     },
     async getCompetition({state, dispatch}, payload) {
@@ -257,6 +256,7 @@ const store = createStore({
       const user = state.user
       if (user == null) {
         // Don't load, no user
+        console.log("Cannot load profile, user is not set.")
         return null
       }
       console.log("Loading profile for gym id",state.gymid,user.email)

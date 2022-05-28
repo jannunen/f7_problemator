@@ -23,7 +23,6 @@ const props = defineProps({
   f7router: Object,
   id : Number,
 })
-debugger
 if (props.id != null) {
   store.dispatch('getProblemDetails', props.id)
 }

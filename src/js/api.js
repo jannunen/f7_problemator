@@ -1,4 +1,3 @@
-import { accountService } from '@js/auth/accountservice';
 import axios from 'axios'
 import { errorNotify  } from './helpers/notifications';
 import { useAuth0 } from '@auth0/auth0-vue';

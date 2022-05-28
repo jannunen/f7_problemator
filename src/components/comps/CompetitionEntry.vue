@@ -12,7 +12,9 @@
       <div v-if="sortedProblems.length == 0" class="my-3 text-2xl">
         No problems have been added - yet.
       </div>
-    <f7-list>
+
+
+    <f7-list v-if="compOngoing">
         <f7-block-title>Swipe left to delete an ascent</f7-block-title>
       
       <f7-list-item class="">
@@ -55,6 +57,9 @@
         </template>
       </f7-list-item>
     </f7-list>
+    <div v-else>
+        {{ t('comps.the_comp_has_not_started_yet') }}
+    </div>
   </div>
 </template>
 <script setup>
@@ -65,13 +70,18 @@ import { onMounted, computed, ref } from 'vue'
 import CompetitionRegisterInfo from '@components/comps/CompetitionRegisterInfo.vue'
 import dayjs from 'dayjs'
 import  duration  from 'dayjs/plugin/duration'
+import  isBetween  from 'dayjs/plugin/isBetween'
 import { confirm, toaster } from '@helpers/notifications.js'
 dayjs.extend(duration)
+dayjs.extend(isBetween)
 const { t } = useI18n()
 const props = defineProps({
   comp: Object,
 })
 const tries = ref({})
+const compOngoing = computed(() => {
+    return dayjs().isBetween(dayjs(props.comp.timespan_start),dayjs(props.comp.timespan_end))
+})
 // First, set the tries from the comp object.
 tries.value = Object.keys(props.comp.userticks).reduce((acc,key) => {
     const aTick = props.comp.userticks[key]
@@ -85,7 +95,6 @@ tries.value = Object.keys(props.comp.userticks).reduce((acc,key) => {
 const onDeleted = (id) => {
    store.dispatch('deleteTickByProblem',{problemid : id})
     .then(ret => {
-        debugger
         // Remove the tick
         tries.value[id] = {...tries.value[id],ticked : false, tries : 0}
         toaster(t(ret.message))
