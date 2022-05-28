@@ -34,26 +34,28 @@
         <f7-swipeout-button color="red" close @click="() => onDeleted(prob.id)" confirm-text="Are you sure you want to delete this tick?">Delete</f7-swipeout-button>
       </f7-swipeout-actions>
         <template #media>
-            <div class="w-18 flex flex-row justify-between">
-                <div class="w-8">
-                    <span v-if="tries[prob.id]?.ticked" class="text-red-400 mr-1 font-bold text-2xl">✓</span>
+            <div class="w-16 flex flex-row justify-between">
+                <div class="mr-1 font-bold text-3xl">{{ prob.pivot.num }}</div><br />
+                <div class="flex flex-col w-8">
+                    <div class="h-6 w-6 border border-white rounded-md" :style="getStyles(prob)"> </div>
+                    <div class="mr-2 pt-2 text-sm font-bold">{{ prob.tag.substr(-4) }}</div>
                 </div>
-                <div class="w-8 mr-1 font-bold text-2xl">{{ prob.pivot.num }}</div><br />
-                <div class="h-8 w-8 border border-white rounded-md" :style="getStyles(prob)"> </div>
             </div>
         </template>
         <template #title >
             <div class="flex flex-row justify-between w-full">
-                <div class="mr-2 pt-2 text-xl font-bold">{{ prob.tag.substr(-4) }}</div>
-                <f7-stepper  fill
-                    raised
+                <f7-stepper  
+                    fill
                     :value="tries[prob.id]?.tries"
                     @stepper:change="(num) => setTries(prob.id,num)"
                 ></f7-stepper>
             </div>
         </template>
         <template #after>
+
                 <f7-button @click="() => doTick(prob.id)" class="mx-2 btn-primary btn-small dark:bg-green-500  bg-green-600">tick</f7-button>
+                <span v-if="tries[prob.id]?.ticked" class="w-5 text-red-400 font-bold text-2xl">✓</span>
+                <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
         </template>
       </f7-list-item>
     </f7-list>
