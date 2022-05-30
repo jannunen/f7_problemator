@@ -49,6 +49,7 @@ const store = createStore({
     gymid : null,
     profile : null,
     user : null,
+    climber : null,
     access_token : null,
     filters : {...filtersInitial},
     gyms : [],
@@ -60,6 +61,7 @@ const store = createStore({
     profileLoaded : false,
   },
   getters: {
+    climber: ({ state }) => state.climber,
     competition: ({ state }) => state.competition,
     upcomingcompetitions: ({ state }) => state.upcomingcomps,
     profileLoaded: ({ state }) => state.profileLoaded,
@@ -272,6 +274,7 @@ const store = createStore({
         state.styles = ret.styles
         state.grades = ret.grades
         state.walls = ret.walls
+        state.climber = ret.climber
         state.profileLoaded = {...state, ['profileLoaded'] : true} 
         return state.profile
       }
@@ -305,7 +308,6 @@ const store = createStore({
       state.searchResults = [...results];
       state.searchNext = next;
     },
-
     async searchNext({ state }) {
       if (state.searchNextLoading || !state.searchNext) return;
       state.searchNextLoading = true;

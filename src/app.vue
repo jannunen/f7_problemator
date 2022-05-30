@@ -42,7 +42,8 @@ import $ from 'dom7'
         getAccessTokenSilently()
         .then(async (token) => {
           const ret = await store.dispatch('setToken', token)
-          console.log("access token",token)
+          console.log("access token1",token)
+          store.dispatch('getProfile')
           loading.value = false
         })
         .catch(async (err) => {
@@ -57,7 +58,6 @@ import $ from 'dom7'
           }
         })
 
-        debugger
         const isDark = localStorage.getItem('dark')
         if (isDark != 'false' ) {
           const $html = $('html')

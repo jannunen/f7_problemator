@@ -82,7 +82,7 @@
           </f7-list>
         </div>
         <p class="likes mt-2">
-          {{ t('comps.paid_contenders_in_total') }}: {{ comp.paidregistrations.length }}
+          {{ t('comps.paid_contenders_in_total') }}: {{ comp.paidregistrations?.length  || 0}}
         </p>
       </f7-card-content>
       <f7-card-footer class="no-border">

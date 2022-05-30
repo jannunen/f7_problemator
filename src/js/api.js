@@ -66,6 +66,11 @@ const resultHandler = async (res) => {
   return json
 }
 const api = {
+  getClimber(payload) {
+    return axios.get(endpoint+"/climber/auth_user")
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
   registerToComp(payload) {
     return axios.post(endpoint+"/competitions/join_comp",payload)
     .then((res) => resultHandler(res))

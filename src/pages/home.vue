@@ -128,9 +128,6 @@ watch(gym, (newValue, oldValue) => {
 const profileLoaded = useStore('profileLoaded')
 const isAuthenticated = useStore('isAuthenticated')
 const gymSelectorOpen = ref(false)
-if (profileLoaded.value===false) {
-  store.dispatch('getProfile')
-}
 const onSearchSheetClosed = () => {
   isOpened.value = false
 }

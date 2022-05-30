@@ -1,5 +1,9 @@
 const messages = {
     en: {
+        judging : {
+            contender_name : 'Contender name',
+            name_placeholder : 'Start writing contender name',
+        },
         comps : {
                 upcoming_competitions : 'Upcoming competitions',
                 ongoing_competitions : 'Ongoing competitions',
@@ -33,6 +37,8 @@ const messages = {
                 competition_type : 'Competition type',
                 variable_points : 'Variable points',
                 ticked : 'ticked',
+                you_are_a_judge : 'You are a judge in this competition',
+                comp_type : 'Competition type',
         },
         global : {
             'join' : 'If you want Problemator to be better, The easiest way is to create a pull request. The source code can be found from Github.',

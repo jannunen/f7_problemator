@@ -3,6 +3,7 @@ import Loading from '../pages/Loading.vue';
 import Login from '../pages/Login.vue';
 import ProblemPage from '../pages/ProblemPage.vue';
 import SettingsPage from '../pages/SettingsPage.vue';
+import JudgingPage from '../pages/JudgingPage.vue';
 import ProblemPopup from '../pages/ProblemPopup.vue';
 import ProblemList from '../pages/ProblemList.vue';
 import UpcomingCompetitionsPage from '../pages/UpcomingCompetitionsPage.vue';
@@ -28,6 +29,15 @@ const routes = [
   {
     path: '/home',
     component: Home,
+    //beforeEnter: authGuard,
+  },
+  {
+    path: '/competitions/:compid/judging',
+    //popup: {
+      component: JudgingPage,
+      //swipeToClose: 'to-bottom',
+    //},
+    //component: JudgingPage,
     //beforeEnter: authGuard,
   },
   {
