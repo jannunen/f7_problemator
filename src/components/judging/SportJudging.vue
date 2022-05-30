@@ -55,7 +55,7 @@
           <f7-list-item
           title="Route"
           smart-select
-          smart-select-params="{openIn: 'popup', searchbar: true, searchbarPlaceholder: 'Search car',routableModals : false}"
+          :smart-select-params="{closeOnSelect : true, openIn: 'popup', searchbar: true, searchbarPlaceholder: 'Search route'}"
           >
           <select v-model="selectedRoute" name="selectedRoute">
            <option

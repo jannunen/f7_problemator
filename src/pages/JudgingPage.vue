@@ -1,14 +1,12 @@
 <template>
-  <f7-popup>
     <f7-page>
       <f7-navbar title="Judging sheet">
-        <f7-nav-right>
-          <f7-link popup-close>Close</f7-link>
-        </f7-nav-right>
+        <f7-nav-left back>back</f7-nav-left>
       </f7-navbar>
+      <f7-block>
         <judging-component :compid="compid"></judging-component>
+      </f7-block>
     </f7-page>
-  </f7-popup>
 </template>
 <script setup>
 import { ref, watch, onMounted } from 'vue'

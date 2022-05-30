@@ -10,11 +10,6 @@ import UpcomingCompetitionsPage from '../pages/UpcomingCompetitionsPage.vue';
 import OngoingCompetitionsPage from '../pages/OngoingCompetitionsPage.vue';
 import SingleCompetitionPage from '../pages/SingleCompetitionPage.vue';
 
-import Backlog from '../pages/backlog.f7.jsx';
-import Wishlist from '../pages/wishlist.f7.jsx';
-import Archive from '../pages/archive.f7.jsx';
-import Game from '../pages/game.f7.jsx';
-import Search from '../pages/search.f7.jsx';
 import { authGuard } from '@js/auth/authguard.js';
 import { useAuth0 } from '@auth0/auth0-vue';
 const {  isAuthenticated } = useAuth0;
@@ -29,15 +24,6 @@ const routes = [
   {
     path: '/home',
     component: Home,
-    //beforeEnter: authGuard,
-  },
-  {
-    path: '/competitions/:compid/judging',
-    //popup: {
-      component: JudgingPage,
-      //swipeToClose: 'to-bottom',
-    //},
-    //component: JudgingPage,
     //beforeEnter: authGuard,
   },
   {
@@ -56,9 +42,12 @@ const routes = [
     //beforeEnter: authGuard,
   },
   {
+    path: '/competitions/:compid/judging',
+    component: JudgingPage,
+  },
+  {
     path: '/competitions/:compid',
     component: SingleCompetitionPage,
-    //beforeEnter: authGuard,
   },
   {
     path: '/problems',

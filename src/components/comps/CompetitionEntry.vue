@@ -16,7 +16,7 @@
     </div>
     <div v-if="isJudge">
         <f7-block-title>{{ t('comps.you_are_a_judge') }}</f7-block-title>
-        <f7-link href="`/competitions/${comp.id}/judging`" class="btn-primary font-bold ">Open judging sheet</f7-link>
+        <f7-link :href="getJudgingLink" class="btn-primary font-bold ">Open judging sheet</f7-link>
 
     </div>
 
@@ -116,6 +116,13 @@ const isJudge = computed(() => {
   return judgeids.includes(climber.value.id)
 })
 const tries = ref({})
+const getJudgingLink = computed(() => {
+    if (props.comp != null) {
+        const url = `/competitions/${props.comp.id}/judging`
+        console.log("url",url)
+        return url
+    }
+})
 const compOngoing = computed(() => {
   return dayjs().isBetween(
     dayjs(props.comp.timespan_start),
