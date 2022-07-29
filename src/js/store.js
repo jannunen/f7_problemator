@@ -40,7 +40,6 @@ const store = createStore({
     sidePanelOpen : false,
     selectedLeftPanelItem : 'home',
     backlog: getFromLocalStorage('backlog', []),
-    archive: getFromLocalStorage('archive', []),
     wishlist: getFromLocalStorage('wishlist', []),
     isAuthenticated : false,
     topGames: [],
@@ -59,8 +58,12 @@ const store = createStore({
     grades : [],
     walls : [],
     profileLoaded : false,
+    archive : {
+      dates : {},
+    },
   },
   getters: {
+    tickDates: ({ state }) =>  state.archive.dates ,
     climber: ({ state }) => state.climber,
     competition: ({ state }) => state.competition,
     upcomingcompetitions: ({ state }) => state.upcomingcomps,
@@ -91,6 +94,12 @@ const store = createStore({
     darkMode: ({ state }) => state.settings.darkMode,
   },
   actions: {
+    async getTickDates({state, dispatch}, payload) {
+      const ret = await api.getTickDates(payload)
+      state.archive = {...state.archive, ['dates']:  ret.dates }
+      console.log("Setting archive dates",state.archive.dates)
+      return ret.dates
+    },
     async registerToComp({state, dispatch}, payload) {
       const ret = await api.registerToComp(payload)
       // Update the status of participation status
@@ -208,7 +217,7 @@ const store = createStore({
       const ret = await api.likeProblem(pid)
       // Update problem likes
       const problem = state.problems[pid]
-      state.problems = { ...state.problems, [pid]: {...problem,['likeCount'] : ret.likeCount, ['dislikeCount'] : ret.dislikeCount } }
+      state.problems = { ...state.problems, [pid]: {...problem,['c_like'] : ret.likeCount, ['likeCount'] : ret.likeCount, ['c_dislike'] : ret.dislikeCount, ['dislikeCount'] : ret.dislikeCount } }
     },
     async dislikeProblem({ state}, payload) {
       const pid = payload.id
