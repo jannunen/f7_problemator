@@ -1,9 +1,11 @@
 <template>
   <f7-page>
-    <f7-navbar >
-       <f7-nav-left><f7-link href="/">&lt; home</f7-link></f7-nav-left>
-       <f7-nav-title> {{ t('problemlist.problemlist') }} </f7-nav-title>
-       </f7-navbar>
+    <f7-navbar>
+      <f7-nav-left>
+        <f7-link href="/">&lt; home</f7-link>
+      </f7-nav-left>
+      <f7-nav-title> {{ t('problemlist.problemlist') }} </f7-nav-title>
+    </f7-navbar>
     <f7-block>
       <div v-if="unfilteredProblemsExist">
         <div class="my-0 mx-2">
@@ -12,43 +14,25 @@
           </h2>
           <ul class="my-0">
             <li :title="t('problemlist.filters')">
-              <grade-filter
-                :min="filters.gradeMin"
-                :max="filters.gradeMax"
-                :grades="grades"
-                @min="minChanged"
-                @max="maxChanged"
-              ></grade-filter>
+              <grade-filter :min="filters.gradeMin" :max="filters.gradeMax" :grades="grades" @min="minChanged" @max="maxChanged"></grade-filter>
 
               <h2 class="uppercase text-xl my-2 font-bold">
                 {{ t('problemlist.stylefilter') }}
               </h2>
-              <style-filter
-                @styles-changed="onStylesChanged"
-                :styles="styles"
-                :selected-styles="filters.styles"
-              ></style-filter>
+              <style-filter @styles-changed="onStylesChanged" :styles="styles" :selected-styles="filters.styles"></style-filter>
               <h2 class="uppercase text-xl my-2 font-bold">
                 {{ t('problemlist.sortby') }}
               </h2>
               <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
             </li>
-          <li>
-          <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
-          </li>
-          <f7-list no-hairlines-md>
-            <f7-list-input
-              type="text"
-              :placeholder="t('Filter by problem name')"
-              v-model:value="nameFilter"
-              clear-button
-            ></f7-list-input>
-          </f7-list>
+            <li>
+              <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
+            </li>
+            <f7-list no-hairlines-md>
+              <f7-list-input type="text" :placeholder="t('Filter by problem name')" v-model:value="nameFilter" clear-button></f7-list-input>
+            </f7-list>
 
-            <button
-              @click="store.dispatch('resetFilters')"
-              class="button bg-red-500 text-white my-2"
-            >
+            <button @click="store.dispatch('resetFilters')" class="button bg-red-500 text-white my-2">
               {{ t('problemlist.reset_filters') }}
             </button>
           </ul>
@@ -59,6 +43,9 @@
             {{ filteredProblems?.length }} {{ t('problemlist.visible_out_of') }}
             {{ problems?.length }} {{ t('problemlist.problems') }}
           </div>
+          <div class="p-4 mb-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-blue-200 dark:text-blue-800" role="alert">
+            <span class="font-medium">Tip!</span> You can tick faster by swiping a problem left.
+          </div>
           <div v-if="filters.walls.length > 0">
             <div class="font-bold">{{ t('problemlist.wall_filter_active') }}:</div>
             <span v-for="selWall in getSelectedWallNames" :key="selWall">{{
@@ -67,41 +54,24 @@
           </div>
 
 
-          <f7-list problemlist class="my-0">
+          <f7-list media  class="my-0">
             <div v-for="(problem, idx) in filteredProblems" :key="problem.id">
-              <li
-                v-if="filters.sort.match(/sector/) && wallNamesDiffer(idx)"
-                class="list-group-title"
-              >
+              <li v-if="filters.sort.match(/sector/) && wallNamesDiffer(idx)" class="list-group-title">
                 <h3>{{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }}</h3>
               </li>
-              <li
-                v-if="filters.sort.match(/routesetter/) && routesettersDiffer(idx)"
-                class="list-group-title"
-              >
+              <li v-if="filters.sort.match(/routesetter/) && routesettersDiffer(idx)" class="list-group-title">
                 <h3>
                   {{ problem.author }}
-                  <small
-                    >({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small
-                  >
+                  <small>({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small>
                 </h3>
               </li>
-              <li
-                v-if="filters.sort.match(/(hardest|easiest)/) && gradesDiffer(idx)"
-                class="list-group-title"
-              >
+              <li v-if="filters.sort.match(/(hardest|easiest)/) && gradesDiffer(idx)" class="list-group-title">
                 <h3>
                   {{ problem.grade.name }}
-                  <small
-                    >({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small
-                  >
+                  <small>({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small>
                 </h3>
               </li>
-              <search-hit-item
-                @start-navigate="onStartNavigate"
-                :key="problem.id"
-                :problem="problem"
-              ></search-hit-item>
+              <search-hit-item @start-navigate="onStartNavigate" :key="problem.id" :problem="problem"></search-hit-item>
             </div>
           </f7-list>
         </div>
@@ -111,11 +81,11 @@
               {{ t('problemlist.snap' + getRandom(1, maxSnap)) }}
             </h1>
             <p class="text-red-600 text-center">
-              <h2 class="font-bold text-lg my-1">{{ t('problemlist.no_hits_title') }}</h2>
-              <div class="px-2 text-sm my-2">
-                {{ t('problemlist.no_hits_desc') }}
-                <!--<button @click="resetFilters">{{ t('problemlist.reset_filters') }}</button>-->
-              </div>
+            <h2 class="font-bold text-lg my-1">{{ t('problemlist.no_hits_title') }}</h2>
+            <div class="px-2 text-sm my-2">
+              {{ t('problemlist.no_hits_desc') }}
+              <!--<button @click="resetFilters">{{ t('problemlist.reset_filters') }}</button>-->
+            </div>
             </p>
           </div>
         </div>

@@ -1,62 +1,67 @@
 <template>
-  <li
-    @click="$emit('start-navigate',problem)"
-    class="w-full px-1 py-2"
+
+  <f7-list-item  media link="#"  swipeout
+    @swipeout:open="swipingout = true"
+    @swipeout:closed="swipingout = false"
+    @click="() => onClick(problem)"
+  
   >
-    <div class="flex flex-row w-full justify-between">
-        <div class="w-8 mt-2">
-          <div v-if="problem.myProjects != null && problem.myProjects.length > 0 && (problem.myTicks == null || problem.myTicks.length ==0)">
-            <span
-              class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-yellow-100 bg-yellow-600 rounded-full"
-              >P</span
-            >
-          </div>
-          <div v-else-if="problem.myTicks != null && problem.myTicks.length > 0">
-            <span
-              class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-100 bg-green-600 rounded-full"
-              >✓</span
-            >
-          </div>
-        </div>
 
-      <div class="media flex-start w-16">
-        <div class="flex flex-col justify-center items-center">
-          <round-badge :width="20" :bgColor="problem.colour.code"></round-badge>
-          {{ getTagShort(problem.tag) }}
-        </div>
+    <template #title>
+      <div>{{ getAfter(problem) }}
       </div>
-      <div class="flex-start w-16">
-        <h4 style="width: 20px" class="font-bold margin-left no-margin text-2xl">
-          {{ getGrade(problem.routetype, problem.grade) }}
-        </h4>
-      </div>
+    </template>
 
-      <div class="title flex-grow">
-        <div class="flex flex-col">
-          <div class="h-6">
-            <strong class="margin-left margin-right" v-if="problem.c_like > 0">
-              {{ problem.c_like }}
-              <font-awesome-icon
-                :style="{ color: 'red' }"
-                icon="heart"
-              ></font-awesome-icon>
-            </strong>
-          </div>
-          <small> {{ problem.ascentCount }} {{ t('home.ascents') }}</small>
-        </div>
-      </div>
+    <template #after>
+      <strong class="text-white font-bold  mr-2 " v-if="problem.c_like > 0">
+         {{ problem.c_like }} 
+              <f7-icon
+              size="16"
+              color="red"
+                md="material:heart_fill"
+                aurora="f7:heart_fill"
+                ios="f7:heart_fill"
+              />
+      </strong>
+    </template>
 
-      <div class="after flex flex-col justify-between p-1">
-        <div class="flex flex-row">
-          <div class="flex flex-col">
-            <small>{{ getAfter(problem) }}</small>
-            <div class="flex flex-row">{{ t('home.by') }} {{ problem.author }}</div>
-          </div>
-        </div>
+    <template #header>
+      <small> {{ problem.ascentCount }} {{ t('home.ascents') }}</small>
+    </template>
+
+  <template #inner-end>
+          {{ t('home.by') }} {{ problem.author }}
+  </template>
+    
+    
+
+    <template #content-start>
+      <div v-if="problem.myProjects != null && problem.myProjects.length > 0 && (problem.myTicks == null || problem.myTicks.length == 0)">
+        <span class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-yellow-100 bg-yellow-600 rounded-full">P</span>
       </div>
-    </div>
-    <hr class="w-11/12 mx-auto divide-slate-700/25 "  />
-  </li>
+      <div v-else-if="problem.myTicks != null && problem.myTicks.length > 0">
+        <span class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-100 bg-green-600 rounded-full">✓</span>
+      </div>
+      <div v-else>
+        <span class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none ">&nbsp;</span>
+      </div>
+    </template>
+
+    <template #media>
+
+      <div class="flex flex-col justify-center items-center">
+        <round-badge :width="20" :bgColor="problem.colour.code"></round-badge>
+        {{ getTagShort(problem.tag) }}
+      </div>
+      <h4 style="width: 35px" class="font-bold margin-left no-margin text-2xl">
+        {{ getGrade(problem.routetype, problem.grade) }}
+      </h4>
+
+    </template>
+    <f7-swipeout-actions right>
+      <f7-swipeout-button color="green">Quick tick</f7-swipeout-button>
+    </f7-swipeout-actions>
+  </f7-list-item>
 </template>
 
 <script>
@@ -64,16 +69,22 @@ import { useI18n } from 'vue-i18n'
 import { debounce, getTagShort } from '@js/helpers'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 import dayjs from 'dayjs'
-import relativeTime from "dayjs/plugin/relativeTime";
-dayjs.extend(relativeTime);
+import relativeTime from "dayjs/plugin/relativeTime"
+import { ref } from 'vue'
+
+dayjs.extend(relativeTime)
 export default {
   props: {
     problem: Object,
   },
   emits: ['start-navigate'],
   setup(props, context) {
-    const { t,tc } = useI18n()
+    const { t, tc } = useI18n()
+    const swipingout = ref(false)
 
+    const onClick = (problem) => {
+      if (!swipingout.value) { context.emit('start-navigate',problem)}
+    }
     const getAuthor = (group) => {
       return group.ascentCount + ' ' + t('home.ascents')
     }
@@ -111,12 +122,17 @@ export default {
         return 'N/A' / tore
       }
       const grade = gradeObj.name
+      if (grade == 'project') {
+        return "proj"
+      }
       if (routetype == 'boulder') {
         return grade.toUpperCase()
       }
       return grade.toLowerCase()
     }
     return {
+      swipingout,
+      onClick,
       getTryTries,
       getTrySessions,
       getAuthor,
@@ -133,4 +149,5 @@ export default {
 }
 </script>
 
-<style></style>
+<style>
+</style>
