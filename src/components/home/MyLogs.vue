@@ -1,6 +1,6 @@
 <template>
   <div class="mt-8 m-4 rounded-md raised shadow-lg p-4 border border-gray-800">
-    <div class="font-bold text-lg" style="color: #3bb273">{{ t('mylogs.my_logs') }}</div>
+    <div class="font-bold text-lg" style="color: #3bb273">{{ t('mylogs.my_logs') }} <a class="text-blue-500 text-sm" href="/archive">{{ t('mylogs.open_archive') }}</a></div>
     <div class="grid grid-cols-3">
       <div class="flex flex-col items-end mr-3 gap-1">
         <div class="text-4xl">{{ getLatestSessionCount }}</div>

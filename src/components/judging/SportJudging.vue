@@ -27,7 +27,7 @@
 
     <div
       v-if="hits.length > 0"
-      class="relative m-2 border-2 rounded-md border-black bg-white w-11/12 h-1/2"
+      class="relative m-2 border-2 border-black bg-white w-11/12 h-1/2"
     >
       Choose a contender
       <ul>
@@ -57,7 +57,7 @@
           smart-select
           :smart-select-params="{closeOnSelect : true, openIn: 'popup', searchbar: true, searchbarPlaceholder: 'Search route'}"
           >
-          <select v-model="selectedRoute" name="selectedRoute">
+          <select v-model="routeid" name="routeid">
            <option
               v-for="prob in comp.problems" 
               :key="prob.id" 
@@ -83,52 +83,52 @@
       <label class="font-bold" for="sport_points"
         >Points from route (eg. 5, 5+ or text TOP if top-out)</label
       >
-      <div class="flex flex-row justify-center">
-        <input
-          class="font-bold border border-black text-center w-16 p-1"
+      <div class="flex flex-row justify-center mx-1">
+        <f7-input
+          class="font-bold border border-gray-500 text-center w-16 p-1 "
           type="text"
           name="sport_points"
           id="sport_points"
           size="5"
-          v-model="sportPoints"
+          v-model:value="sportPoints"
         />
         <button
           @click="sportPoints = 'TOP'"
           type="button"
-          class="border border-black mx-1 bg-blue-400 px-2 py-1 rounded-md"
+          class="border border-black mx-1 bg-blue-400 px-2 py-1 "
         >
           TOP
         </button>
       </div>
-      <label class="font-bold" for="timemin">Time</label>
+      <label class="font-bold my-2" for="timemin">Time</label>
       <div class="flex flex-row my-2 justify-center">
-        <div>
+        <div class="mx-1">
           min<br />
-          <input
+          <f7-input
             type="text"
-            class="font-bold border border-black text-center w-16 p-1"
+            class="font-bold border border-gray-500 text-center w-16 p-1 "
             name="timemin"
-            v-model="timemin"
+            v-model:value="timemin"
             size="2"
           />
         </div>
-        <div>
+        <div class="mx-1">
           secs<br />
-          <input
-            class="font-bold border border-black text-center w-16 p-1"
+          <f7-input
+            class="font-bold border border-gray-500 text-center w-16 p-1 "
             type="text"
             name="timesec"
-            v-model="timesec"
+            v-model:value="timesec"
             size="2"
           />
         </div>
-        <div>
+        <div class="mx-1">
           OR input time in seconds<br />
-          <input
+          <f7-input
             type="text"
-            class="font-bold border border-black text-center w-16 p-1"
+            class="font-bold border border-gray-500 text-center w-16 p-1 "
             name="time_manual"
-            v-model="time_manual"
+            v-model:value="time_manual"
             size="4"
           />
         </div>
@@ -138,7 +138,7 @@
       <div class="flex flex-row justify-center">
         <button
           @click="timerStart"
-          class="border border-black rounded-md mx-1 px-2 py-1 text-sm bg-green-500"
+          class="border border-black mx-1 px-2 py-1 text-sm bg-green-500"
           type="button"
           id="timer_start"
         >
@@ -146,7 +146,7 @@
         </button>
         <button
           @click="timerStop"
-          class="border border-black rounded-md mx-1 px-2 py-1 text-sm bg-orange-500"
+          class="border border-black mx-1 px-2 py-1 text-sm bg-orange-500"
           type="button"
           id="timer_stop"
         >
@@ -154,7 +154,7 @@
         </button>
         <button
           @click="timerReset"
-          class="border border-black rounded-md mx-1 px-2 py-1 text-sm bg-red-500"
+          class="border border-black mx-1 px-2 py-1 text-sm bg-red-500"
           type="button"
           id="timer_reset"
         >
@@ -170,7 +170,7 @@
       </button>
       <button
         @click="() => fetchAscents(comp.id, contid)"
-        class="button px-8 py-3 my-1"
+        class="text-blue-400 px-8 py-3 my-1"
         type="button"
       >
         Fetch ascents
@@ -199,6 +199,7 @@ import { useI18n } from 'vue-i18n'
 import useDebouncedRef, { debounce } from '@helpers/debouncedRef.js'
 import axios from 'axios'
 import { computed, onMounted, ref } from 'vue'
+import api from '@js/api.js';
 const { t } = useI18n()
 const clearSearch= () => {
  search.value = ''
@@ -250,24 +251,25 @@ const addSportAscent = () => {
     alert('Cannot add without route id(s)')
     return
   }
-  const url =
-    apiurl + '/t/problemator/competitions/contender/add_ascent/?spessukey=jekkukey'
+  // Just send sport_timer_secs
+  let sportTimerSecs = 0
+  
+  if (!isNaN(time_manual.value) && time_manual.value != "" && time_manual.value != 0) {
+    sportTimerSecs = parseInt(time_manual.value)
+  } else {
+    sportTimerSecs = (parseInt(timemin.value) * 60) + parseInt(timesec.value)
+  }
   const params = {
-    json: true,
     contender: contid.value,
     routeid: routeid.value,
     sport_points: sportPoints.value,
-    timemin: timemin.value,
-    timesec: timesec.value,
-    time_manual: time_manual.value,
-    frm_compid: props.comp.id,
+    sport_timer_secs : sportTimerSecs,
     comp_id: props.comp.id,
   }
-  axios
-    .post(url, params)
-    .then((r) => r.data)
+
+    api.addCompAscent(params)
     .then((data) => {
-      ascents.value = Object.keys(data.points).map((key) => data.points[key])
+      //ascents.value = Object.keys(data.points).map((key) => data.points[key])
     })
     .catch((err) => {
       alert(err)
@@ -363,15 +365,11 @@ const selectContender = (hit) => {
 const fetchContender = debounce(() => {
   selected.value = null
   hits.value = []
-  const url =
-    apiurl +
-    '/t/problemator/competitions/findcontenderincomp/?term=' +
-    search.value +
-    '&compid=' +
-    props.comp.id
-  axios
-    .post(url)
-    .then((r) => r.data)
+    const payload = {
+      compid : props.comp.id,
+      term : search.value,
+    }
+    api.findContenderInComp(payload)
     .then((data) => {
       hits.value = data
     })

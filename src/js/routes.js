@@ -3,6 +3,7 @@ import Loading from '../pages/Loading.vue';
 import Login from '../pages/Login.vue';
 import ProblemPage from '../pages/ProblemPage.vue';
 import SettingsPage from '../pages/SettingsPage.vue';
+import ArchivePage from '../pages/ArchivePage.vue';
 import JudgingPage from '../pages/JudgingPage.vue';
 import ProblemPopup from '../pages/ProblemPopup.vue';
 import ProblemList from '../pages/ProblemList.vue';
@@ -48,6 +49,11 @@ const routes = [
   {
     path: '/competitions/:compid',
     component: SingleCompetitionPage,
+  },
+  {
+    path: '/archive',
+    component: ArchivePage,
+    //beforeEnter: authGuard,
   },
   {
     path: '/problems',

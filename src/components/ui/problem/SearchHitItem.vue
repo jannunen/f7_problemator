@@ -1,11 +1,6 @@
 <template>
 
-  <f7-list-item  media link="#"  swipeout
-    @swipeout:open="swipingout = true"
-    @swipeout:closed="swipingout = false"
-    @click="() => onClick(problem)"
-  
-  >
+  <f7-list-item media link="#" swipeout @swipeout:open="swipingout = true" @swipeout:closed="swipingout = false" @click="() => onClick(problem)">
 
     <template #title>
       <div>{{ getAfter(problem) }}
@@ -14,14 +9,8 @@
 
     <template #after>
       <strong class="text-white font-bold  mr-2 " v-if="problem.c_like > 0">
-         {{ problem.c_like }} 
-              <f7-icon
-              size="16"
-              color="red"
-                md="material:heart_fill"
-                aurora="f7:heart_fill"
-                ios="f7:heart_fill"
-              />
+        {{ problem.c_like }}
+        <f7-icon size="16" color="red" md="material:heart_fill" aurora="f7:heart_fill" ios="f7:heart_fill" />
       </strong>
     </template>
 
@@ -29,11 +18,11 @@
       <small> {{ problem.ascentCount }} {{ t('home.ascents') }}</small>
     </template>
 
-  <template #inner-end>
-          {{ t('home.by') }} {{ problem.author }}
-  </template>
-    
-    
+    <template #inner-end>
+      {{ t('home.by') }} {{ problem.author }}
+    </template>
+
+
 
     <template #content-start>
       <div v-if="problem.myProjects != null && problem.myProjects.length > 0 && (problem.myTicks == null || problem.myTicks.length == 0)">
@@ -59,7 +48,7 @@
 
     </template>
     <f7-swipeout-actions right>
-      <f7-swipeout-button color="green">Quick tick</f7-swipeout-button>
+      <f7-swipeout-button close @click="() => quickTick(problem)" color="green">Quick tick</f7-swipeout-button>
     </f7-swipeout-actions>
   </f7-list-item>
 </template>
@@ -70,7 +59,9 @@ import { debounce, getTagShort } from '@js/helpers'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 import dayjs from 'dayjs'
 import relativeTime from "dayjs/plugin/relativeTime"
+import { toaster, alert } from '@js/helpers/notifications.js'
 import { ref } from 'vue'
+import store from '@js/store.js'
 
 dayjs.extend(relativeTime)
 export default {
@@ -83,8 +74,25 @@ export default {
     const swipingout = ref(false)
 
     const onClick = (problem) => {
-      if (!swipingout.value) { context.emit('start-navigate',problem)}
+      if (!swipingout.value) { context.emit('start-navigate', problem) }
     }
+    const quickTick = (problem) => {
+      let payload = {
+        ticktype: 'tick',
+        tries: 1,
+        created: new Date(),
+        problemid: problem.id,
+        grade_opinion: null,
+      }
+      store.dispatch('saveTick', payload)
+        .then((resp) => {
+          toaster(resp.message)
+        })
+        .catch((err) => {
+          alert(err)
+        })
+    }
+
     const getAuthor = (group) => {
       return group.ascentCount + ' ' + t('home.ascents')
     }
@@ -132,6 +140,7 @@ export default {
     }
     return {
       swipingout,
+      quickTick,
       onClick,
       getTryTries,
       getTrySessions,

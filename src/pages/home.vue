@@ -60,11 +60,8 @@
           <f7-button
             class="btn-primary"
             @click="loginWithRedirect()"
-            >{{ t('Login') }}</f7-button >
-          <f7-button
-            class="my-2 mx-12 uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
-            @click="loginWithRedirect()"
-            >{{ t('Register') }}</f7-button >
+            >{{ t('Login / Register') }}</f7-button >
+          
 
       </div>
     </div>

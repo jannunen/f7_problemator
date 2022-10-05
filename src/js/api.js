@@ -66,6 +66,27 @@ const resultHandler = async (res) => {
   return json
 }
 const api = {
+  getArchiveDay(payload) {
+    return axios.get(endpoint+"/climber/archive/date/"+payload.date)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
+  getTickDates(payload) {
+    return axios.get(endpoint+"/climber/archive/dates",payload)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
+  addCompAscent(payload) {
+    return axios.post(endpoint+"/competitions/add_ascent",payload)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+  },
+  findContenderInComp(payload) {
+    return axios.get(endpoint+"/competitions/findcontenderincomp?term="+payload.term+"&compid="+payload.compid)
+    .then((res) => resultHandler(res))
+    .catch(err => errorHandler(err))
+
+  },
   getClimber(payload) {
     return axios.get(endpoint+"/climber/auth_user")
     .then((res) => resultHandler(res))

@@ -60,6 +60,7 @@ const store = createStore({
     profileLoaded : false,
     archive : {
       dates : {},
+      dateDetails : {}
     },
   },
   getters: {
@@ -94,6 +95,12 @@ const store = createStore({
     darkMode: ({ state }) => state.settings.darkMode,
   },
   actions: {
+    async fetchArchiveDate({state, dispatch}, payload) {
+      const ret = await api.getArchiveDay(payload)
+      state.archive = {...state.archive, ['dateDetails'] : {...state.archive.dateDetails, [payload.date] : ret.day} }
+      console.log("Fetched single day",state.archive.dateDetails[payload.date])
+      return ret.day
+    },
     async getTickDates({state, dispatch}, payload) {
       const ret = await api.getTickDates(payload)
       state.archive = {...state.archive, ['dates']:  ret.dates }

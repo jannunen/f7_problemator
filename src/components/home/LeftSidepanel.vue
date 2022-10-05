@@ -57,6 +57,21 @@
            </f7-list-item>
           <f7-list-item
             link
+            title="Tick archive"
+            :selected="selectedItem === 'archive'"
+            @click="openArchive"
+          >
+            <template #media>
+              <f7-icon
+                md="material:calendar_month"
+                aurora="f7:calendar_month"
+                ios="f7:calendar_month"
+              />
+            </template>
+          </f7-list-item>
+
+          <f7-list-item
+            link
             title="Logout"
             :selected="selectedItem === 'logout'"
             @click="doLogout"
@@ -103,10 +118,15 @@ const localDarkMode = ref(darkMode)
 
 const openSettings = () => {
  store.dispatch('setSelectedLeftPanelItem', 'settings')
- store.dispatch('setSelectedLeftPanelItem', 'settings')
  store.dispatch('setSidePanel', false)
  f7.views.main.router.navigate("/settings")
 }
+const openArchive = () => {
+ store.dispatch('setSelectedLeftPanelItem', 'archive')
+ store.dispatch('setSidePanel', false)
+ f7.views.main.router.navigate("/archive")
+}
+
 // Handles changing the dark/light theme. Seems a bit kludge, because it is.
 watch(localDarkMode, (isDarkTheme, oldValue) => {
   const self = this
