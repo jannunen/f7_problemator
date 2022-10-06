@@ -31,6 +31,10 @@
               </h2>
               <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
             </li>
+              <h2 class="uppercase text-xl mt-2 p-0 font-bold">
+                {{ t('problemlist.ascent_status_filter') }}
+              </h2>
+               <ascent-status-filter v-model="ascentTypeFilter" />
             <f7-list no-hairlines-md>
               <h2 class="uppercase text-xl my-2 font-bold">
                 {{ t('problemlist.problemnamefilter') }}
@@ -114,6 +118,7 @@ import { useI18n } from 'vue-i18n'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 import GradeFilter from '@components/ui/problemlist/GradeFilter.vue'
 import StyleFilter from '@components/ui/problemlist/StyleFilter.vue'
+import AscentStatusFilter from '@components/ui/problemlist/AscentStatusFilter.vue'
 import SortBy from '@components/ui/problemlist/SortBy.vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -152,10 +157,12 @@ const { t, d, locale } = useI18n()
 const problems = useStore('problems')
 const walls = useStore('walls')
 const grades = useStore('grades')
+const profile = useStore('profile')
 const selectedWalls = ref([])
 const filters = useStore('filters')
 const nameFilter = ref('')
 const styles = useStore('styles')
+const ascentTypeFilter = ref('all')
 const unfilteredProblemsExist = computed(() => {
   if (problems.value == null) {
     return 0
@@ -215,6 +222,23 @@ const filteredProblems = computed(() => {
   if (nameFilter.value != "") {
     const filter = nameFilter.value.toLowerCase()
     probs = probs.filter((prob) => prob.tag.toLowerCase().indexOf(filter) != -1)
+  }
+  
+  // AscentTypeFilter
+  if (ascentTypeFilter.value != "all") {
+    const projectIDArray = profile.value.info.projects.map(i => i.problemid)
+    const climbedIDArray = profile.value.info.ticked.map(i => i.problemid)
+    probs = probs.filter((prob) =>  {
+      if (ascentTypeFilter.value == 'projects') {
+        // The problem is a project AND NOT ticked..
+        return projectIDArray.includes(prob.id) && !climbedIDArray.includes(prob.id)
+      } else if (ascentTypeFilter.value == 'climbed') {
+        return climbedIDArray.includes(prob.id)
+      } else if (ascentTypeFilter.value == 'unclimbed') {
+        return !projectIDArray.includes(prob.id) && !climbedIDArray.includes(prob.id)
+      }
+      return true // this is all
+    })
   }
 
   // Filter by walls

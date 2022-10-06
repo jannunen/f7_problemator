@@ -48,7 +48,9 @@
 
     </template>
     <f7-swipeout-actions right>
-      <f7-swipeout-button close @click="() => quickTick(problem)" color="green">Quick tick</f7-swipeout-button>
+      <f7-swipeout-button close @click="() => quickTick(problem)" color="yellow" class="bg-green-900">Quick tick (1 try)</f7-swipeout-button>
+      <f7-swipeout-button close @click="() => quickTick(problem)" color="yellow" class="bg-green-800">+ 2 tries</f7-swipeout-button>
+      <f7-swipeout-button close @click="() => quickTick(problem)" color="yellow" class="bg-green-700">+ 3 tries</f7-swipeout-button>
     </f7-swipeout-actions>
   </f7-list-item>
 </template>

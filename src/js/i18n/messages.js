@@ -1,5 +1,11 @@
 const messages = {
     en: {
+        ascentstatusfilter : {
+            all : 'All',
+            projects : 'Projects',
+            climbed: 'Climbed',
+            unclimbed: 'Untouched',
+        },
         judging : {
             contender_name : 'Contender name',
             name_placeholder : 'Start writing contender name',
