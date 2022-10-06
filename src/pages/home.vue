@@ -91,7 +91,6 @@ import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import { useAuth0 } from '@auth0/auth0-vue'
-import $ from 'dom7'
 const {
   idTokenClaims,
   getAccessTokenSilently,
@@ -102,10 +101,10 @@ const {
 import { toaster } from '@helpers/notifications.js'
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { f7, useStore } from 'framework7-vue'
 import { watch } from 'vue'
 import { ref } from 'vue'
-import store from '../js/store.js'
+import store from '@js/store.js'
+import { useStore } from 'framework7-vue'
 const profile = useStore('profile')
 const accessToken = useStore('access_token')
 const sidePanelOpen = useStore('sidePanelOpen')
@@ -152,6 +151,7 @@ const onStartNavigate = (problem) => {
 onMounted(() => {
   // wait for auth and then load profile
   watch(isAuthenticated, (newValue, oldValue) => {
+    console.log("home.vue isauth",isAuthenticated)
     store.dispatch('getProfile', { user })
   })
 })

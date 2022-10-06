@@ -41,14 +41,13 @@ const i18n = createI18n({
 })
 app.use(i18n);
 
-app.use(
-  createAuth0({
-    domain: import.meta.env.VITE_AUTH0_DOMAIN,
-    client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
-    audience : import.meta.env.VITE_AUTH0_AUDIENCE,
+  const params = {
+    domain: 'dev-gi6uwf0r.us.auth0.com',
+    client_id: '9w5hh6NwrSZoQiLDRCoNHf7j3C9GGelz',
+    audience : 'https://api.problemator.fi',
     redirect_uri: window.location.origin
-  })
-);
+  }
+app.use( createAuth0(params));
 
 // Mounte Vue App
 app.mount('#app');

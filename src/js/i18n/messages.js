@@ -73,6 +73,8 @@ const messages = {
             boulder : 'Boulder',
         },
         problemlist : {
+            wallfilter : 'Wall filtering',
+            problemnamefilter : 'Problem name filtering',
             sort_problems_by : 'Sort problems',
             gradefilter : 'Grade filter',
             stylefilter : 'Style filter',
@@ -177,6 +179,9 @@ const messages = {
 
         },
         home : {
+            floor_maps : 'Floor maps',
+            start_by_clicking_a_wall_or : 'Start by clicking a wall or',
+            maps : 'map(s)',
             gym_not_selected : 'Gym not selected',
             gym_selection_info : 'Please select a gym you want to activate. You can change this later, so no sweat.',
             floor_map_missing : 'The gym floor map is missing',

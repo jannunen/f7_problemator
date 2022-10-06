@@ -9,15 +9,7 @@
   >
     <!-- initial page is specified in routes.js -->
     
-    <f7-block v-if="loading" class="flex flex-col justify-center items-center">
-          <!--<img class="w-3/5 mx-auto" src="images/problemator_logo_new.png" alt="metacritic" />-->
-          <div class="text-center my-2 text-lg">
-            Loading...
-           <f7-preloader></f7-preloader>
-           </div>
-
-      </f7-block>
-    <f7-view v-else main url="/" :browser-history="true"></f7-view>
+    <f7-view  main url="/" :browser-history="true"></f7-view>
   </f7-app>
 </template>
 <script>

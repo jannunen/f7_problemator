@@ -1,5 +1,6 @@
 <template>
   <div>
+    {{selectedWalls}}
     <f7-list class="mx-0 my-2">
       <f7-list-item
         :title="t('wallselector.active_wall')"
@@ -12,7 +13,6 @@
         }"
       >
         <select @change="selectWall" name="active_wall">
-          <option value="">{{ t('wallselector.all_walls') }}</option>
           <option
             :value="awall.id"
             v-for="awall in walls"
@@ -28,10 +28,9 @@
   </div>
 </template>
 <script setup>
-import store from '@js/store.js'
 import { useStore } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
-import { onMounted, computed, ref } from 'vue'
+import { ref } from 'vue'
 const { t } = useI18n()
 const gyms = ref([])
 const walls = useStore('walls')

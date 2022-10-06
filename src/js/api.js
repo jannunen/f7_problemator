@@ -3,9 +3,7 @@ import { errorNotify  } from './helpers/notifications';
 import { useAuth0 } from '@auth0/auth0-vue';
 
 import {f7 } from 'framework7-vue'
-const API_KEY = import.meta.env.VITE_API_KEY;
-const API_HOST = import.meta.env.VITE_API_HOST;
-const endpoint = API_HOST + "/api/v03"
+export const endpoint = "https://api.problemator.fi/api/v03"
 
 const formatDate = (date) => {
   const year = date.getFullYear();
@@ -181,14 +179,6 @@ const api = {
     return axios.post(url, payload)
     .then((res) => resultHandler(res))
     .catch(err => errorHandler(err))
-  },
-  search(query) {
-    return fetch(
-      `${endpoint}/games?key=${API_KEY}&search=${query}&page_size=40&page=1`,
-    ).then((res) => res.json());
-  },
-  searchNext(url) {
-    return fetch(url).then((res) => res.json());
   },
 };
 

@@ -26,9 +26,15 @@
               <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
             </li>
             <li>
+              <h2 class="uppercase text-xl my-2 font-bold">
+                {{ t('problemlist.wallfilter') }}
+              </h2>
               <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
             </li>
             <f7-list no-hairlines-md>
+              <h2 class="uppercase text-xl my-2 font-bold">
+                {{ t('problemlist.problemnamefilter') }}
+              </h2>
               <f7-list-input type="text" :placeholder="t('Filter by problem name')" v-model:value="nameFilter" clear-button></f7-list-input>
             </f7-list>
 
@@ -119,6 +125,10 @@ import {
 dayjs.extend(relativeTime)
 
 const props = defineProps({
+  areaSelected : {
+    type : Object,
+    default : null
+  },
   wall: {
     type: String,
     default: null,
@@ -126,6 +136,17 @@ const props = defineProps({
   f7router: {
     type: Object,
   },
+})
+onMounted(() => {
+  // The areaSelected is an object, which has the wall name as title.
+  // So resolve the wall ids based on the wall name.
+  if (props.areaSelected !== null) {
+     const wallChar = props.areaSelected.title
+     const wall = walls.value.find(x => x.wallchar === wallChar)
+     if (wall !== null) {
+       selectedWalls.value = [wall.id]
+     }
+  }
 })
 const { t, d, locale } = useI18n()
 const problems = useStore('problems')

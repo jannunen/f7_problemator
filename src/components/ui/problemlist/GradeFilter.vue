@@ -12,7 +12,7 @@
             @range:change="onMinGradeChange"
           />
         
-    <h4 class="display-flex justify-content-space-between"
+    <h4 class="display-flex justify-content-space-between my-4"
       >{{ t('gradefilter.maximum_grade') }}
       <span>{{ getGradeName(gradeMax) }}</span></h4 >
           <f7-range
