@@ -48,9 +48,9 @@
 
     </template>
     <f7-swipeout-actions right>
-      <f7-swipeout-button close @click="() => quickTick(problem)" color="yellow" class="bg-green-900">Quick tick (1 try)</f7-swipeout-button>
-      <f7-swipeout-button close @click="() => quickTick(problem)" color="yellow" class="bg-green-800">+ 2 tries</f7-swipeout-button>
-      <f7-swipeout-button close @click="() => quickTick(problem)" color="yellow" class="bg-green-700">+ 3 tries</f7-swipeout-button>
+      <f7-swipeout-button close @click="() => quickTick(problem,1)" color="yellow" class="bg-green-900">Quick tick (1 try)</f7-swipeout-button>
+      <f7-swipeout-button close @click="() => quickTick(problem,2)" color="yellow" class="bg-green-800">+ 2 tries</f7-swipeout-button>
+      <f7-swipeout-button close @click="() => quickTick(problem,3)" color="yellow" class="bg-green-700">+ 3 tries</f7-swipeout-button>
     </f7-swipeout-actions>
   </f7-list-item>
 </template>
@@ -78,10 +78,10 @@ export default {
     const onClick = (problem) => {
       if (!swipingout.value) { context.emit('start-navigate', problem) }
     }
-    const quickTick = (problem) => {
+    const quickTick = (problem, tries) => {
       let payload = {
         ticktype: 'tick',
-        tries: 1,
+        tries,
         created: new Date(),
         problemid: problem.id,
         grade_opinion: null,
