@@ -148,7 +148,7 @@ const draw = () => {
 }
 const parseRawPixels = (map) => {
     // Regex the hell out of the imagemap html
-    if ("" != map.trim()) {
+    if (map != null && "" != map.trim()) {
         const mapRows = map.match(/alt="(.*?)".*?title="(.*?)".*?coords="(.*?)"/g)
         for (const idx in mapRows) {
             const mapRow = mapRows[idx]

@@ -29,5 +29,7 @@ const props = defineProps({
 })
 const { t } = useI18n()
 const comp = useStore('competition')
-store.dispatch('getCompetition',props.compid)
+onMounted(() => {
+  store.dispatch('getCompetition',props.compid)
+})
 </script>

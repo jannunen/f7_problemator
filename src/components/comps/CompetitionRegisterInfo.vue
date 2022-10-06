@@ -48,7 +48,7 @@
                       {{ t('comps.registered_paid') }}
                   </div>
                   <div v-else>
-                    <f7-button  @click="askRegister(cat)" class="btn-primary btn-small" >{{ t('comps.register_button') }}</f7-button>
+                    <button  @click="askRegister(cat)" class="btn-primary btn-small" >{{ t('comps.register_button') }}</button>
                   </div>
                 </div>
               </template>
@@ -109,7 +109,7 @@ const getPaymentLink = (cat) => {
 }
 
 const askRegister = (cat) => {
-    confirm(t('global.are_you_sure'),null,() => {
+    confirm(t('comps.are_you_sure_you_want_to_register'),null,() => {
         // send registration
         const payload = {
             compid : props.comp.id,

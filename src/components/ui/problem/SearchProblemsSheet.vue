@@ -35,7 +35,7 @@
     <div class="my-1 text-small text-center">
       {{ t('searchprob.hits', problems.length) }}
     </div>
-    <ul class="my-0" v-if="problems.length > 0">
+          <f7-list media  class="my-0" v-if="problems.length > 0">
       <li v-if="problems.length == 0" :title="t('searchprob.no_hits')"></li>
       <search-hit-item
         @start-navigate="onStartNavigate"
@@ -43,7 +43,7 @@
         v-for="p in problems"
         :key="p.id"
       ></search-hit-item>
-    </ul>
+          </f7-list>
   </div>
   <div class="">
     <button v-if="problems.length > 0" @click="clearSearch" class="px-8 py-2 mx-auto w-11/12 bg-orange-500 text-white block">

@@ -6,7 +6,7 @@
       {{ t('home.floor_maps') }}
       <small class="text-sm">{{ gym.floormaps?.length }} {{ t('home.maps') }}</small>
     </h3>
-    <div v-for="floormap in gym.floormaps" :key="floormap.id">
+    <div v-for="floormap in gym.floormaps" :key="floormap.id" class="my-1">
       <floor-map @area-selected="onAreaSelected" :map="floormap"></floor-map>
     </div>
     <div class="m-1 text-center">
