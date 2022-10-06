@@ -1,52 +1,41 @@
 <template>
-  <div>
-    {{selectedWalls}}
-    <f7-list class="mx-0 my-2">
-      <f7-list-item
-        :title="t('wallselector.active_wall')"
-        smart-select
-        :smart-select-params="{
-          closeOnSelect: true,
-          openIn: 'popup',
-          searchbar: true,
-          searchbarPlaceholder: 'Search walls',
-        }"
+    <div class="flex flex-row">
+      <select name="wall" v-model="modeValue" @change="selectWall" class="m-0 h-12 bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+      <option :value="null">Filter by walls</option>
+      <option 
+      v-for="w in wallsDropdown" 
+      :value="w.id"
+      :selected="modelValue.includes(w.id)" :key="w.id"
       >
-        <select @change="selectWall" name="active_wall">
-          <option
-            :value="awall.id"
-            v-for="awall in walls"
-            :key="awall.id"
-            :selected="modelValue.includes(awall.id)"
-          >
-            {{ awall.wallchar }} {{ awall.walldesc }}
-          </option>
-        </select>
-      </f7-list-item>
-      <f7-list-button @click="clear"> Clear wall filter </f7-list-button>
-    </f7-list>
-  </div>
+       {{ w.label}}
+       </option>
+      </select>
+      <button class="w-1/5 h-12  bg-red-500" @click="clear">Clear</button>
+    </div>
 </template>
 <script setup>
 import { useStore } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
+
+const oma = ref([])
 const { t } = useI18n()
-const gyms = ref([])
 const walls = useStore('walls')
+const wallsDropdown = computed(() => {
+  return walls.value.map(a => ({id : a.id, label : a.wallchar +" "+ a.walldesc }))
+})
 const emit = defineEmits(['select','clear','update:modelValue'])
-const gym = useStore('gym')
 const props = defineProps({
     selected : Array,
     modelValue : 
     { type : Array, default : []},
 
 })
-const selectWall = ({ target }) => {
-  const selectedOptions = [...target.selectedOptions]
-  const ids = selectedOptions.map(item => parseInt(item.value))
-  emit('select', ids)
-  emit('update:modelValue',ids)
+const selectWall = (evt) => {
+  const selectedOption = parseInt(evt.target.value)
+  const newSelection = [...props.modelValue,selectedOption]
+  emit('select', newSelection)
+  emit('update:modelValue',newSelection)
 }
 const clear = () => {
   emit('clear')

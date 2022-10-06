@@ -26,7 +26,7 @@
               <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
             </li>
             <li>
-              <h2 class="uppercase text-xl my-2 font-bold">
+              <h2 class="uppercase text-xl mt-2 p-0 font-bold">
                 {{ t('problemlist.wallfilter') }}
               </h2>
               <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
