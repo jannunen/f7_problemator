@@ -14,10 +14,6 @@ Chart.register(...registerables);
 
 export default {
   props: {
-    days: {
-      type: Number,
-      default: 30,
-    },
     type: {
       type: String,
       default: "boulder",

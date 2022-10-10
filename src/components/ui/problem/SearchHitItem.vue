@@ -39,7 +39,7 @@
     <template #media>
 
       <div class="flex flex-col justify-center items-center">
-        <round-badge :width="20" :bgColor="problem.colour.code"></round-badge>
+        <round-badge :width="20" :bgColor="problem.colour?.code"></round-badge>
         {{ getTagShort(problem.tag) }}
       </div>
       <h4 style="width: 35px" class="font-bold margin-left no-margin text-2xl">
@@ -129,7 +129,7 @@ export default {
 
     const getGrade = (routetype, gradeObj) => {
       if (gradeObj == null) {
-        return 'N/A' / tore
+        return 'N/A'  
       }
       const grade = gradeObj.name
       if (grade == 'project') {

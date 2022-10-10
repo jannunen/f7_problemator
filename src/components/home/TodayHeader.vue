@@ -10,8 +10,8 @@ const props = defineProps({
 })
 const emit = defineEmits(['addtick'])
 const problems = computed(() => store.state.gym.problems)
-const ticks = computed(() => store.state.profile.alltime.ticks.filter(x => dayjs(x.tstamp).isSame(dayjs(),'date')))
-const tries = computed(() => store.state.profile.alltime.tries.filter(x => dayjs(x.tstamp).isSame(dayjs(),'date')))
+const ticks = computed(() => store.state.alltime.ticks.filter(x => dayjs(x.tstamp).isSame(dayjs(),'date')))
+const tries = computed(() => store.state.alltime.tries.filter(x => dayjs(x.tstamp).isSame(dayjs(),'date')))
 
 const ticksToday = computed(() =>  ticks.value.length )
 const triesToday = computed(() => tries.value.length)

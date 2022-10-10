@@ -113,6 +113,7 @@ const accessToken = computed(() => store.state.access_token)
 const gym = computed(() => store.state.gym)
 const gymid = computed(() => store.state.gymid)
 const isOpened = ref(false)
+store.dispatch('loadAllTimeTicks')
 const { t } = useI18n()
 const props = defineProps({
   f7router: Object,
@@ -123,7 +124,6 @@ watch(gym, (newValue, oldValue) => {
   }
 })
 const profileLoaded = computed(() => store.state.profileLoaded)
-const isAuthenticated = computed(() => store.state.isAuthenticated)
 const gymSelectorOpen = ref(false)
 const onSearchSheetClosed = () => {
   isOpened.value = false

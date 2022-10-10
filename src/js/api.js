@@ -1,9 +1,6 @@
 import axios from 'axios'
 import { errorNotify  } from './helpers/notifications';
-import { useAuth0 } from '@auth0/auth0-vue';
-
-import {f7 } from 'framework7-vue'
-export const endpoint = "https://api.problemator.fi/api/v03"
+export const endpoint = "https://localapi.problemator.fi/api/v03"
 
 const formatDate = (date) => {
   const year = date.getFullYear();
@@ -137,6 +134,10 @@ const api = {
    const ret = await   axios
       .get(endpoint + '/gym')
     return ret.data
+  },
+  async loadAllTimeTicks() {
+   const ret = await   axios .get(endpoint + '/my/ticks')
+   return ret.data
   },
   async getProfile(gymid,email) {
     // Email is sent because this is the first call (usually?) and

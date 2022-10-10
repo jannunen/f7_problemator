@@ -11,7 +11,6 @@
       <div class="flex flex-col justify-between col-span-2">
         <div>
 
-          <!--
           <last-ascents
             v-if="ascentsFound"
             :ascents="ascentsByGrade"
@@ -20,7 +19,6 @@
             :type="showOfType"
           ></last-ascents>
           <div v-else class="text-2xl font-bold text-center text-orange-400">No ascents to list</div>
--->
         </div>
 
         <div class="flex flex-row gap-2 justify-center">
@@ -88,7 +86,7 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
-//import LastAscents from '@components/home/LastAscents.vue'
+import LastAscents from '@components/home/LastAscents.vue'
 import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import { getAscentsByGrade } from '@helpers/component.helpers.js'
@@ -103,65 +101,48 @@ const props = defineProps({
 })
 const { t } = useI18n()
 const grades = computed(() => store.state.grades)
-//const problems = computed(() => store.state.problems)
-const ticks = computed(() => store.state.profile.alltime.ticks)
-const tries = computed(() => store.state.profile.alltime.tries)
+const ticks = computed(() => store.state.alltime.ticks)
+const tries = computed(() => store.state.alltime.tries)
 const lastDays = ref(30)
 const showOfType = ref('boulder')
-const ascentsByGrade = computed(() => getAscentsByGrade(ticks.value, lastDays.value,showOfType.value))
+const ascentsByGrade = computed(() => getAscentsByGrade(grades.value, ticks.value, lastDays.value,showOfType.value))
 const ascentsFound = (ascentsByGrade.value.size > 0)
 const changeOfType = (type) => {
+
   showOfType.value = type
 }
 const getLatestProblemCount = computed(() => {
   const deadline = dayjs().subtract(lastDays.value, 'day')
-  const problemDates = new Set()
-  debugger
-  ticks.value.forEach((tick) => {
-    const prob = tick.problem
+  let problemCount = 0
+  const validTicks = ticks.value.filter(tick => dayjs(tick.tstamp).isAfter(deadline))
+  validTicks.forEach((tick) => {
     // Filter by route type
-    if (prob.routetype == showOfType.value || showOfType.value == 'all') {
-      // Calculating last problems within 'lastDays' must be calculated
-      // so that we check every tick and if they fit into the time span,
-      // set the problemid to Set and it ends up being unique
+    if (tick.routetype == showOfType.value || showOfType.value == 'all') {
       const ts = dayjs(tick.tstamp).format('YYYY-MM-DD')
-      if (dayjs(tick.tstamp).isAfter(deadline)) {
-        problemDates.add(ts)
-      }
+      problemCount++
     }
   })
-  return problemDates.size
+  return problemCount
 })
 const getLatestSessionCount = computed(() => {
   // Sessions are defined as unique days (we don't count morning and evening session as two)
   // Easiest way is to use set, as it's unique in nature. So let's get to it.
   // Count ticks and tries to session count
-  debugger
-  const sessions = new Set()
-  ticks.value.forEach(tick => {
-    const problem = tick.problem
-    // Then go through each tick and put the date into the set.
-    const deadline = dayjs().subtract(lastDays.value, 'day')
-    if (problem.routetype == showOfType.value || showOfType.value == 'all') {
+  const deadline = dayjs().subtract(lastDays.value, 'day')
+  let sessions = new Set()
 
+  const validTicks = ticks.value.filter(tick => dayjs(tick.tstamp).isAfter(deadline))
+  validTicks.forEach(tick => {
+    if (tick.routetype == showOfType.value || showOfType.value == 'all') {
       const tickDate = dayjs(tick.tstamp).format('YYYY-MM-DD')
-      // Now check if the tick is within the last "lastDays" days
-      if (dayjs(tick.tstamp).isAfter(deadline)) {
-        sessions.add(tickDate)
-      }
+      sessions.add(tickDate)
     }
   })
-  tries.value.forEach(tick => {
-    const problem = tick.problem
-    // Then go through each tick and put the date into the set.
-    const deadline = dayjs().subtract(lastDays.value, 'day')
-    if (problem.routetype == showOfType.value || showOfType.value == 'all') {
-
+  const validTries = tries.value.filter(tick => dayjs(tick.tstamp).isAfter(deadline))
+  validTries.forEach(tick => {
+    if (tick.routetype == showOfType.value || showOfType.value == 'all') {
       const tickDate = dayjs(tick.tstamp).format('YYYY-MM-DD')
-      // Now check if the tick is within the last "lastDays" days
-      if (dayjs(tick.tstamp).isAfter(deadline)) {
-        sessions.add(tickDate)
-      }
+      sessions.add(tickDate)
     }
   })
   return sessions.size

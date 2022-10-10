@@ -1,8 +1,6 @@
 import { createStore } from "vuex";
 import api from './api'
-const apihost = 'https://api.problemator.fi'
-const apiprefix = "/api/v03"
-
+import home from "./store/home.store.js"
 
 export const filtersInitial = {
   gradeMin: 'min',
@@ -20,6 +18,7 @@ const getFromLocalStorage = (key, defaultValue) => {
 
 export default createStore({
   modules : {
+    home,
   },
   state: {
     settings : {
@@ -42,7 +41,12 @@ export default createStore({
     wishlist: getFromLocalStorage('wishlist', []),
     isAuthenticated : false,
     gymid : null,
-    profile : null,
+    profile : {
+    },
+    alltime : {
+      ticks : [],
+      tries : []
+    },
     user : null,
     climber : null,
     access_token : null,
@@ -60,12 +64,14 @@ export default createStore({
     },
   },
   mutations: {
-
+    allTimeTicks(state, payload) {
+      state.alltime = payload
+    },
     addTriesAllTime(state, payload) {
-      state.profile.alltime.tries = [...state.profile.alltime.tries,payload]
+      state.alltime.tries = [...state.alltime.tries,payload]
     },
     addTicksAllTime(state, payload) {
-      state.profile.alltime.ticks = [...state.profile.alltime.ticks,payload]
+      state.alltime.ticks = [...state.alltime.ticks,payload]
     },
     expires_in(state, payload) {
       state.expires_in = payload
@@ -194,6 +200,10 @@ export default createStore({
         return state.profile
       }
       return null
+    },
+    async loadAllTimeTicks({ commit, state}, payload) {
+      const ret = await api.loadAllTimeTicks(payload)
+      commit('allTimeTicks', ret)
     },
     async deleteProject({ commit, state}, payload) {
       const ret = await api.deleteProject(payload)
