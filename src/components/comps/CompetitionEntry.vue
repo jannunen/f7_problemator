@@ -88,14 +88,15 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import store from '@js/store.js'
-import { f7ready, f7, useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
+
 import { onMounted, computed, ref } from 'vue'
 import CompetitionRegisterInfo from '@components/comps/CompetitionRegisterInfo.vue'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import isBetween from 'dayjs/plugin/isBetween'
 import { confirm, toaster } from '@helpers/notifications.js'
+const store = useStore()
 
 dayjs.extend(duration)
 dayjs.extend(isBetween)
@@ -103,7 +104,7 @@ const { t } = useI18n()
 const props = defineProps({
   comp: Object,
 })
-const climber = useStore('climber')
+const climber = computed(() => store.state.climber)
 const isJudge = computed(() => {
   const comp = props.comp
   if (comp.judges == null) {

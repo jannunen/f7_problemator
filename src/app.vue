@@ -4,22 +4,20 @@
     name = "Problemator"
     id ="fi.problemator.v2"
     :routes="routes" 
-    :store="store" 
     theme="aurora"
   >
     <!-- initial page is specified in routes.js -->
     
-    <f7-view  main url="/" :browser-history="true"></f7-view>
+    <f7-view  main url="/"  :push-state="true" ></f7-view>
   </f7-app>
 </template>
 <script>
   import routes from './js/routes.js';
-  import store from './js/store.js';
   import { useI18n } from 'vue-i18n'
   import { useAuth0 } from '@auth0/auth0-vue';
-  import { ref, watch, computed } from 'vue'
-  import { f7, useStore } from 'framework7-vue'
-import $ from 'dom7'
+  import { watch, computed } from 'vue'
+  import { useStore } from 'vuex'
+  import $ from 'dom7'
 
   export default {
     props : {
@@ -27,21 +25,26 @@ import $ from 'dom7'
     },
     setup() {
         const { t } = useI18n() 
+        const store = useStore()
+        const profile = computed(() => store.state.profile)
         store.dispatch("changeGym",localStorage.gymid)
         const { getInstance, getAccessTokenSilently, loginWithRedirect, user, isAuthenticated } = useAuth0()
-        const loading = ref(true)
+        const ready = computed(() => store.state.ready)
+        store.commit('setInitializing',true)
 
         getAccessTokenSilently()
         .then(async (token) => {
-          const ret = await store.dispatch('setToken', token)
+          store.commit('setToken', token)
           console.log("access token1",token)
-          store.dispatch('getProfile')
-          loading.value = false
+          if (profile.value == null) {
+            await store.dispatch('getProfile')
+          }
+          store.commit('setReady',true)
+          store.commit('setInitializing',false)
         })
         .catch(async (err) => {
           // Not logged in, show login...
-          await store.dispatch('setIsAuthenticated',false)
-          loading.value = false
+          store.commit('setIsAuthenticated',false)
         })
 
         watch(user, async (newValue, oldValue) => {
@@ -59,21 +62,20 @@ import $ from 'dom7'
         watch(isAuthenticated, async (newValue, oldValue) => {
           if (newValue === true) {
             const token = await getAccessTokenSilently()
-            const ret = await store.dispatch('setToken', token)
+            store.commit('setToken', token)
             console.log("access token",token)
-            await store.dispatch('setIsAuthenticated',true)
+            store.commit('setIsAuthenticated',true)
           }
-          store.dispatch('setInitializing',false)
-          loading.value = false
+          store.commit('setInitializing',false)
         })
 
 
         return {
             t,
             store,
+            ready,
             routes,
             isAuthenticated,
-            loading,
         }
     },
     data() {

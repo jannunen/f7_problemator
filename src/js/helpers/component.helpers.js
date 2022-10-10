@@ -1,22 +1,30 @@
 import { computed } from 'vue'
-import store from '@js/store.js'
-import { useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
 import dayjs from 'dayjs'
+import { groupBy } from 'lodash'
+const store = useStore()
 
-const getAscentsByGrade = (lastDays, showOfType) => {
+const getAscentsByGrade = (ticks, lastDays, showOfType) => {
     let gradeMap = new Map()
-    const problems = useStore('problems')
     const deadline = dayjs().subtract(lastDays, 'day')
 
-    Object.keys(problems.value).forEach(key => {
-        const problem = problems.value[key]
-        if (problem.routetype == showOfType || showOfType == 'all') {
+    // Group by grade
+    const groupedByGrade = ticks.reduce((acc, curr) => {
+        const gradeid = "grade" + curr.problem.gradeid
+        if (!acc[gradeid]) acc[gradeid] = [] //If this type wasn't previously stored
+        acc[gradeid].push(curr)
+        return acc
+    }, {})
+    Object.keys(groupedByGrade).forEach((tickKey)  => {
+        const ticks = groupedByGrade[tickKey]
+        ticks.forEach((tick) => {
 
-            // If problem has ticks, count as ascent
-            const gradeId = problem.grade.id
-            if (problem.myTicks.length > 0) {
+            if (tick.problem.routetype == showOfType || showOfType == 'all') {
+
+                // If problem has ticks, count as ascent
+                const gradeId = tick.problem.gradeid
                 // Check that one of the ticks is after the deadline
-                const validTick = problem.myTicks.find(tick => dayjs(tick.tstamp).isAfter(deadline))
+                const validTick = ticks.find(tick => dayjs(tick.tstamp).isAfter(deadline))
 
                 if (validTick != null) {
                     if (!gradeMap.has(gradeId)) {
@@ -26,15 +34,16 @@ const getAscentsByGrade = (lastDays, showOfType) => {
                     }
                 }
             }
-        }
+        })
     })
+
     // Then remove out all the grades too easy and too hard (=no ticks)
     // Loop from start and end when first non zero is found
     for (let gKey of gradeMap.keys()) {
         if (gradeMap.get(gKey) == 0) {
             gradeMap.delete(gKey)
         }
-        break;
+        break
     }
 
     // Then start from the end and do the same backwards.
@@ -43,28 +52,28 @@ const getAscentsByGrade = (lastDays, showOfType) => {
         if (gradeMap.get(gKey) == 0) {
             gradeMap.delete(gKey)
         }
-        break;
+        break
     }
     return gradeMap
 }
 
 const getSessionCount = (problem) => {
-  // Session count is the amount of different days the project has
-  // been projected on.
-  const projecting = problem.myProjects
-  const projectDays = projecting.reduce((acc,item) => {
-    // Reduce the timestamp to date.
-    const date = item.tstamp.substring(0,10);
-    if (!acc.includes(date)) {
-      acc.push(date)
-    }
-    return acc
-  },[])
-  return projectDays.length
+    // Session count is the amount of different days the project has
+    // been projected on.
+    const projecting = problem.myProjects
+    const projectDays = projecting.reduce((acc, item) => {
+        // Reduce the timestamp to date.
+        const date = item.tstamp.substring(0, 10)
+        if (!acc.includes(date)) {
+            acc.push(date)
+        }
+        return acc
+    }, [])
+    return projectDays.length
 
 }
 
-export { 
+export {
     getAscentsByGrade,
     getSessionCount
 }

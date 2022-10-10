@@ -12,6 +12,8 @@ const messages = {
             judging_competitions : 'Judging sheet',
         },
         comps : {
+            thats : 'That\'s',
+            'No ongoing competitions currently' : 'No ongoing competitions currently',
             are_you_sure_you_want_to_register : 'Are you sure you want to register?',
             competitions: 'Competitions',
             upcoming_competitions: 'Upcoming competitions',
@@ -66,6 +68,9 @@ const messages = {
         badge_gym: {
             climbed_routes: "Climbed {n}% of {n} routes",
             climbed_problems: "Climbed {n}% of {n} problems",
+        },
+        archive : {
+            archive_title: 'Tick archive',
         },
         mylogs: {
             open_archive: 'Open tick archive',

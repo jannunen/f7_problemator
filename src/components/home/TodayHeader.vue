@@ -1,47 +1,21 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
-import store from '@js/store.js'
 import dayjs from 'dayjs'
-import { useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
 const { t } = useI18n()
+const store = useStore()
 const props = defineProps({
   profile: Object,
 })
 const emit = defineEmits(['addtick'])
 const problems = computed(() => store.state.gym.problems)
-const ticksToday = computed(() => {
-  // Go through gym problems for the ascents
-  if (problems.value == null) {
-    return 0
-  }
-  return problems.value.reduce((acc, prob) => {
-    // Check if ticks are from today.
-    acc += prob.myTicks.reduce((acc, tick) => {
-      if (dayjs().isSame(dayjs(tick.tstamp), 'date')) {
-        acc++
-      }
-      return acc
-    }, 0)
-    return acc
-  }, 0)
-})
+const ticks = computed(() => store.state.profile.alltime.ticks.filter(x => dayjs(x.tstamp).isSame(dayjs(),'date')))
+const tries = computed(() => store.state.profile.alltime.tries.filter(x => dayjs(x.tstamp).isSame(dayjs(),'date')))
 
-const triesToday = computed(() => {
-  if (problems.value == null) {
-    return 0
-  }
-  return  problems.value.reduce((acc, prob) => {
-    acc += prob.myTicks.reduce((ticks, tick) => {
-      // Check if ticks are from today.
-      if (dayjs().isSame(dayjs(tick.tstamp), 'date')) {
-        ticks += parseInt(tick.tries)
-      }
-      return ticks
-    }, 0)
-    return acc
-  }, 0)
-})
+const ticksToday = computed(() =>  ticks.value.length )
+const triesToday = computed(() => tries.value.length)
+
 </script>
 <template>
   <div>

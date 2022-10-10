@@ -57,7 +57,8 @@ import { fromNow } from '@helpers/filters.js'
 const { t } = useI18n()
 
 const leaveOnBothSides = ref(3);
-const grades = useStore('grades');
+const grades = computed(() => store.state.grades)
+
 const props = defineProps({
   problem: Object,
 })

@@ -95,8 +95,9 @@
 </template>
 
 <script setup>
-import RoundBadge from '../RoundBadge.vue'
-import { getTagShort } from '@js/helpers'
+import { useI18n } from 'vue-i18n'
+import { computed } from 'vue'
+import { useStore } from 'vuex'
 import dayjs from 'dayjs'
 import { ref} from 'vue'
 import utc from "dayjs/plugin/utc";
@@ -108,11 +109,8 @@ const guessed = ref(dayjs.tz.guess())
 dayjs.tz.setDefault(guessed.value)
 console.log(guessed.value)
 
-import store from '@js/store.js'
-import { useI18n } from 'vue-i18n'
-import { computed } from 'vue'
-import { useStore } from 'framework7-vue'
 
+const store = useStore()
 const props = defineProps({
   problem: {
     type: Object,

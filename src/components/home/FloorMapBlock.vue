@@ -25,12 +25,15 @@
   </div>
 </template>
 <script setup>
-import { f7, useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
+import { computed } from 'vue'
+import { f7} from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
 import { capitalize } from '@helpers/filters.js'
 import FloorMap from '@components/ui/FloorMap.vue'
+const store = useStore()
 const { t } = useI18n()
-const gym = useStore('gym')
+const gym = computed(() => store.state.gym)
 const props = defineProps({
   f7router: Object,
 })

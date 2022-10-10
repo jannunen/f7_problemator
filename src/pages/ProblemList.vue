@@ -85,12 +85,12 @@
             </div>
           </f7-list>
         </div>
-        <div v-else class="m-4 mb-14 bg-red-300 p-4 border rounded-xl border-red-700">
+        <div v-else class="m-4 mb-14 bg-yellow-200 p-4 border border-2 rounded-xl border-yellow-600">
           <div class="flex flex-col justify-center items-center">
-            <h1 class="text-red-800 font-bold text-2xl my-1">
+            <h1 class="text-yellow-800 font-bold text-2xl my-1">
               {{ t('problemlist.snap' + getRandom(1, maxSnap)) }}
             </h1>
-            <p class="text-red-600 text-center">
+            <p class="text-black text-center">
             <h2 class="font-bold text-lg my-1">{{ t('problemlist.no_hits_title') }}</h2>
             <div class="px-2 text-sm my-2">
               {{ t('problemlist.no_hits_desc') }}
@@ -109,11 +109,10 @@
 import { ref, computed, onMounted, toRefs } from 'vue'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
 
-import store from '@js/store.js'
 import { getRandom } from '@js/helpers'
 import WallSelector from '@components/ui/problemlist/WallSelector.vue'
 import { maxSnap } from '@js/constants.js'
-import { useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 import GradeFilter from '@components/ui/problemlist/GradeFilter.vue'
@@ -127,6 +126,7 @@ import {
   sortFunction,
   problemStyleFilter,
 } from '@components/ui/problemlist/sortFunctions.js'
+const store = useStore()
 dayjs.extend(relativeTime)
 
 const props = defineProps({
@@ -154,14 +154,15 @@ onMounted(() => {
   }
 })
 const { t, d, locale } = useI18n()
-const problems = useStore('problems')
-const walls = useStore('walls')
-const grades = useStore('grades')
-const profile = useStore('profile')
+const problems = computed(() => store.state.problems)
+const walls = computed(() => store.state.walls)
+const grades = computed(() => store.state.grades)
+
+const profile = computed(() => store.state.profile)
 const selectedWalls = ref([])
-const filters = useStore('filters')
+const filters = computed(() => store.state.filters)
 const nameFilter = ref('')
-const styles = useStore('styles')
+const styles = computed(() => store.state.styles)
 const ascentTypeFilter = ref('all')
 const unfilteredProblemsExist = computed(() => {
   if (problems.value == null) {
@@ -205,7 +206,8 @@ const filteredProblems = computed(() => {
   if (probs == null) {
     return []
   }
-  const filters = useStore('filters')
+  const filters = computed(() => store.state.filters)
+
   let { problemFilters, styles, gradeMin, gradeMax, walls, sort } = toRefs(filters.value)
   if (gradeMax.value != 'max') {
     const maxScore = gradeMax.value.score == 0 ? 99999999 : gradeMax.value.score

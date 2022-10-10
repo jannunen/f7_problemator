@@ -32,16 +32,17 @@
 </template>
 
 <script setup>
-import store from '@js/store.js'
-import { useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
+import { computed} from 'vue'
 const { t } = useI18n()
+const store = useStore()
 const props = defineProps({
   opened: Boolean,
   grades: Array,
 })
 const emit = defineEmits(['close', 'select'])
-const grades = useStore('grades')
+const grades = computed(() => store.state.grades)
 const gradeOpinionSelected = (gradeid) => {
   emit('select', gradeid)
 }

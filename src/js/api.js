@@ -64,121 +64,108 @@ const resultHandler = async (res) => {
   return json
 }
 const api = {
-  getArchiveDay(payload) {
-    return axios.get(endpoint+"/climber/archive/date/"+payload.date)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+  async fetchCompAscents(payload) {
+    const ret = await axios.get(endpoint+"/competitions/"+payload.compid+"/ascents/"+payload.contenderid)
+    return ret.data
   },
-  getTickDates(payload) {
-    return axios.get(endpoint+"/climber/archive/dates",payload)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+  async removeCompAscent(payload) {
+    const ret = await axios.delete(endpoint+"/competitions/ascents/"+payload.tickid)
+    return ret.data
   },
-  addCompAscent(payload) {
-    return axios.post(endpoint+"/competitions/add_ascent",payload)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+  async getArchiveDay(payload) {
+    const ret = await axios.get(endpoint+"/climber/archive/date/"+payload.date)
+    return ret.data
   },
-  findContenderInComp(payload) {
-    return axios.get(endpoint+"/competitions/findcontenderincomp?term="+payload.term+"&compid="+payload.compid)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
-
+  async getTickDates(payload) {
+    const ret = await axios.get(endpoint+"/climber/archive/dates",payload)
+    return ret.data
   },
-  getClimber(payload) {
-    return axios.get(endpoint+"/climber/auth_user")
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+  async addCompAscent(payload) {
+    const ret = await axios.post(endpoint+"/competitions/"+payload.comp_id+"/add_ascent",payload)
+    return ret.data
   },
-  registerToComp(payload) {
-    return axios.post(endpoint+"/competitions/join_comp",payload)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+  async findContenderInComp(payload) {
+    const ret = await axios.get(endpoint+"/competitions/findcontenderincomp?term="+payload.term+"&compid="+payload.compid)
+    return ret.data
   },
-  getCompetition(payload) {
-    return axios.get(endpoint+"/competitions/"+payload)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+  async getClimber(payload) {
+    const ret = await axios.get(endpoint+"/climber/auth_user")
+    return ret.data
   },
-  getUpcomingCompetitions(payload) {
-    return axios.get(endpoint+"/competitions/upcoming",payload)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+  async registerToComp(payload) {
+    const ret = await axios.post(endpoint+"/competitions/join_comp",payload)
+    return ret.data
   },
-  saveSettings(payload) {
-    return axios.post(endpoint+"/settings/user",payload)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+  async getCompetition(payload) {
+    const ret = await axios.get(endpoint+"/competitions/"+payload)
+    return ret.data
   },
-  setToken(payload) {
-    return axios.post(endpoint+"/tick/",payload)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+  async getUpcomingCompetitions(payload) {
+    const ret = await axios.get(endpoint+"/competitions/upcoming",payload)
+    return ret.data
   },
-  likeProblem(id) {
-    return axios.post(endpoint+`/problem/${id}/like`)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+  async saveSettings(payload) {
+    const ret = await axios.post(endpoint+"/settings/user",payload)
+    return ret.data
   },
-  dislikeProblem(id) {
-    return axios.post(endpoint+`/problem/${id}/dislike`)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+  async setToken(payload) {
+    const ret = await axios.post(endpoint+"/tick/",payload)
+    return ret.data
   },
-  getProblemDetails(id) {
-    return axios.get(endpoint+"/problem/"+id)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+  async likeProblem(id) {
+    const ret = await axios.post(endpoint+`/problem/${id}/like`)
+    return ret.data
   },
-  searchProblems(payload) {
-    return axios
+  async dislikeProblem(id) {
+    const ret = await axios.post(endpoint+`/problem/${id}/dislike`)
+    return ret.data
+  },
+  async getProblemDetails(id) {
+    const ret = await axios.get(endpoint+"/problem/"+id)
+    return ret.data
+  },
+  async searchProblems(payload) {
+    const ret = await axios
       .post(endpoint + '/problem/search', {
         text: payload.text,
         gymid: payload.gymid,
       })
-    .then((res) => resultHandler(res))
-    .catch((err) => errorHandler(err))
+    return ret.data
+
   },
-  getGyms() {
-    return axios
+  async getGyms() {
+   const ret = await   axios
       .get(endpoint + '/gym')
-    .then((res) => resultHandler(res))
-    .catch((err) => errorHandler(err))
+    return ret.data
   },
-  getProfile(gymid,email) {
+  async getProfile(gymid,email) {
     // Email is sent because this is the first call (usually?) and
     // when we get the auth0 in the backend, we can couple the 
     // user (email) and the auth0 user id for future use
     const url = endpoint + `/profile?gymid=${gymid}&email=${email}`
-    return axios.get(url)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+    const ret = await axios.get(url)
+    return ret.data
   },
-  login( payload) {
+  async login( payload) {
     const url = endpoint + "/api/auth/login"
-    return fetchPost(url, payload)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
-
+    const ret = await fetchPost(url, payload)
+    return ret.data
   },
-  deleteTickByProblem(payload) {
+  async deleteTickByProblem(payload) {
     const url = endpoint + "/tick/byproblem/"+payload
-    return axios.delete(url, payload)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+    const ret = await   axios.delete(url, payload)
+    return ret.data
 
   },
-  deleteTick(payload) {
+  async deleteTick(payload) {
     const url = endpoint + "/tick/"+payload
-    return axios.delete(url, payload)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+    const ret = await axios.delete(url, payload)
+    return ret.data
   },
-  saveTick(payload) {
+  async saveTick(payload) {
     const url = endpoint + "/tick/"
-    return axios.post(url, payload)
-    .then((res) => resultHandler(res))
-    .catch(err => errorHandler(err))
+    const ret = await  axios.post(url, payload)
+    return ret.data
   },
 };
 

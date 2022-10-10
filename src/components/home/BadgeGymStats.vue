@@ -1,12 +1,13 @@
 <template>
+    <h2 class="text-lg font-bold my-1 text-center uppercase">Problem/Route completion status</h2>
     <div v-if="gym != null" class="p-2 border border-gray-700 text-center grid grid-cols-2">
         <div>
-        <div class="font-bold">Boulders</div>
-        <p class="w-3/5 flex mx-auto flex-row justify-between gap-2 text-xl"><span class="text-2xl">{{ percentageBoulders }}%</span> of <span class="text-2xl">{{ totalBoulders }}</span></p>
+            <div class="font-bold">Boulders</div>
+            <p class="w-3/5 flex mx-auto flex-row justify-between gap-2 text-xl"><span class="text-2xl">{{ percentageBoulders }}%</span> of <span class="text-2xl">{{ totalBoulders }}</span></p>
         </div>
         <div>
-        <div class="font-bold">Routes</div>
-        <p class="w-3/5 flex mx-auto flex-row justify-between gap-2 text-xl"><span class="text-2xl">{{ percentageRoutes }}%</span> of <span class="text-2xl">{{ totalRoutes }}</span></p>
+            <div class="font-bold">Routes</div>
+            <p class="w-3/5 flex mx-auto flex-row justify-between gap-2 text-xl"><span class="text-2xl">{{ percentageRoutes }}%</span> of <span class="text-2xl">{{ totalRoutes }}</span></p>
         </div>
         
     </div>
@@ -21,7 +22,7 @@ const { t } = useI18n()
 const props = defineProps({
     gym : Object,
 })
-const profile = useStore('profile')
+const profile = computed(() => store.state.profile)
 const problems = computed(() => store.state.gym.problems)
 
 const percentageRoutes = ref(0)

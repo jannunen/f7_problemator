@@ -12,16 +12,18 @@
   </div>
 </template>
 <script setup>
-    import { useI18n } from 'vue-i18n'
-    import store from '@js/store.js'
-    import { f7ready, f7, useStore } from 'framework7-vue'
-    import { onMounted, computed, ref } from 'vue'
-    import dayjs from 'dayjs'
-    const { t } = useI18n()
-    store.dispatch('getUpcomingCompetitions')
-    const comps = useStore('upcomingcompetitions')
-    const upcomingCount = computed(() => comps.value.upcoming.length)
-    const ongoingCount = computed(() => comps.value.ongoing.length)
+import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
+import { onMounted, computed, ref } from 'vue'
+const store = useStore()
+
+const { t } = useI18n()
+const comps = computed(() => store.state.upcomingcomps)
+if (comps.value.loaded === false) {
+  store.dispatch('getUpcomingCompetitions')
+}
+const upcomingCount = computed(() => comps.value.upcoming.length)
+const ongoingCount = computed(() => comps.value.ongoing.length)
 
 
 </script>

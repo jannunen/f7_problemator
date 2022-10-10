@@ -45,7 +45,8 @@ import { useAuth0 } from '@auth0/auth0-vue';
 
 import { watch, ref } from 'vue'
 import store from '../js/store.js'
-import { f7, useStore } from 'framework7-vue'
+import { onMounted } from 'vue'
+import { f7 } from 'framework7-vue'
 /*
  * This component is a kludge. Framework7 does not use authGuard for its
  * first page, for whatever reason. This just moves the app beyond
@@ -55,24 +56,11 @@ import { f7, useStore } from 'framework7-vue'
 const props = defineProps({
   f7router: Object,
 })
-import { onMounted } from 'vue'
 const { loginWithRedirect, getAccessTokenSilently, logout, user, isAuthenticated } = useAuth0();
-const loginScreenOpened = ref(false)
-const userStore = useStore('user')
 const email = ref('')
 const password = ref('')
 const errorNotification = ref(null)
 
-watch(isAuthenticated, async (newValue, oldValue) => {
-  if (newValue === true) {
-    // Get token and send to api
-    const token = await getAccessTokenSilently();
-    const ret = await store.dispatch('setToken',token)
-    console.log('store -> getProfile')
-    store.dispatch('getProfile')
-    f7.views.main.router.navigate({url : '/home'  });
-  }
-})
 const beforeUnmount = () => {
     if (errorNotification.value != null) {
         errorNotification.value.destroy()

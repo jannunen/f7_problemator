@@ -1,16 +1,17 @@
 <script setup>
-import store from '@js/store.js'
-import { useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
 import dayjs from 'dayjs'
 import RoundBadge from '@components/ui/RoundBadge.vue'
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toaster, alert } from '@js/helpers/notifications.js'
 import PopupGradeOpinion from '@components/problem/GradeOpinion.vue'
 import PopupTickDate from '@components/problem/TickDate.vue'
+const store = useStore()
 
 const { t } = useI18n()
-const grades = useStore('grades')
+const grades = computed(() => store.state.grades)
+
 const props = defineProps({
   opened: { type: Boolean, default: false },
   problem: Object,

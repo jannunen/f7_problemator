@@ -41,11 +41,14 @@
                             <template #media> {{ index + 1 }}. </template>
                             <template #title>
                                 <div class="flex flex-col">
-                                    <div v-if="tick.tries == 1" class="rounded-full font-bold text-yellow-400">
-                                        {{ t('flash') }}
-                                    </div>
-                                    <div v-else class="rounded-full font-bold  text-red-400">
-                                        {{ t('redpoint') }}
+                                    <div class="flex">
+                                        <div v-if="tick.tries == 1" class="rounded-full font-bold text-yellow-400  ">
+                                            {{ t('flash') }}
+                                        </div>
+                                        <div v-else class="rounded-full font-bold  text-red-400  ">
+                                            {{ t('redpoint') }}
+                                        </div>
+                                        <div class="ps-2">@{{ tick.problem.gym.name }}</div>
                                     </div>
                                     <div class="text-sm">{{ t('problem.tick_in_tries', parseInt(tick.tries)) }}</div>
                                 </div>
@@ -69,8 +72,11 @@
                             <template #media> {{ index + 1 }}. </template>
                             <template #title>
                                 <div class="flex flex-col">
-                                    <div class="rounded-full font-bold text-yellow-400">
-                                        {{ t('a burn') }}
+                                    <div class="flex flex-row">
+                                        <div class="rounded-full font-bold text-yellow-400">
+                                            {{ t('a burn') }}
+                                        </div>
+                                        <div class="ps-2">@{{ tick.problem.gym.name }}</div>
                                     </div>
                                     <div class="text-sm">{{ t('problem.tick_in_tries', parseInt(tick.tries)) }}</div>
                                 </div>
@@ -99,8 +105,7 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import store from '@js/store.js'
-import { f7, useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
 import dayjs from 'dayjs'
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
@@ -109,6 +114,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import 'v-calendar/dist/style.css'
 import { Calendar, SetupCalendar, DatePicker } from 'v-calendar'
 import { toaster, alert } from '@js/helpers/notifications.js'
+const store = useStore()
 
 dayjs.extend(relativeTime)
 dayjs.extend(utc)
@@ -117,9 +123,9 @@ const guessed = ref(dayjs.tz.guess())
 dayjs.tz.setDefault(guessed.value)
 const { t } = useI18n()
 const selectedDay = ref(null)
+const tickDates = computed(() => store.state.archive.dates)
+const archive = computed(() => store.state.archive)
 store.dispatch("getTickDates")
-const tickDates = useStore('tickDates')
-const archive = useStore('archive')
 const archiveDate = computed(() => {
     if (archive.value.dateDetails[selectedDay.value]) {
         return archive.value.dateDetails[selectedDay.value]
@@ -170,14 +176,14 @@ const daysWithTicks = computed(() => Object.keys(tickDates.value).reduce((acc, d
 }, []))
 */
 const onProjectDeleted = (tick) => {
-  store.dispatch('deleteProject', tick.id).then((resp) => {
-    toaster(resp.message)
-  })
+    store.dispatch('deleteProject', tick.id).then((resp) => {
+        toaster(resp.message)
+    })
 }
 const onDeleted = (tick) => {
-  store.dispatch('deleteTick', tick.id).then((resp) => {
-    toaster(resp.message)
-  })
+    store.dispatch('deleteTick', tick.id).then((resp) => {
+        toaster(resp.message)
+    })
 }
 const daysWithTicks = computed(() => Object.keys(tickDates.value).reduce((acc, datekey) => {
     const item = tickDates.value[datekey]

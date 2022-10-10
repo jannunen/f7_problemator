@@ -11,9 +11,11 @@ import RightDetails from '@components/problem/RightDetails.vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import store from '@js/store.js'
-import { f7, useStore, f7ready } from 'framework7-vue'
+
+import { useStore } from 'vuex'
+import { f7, f7ready } from 'framework7-vue'
 import { useAuth0 } from '@auth0/auth0-vue';
+const store = useStore()
 const { idTokenClaims, getAccessTokenSilently, loginWithRedirect, logout, user } = useAuth0();
 dayjs.extend(LocalizedFormat)
 dayjs.extend(relativeTime)
@@ -26,8 +28,8 @@ const props = defineProps({
 if (props.id != null) {
   store.dispatch('getProblemDetails', props.id)
 }
-const problems = useStore('problems')
-const isAuthenticated = useStore('isAuthenticated')
+const problems = computed(() => store.state.problems)
+const isAuthenticated = computed(() => store.state.isAuthenticated)
 const onLoginClick = () => {
   f7.views.main.router.navigate({url : '/'  });
 }
@@ -37,7 +39,6 @@ const problem = computed(() => {
   }
   return problems.value[props.id]
 })
-const popupOpened = ref(true)
 
 const openAddTick = () => {
   const url = `/problem/${problem.id}/addtick`

@@ -38,14 +38,15 @@
   </div>
 </template>
 <script setup>
-import store from '@js/store.js'
-import { useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
-import { onMounted, computed, ref } from 'vue'
+import {  computed, ref } from 'vue'
 const { t } = useI18n()
-const gyms = useStore('gyms')
+const store = useStore()
+
+const gyms = computed(() => store.state.gyms)
 store.dispatch('getGyms')
-const gymid = useStore('gymid')
+const gymid = computed(() => store.state.gymid)
 const selectGym = ({ target }) => {
   const idx = target.selectedIndex
   const opt = target[idx]

@@ -12,6 +12,10 @@ import Framework7 from 'framework7/lite-bundle'
 
 // Import F7-Vue Plugin Bundle (with all F7 components registered)
 import Framework7Vue, { registerComponents } from 'framework7-vue/bundle'
+import store from "./store.js";
+console.log(store)
+
+
 
 // Init F7-Vue Plugin
 Framework7.use(Framework7Vue);
@@ -22,7 +26,6 @@ import messages from './i18n/messages'
 import { createI18n } from 'vue-i18n'
 import { jwtInterceptor } from '@js/helpers';
 
-
 // enable interceptors for http requests
 jwtInterceptor();
 //errorInterceptor();
@@ -32,6 +35,7 @@ const app = createApp(App);
 
 // Register all Framework7 Vue components
 registerComponents(app);
+app.use(store);
 
 const i18n = createI18n({
   legacy: false, // you must set `false`, to use Composition API

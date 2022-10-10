@@ -14,13 +14,15 @@
     </div>
 </template>
 <script setup>
-import { useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
+const store = useStore()
 
 const oma = ref([])
 const { t } = useI18n()
-const walls = useStore('walls')
+const walls = computed(() => store.state.walls)
+
 const wallsDropdown = computed(() => {
   return walls.value.map(a => ({id : a.id, label : a.wallchar +" "+ a.walldesc }))
 })

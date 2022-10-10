@@ -92,18 +92,17 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import store from '@js/store.js'
-import { f7ready, f7, useStore } from 'framework7-vue'
-import { onMounted, computed, ref } from 'vue'
+import { useStore } from 'vuex'
 import CompetitionRegisterInfo from '@components/comps/CompetitionRegisterInfo.vue'
-import dayjs from 'dayjs'
 import { confirm, toaster } from '@helpers/notifications.js'
+const store = useStore()
+
 const { t } = useI18n()
 const props = defineProps({
   comp: Object,
 })
 const isCategoryFull = (cat) => cat.maxparticipants - cat.participants.length <= 0
-const user = useStore('user')
+const user = computed(() => store.state.user)
 const getPaymentLink = (cat) => {
     return `https://www.problemator.fi/t/problemator/competitions/payment/${cat.compid}?contid=${user.id}`
 }

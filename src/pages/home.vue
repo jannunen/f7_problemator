@@ -5,7 +5,7 @@
       </f7-nav-left>
       <f7-nav-title>Problemator</f7-nav-title>
       <f7-nav-right>
-        <f7-link @click.prevent="store.dispatch('setSidePanel', true)">
+        <f7-link @click.prevent="store.commit('setSidePanel', true)">
             <f7-icon
                 md="material:menu"
                 aurora="f7:menu"
@@ -34,7 +34,8 @@
       <!-- If profile is not yet loaded -->
       <!-- If should show preloader, show only if gym IS selected -->
       <div v-if="accessToken != null">
-        <div v-if="!gymSelectorOpen">
+      {{ profileLoaded}}
+        <div v-if="!profileLoaded">
           Profile not loaded<br />
           <f7-preloader class="my-2"></f7-preloader>
           <br />
@@ -51,17 +52,19 @@
         </div>
       </div>
       <div v-else class="flex flex-col justify-center">
+          <!-- Show this only when not loading stuff... -->
            
-          <h1 class="text-3xl text-white font-bold">Problemator</h1>
-          <!--<img class="w-3/5 mx-auto" src="images/problemator_logo_new.png" alt="metacritic" />-->
-          <p>
-            You are not logged in, please click the login or register button below
-          </p>
-          <f7-button
-            class="btn-primary"
-            @click="loginWithRedirect()"
-            >{{ t('Login / Register') }}</f7-button >
+            <!--
+            <h1 class="text-3xl text-white font-bold">Problemator</h1>
+            <p>
+              You are not logged in, please click the login or register button below
+            </p>
+            <f7-button
+              class="btn-primary"
+              @click="loginWithRedirect()"
+              >{{ t('Login / Register') }}</f7-button >
           
+          -->
 
       </div>
     </div>
@@ -91,6 +94,12 @@ import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import { useAuth0 } from '@auth0/auth0-vue'
+import { toaster } from '@helpers/notifications.js'
+import { onMounted , computed} from 'vue'
+import { useI18n } from 'vue-i18n'
+import { watch } from 'vue'
+import { ref } from 'vue'
+import { useStore } from 'vuex'
 const {
   idTokenClaims,
   getAccessTokenSilently,
@@ -98,20 +107,12 @@ const {
   logout,
   user,
 } = useAuth0()
-import { toaster } from '@helpers/notifications.js'
-import { onMounted } from 'vue'
-import { useI18n } from 'vue-i18n'
-import { watch } from 'vue'
-import { ref } from 'vue'
-import store from '@js/store.js'
-import { useStore } from 'framework7-vue'
-const profile = useStore('profile')
-const accessToken = useStore('access_token')
-const sidePanelOpen = useStore('sidePanelOpen')
-const gym = useStore('gym')
-const gymid = useStore('gymid')
+const store = useStore()
+const profile = computed(() => store.state.profile)
+const accessToken = computed(() => store.state.access_token)
+const gym = computed(() => store.state.gym)
+const gymid = computed(() => store.state.gymid)
 const isOpened = ref(false)
-const initializing = useStore('initializing')
 const { t } = useI18n()
 const props = defineProps({
   f7router: Object,
@@ -121,8 +122,8 @@ watch(gym, (newValue, oldValue) => {
     toaster('The gym has been changed!')
   }
 })
-const profileLoaded = useStore('profileLoaded')
-const isAuthenticated = useStore('isAuthenticated')
+const profileLoaded = computed(() => store.state.profileLoaded)
+const isAuthenticated = computed(() => store.state.isAuthenticated)
 const gymSelectorOpen = ref(false)
 const onSearchSheetClosed = () => {
   isOpened.value = false
@@ -148,12 +149,5 @@ const onStartNavigate = (problem) => {
   })
 }
 
-onMounted(() => {
-  // wait for auth and then load profile
-  watch(isAuthenticated, (newValue, oldValue) => {
-    console.log("home.vue isauth",isAuthenticated)
-    store.dispatch('getProfile', { user })
-  })
-})
 
 </script>

@@ -17,9 +17,10 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import store from '@js/store.js'
-import { f7ready, f7, useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
+const store = useStore()
 const { t } = useI18n()
 const props = defineProps({
     comp : Object,

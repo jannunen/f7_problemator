@@ -71,8 +71,7 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
-import store from '@js/store.js'
-import { useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
 import { getTagShort } from '@js/helpers'
 import { ref, computed } from 'vue'
 import  { confirm } from '@js/helpers/notifications.js'
@@ -81,6 +80,7 @@ import RoundBadge from '@components/ui/RoundBadge.vue'
 import PopupListTicks from '@components/ui/problem/TickList.vue'
 import { getSessionCount } from '@helpers/component.helpers.js'
 import { useAuth0 } from '@auth0/auth0-vue';
+const store = useStore()
 const { idTokenClaims, getAccessTokenSilently, loginWithRedirect, logout, user, isAuthenticated } = useAuth0();
 
 const { t } = useI18n()

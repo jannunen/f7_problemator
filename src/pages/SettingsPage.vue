@@ -1,14 +1,15 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { ref, watch, onMounted } from 'vue'
-import { useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
 import { toaster, alert } from '@js/helpers/notifications.js'
-import store from '../js/store.js'
+const store = useStore()
 const { t } = useI18n()
 const props = defineProps({
   f7router: Object,
 })
-const profile = useStore('profile')
+const profile = computed(() => store.state.profile)
+
 const genders = ref([
     { id : 'm', name : 'male' },
     { id : 'f', name : 'female' },

@@ -6,6 +6,9 @@
     </f7-navbar>
     <f7-block>
       <f7-list media-list>
+        <f7-list-item v-if="comps.ongoing.length == 0">
+         {{ t('comps.No ongoing competitions currently') }}
+        </f7-list-item>
         <f7-list-item
           v-for="comp in comps.ongoing"
           :key="comp.id"
@@ -17,8 +20,8 @@
             <div v-html="getCompText(comp)"></div>
           </template>
           <template #subtitle>
-            {{ comp.location }}
-            <span v-if="comp.participates">{{ t('comps.you_are_registered') }}</span>
+            {{ comp.location }} <span v-if="comp.participates">{{ t('comps.you_are_registered') }}</span>
+            <span class="text-green-500" v-if="comp.isjudge">{{ t('comps.you_are_a_judge') }}</span>
             <span v-else>
                 <div class="text-orange-400 font-bold">{{ t('comps.not_registered') }}</div>
                 <span v-if="isRegistrationPossible(comp)">
@@ -34,11 +37,11 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import store from '@js/store.js'
-import { f7, useStore } from 'framework7-vue'
-import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
+import { computed} from 'vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
+const store = useStore()
 dayjs.extend(relativeTime)
 const { t } = useI18n()
 const isRegistrationPossible = (comp) => dayjs().isBefore(dayjs(comp.registration_end)) 
@@ -49,13 +52,15 @@ const getCompText = (comp) => {
   }<br />${t('comps.comp_time_ends_in')} ${left}`
 }
 const getLink = (comp) => {
-  if (isRegistrationPossible(comp)) {
+  if (comp.isjudge || isRegistrationPossible(comp)) {
     return `/competitions/` + comp.id
   } else {
     return null
   }
 }
-const comps = useStore('upcomingcompetitions')
+
+const comps = computed(() => store.state.upcomingcomps)
+
 if (comps.value.loaded === false) {
   store.dispatch('getUpcomingCompetitions')
 }

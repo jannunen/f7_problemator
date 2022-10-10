@@ -100,10 +100,11 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useAuth0 } from '@auth0/auth0-vue'
-import { f7, useStore } from 'framework7-vue'
-import { ref, watch} from 'vue'
-import store from '@/js/store.js'
+import { useStore } from 'vuex'
+import { f7  } from 'framework7-vue'
+import { ref, watch, computed} from 'vue'
 import $ from 'dom7'
+const store = useStore()
 
 const { t } = useI18n()
 const {
@@ -117,13 +118,13 @@ const darkMode = localStorage.getItem('dark') === 'true'
 const localDarkMode = ref(darkMode)
 
 const openSettings = () => {
- store.dispatch('setSelectedLeftPanelItem', 'settings')
- store.dispatch('setSidePanel', false)
+ store.commit('setSelectedLeftPanelItem', 'settings')
+ store.commit('setSidePanel', false)
  f7.views.main.router.navigate("/settings")
 }
 const openArchive = () => {
- store.dispatch('setSelectedLeftPanelItem', 'archive')
- store.dispatch('setSidePanel', false)
+ store.commit('setSelectedLeftPanelItem', 'archive')
+ store.commit('setSidePanel', false)
  f7.views.main.router.navigate("/archive")
 }
 
@@ -143,12 +144,13 @@ watch(localDarkMode, (isDarkTheme, oldValue) => {
 
 
 const doLogout = () => {
-  store.dispatch('setSelectedLeftPanelItem', 'logout')
-  store.dispatch('isAuthenticated', false)
+  store.commit('setSelectedLeftPanelItem', 'logout')
+  store.commit('isAuthenticated', false)
   logout()
 }
-const sidePanelOpen = useStore('sidePanelOpen')
-const selectedItem = useStore('selectedLeftPanelItem')
+const sidePanelOpen = computed(() => store.state.sidePanelOpen)
+const selectedItem = computed(() => store.state.selectedItem)
+
 </script>
 
 <style></style>

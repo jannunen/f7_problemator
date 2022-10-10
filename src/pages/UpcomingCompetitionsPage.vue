@@ -11,13 +11,13 @@
           :key="comp.id"
           :link="getLink(comp)"
           :title="comp.name"
-          :after="comp.compdate"
+          :after="comp.location"
         >
         <template #text>
           <div v-html="getCompText(comp)"></div>
         </template>
         <template #subtitle>
-          {{ comp.location }}
+          @{{ comp.compdate }}
           <span v-if="comp.participates" class="font-bold text-green-500">{{ t('comps.you_are_registered') }}</span>
           <span v-else-if="comp.participatesunpaid" class="font-bold text-red-500">{{ t('comps.you_are_registered_not_paid') }}</span>
           <span v-else>
@@ -32,16 +32,19 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import store from '@js/store.js'
-import { f7, useStore } from 'framework7-vue'
+import { useStore } from 'vuex'
+import relativeTime from 'dayjs/plugin/relativeTime'
 import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
+const store = useStore()
 const { t } = useI18n()
 const isRegistrationPossible = (comp) => dayjs().isBefore(dayjs(comp.registration_end)) 
+dayjs.extend(relativeTime)
 
 const getCompText = (comp) => {
     if (isRegistrationPossible(comp)) {
         return `${t('comps.registration_ends')} ${comp.registration_end}`
+        + ". " + t('comps.thats') +" "+ dayjs(comp.registration_end).fromNow()
     } else {
         return `<strong>${t('comps.registration_has_ended')}</strong>`
     }
@@ -53,7 +56,8 @@ const getLink = (comp) => {
         return null
     }
 }
-const comps = useStore('upcomingcompetitions')
+const comps = computed(() => store.state.upcomingcomps)
+
 if (comps.value.loaded === false) {
   store.dispatch('getUpcomingCompetitions')
 }

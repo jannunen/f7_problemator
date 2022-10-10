@@ -27,10 +27,10 @@
 
     <div
       v-if="hits.length > 0"
-      class="relative m-2 border-2 border-black bg-white w-11/12 h-1/2"
+      class="absoluet m-2 border-2 border-black bg-white w-11/12 h-1/2"
     >
       Choose a contender
-      <ul>
+      <ul class="">
         <li
           v-for="hit in hits"
           :key="hit.id"
@@ -46,7 +46,7 @@
 
     <div class="flex flex-col my-2 " >
       
-        <div v-if="comp.problems.length == 0" class=" ">
+        <div v-if="comp.problems.length == 0" class="font-bold py-4 px-2 bg-red-400 border border-2 border-red-700 m-1">
           You don't have any routes yet! Go to <strong>routes</strong> and edit route to
           set the route type
         </div>
@@ -136,47 +136,18 @@
       <div id="timer_started"></div>
       <div id="timer_now"></div>
       <div class="flex flex-row justify-center">
-        <button
-          @click="timerStart"
-          class="border border-black mx-1 px-2 py-1 text-sm bg-green-500"
-          type="button"
-          id="timer_start"
-        >
-          Start
-        </button>
-        <button
-          @click="timerStop"
-          class="border border-black mx-1 px-2 py-1 text-sm bg-orange-500"
-          type="button"
-          id="timer_stop"
-        >
-          Stop
-        </button>
-        <button
-          @click="timerReset"
-          class="border border-black mx-1 px-2 py-1 text-sm bg-red-500"
-          type="button"
-          id="timer_reset"
-        >
-          Reset
-        </button>
+        <button @click="timerStart" class="border border-black mx-1 px-2 py-1 text-sm bg-green-500" type="button" id="timer_start" > Start </button>
+        <button @click="timerStop" class="border border-black mx-1 px-2 py-1 text-sm bg-orange-500" type="button" id="timer_stop" > Stop </button>
+        <button @click="timerReset" class="border border-black mx-1 px-2 py-1 text-sm bg-red-500" type="button" id="timer_reset" > Reset </button>
       </div>
     
     <br />
 
     <div class="mt-5 mb-1 py-1 flex flex-col">
-      <button @click="addSportAscent" class="button px-8 py-3 my-1" type="button">
-        Add ascent
-      </button>
-      <button
-        @click="() => fetchAscents(comp.id, contid)"
-        class="text-blue-400 px-8 py-3 my-1"
-        type="button"
-      >
-        Fetch ascents
-      </button>
+      <button @click="addSportAscent" class="button px-8 py-3 my-1" type="button"> Add ascent </button>
+      <button @click="() => fetchAscents(comp.id)" class="text-blue-400 px-8 py-3 my-1" type="button"> Fetch ascents </button>
     </div>
-      <ul class="my-2">
+      <ul v-if="ascents.length > 0" class="my-2">
         <li
           v-for="asc in ascents"
           :key="asc.id"
@@ -191,13 +162,14 @@
           </div>
         </li>
       </ul>
+      <div v-else class="text-center">No ascents fetched</div>
     
   </f7-block>
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
 import useDebouncedRef, { debounce } from '@helpers/debouncedRef.js'
-import axios from 'axios'
+import { toaster, alert } from '@js/helpers/notifications.js'
 import { computed, onMounted, ref } from 'vue'
 import api from '@js/api.js';
 const { t } = useI18n()
@@ -210,33 +182,23 @@ const props = defineProps({
   comp: Object,
 })
 const removeAscent = (tickid) => {
-  const url =
-    apiurl +
-    '/t/problemator/competitions/problem/del_ascent/?tickid=' +
-    tickid +
-    '&compid=' +
-    props.comp.id +
-    '&spessukey=jekkukey'
-  axios
-    .get(url)
-    .then((r) => r.data)
-    .then((data) => {
-      fetchAscents(props.comp.id, contid.value)
-    })
+  const payload = {
+    compid : props.comp.id,
+    tickid
+  }
+  api.removeCompAscent(payload)
+  .then((ret) => {
+      fetchAscents(props.comp.id)
+  })
 }
-const fetchAscents = () => {
-  const url =
-    apiurl +
-    '/t/problemator/competitions/contender/_list_points/?format=json&contid=' +
-    contid.value +
-    '&compid=' +
-    props.comp.id +
-    '&spessukey=jekkukey'
-  axios
-    .get(url)
-    .then((r) => r.data)
+const fetchAscents = (compid ) => {
+  const payload = {
+    compid ,
+    contenderid  : contid.value
+  }
+    api.fetchCompAscents(payload)
     .then((data) => {
-      ascents.value = Object.keys(data.points).map((key) => data.points[key])
+      ascents.value = data
     })
 }
 const apiurl = 'https://www.problemator.fi'
@@ -261,15 +223,15 @@ const addSportAscent = () => {
   }
   const params = {
     contender: contid.value,
-    routeid: routeid.value,
+    problemid: [routeid.value],
     sport_points: sportPoints.value,
     sport_timer_secs : sportTimerSecs,
     comp_id: props.comp.id,
   }
 
     api.addCompAscent(params)
-    .then((data) => {
-      //ascents.value = Object.keys(data.points).map((key) => data.points[key])
+    .then((ret) => {
+      ascents.value = ret.ascents
     })
     .catch((err) => {
       alert(err)

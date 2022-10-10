@@ -18,22 +18,26 @@
 }
 </style>
 <script setup>
-import store from '@js/store.js'
-import { computed,onMounted,ref } from 'vue'
-import {useStore} from 'framework7-vue'
-import axios from 'axios'
+import { watch, computed,onMounted,ref } from 'vue'
+import { useStore } from 'vuex'
 import BoulderJudging from './BoulderJudging.vue'
 import SportJudging from './SportJudging.vue'
 import { useI18n } from 'vue-i18n'
-import dayjs from 'dayjs'
-import { confirm, toaster } from '@helpers/notifications.js'
+const store = useStore()
 const { t } = useI18n()
 
 const props = defineProps({
   compid : Number,
 })
-const comp = useStore('competition')
-store.dispatch('getCompetition',props.compid)
+const comp = computed(() => store.state.competition)
+const isAuthenticated = computed(() => store.state.isAuthenticated)
+
+watch(isAuthenticated, (newValue) => {
+  if (newValue) {
+    store.dispatch('getCompetition',props.compid)
+  }
+})
+
 const showCollapse = ref(false)
 const routeIds = ref()
 const sic = ref(null)
