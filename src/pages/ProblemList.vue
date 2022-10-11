@@ -8,45 +8,52 @@
     </f7-navbar>
     <f7-block>
       <div v-if="unfilteredProblemsExist">
-        <div class="my-0 mx-2">
-          <h2 class="uppercase text-xl my-2 font-bold">
-            {{ t('problemlist.gradefilter') }}
-          </h2>
-          <ul class="my-0">
-            <li :title="t('problemlist.filters')">
-              <grade-filter :min="filters.gradeMin" :max="filters.gradeMax" :grades="grades" @min="minChanged" @max="maxChanged"></grade-filter>
 
-              <h2 class="uppercase text-xl my-2 font-bold">
-                {{ t('problemlist.stylefilter') }}
-              </h2>
-              <style-filter @styles-changed="onStylesChanged" :styles="styles" :selected-styles="filters.styles"></style-filter>
-              <h2 class="uppercase text-xl my-2 font-bold">
-                {{ t('problemlist.sortby') }}
-              </h2>
-              <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
-            </li>
-            <li>
-              <h2 class="uppercase text-xl mt-2 p-0 font-bold">
-                {{ t('problemlist.wallfilter') }}
-              </h2>
-              <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
-            </li>
-              <h2 class="uppercase text-xl mt-2 p-0 font-bold">
-                {{ t('problemlist.ascent_status_filter') }}
-              </h2>
-               <ascent-status-filter v-model="ascentTypeFilter" />
-            <f7-list no-hairlines-md>
-              <h2 class="uppercase text-xl my-2 font-bold">
-                {{ t('problemlist.problemnamefilter') }}
-              </h2>
-              <f7-list-input type="text" :placeholder="t('Filter by problem name')" v-model:value="nameFilter" clear-button></f7-list-input>
-            </f7-list>
+        <f7-list accordion-list>
+          <f7-list-item accordion-item title="Show filters">
+            <f7-accordion-content>
+              <div class="my-0 mx-2">
+                <h2 class="uppercase text-xl my-2 font-bold">
+                  {{ t('problemlist.gradefilter') }}
+                </h2>
+                <ul class="my-0">
+                  <li :title="t('problemlist.filters')">
+                    <grade-filter :min="filters.gradeMin" :max="filters.gradeMax" :grades="grades" @min="minChanged" @max="maxChanged"></grade-filter>
 
-            <button @click="store.dispatch('resetFilters')" class="button bg-red-500 text-white my-2">
-              {{ t('problemlist.reset_filters') }}
-            </button>
-          </ul>
-        </div>
+                    <h2 class="uppercase text-xl my-2 font-bold">
+                      {{ t('problemlist.stylefilter') }}
+                    </h2>
+                    <style-filter @styles-changed="onStylesChanged" :styles="styles" :selected-styles="filters.styles"></style-filter>
+                    <h2 class="uppercase text-xl my-2 font-bold">
+                      {{ t('problemlist.sortby') }}
+                    </h2>
+                    <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
+                  </li>
+                  <li>
+                    <h2 class="uppercase text-xl mt-2 p-0 font-bold">
+                      {{ t('problemlist.wallfilter') }}
+                    </h2>
+                    <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
+                  </li>
+                  <h2 class="uppercase text-xl mt-2 p-0 font-bold">
+                    {{ t('problemlist.ascent_status_filter') }}
+                  </h2>
+                  <ascent-status-filter v-model="ascentTypeFilter" />
+                  <f7-list no-hairlines-md>
+                    <h2 class="uppercase text-xl my-2 font-bold">
+                      {{ t('problemlist.problemnamefilter') }}
+                    </h2>
+                    <f7-list-input type="text" :placeholder="t('Filter by problem name')" v-model:value="nameFilter" clear-button></f7-list-input>
+                  </f7-list>
+
+                  <button @click="store.dispatch('resetFilters')" class="button bg-red-500 text-white my-2">
+                    {{ t('problemlist.reset_filters') }}
+                  </button>
+                </ul>
+              </div>
+            </f7-accordion-content>
+          </f7-list-item>
+        </f7-list>
 
         <div v-if="filteredProblems.length > 0">
           <div class="font-bold my-1 text-center">
@@ -64,7 +71,7 @@
           </div>
 
 
-          <f7-list media  class="my-0">
+          <f7-list media class="my-0">
             <div v-for="(problem, idx) in filteredProblems" :key="problem.id">
               <li v-if="filters.sort.match(/sector/) && wallNamesDiffer(idx)" class="list-group-title">
                 <h3>{{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }}</h3>
@@ -129,9 +136,9 @@ const store = useStore()
 dayjs.extend(relativeTime)
 
 const props = defineProps({
-  areaSelected : {
-    type : Object,
-    default : null
+  areaSelected: {
+    type: Object,
+    default: null
   },
   wall: {
     type: String,
@@ -145,11 +152,11 @@ onMounted(() => {
   // The areaSelected is an object, which has the wall name as title.
   // So resolve the wall ids based on the wall name.
   if (props.areaSelected !== null) {
-     const wallChar = props.areaSelected.title
-     const wall = walls.value.find(x => x.wallchar === wallChar)
-     if (wall !== null) {
-       selectedWalls.value = [wall.id]
-     }
+    const wallChar = props.areaSelected.title
+    const wall = walls.value.find(x => x.wallchar === wallChar)
+    if (wall !== null) {
+      selectedWalls.value = [wall.id]
+    }
   }
 })
 const { t, d, locale } = useI18n()
@@ -194,14 +201,14 @@ const sortedWalls = computed(() => {
 */
 
 const minChanged = debounce((value) => {
-  store.dispatch('setFilterGradeMin', value)
-})
+  store.commit('setFilterGradeMin', value)
+},100)
 const maxChanged = debounce((value) => {
-  store.dispatch('setFilterGradeMax', value)
-})
+  store.commit('setFilterGradeMax', value)
+},100)
 const onStylesChanged = (changedStyles) => {
   // set active filters.
-  store.dispatch('setFilterStyles', changedStyles)
+  store.commit('setFilterStyles', changedStyles)
 }
 const filteredProblems = computed(() => {
   let probs = Object.keys(problems.value).map(key => problems.value[key])
@@ -227,12 +234,12 @@ const filteredProblems = computed(() => {
     const filter = nameFilter.value.toLowerCase()
     probs = probs.filter((prob) => prob.tag.toLowerCase().indexOf(filter) != -1)
   }
-  
+
   // AscentTypeFilter
   if (ascentTypeFilter.value != "all") {
     const projectIDArray = tries.value.map(i => i.problemid)
     const climbedIDArray = ticks.value.map(i => i.problemid)
-    probs = probs.filter((prob) =>  {
+    probs = probs.filter((prob) => {
       if (ascentTypeFilter.value == 'projects') {
         // The problem is a project AND NOT ticked..
         return projectIDArray.includes(prob.id) && !climbedIDArray.includes(prob.id)
@@ -264,7 +271,7 @@ const filteredProblems = computed(() => {
   return probs
 })
 const onSortChanged = (sort) => {
-  store.dispatch('setFilterSort', sort)
+  store.commit('setFilterSort', sort)
   // TODO: Save to localStorage
 }
 
@@ -300,7 +307,7 @@ const gradesDiffer = (idx) => {
 }
 const resetFilters = () => {
   nameFilter.value = ''
-  store.dispatch('resetFilters')
+  store.commit('resetFilters')
   selectedWalls.value = []
 }
 const getSelectedWallNames = computed(() => {
@@ -309,4 +316,6 @@ const getSelectedWallNames = computed(() => {
   })
 })
 </script>
-<style></style>
+<style>
+
+</style>
