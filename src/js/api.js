@@ -61,6 +61,10 @@ const resultHandler = async (res) => {
   return json
 }
 const api = {
+  async getCompResults(payload) {
+    const ret = await axios.get(endpoint+"/competitions/"+payload+"/results/?json=true")
+    return ret.data
+  },
   async getPointsPerRoute(payload) {
     const ret = await axios.get(endpoint+"/competitions/"+payload+"/points_per_route")
     return ret.data

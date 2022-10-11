@@ -25,6 +25,7 @@ export default createStore({
       darkMode : true,
     },
     competition : null,
+    compResults : null,
     upcomingcomps : {
       loaded : false,
       upcoming : [],
@@ -64,6 +65,9 @@ export default createStore({
     },
   },
   mutations: {
+    compResults(state, payload) {
+      state.compResults = payload
+    },
     updatePointsPerRoute(state, payload) {
       state.competition.points_per_route = payload.points
     },
@@ -225,6 +229,11 @@ export default createStore({
     async deleteProject({ commit, state}, payload) {
       const ret = await api.deleteProject(payload)
       commit('problems', {...state.problems,[ret.problem.id] : ret.problem})
+    },
+     async getCompResults({ commit }, payload) {
+      const ret = await api.getCompResults(payload.compid)
+      commit('compResults',ret)
+      return ret
     },
      async getPointsPerRoute({ commit }, payload) {
       const ret = await api.getPointsPerRoute(payload.compid)
