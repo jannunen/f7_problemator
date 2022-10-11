@@ -46,9 +46,9 @@
                     <f7-list-input type="text" :placeholder="t('Filter by problem name')" v-model:value="nameFilter" clear-button></f7-list-input>
                   </f7-list>
 
-                  <button @click="store.dispatch('resetFilters')" class="button bg-red-500 text-white my-2">
+                  <p-button @click="store.dispatch('resetFilters')" class=" bg-red-500 text-white my-2">
                     {{ t('problemlist.reset_filters') }}
-                  </button>
+                  </p-button>
                 </ul>
               </div>
             </f7-accordion-content>
@@ -78,7 +78,7 @@
               </li>
               <li v-if="filters.sort.match(/routesetter/) && routesettersDiffer(idx)" class="list-group-title">
                 <h3>
-                  {{ problem.author }}
+                  {{ problem.author.etunimi }} {{ left(problem.author.sukunimi ,1) }}.
                   <small>({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small>
                 </h3>
               </li>
@@ -116,13 +116,14 @@
 import { ref, computed, onMounted, toRefs } from 'vue'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
 
-import { getRandom } from '@js/helpers'
+import { left, getRandom } from '@js/helpers'
 import WallSelector from '@components/ui/problemlist/WallSelector.vue'
 import { maxSnap } from '@js/constants.js'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import GradeFilter from '@components/ui/problemlist/GradeFilter.vue'
 import StyleFilter from '@components/ui/problemlist/StyleFilter.vue'
+import PButton from '@components/PButton.vue'
 import AscentStatusFilter from '@components/ui/problemlist/AscentStatusFilter.vue'
 import SortBy from '@components/ui/problemlist/SortBy.vue'
 import dayjs from 'dayjs'

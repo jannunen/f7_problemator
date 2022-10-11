@@ -87,6 +87,7 @@ const messages = {
             boulder: 'Boulder',
         },
         problemlist: {
+            ascent_status_filter : 'Ascent status',
             wallfilter: 'Wall filtering',
             problemnamefilter: 'Problem name filtering',
             sort_problems_by: 'Sort problems',

@@ -22,10 +22,10 @@ const sortFunctions = {
         return dayjs(a.added)-dayjs(b.added)
     },
     'routesetter_asc': (a, b) => {
-        return a.author.localeCompare(b.author)
+        return a.author.etunimi.localeCompare(b.author.etunimi)
     },
     'routesetter_desc': (b, a) => {
-        return a.author.localeCompare(b.author)
+        return a.author.etunimi.localeCompare(b.author.etunimi)
     },
     'hardest': (a, b) => {
         return parseInt(b.grade.score) - parseInt(a.grade.score)
@@ -35,10 +35,10 @@ const sortFunctions = {
         return parseInt(a.grade.score) - parseInt(b.grade.score)
     },
     'most_ticks': (a, b) => {
-        return parseInt(b.ascentCount) - parseInt(a.ascentCount)
+        return parseInt(b.ascents_count) - parseInt(a.ascents_count)
     },
     'least_ticks': (a, b) => {
-        return parseInt(a.ascentCount) - parseInt(b.ascentCount)
+        return parseInt(a.ascents_count) - parseInt(b.ascents_count)
     },
     'best': (a, b) => {
         return parseInt(b.c_like)-parseInt(a.c_like)

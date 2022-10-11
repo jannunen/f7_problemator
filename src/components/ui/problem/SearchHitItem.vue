@@ -15,7 +15,7 @@
     </template>
 
     <template #header>
-      <small> {{ problem.ascentCount }} {{ t('home.ascents') }}</small>
+      <small> {{ problem.ascents_count }} {{ t('home.ascents') }}</small>
     </template>
 
     <template #inner-end>
