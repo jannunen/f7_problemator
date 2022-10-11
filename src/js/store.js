@@ -65,6 +65,9 @@ export default createStore({
     },
   },
   mutations: {
+    setSelectedSidePanelItem (state, payload) {
+      state.selectedLeftPanelItem = payload
+    },
     compResults(state, payload) {
       state.compResults = payload
     },

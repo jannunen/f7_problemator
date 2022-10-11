@@ -2,7 +2,7 @@
   <f7-panel
     left
     v-model:opened="sidePanelOpen"
-    @panel:close="store.dispatch('setSidePanel', false)"
+    @panel:close="store.commit('setSidePanel', false)"
   >
     <f7-view>
       <f7-page>
@@ -12,7 +12,7 @@
             link
             title="Home"
             :selected="selectedItem === 'home'"
-            @click="() => store.dispatch('setSelectedLeftPanelItem', 'home')"
+            @click="() => store.commit('setSelectedLeftPanelItem', 'home')"
           >
             <template #media>
               <f7-icon md="material:home" aurora="f7:house_fill" ios="f7:house_fill" />
