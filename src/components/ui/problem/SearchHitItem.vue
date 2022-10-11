@@ -19,7 +19,7 @@
     </template>
 
     <template #inner-end>
-       <p-badge>{{ t('home.by') }} {{ problem.author.etunimi }} {{ left(problem.author.sukunimi,1) }}.</p-badge>
+       <p-badge>{{ t('home.by') }} {{ problem.author?.etunimi }} {{ left(problem.author?.sukunimi,1) }}.</p-badge>
     </template>
 
 

@@ -11,6 +11,7 @@ import RightDetails from '@components/problem/RightDetails.vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
+import ListStyles from '@components/ui/problem/ListStyles.vue'
 
 import { useStore } from 'vuex'
 import { f7, f7ready } from 'framework7-vue'
@@ -48,19 +49,6 @@ const openAddTick = () => {
 <template>
   <div v-if="problem != null && problem.id != null">
     <div class="m-0 p-0">
-      <!-- Details title -->
-      <h2 class="flex flex-row justify-center font-bold text-xl">
-        <span v-if="problem.routetype == 'sport'">
-          {{ t('problem.route ') }}
-        </span>
-        <span v-else>
-          {{ t('problem.problem') }}
-        </span>
-        &nbsp;{{ getTagShort(problem.tag) }}
-        <small class="mx-2 pt-1 text-sm text-gray-700"
-          ><small>#{{ problem.id }}</small></small
-        >
-      </h2>
 
       <!-- problem details -->
       <div class="grid grid-cols-3 gap-4 my-3">

@@ -3,10 +3,6 @@
     <h1 class="text-4xl p-2 m-1">{{ problem.grade.name }}</h1>
     <round-badge :width="32" :bgColor="problem.colour.code"></round-badge>
     <div class="my-2">{{ getTagShort(problem.tag) }}</div>
-    <div class="mt-2 text-sm font-bold" 
-      >{{ t('problem.attributes') }}
-    </div>
-    <list-styles class="my-2" :styles="problem.styles"></list-styles>
     <div class="my-2 text-sm font-bold">
       {{ t('problem.ascents', problem.ascentCount) }}
     </div>
@@ -32,7 +28,7 @@
     </div>
 
     <!-- show ticked if so -->
-    <div class="my-2" v-if="problem.myTicks != null && problem.myTicks.length > 0">
+    <div class="my-2" v-if="isMyTick(problem.id) || isMyProject(problem.id)">
       <div class="bg-green-500 px-2 py-1 text-white text-center text-xs rounded-full">
         {{ t('problem.ticked') }}
         <div size="12px" material="check"></div>
@@ -75,7 +71,6 @@ import { useStore } from 'vuex'
 import { getTagShort } from '@js/helpers'
 import { ref, computed } from 'vue'
 import  { confirm } from '@js/helpers/notifications.js'
-import ListStyles from '@components/ui/problem/ListStyles.vue'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 import PopupListTicks from '@components/ui/problem/TickList.vue'
 import { getSessionCount } from '@helpers/component.helpers.js'
@@ -88,6 +83,15 @@ const props = defineProps({
   problem: Object,
 })
 const emit = defineEmits(['open-my-ticks'])
+const ticks = computed(() => store.state.alltime.ticks)
+const tries = computed(() => store.state.alltime.tries)
+
+const isMyProject = (pid) => {
+  return tries.value.find(x => x.problemid == pid)
+}
+const isMyTick = (pid) => {
+  return ticks.value.find(x => x.problemid == pid)
+}
 const myTicksPopupOpen = ref(false)
 const askLike = () => {
   confirm(t('global.are_you_sure'),t('problem.confirm_like'),() => {

@@ -157,7 +157,8 @@ const problems = computed(() => store.state.problems)
 const walls = computed(() => store.state.walls)
 const grades = computed(() => store.state.grades)
 
-const profile = computed(() => store.state.profile)
+const ticks = computed(() => store.state.alltime.ticks)
+const tries = computed(() => store.state.alltime.tries)
 const selectedWalls = ref([])
 const filters = computed(() => store.state.filters)
 const nameFilter = ref('')
@@ -229,8 +230,8 @@ const filteredProblems = computed(() => {
   
   // AscentTypeFilter
   if (ascentTypeFilter.value != "all") {
-    const projectIDArray = profile.value.info.projects.map(i => i.problemid)
-    const climbedIDArray = profile.value.info.ticked.map(i => i.problemid)
+    const projectIDArray = tries.value.map(i => i.problemid)
+    const climbedIDArray = ticks.value.map(i => i.problemid)
     probs = probs.filter((prob) =>  {
       if (ascentTypeFilter.value == 'projects') {
         // The problem is a project AND NOT ticked..

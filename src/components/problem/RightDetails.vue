@@ -1,8 +1,26 @@
 <template>
   <div class="col-span-2 px-4 py-1">
+      <!-- Details title -->
+      <h2 class="flex flex-row justify-center font-bold text-xl">
+        <span v-if="problem.routetype == 'sport'">
+          {{ t('problem.route ') }}
+        </span>
+        <span v-else>
+          {{ t('problem.problem') }}
+        </span>
+        &nbsp;{{ getTagShort(problem.tag) }}
+        <small class="mx-2 pt-1 text-sm text-gray-700"
+          ><small>#{{ problem.id }}</small></small
+        >
+      </h2>
+
     <!-- Show author and addition date -->
+    <!--
     <div class="text-lg font-bold text-center my-3" v-if="problem.routetype == 'boulder'">{{ t('problem.problem_info') }}</div>
     <div class="text-lg font-bold text-center my-3" v-if="problem.routetype == 'sport'">{{ t('problem.route_info') }}</div>
+      <div class="my-2 text-sm text-center font-bold"> {{ t('problem.attributes') }} </div>
+    -->
+      <list-styles class="my-2" :styles="problem.styles"></list-styles>
     <div class="my-2 flex flex-row justify-between">
       <strong class="">{{ t('problem.start') }}</strong>
       <span class="">
@@ -22,7 +40,7 @@
     <div class="my-2 flex flex-row justify-between">
       <strong class="">{{ t('problem.routesetter') }}</strong>
       <span class="">
-        {{ problem.author }}<br />
+        {{ problem.author.etunimi }} {{ left(problem.author.sukunimi,1) }}.<br />
         {{ fromNow(problem.added) }}</span>
     </div>
     <!-- Show additional details -->
@@ -50,9 +68,10 @@
 import { useI18n } from 'vue-i18n'
 import store from '@js/store.js'
 import { useStore } from "framework7-vue";
-import { getTagShort } from '@js/helpers'
+import { left, getTagShort } from '@js/helpers'
 import { ref, onMounted, computed } from "vue";
 import GradeOpinions from "@components/ui/problem/GradeOpinions.vue";
+import ListStyles from '@components/ui/problem/ListStyles.vue'
 import { fromNow } from '@helpers/filters.js'
 const { t } = useI18n()
 
