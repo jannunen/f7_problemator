@@ -53,6 +53,7 @@
       <div v-else class="flex flex-col justify-center">
           <!-- Show this only when not loading stuff... -->
            
+           <div v-if="!initializing">
             <h1 class="text-3xl text-white font-bold">Problemator</h1>
             <p>
               You are not logged in, please click the login or register button below
@@ -61,6 +62,11 @@
               class="btn-primary"
               @click="loginWithRedirect()"
               >{{ t('Login / Register') }}</f7-button >
+
+            </div>
+            <div v-else>
+               Gearing up.
+            </div>
           
 
       </div>
@@ -106,6 +112,7 @@ const {
   user,
 } = useAuth0()
 const store = useStore()
+const initializing = computed(() => store.state.initializing)
 const profile = computed(() => store.state.profile)
 const accessToken = computed(() => store.state.access_token)
 const allTime = computed(() => store.state.alltime)

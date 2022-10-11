@@ -20,8 +20,9 @@
             <div v-html="getCompText(comp)"></div>
           </template>
           <template #subtitle>
-            {{ comp.location }} <span v-if="comp.participates">{{ t('comps.you_are_registered') }}</span>
+            {{ comp.location }} 
             <span class="text-green-500" v-if="comp.isjudge">{{ t('comps.you_are_a_judge') }}</span>
+            <span class="text-green-500 font-bold" v-if="comp.participates">{{ t('comps.you_are_registered') }}</span>
             <span v-else>
                 <div class="text-orange-400 font-bold">{{ t('comps.not_registered') }}</div>
                 <span v-if="isRegistrationPossible(comp)">
@@ -52,11 +53,7 @@ const getCompText = (comp) => {
   }<br />${t('comps.comp_time_ends_in')} ${left}`
 }
 const getLink = (comp) => {
-  if (comp.isjudge || isRegistrationPossible(comp)) {
     return `/competitions/` + comp.id
-  } else {
-    return null
-  }
 }
 
 const comps = computed(() => store.state.upcomingcomps)

@@ -1,6 +1,8 @@
 <template>
   <div v-if="comp != null">
     <h1 class="m-0 text-2xl font-bold">{{ comp.name }}</h1>
+    Competition venue opens at: {{ toLocalTime(comp.compdate) }}
+    <br />
     <small class="m-0">ID: {{ comp.id }}</small>
     <h2 class="">{{ t('comps.competition_type') }} : <p-badge class="bg-green-500">{{ t('comps.' + comp.tyyppi) }}</p-badge></h2>
     <h2 class="text-xl">
@@ -8,7 +10,7 @@
       <small>{{ sortedProblems.length }} problem(s)</small>
     </h2>
     <h3 class="">
-      {{ t('comps.timespan') }} {{ comp.timespan_start }} - {{ comp.timespan_end }}
+      {{ t('comps.timespan') }} {{ toLocalTime(comp.timespan_start) }} - {{ toLocalTime(comp.timespan_end) }}
     </h3>
     <h4>{{ t('comps.participants') }} : {{ comp.paidregistrations?.length }}</h4>
     <div v-if="sortedProblems.length == 0" class="my-3 text-2xl">
@@ -21,10 +23,10 @@
     </div>
 
     <f7-list v-if="compOngoing">
-      <f7-block-title>Swipe left to delete an ascent</f7-block-title>
-      <f7-block-title>
+      <f7-block-title class="text-center">
         <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
       </f7-block-title>
+      <p class="text-center">Swipe left to delete an ascent</p>
 
       <f7-list-item>
         <template #title>
@@ -69,12 +71,12 @@
           </div>
         </template>
         <template #after>
-          <f7-button
+          <p-button
             @click="() => doTick(prob.id)"
-            class="mx-2 btn-primary btn-small dark:bg-green-500 bg-green-600"
-            >tick</f7-button
+            class="mx-2 px-4 py-2 btn-primary btn-small dark:bg-green-500 bg-green-600"
+            >tick</p-button
           >
-          <span v-if="tries[prob.id]?.ticked" class="w-5 text-red-400 font-bold text-2xl"
+          <span v-if="ifTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl"
             >✓</span
           >
           <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
@@ -91,12 +93,22 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { onMounted, computed, ref } from 'vue'
+import PButton from '@components/PButton.vue'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import isBetween from 'dayjs/plugin/isBetween'
 import PBadge from '@components/PBadge.vue'
 import { confirm, toaster } from '@helpers/notifications.js'
+import { toLocalTime } from '@helpers/component.helpers'
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc)
+dayjs.extend(timezone)
+
 const store = useStore()
+const ifTicked = (pid) => {
+  return tries.value[pid]?.ticked
+}
 
 dayjs.extend(duration)
 dayjs.extend(isBetween)

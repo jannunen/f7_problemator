@@ -1,4 +1,8 @@
 import dayjs from 'dayjs'
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc)
+dayjs.extend(timezone)
 
 const getAscentsByGrade = (grades, ticks, lastDays, showOfType) => {
     let gradeMap = new Map()
@@ -42,6 +46,13 @@ const getAscentsByGrade = (grades, ticks, lastDays, showOfType) => {
     return gradeMap
 }
 
+/**
+ * This function takes time in UTC, converts it to local (browser) time
+ * and returns it.
+ */
+const toLocalTime = (utcTime,format="DD.MM.YYYY HH:mm") => {
+ return dayjs.utc(utcTime).local().format(format)
+}
 const getSessionCount = (problem) => {
     // Session count is the amount of different days the project has
     // been projected on.
@@ -61,5 +72,6 @@ const getSessionCount = (problem) => {
 
 export {
     getAscentsByGrade,
-    getSessionCount
+    getSessionCount,
+    toLocalTime,
 }

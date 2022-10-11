@@ -19,16 +19,16 @@
     </template>
 
     <template #inner-end>
-      {{ t('home.by') }} {{ problem.author }}
+       <p-badge>{{ t('home.by') }} {{ problem.author.etunimi }} {{ left(problem.author.sukunimi,1) }}.</p-badge>
     </template>
 
 
 
     <template #content-start>
-      <div v-if="problem.myProjects != null && problem.myProjects.length > 0 && (problem.myTicks == null || problem.myTicks.length == 0)">
+      <div v-if="isMyProject(problem.id) && !isMyTick(problem.id)">
         <span class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-yellow-100 bg-yellow-600 rounded-full">P</span>
       </div>
-      <div v-else-if="problem.myTicks != null && problem.myTicks.length > 0">
+      <div v-else-if="isMyTick(problem.id)">
         <span class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-100 bg-green-600 rounded-full">✓</span>
       </div>
       <div v-else>
@@ -57,12 +57,13 @@
 
 <script>
 import { useI18n } from 'vue-i18n'
-import { debounce, getTagShort } from '@js/helpers'
+import { left, debounce, getTagShort } from '@js/helpers'
 import RoundBadge from '@components/ui/RoundBadge.vue'
+import PBadge from '@components/PBadge.vue'
 import dayjs from 'dayjs'
 import relativeTime from "dayjs/plugin/relativeTime"
 import { toaster, alert } from '@js/helpers/notifications.js'
-import { ref } from 'vue'
+import { ref,computed } from 'vue'
 import store from '@js/store.js'
 
 dayjs.extend(relativeTime)
@@ -74,7 +75,15 @@ export default {
   setup(props, context) {
     const { t, tc } = useI18n()
     const swipingout = ref(false)
+    const ticks = computed(() => store.state.alltime.ticks)
+    const tries = computed(() => store.state.alltime.tries)
 
+    const isMyProject = (pid) => {
+      return tries.value.find(x => x.problemid == pid)
+    }
+    const isMyTick = (pid) => {
+      return ticks.value.find(x => x.problemid == pid)
+    }
     const onClick = (problem) => {
       if (!swipingout.value) { context.emit('start-navigate', problem) }
     }
@@ -144,11 +153,15 @@ export default {
       swipingout,
       quickTick,
       onClick,
+      left,
       getTryTries,
       getTrySessions,
       getAuthor,
       getTagShort,
       getAfter,
+      isMyProject,
+      isMyTick,
+      PBadge,
       getTagShort,
       getGrade,
       t,
