@@ -64,6 +64,20 @@ export default createStore({
     },
   },
   mutations: {
+    removeParticipation(state, payload) {
+        state.competition.paidregistrations = state.competition.paidregistrations
+        .filter(x => x.id != payload.contenderid && x.pivot.serieid != payload.category) 
+        state.competition.unpaidregistrations = state.competition.unpaidregistrations
+        .filter(x => x.id != payload.contenderid && x.pivot.serieid != payload.category) 
+
+    },
+    updatecompparticipates(state, payload) {
+      if (payload.pivot.paid) {
+        state.competition.paidregistrations = [...state.competition.paidregistrations, payload] 
+      } else {
+        state.competition.unpaidregistrations = [...state.competition.unpaidregistrations, payload] 
+      }
+    },
     allTimeTicks(state, payload) {
       state.alltime = payload
     },
@@ -299,6 +313,11 @@ export default createStore({
       console.log("Setting archive dates",state.archive.dates)
       return ret.dates
     },
+    async unRegisterToComp({state, commit, dispatch}, payload) {
+      const ret = await api.unRegisterToComp(payload)
+      // Remove these from the state
+      commit('removeParticipation', payload)
+    },
     async registerToComp({state, commit, dispatch}, payload) {
       const ret = await api.registerToComp(payload)
       // Update the status of participation status
@@ -321,6 +340,7 @@ export default createStore({
         }
         return comp
       })
+      commit('updatecompparticipates',ret.participates)
       commit('upcomingcomps' , newData)
       return ret
     },

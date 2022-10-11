@@ -36,7 +36,7 @@
         .then(async (token) => {
           store.commit('setToken', token)
           console.log("access token1",token)
-          if (profile.value.problems == null) {
+          if (profile.value.info == null) {
             await store.dispatch('getProfile')
           }
           store.commit('setReady',true)

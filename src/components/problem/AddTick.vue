@@ -1,7 +1,7 @@
 <script setup>
 import { useStore } from 'vuex'
 import dayjs from 'dayjs'
-import RoundBadge from '@components/ui/RoundBadge.vue'
+import { f7 } from 'framework7-vue'
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { toaster, alert } from '@js/helpers/notifications.js'
@@ -46,6 +46,9 @@ const saveTick = () => {
   store.dispatch('saveTick', payload)
     .then((resp) => {
       toaster(resp.message)
+      // Navigate back.
+      f7.views.main.router.back()
+
     })
     .catch((err) => {
       alert(err)

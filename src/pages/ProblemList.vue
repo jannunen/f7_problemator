@@ -114,7 +114,6 @@ import WallSelector from '@components/ui/problemlist/WallSelector.vue'
 import { maxSnap } from '@js/constants.js'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
-import RoundBadge from '@components/ui/RoundBadge.vue'
 import GradeFilter from '@components/ui/problemlist/GradeFilter.vue'
 import StyleFilter from '@components/ui/problemlist/StyleFilter.vue'
 import AscentStatusFilter from '@components/ui/problemlist/AscentStatusFilter.vue'
@@ -178,6 +177,7 @@ const onStartNavigate = (problem) => {
 const onClearWalls = () => {
   selectedWalls.value = []
 }
+/*
 const onWallSelect = (selection) => {
   selectedWalls.value = selection
 }
@@ -190,6 +190,7 @@ const sortedWalls = computed(() => {
   }
   return walls.value.sort((a, b) => a.wallchar.localeCompare(b.wallchar))
 })
+*/
 
 const minChanged = debounce((value) => {
   store.dispatch('setFilterGradeMin', value)

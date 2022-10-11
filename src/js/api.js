@@ -89,6 +89,10 @@ const api = {
     const ret = await axios.get(endpoint+"/climber/auth_user")
     return ret.data
   },
+  async unRegisterToComp(payload) {
+    const ret = await axios.post(endpoint+"/competitions/resign_comp",payload)
+    return ret.data
+  },
   async registerToComp(payload) {
     const ret = await axios.post(endpoint+"/competitions/join_comp",payload)
     return ret.data

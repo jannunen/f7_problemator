@@ -37,18 +37,22 @@
                   {{ t('comps.category_full_text') }}
                 </div>
                 <div v-else>
-                  <div v-if="cat.participatesunpaid" class="text-yellow-400 font-bold">
+                  <div v-if="isRegisteredButUnpaid(cat.id)" class="text-yellow-400 font-bold">
                       {{ t('comps.registered_unpaid') }}
                     <f7-button  
-                    class="btn-primary dark:bg-green-500 btn-small " 
+                    color="green"
                       :link="getPaymentLink(cat)"
                     >{{ t('comps.pay_comp') }}</f7-button>
                   </div>
-                  <div v-else-if="cat.participates" class="text-green-400 font-bold">
+                  <div v-else-if="isRegistered(cat.id)" class="text-green-400 font-bold">
                       {{ t('comps.registered_paid') }}
                   </div>
                   <div v-else>
                     <button  @click="askRegister(cat)" class="btn-primary btn-small" >{{ t('comps.register_button') }}</button>
+                  </div>
+                  <div v-if="isRegistered(cat.id) || isRegisteredButUnpaid(cat.id)">
+                    <p-button  @click="askUnRegister(cat)" class="bg-red-500" >{{ t('comps.quit_comp') }}</p-button>
+
                   </div>
                 </div>
               </template>
@@ -93,7 +97,8 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import CompetitionRegisterInfo from '@components/comps/CompetitionRegisterInfo.vue'
+import PButton from '@components/PButton.vue'
+import { computed} from 'vue'
 import { confirm, toaster } from '@helpers/notifications.js'
 const store = useStore()
 
@@ -101,11 +106,36 @@ const { t } = useI18n()
 const props = defineProps({
   comp: Object,
 })
+const climber = computed(() => store.state.climber)
+
+const isRegisteredButUnpaid= (catid) => {
+  return  (props.comp.unpaidregistrations.find(x => x.id == climber.value.id && x.pivot.serieid == catid ) != null  )
+}
+const isRegistered = (catid) => {
+  return (props.comp.paidregistrations.find(x => x.id == climber.value.id && x.pivot.serieid == catid ) != null  )
+}
 const isCategoryFull = (cat) => cat.maxparticipants - cat.participants.length <= 0
 const user = computed(() => store.state.user)
 const getPaymentLink = (cat) => {
     return `https://www.problemator.fi/t/problemator/competitions/payment/${cat.compid}?contid=${user.id}`
 }
+const askUnRegister = (cat) => {
+    confirm(t('comps.are_you_sure_you_want_to_unregister'),null,() => {
+        // send registration
+        const payload = {
+            compid : props.comp.id,
+            category : cat.id,
+            contenderid : climber.value.id
+        }
+        store.dispatch('unRegisterToComp',payload)
+        .then(ret => {
+            toaster(ret.message)
+        })
+    },() => {
+        // cancle
+    })
+}
+
 
 const askRegister = (cat) => {
     confirm(t('comps.are_you_sure_you_want_to_register'),null,() => {

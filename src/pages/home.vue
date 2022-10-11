@@ -34,7 +34,6 @@
       <!-- If profile is not yet loaded -->
       <!-- If should show preloader, show only if gym IS selected -->
       <div v-if="accessToken != null">
-      {{ profileLoaded}}
         <div v-if="!profileLoaded">
           Profile not loaded<br />
           <f7-preloader class="my-2"></f7-preloader>
@@ -54,7 +53,6 @@
       <div v-else class="flex flex-col justify-center">
           <!-- Show this only when not loading stuff... -->
            
-            <!--
             <h1 class="text-3xl text-white font-bold">Problemator</h1>
             <p>
               You are not logged in, please click the login or register button below
@@ -64,7 +62,6 @@
               @click="loginWithRedirect()"
               >{{ t('Login / Register') }}</f7-button >
           
-          -->
 
       </div>
     </div>
@@ -100,6 +97,7 @@ import { useI18n } from 'vue-i18n'
 import { watch } from 'vue'
 import { ref } from 'vue'
 import { useStore } from 'vuex'
+import { Ticks } from 'chart.js'
 const {
   idTokenClaims,
   getAccessTokenSilently,
@@ -110,10 +108,13 @@ const {
 const store = useStore()
 const profile = computed(() => store.state.profile)
 const accessToken = computed(() => store.state.access_token)
+const allTime = computed(() => store.state.alltime)
 const gym = computed(() => store.state.gym)
 const gymid = computed(() => store.state.gymid)
 const isOpened = ref(false)
-store.dispatch('loadAllTimeTicks')
+if (allTime.value.ticks.length == 0 && allTime.value.tries.length == 0) {
+  store.dispatch('loadAllTimeTicks')
+}
 const { t } = useI18n()
 const props = defineProps({
   f7router: Object,
@@ -130,7 +131,6 @@ const onSearchSheetClosed = () => {
 }
 
 
-console.log('home gymid', gymid.value)
 if (gymid.value == null || gymid.value == '' || isNaN(gymid.value)) {
   gymSelectorOpen.value = true
 }

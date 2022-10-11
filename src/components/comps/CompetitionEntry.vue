@@ -2,7 +2,7 @@
   <div v-if="comp != null">
     <h1 class="m-0 text-2xl font-bold">{{ comp.name }}</h1>
     <small class="m-0">ID: {{ comp.id }}</small>
-    <h2 class="">{{ t('comps.competition_type') }} : {{ t('comps.' + comp.tyyppi) }}</h2>
+    <h2 class="">{{ t('comps.competition_type') }} : <p-badge class="bg-green-500">{{ t('comps.' + comp.tyyppi) }}</p-badge></h2>
     <h2 class="text-xl">
       {{ t('comps.problems') }}
       <small>{{ sortedProblems.length }} problem(s)</small>
@@ -91,10 +91,10 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 
 import { onMounted, computed, ref } from 'vue'
-import CompetitionRegisterInfo from '@components/comps/CompetitionRegisterInfo.vue'
 import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import isBetween from 'dayjs/plugin/isBetween'
+import PBadge from '@components/PBadge.vue'
 import { confirm, toaster } from '@helpers/notifications.js'
 const store = useStore()
 

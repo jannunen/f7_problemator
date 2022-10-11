@@ -14,6 +14,8 @@ const messages = {
         comps : {
             thats : 'That\'s',
             'No ongoing competitions currently' : 'No ongoing competitions currently',
+            quit_comp : 'Resign',
+            are_you_sure_you_want_to_unregister : 'Are you sure you want to resign the registration? You will not be refunded if you resign the competition',
             are_you_sure_you_want_to_register : 'Are you sure you want to register?',
             competitions: 'Competitions',
             upcoming_competitions: 'Upcoming competitions',
@@ -36,7 +38,7 @@ const messages = {
             register_button: 'Register',
             registered_unpaid: 'Registered, unpaid',
             registered_paid: 'Registered, paid',
-            pay_comp: 'Pay',
+            pay_comp: 'Pay now',
             tick_saved: 'Tick saved',
             problems: 'Problems',
             timespan: 'Time span',
