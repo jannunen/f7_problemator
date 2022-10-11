@@ -1,6 +1,6 @@
 <template>
   <div >
-    <BarChart  style="position: relative; height:14vh;20vw; " v-bind="barChartProps" />
+    <BarChart  ref="lastAscents" style="position: relative; height:14vh;20vw; " v-bind="barChartProps" />
   </div>
 </template>
 
@@ -28,6 +28,13 @@ export default {
     },
   },
   components: { BarChart },
+  watch : {
+    ascents(newValue) {
+      // Reload chart
+      this.$refs.lastAscents.update()
+    },
+
+  },
   setup(props) {
     const { t } = useI18n();
     const ascents = Array.from(props.ascents.values());

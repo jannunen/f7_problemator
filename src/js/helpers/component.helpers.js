@@ -7,7 +7,6 @@ dayjs.extend(timezone)
 const getAscentsByGrade = (grades, ticks, lastDays, showOfType) => {
     let gradeMap = new Map()
     const deadline = dayjs().subtract(lastDays, 'day')
-
     const validTicks = ticks.filter(tick => dayjs(tick.tstamp).isAfter(deadline))
 
     // Setup grademap first.
@@ -26,22 +25,30 @@ const getAscentsByGrade = (grades, ticks, lastDays, showOfType) => {
 
     // Then remove out all the grades too easy and too hard (=no ticks)
     // Loop from start and end when first non zero is found
-    /*
     for (let gKey of gradeMap.keys()) {
-        if (gradeMap.get(gKey) == 0) {
+        const val = gradeMap.get(gKey)
+        if (val == 0) {
             gradeMap.delete(gKey)
+        } else {
+            // Stop to the first non zero is found
+            if (gKey > 0) {
+                break
+            }
         }
-        break
     }
-    */
 
     // Then start from the end and do the same backwards.
     const reversedKeys = Array.from(gradeMap.keys()).reverse()
     for (let gKey of reversedKeys) {
-        if (gradeMap.get(gKey) == 0) {
+        const val = gradeMap.get(gKey)
+        if (val == 0) {
             gradeMap.delete(gKey)
+        } else {
+            if (gKey > 0) {
+                // Stop to the first non zero is found
+                break
+            }
         }
-        break
     }
     return gradeMap
 }

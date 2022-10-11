@@ -10,14 +10,12 @@
       </div>
       <div class="flex flex-col justify-between col-span-2">
         <div>
-
-          <last-ascents
+          <Bar 
             v-if="ascentsFound"
-            :ascents="ascentsByGrade"
-            :grades="grades"
-            :days="lastDays"
-            :type="showOfType"
-          ></last-ascents>
+            ref="lastAscents"
+            :chart-options="{plugins : { legend: { display: false } }}"
+            :chart-data="data" chart-id="c1" :width="400" :height="200" />
+          
           <div v-else class="text-2xl font-bold text-center text-orange-400">No ascents to list</div>
         </div>
 
@@ -86,11 +84,15 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
-import LastAscents from '@components/home/LastAscents.vue'
 import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import { getAscentsByGrade } from '@helpers/component.helpers.js'
+import { Bar } from 'vue-chartjs'
 import dayjs from 'dayjs'
+
+
+
+
 const store = useStore()
 
 const props = defineProps({
@@ -107,6 +109,21 @@ const lastDays = ref(30)
 const showOfType = ref('boulder')
 const ascentsByGrade = computed(() => getAscentsByGrade(grades.value, ticks.value, lastDays.value,showOfType.value))
 const ascentsFound = (ascentsByGrade.value.size > 0)
+const labels = computed(() => Array.from(ascentsByGrade.value.keys()).map(
+  (gradeId) => grades.value.find((grade) => grade.id == gradeId).name
+))
+const ascents = computed(() => Array.from(ascentsByGrade.value.values()))
+const data = computed(() => ({
+  labels : labels.value,
+  datasets: [
+    {
+      data: ascents.value,
+      label: t("amount"),
+      backgroundColor: ["#97B0C4"],
+    },
+  ],
+}));
+
 const changeOfType = (type) => {
 
   showOfType.value = type
