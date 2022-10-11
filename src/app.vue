@@ -32,6 +32,10 @@
         const ready = computed(() => store.state.ready)
         store.commit('setInitializing',true)
 
+        // Save tip showing status in locaStorage.
+        const tipShowStatus = JSON.parse(localStorage.getItem('tipShowStatus'))
+        store.dispatch('tipShowStatus',tipShowStatus)
+
         getAccessTokenSilently()
         .then(async (token) => {
           store.commit('setToken', token)

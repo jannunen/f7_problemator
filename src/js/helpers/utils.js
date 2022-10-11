@@ -36,10 +36,17 @@ const getTagShort = (tag) => {
 const getRandom = (min,max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min
 }
+const tipShown = (tips, tip) => {
+    if (tips == null) {
+        return false
+    }
+    return (tip in tips)
+}
 export {
     debounce,
     getTagShort,
     getRandom,
     left,
     right,
+    tipShown,
 }

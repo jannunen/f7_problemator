@@ -31,6 +31,7 @@ export default createStore({
       upcoming : [],
       ongoing : [],
     },
+    tipShowStatus : {},
     searchQuery: '',
     searchState: 'idle',
     initializing : true,
@@ -65,6 +66,9 @@ export default createStore({
     },
   },
   mutations: {
+    setTipShowStatus (state, payload) {
+      state.tipShowStatus = payload
+    },
     setSelectedSidePanelItem (state, payload) {
       state.selectedLeftPanelItem = payload
     },
@@ -193,6 +197,12 @@ export default createStore({
     }
   },
   actions: {
+    tipShowStatus({commit, state}, payload) {
+      // When status change, save to localStorage and 
+      // update state.
+      localStorage.setItem('tipShowStatus', JSON.stringify(payload))
+      commit('setTipShowStatus', payload)
+    },
     async getProfile({ commit, state } , payload) {
       commit('profileLoaded', false)
       if (state.gymid == null || state.gymid == "undefined") {
@@ -256,10 +266,10 @@ export default createStore({
       const ret = await api.saveTick(payload)
       commit('updateProblem', ret)
       // Update also tries in profile
-      if (payload.ticktype=='pretick') {
-        commit('addTriesAllTime',ret.tick) 
-      } else {
+      if (payload.ticktype=='tick') {
         commit('addTicksAllTime',ret.tick) 
+      } else {
+        commit('addTriesAllTime',ret.tick) 
       }
       return ret
     },

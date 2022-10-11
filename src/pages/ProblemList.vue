@@ -60,8 +60,9 @@
             {{ filteredProblems?.length }} {{ t('problemlist.visible_out_of') }}
             {{ problems?.length }} {{ t('problemlist.problems') }}
           </div>
-          <div class="p-4 mb-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-blue-200 dark:text-blue-800" role="alert">
-            <span class="font-medium">Tip!</span> You can tick faster by swiping a problem left.
+          <div v-if="!tipShown(tipShowStatus, 'quicktick')" class="p-4 mb-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-blue-200 dark:text-blue-800" role="alert">
+            <span class="font-medium">Tip!</span> You can tick faster by swiping a problem left. Add a quick try by swiping right.
+            <a href="#" class="text-red-600 text-sm" @click.prevent="tipDismiss('quicktick')">do not show again</a>
           </div>
           <div v-if="filters.walls.length > 0">
             <div class="font-bold">{{ t('problemlist.wall_filter_active') }}:</div>
@@ -116,7 +117,7 @@
 import { ref, computed, onMounted, toRefs } from 'vue'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
 
-import { left, getRandom } from '@js/helpers'
+import { tipShown, left, getRandom } from '@js/helpers'
 import WallSelector from '@components/ui/problemlist/WallSelector.vue'
 import { maxSnap } from '@js/constants.js'
 import { useStore } from 'vuex'
@@ -135,6 +136,10 @@ import {
 } from '@components/ui/problemlist/sortFunctions.js'
 const store = useStore()
 dayjs.extend(relativeTime)
+const tipDismiss = (which) => {
+  const payload = {...tipShowStatus.value, [which] : true} 
+  store.dispatch('tipShowStatus', payload)
+}
 
 const props = defineProps({
   areaSelected: {
@@ -164,6 +169,7 @@ const { t, d, locale } = useI18n()
 const problems = computed(() => store.state.problems)
 const walls = computed(() => store.state.walls)
 const grades = computed(() => store.state.grades)
+const tipShowStatus = computed(() => store.state.tipShowStatus)
 
 const ticks = computed(() => store.state.alltime.ticks)
 const tries = computed(() => store.state.alltime.tries)

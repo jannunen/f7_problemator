@@ -52,6 +52,9 @@
       <f7-swipeout-button close @click="() => quickTick(problem,2)" color="yellow" class="bg-green-800">+ 2 tries</f7-swipeout-button>
       <f7-swipeout-button close @click="() => quickTick(problem,3)" color="yellow" class="bg-green-700">+ 3 tries</f7-swipeout-button>
     </f7-swipeout-actions>
+    <f7-swipeout-actions left>
+      <f7-swipeout-button close @click="() => quickTick(problem,1,false)" color="orange" >Quick proj. (1 try)</f7-swipeout-button>
+    </f7-swipeout-actions>
   </f7-list-item>
 </template>
 
@@ -87,14 +90,17 @@ export default {
     const onClick = (problem) => {
       if (!swipingout.value) { context.emit('start-navigate', problem) }
     }
-    const quickTick = (problem, tries) => {
+    const quickTick = (problem, tries,actualTick=true) => {
       let payload = {
-        ticktype: 'tick',
         tries,
         created: new Date(),
         problemid: problem.id,
         grade_opinion: null,
       }
+      // If NOT projecting, mark as an actual tick
+      if (actualTick) { 
+        payload['ticktype'] = 'tick'
+    }
       store.dispatch('saveTick', payload)
         .then((resp) => {
           toaster(resp.message)
