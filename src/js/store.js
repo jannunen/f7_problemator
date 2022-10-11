@@ -64,6 +64,9 @@ export default createStore({
     },
   },
   mutations: {
+    updatePointsPerRoute(state, payload) {
+      state.competition.points_per_route = payload.points
+    },
     removeParticipation(state, payload) {
         state.competition.paidregistrations = state.competition.paidregistrations
         .filter(x => x.id != payload.contenderid && x.pivot.serieid != payload.category) 
@@ -222,6 +225,11 @@ export default createStore({
     async deleteProject({ commit, state}, payload) {
       const ret = await api.deleteProject(payload)
       commit('problems', {...state.problems,[ret.problem.id] : ret.problem})
+    },
+     async getPointsPerRoute({ commit }, payload) {
+      const ret = await api.getPointsPerRoute(payload.compid)
+      commit('updatePointsPerRoute',{ compid : payload.compid, points : ret})
+      return ret
     },
      async deleteTickByProblem({ state}, payload) {
       const ret = await api.deleteTickByProblem(payload.problemid)

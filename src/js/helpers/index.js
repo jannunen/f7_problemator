@@ -1,7 +1,7 @@
 import { authGuard } from '../auth/authguard.js'
 import { jwtInterceptor } from './jwt.interceptor.js'
 import  routes  from '@js/routes'
-import { debounce, getTagShort, getRandom ,left} from './utils.js'
+import { debounce, getTagShort, getRandom ,left, right} from './utils.js'
 
 export {
     authGuard,
@@ -10,6 +10,7 @@ export {
     jwtInterceptor,
     routes,
     left,
+    right,
     debounce,
     getTagShort,
     getRandom,
