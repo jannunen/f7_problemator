@@ -18,6 +18,7 @@
         <f7-input :label="t('searchprob.search_for_problems')" class="w-full mt-1 px-2 py-2 border border-gray-300 h-10 " @input:clear="onClearSearchText" @keyup="searchProblemTextChanged" v-model="searchProblemText" type="text" clear-button :placeholder="t('searchprob.search_for_problems')" />
       </div>
     </div>
+    <div class="text-center bg-gray-700 py-1" v-if="searching"><i class="fa fa-spinner fa-spin"></i> Searching...</div>
     <div class="my-1 text-small text-center">
       {{ t('searchprob.hits', problems.length) }}
     </div>
@@ -56,6 +57,7 @@ const emit = defineEmits(['close', 'clear'])
 const { t, tc } = useI18n()
 const gymid = computed(() => store.state.gymid)
 const searchProblemText = ref('')
+const searching = ref(false)
 const problems = ref([])
 const qrReaderOpened = ref(false)
 const onReadQRCode = (code) => {
@@ -78,6 +80,7 @@ const clearSearch = () => {
   emit('clear')
 }
 const searchProblemTextChanged = debounce((el) => {
+  searching.value = true
   const value = el.target.value
   searchProblemText.value = value
   if (searchProblemText.value != '') {
@@ -87,6 +90,7 @@ const searchProblemTextChanged = debounce((el) => {
     }
     api.searchProblems(payload).then((data) => {
       problems.value = data.problems
+      searching.value = false
     })
   }
 }, 400)
