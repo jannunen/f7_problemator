@@ -33,10 +33,9 @@
 
             <div class="mx-auto w-11/12" v-if="archiveDate != null">
 
-                <div class="text-center" v-html="t('problem.myticks_intro')"></div>
                 <div v-if="reversedTicks.length > 0 || reversedProjects.length > 0">
                     <f7-block-title>Ticks</f7-block-title>
-                    <f7-list v-if="reversedTicks.length > 0">
+                    <f7-list v-if="reversedTicks.length > 0" problem-list>
                         <f7-list-item @swipeout:deleted="(evt) => onDeleted(tick, j)" swipeout v-for="(tick, index) in reversedTicks" :key="tick.id">
                             <template #media> {{ index + 1 }}. </template>
                             <template #title>
