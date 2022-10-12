@@ -69,7 +69,7 @@ export default createStore({
     setTipShowStatus (state, payload) {
       state.tipShowStatus = payload
     },
-    setSelectedSidePanelItem (state, payload) {
+    setSelectedLeftPanelItem (state, payload) {
       state.selectedLeftPanelItem = payload
     },
     compResults(state, payload) {
