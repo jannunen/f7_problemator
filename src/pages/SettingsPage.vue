@@ -1,6 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { ref, watch, onMounted } from 'vue'
+import { ref, watch, onMounted , computed } from 'vue'
 import { useStore } from 'vuex'
 import { toaster, alert } from '@js/helpers/notifications.js'
 const store = useStore()
