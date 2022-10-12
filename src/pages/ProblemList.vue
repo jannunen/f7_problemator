@@ -58,7 +58,7 @@
         <div v-if="filteredProblems.length > 0">
           <div class="font-bold my-1 text-center">
             {{ filteredProblems?.length }} {{ t('problemlist.visible_out_of') }}
-            {{ problems?.length }} {{ t('problemlist.problems') }}
+            {{ Object.keys(problems).length }} {{ t('problemlist.problems') }}
           </div>
           <div v-if="!tipShown(tipShowStatus, 'quicktick')" class="p-4 mb-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-blue-200 dark:text-blue-800" role="alert">
             <span class="font-medium">Tip!</span> You can tick faster by swiping a problem left. Add a quick try by swiping right.
@@ -72,7 +72,7 @@
           </div>
 
 
-          <f7-list media class="my-0">
+          <f7-list media class="my-0" problem-list>
             <div v-for="(problem, idx) in filteredProblems" :key="problem.id">
               <li v-if="filters.sort.match(/sector/) && wallNamesDiffer(idx)" class="list-group-title">
                 <h3>{{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }}</h3>
