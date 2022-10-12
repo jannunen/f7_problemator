@@ -1,9 +1,5 @@
 <template>
 <f7-block v-if="comp != null" class="flex flex-col align-center items-center justify-center p-2">
-  <button @click="showCollapse=!showCollapse" class="btn-primary btn_small" >Share page to other judges</button>
-  <div v-if="showCollapse" class="collapse">
-    <img :src="getShareURL" />
-  </div>
   {{ t('comps.comp_type') }} : {{ comp.tyyppi }}
   <BoulderJudging v-if="isBoulderingComp" :comp="comp"  /> 
   <SportJudging v-if="isSportComp" :comp="comp" /> 
@@ -47,9 +43,6 @@ const hits = ref([])
 const selected = ref(null)
 const search = ref("")
 const urlSearchParams = new URLSearchParams(window.location.search);
-const getShareURL = computed(() => {
-  return 'https://chart.googleapis.com/chart?cht=qr&chl=https://pwa.problemator.fi/competitions/'+compid.value+'/judging&chs=150x150'
-})
 
 
 const isBoulderingComp = computed(() => {

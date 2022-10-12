@@ -59,7 +59,7 @@
           >
           <select v-model="routeid" name="routeid">
            <option
-              v-for="prob in comp.problems" 
+              v-for="prob in  filteredBySerieCompProblems" 
               :key="prob.id" 
               :value="prob.id"
             >
@@ -181,6 +181,23 @@ const clearSearch= () => {
 const props = defineProps({
   comp: Object,
 })
+
+const filteredBySerieCompProblems = computed(() => {
+    // Filter by serie. Because certain routes are only for certain series and therefore for
+    // certain climbers.
+    debugger
+    const climber = selected.value
+    if (climber == null ) {
+        return props.comp.problems
+    }
+    return props.comp.problems.filter(x => {
+        if (x.pivot == null) {
+            return true
+        }
+        return x.pivot.bind_to_category == climber.serieid 
+    })
+})
+
 const removeAscent = (tickid) => {
   const payload = {
     compid : props.comp.id,
@@ -232,6 +249,11 @@ const addSportAscent = () => {
     api.addCompAscent(params)
     .then((ret) => {
       ascents.value = ret.ascents
+      sportPoints.value = null
+      time_manual.value = null
+      timemin.value = null
+      timesec.value = null
+
     })
     .catch((err) => {
       alert(err)
