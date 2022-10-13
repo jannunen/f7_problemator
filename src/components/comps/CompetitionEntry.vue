@@ -1,5 +1,7 @@
 <template>
   <div v-if="comp != null">
+
+
     <f7-popup v-model:opened="showResultList">
       <f7-page>
         <f7-navbar title="Results">
@@ -7,29 +9,13 @@
             <f7-link popup-close>Close</f7-link>
           </f7-nav-right>
         </f7-navbar>
-        <f7-block>
-          <small>Last update {{ lastResultUpdate.format("YYYY-MM-DD HH:mm.ss") }}<br /></small>
-          Results update automatically every 60secs
-          <div class="" v-if="compResults != null">
-              <div class="w-full" v-for="serie in compResults.results" :key="serie.category.id">
-                  <div class="font-bold my-1">{{ serie.category.nimi }}</div>
-                  <table width="100%" class="text-gray-500 dark:text-gray-400">
-                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-1" 
-                    v-for="result in serie.results " :key="serie.category.id+'_'+result.id">
-                      <td class="w-1/12">{{result.standing}}</td>
-                      <td class="w-4/12">{{ result.climber.etunimi }} {{ result.climber.sukunimi }}</td>
-                      <td class="w-3/12">{{ result.climber.team }} </td>
-                      <td class="w-2/12">{{ result.climber.height }} </td>
-                      <td class="w-2/12">{{ result.climber.apeindex }} </td>
-                      <td class="w-1/12">{{ result.points}} </td>
-                  </tr>
-                  </table>
-              </div>
-          </div>
+        <f7-block v-if="compResults != null">
+          <show-results :type="comp.tyyppi" :last-update="lastResultUpdate" :results="compResults.results" />
         </f7-block>
       </f7-page>
 
     </f7-popup>
+
     <f7-popup v-model:opened="showPointsPerRoute">
       <f7-page>
         <f7-navbar title="Points per problem">
@@ -38,24 +24,11 @@
           </f7-nav-right>
         </f7-navbar>
         <f7-block>
-          <small>Last update {{ lastUpdate.format("YYYY-MM-DD HH:mm.ss") }}<br /></small>
-          Points per route updates automatically ever 30 secs.
-          <div class="flex flex-row flex-wrap" v-if="comp.points_per_route != null">
-            <div class="w-1/4 p-2" v-for="(cat) in comp.points_per_route" :key="cat.category.id">
-              <h2 class="font-bold ">{{ cat.category.nimi }}</h2>
-              <ul>
-                <li v-for="problem in cat.points" :key="problem.id" class="flex justify-between">
-                  <span class="font-mono">{{ right(problem?.tag,4) }}</span>
-                  {{ problem.pivot.num }}
-                  <div class="font-bold"> {{ problem.points }} </div>
-                </li>
-              </ul>
-            </div>
-          </div>
+          <points-per-route :last-update="lastUpdate" :points-per-route="comp.points_per_route" />
         </f7-block>
       </f7-page>
-
     </f7-popup>
+
     <div class="flex flex-row justify-between">
       <h1 class="p-0 m-0 text-2xl font-bold">{{ comp.name }}</h1>
       <p-badge class="text-sm py-1 bg-green-500">{{ t('comps.' + comp.tyyppi) }}</p-badge>
@@ -81,15 +54,15 @@
     </div>
 
     <div v-if="compOngoing">
-      <f7-block-title class="text-center">
-        <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
-      </f7-block-title>
       <div v-if="comp.tyyppi == 'variable_points'">
         <p-button class="bg-yellow-400 dark:bg-yellow-600" @click="showPointsPerRoute=!showPointsPerRoute">Toggle show points per route</p-button>
       </div>
         <p-button class="my-1 bg-teal-400 dark:bg-teal-600" @click="showResultList=!showResultList">Toggle show result list</p-button>
-      <p class="text-center">Swipe left to delete an ascent</p>
+      <f7-block-title class="text-center">
+        <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
+      </f7-block-title>
 
+      <p class="text-center">Swipe left to delete an ascent</p>
     <f7-list>
       <f7-list-item>
         <template #title>
@@ -104,22 +77,29 @@
         </f7-swipeout-actions>
         <template #media>
           <div class="w-16 flex flex-row justify-between">
-            <div class="mr-1 font-bold text-3xl">{{ prob.pivot.num }}</div>
-            <br />
+            <div class="flex flex-col">
+              <div class="mr-1 font-bold text-xl">{{ prob.pivot.num }}</div>
+              <div class="mr-2 pt-0 text-sm font-bold">{{ right(prob?.tag,4) }}</div>
+            </div>
             <div class="flex flex-col w-8">
-              <div class="h-6 w-6 border border-white rounded-md" :style="getStyles(prob)"></div>
-              <div class="mr-2 pt-2 text-sm font-bold">{{ right(prob?.tag,4) }}</div>
+              <div class="h-6 mt-3 w-6 border border-white rounded-md" :style="getStyles(prob)"></div>
             </div>
           </div>
         </template>
         <template #title>
-          <div class="flex flex-row justify-between w-full">
-            <f7-stepper fill :value="tries[prob.id]?.tries" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
-          </div>
+            <div v-if="comp.tyyppi == 'variable_points'">
+              <f7-stepper fill :value="tries[prob.id]?.tries" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+            </div>
+            <div v-else-if="comp.tyyppi=='sport'">
+              <input :value="tries[prob.id]?.sport_points" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
+            </div>
+            <div v-else>
+               Comp type not supported (yet)
+            </div>
         </template>
         <template #after>
           <p-button @click="() => doTick(prob.id)" class="w-24 dark:bg-green-500 bg-green-600">tick</p-button>
-          <span v-if="ifTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
+          <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
           <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
         </template>
       </f7-list-item>
@@ -137,12 +117,15 @@ import { useStore } from 'vuex'
 import { onUnmounted, onMounted, computed, ref } from 'vue'
 import PButton from '@components/PButton.vue'
 import { right } from '@js/helpers'
-import dayjs from 'dayjs'
 import duration from 'dayjs/plugin/duration'
 import isBetween from 'dayjs/plugin/isBetween'
 import PBadge from '@components/PBadge.vue'
+import PointsPerRoute from './PointsPerRoute.vue'
+import ShowResults from './ShowResults.vue'
+
 import { confirm, toaster } from '@helpers/notifications.js'
 import { toLocalTime } from '@helpers/component.helpers'
+import dayjs from 'dayjs'
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
 dayjs.extend(utc)
@@ -153,8 +136,8 @@ const props = defineProps({
 })
 
 const store = useStore()
-const ifTicked = (pid) => {
-  return tries.value[pid]?.ticked
+const isTicked = (pid) => {
+  return (tries.value[pid]?.ticked )
 }
 const showPointsPerRoute = ref(false)
 const showResultList = ref(false)
@@ -174,6 +157,12 @@ const isJudge = computed(() => {
   const judgeids = comp.judges.map(jobj => jobj.id)
   return judgeids.includes(climber.value.id)
 })
+const onChangeSportPoints =(pid,e) => {
+  if (tries.value[pid] == null) {
+    tries.value[pid] = { tries: 0 , sport_points : 0}
+  }
+  tries.value[pid].sport_points = e.target.value
+}
 const tries = ref({})
 const getJudgingLink = computed(() => {
   if (props.comp != null) {
@@ -188,6 +177,7 @@ const compOngoing = computed(() => {
     dayjs(props.comp.timespan_end)
   )
 })
+
 // First, set the tries from the comp object.
 tries.value = Object.keys(props.comp.userticks).reduce((acc, key) => {
   const aTick = props.comp.userticks[key]
@@ -195,9 +185,11 @@ tries.value = Object.keys(props.comp.userticks).reduce((acc, key) => {
     tries: parseInt(aTick.tries),
     tries_bonus: parseInt(aTick.tries_bonus),
     ticked: true,
+    sport_points :aTick.sport_points, 
   }
   return acc
 }, {})
+
 const onDeleted = (id) => {
   store
     .dispatch('deleteTickByProblem', { problemid: id })
@@ -210,22 +202,28 @@ const onDeleted = (id) => {
 }
 const setTries = (id, triesAmount) => {
   if (!(id in tries.value)) {
-    tries.value[id] = { tries: 0 }
+    tries.value[id] = { tries: 0 , sport_points : 0}
   }
   const newTries = { ...tries.value[id], tries: triesAmount }
   tries.value[id] = newTries
 }
 const lastUpdate = ref(dayjs())
 const lastResultUpdate = ref(dayjs())
-const timerID = setInterval(() => {
-  // Update points per route
-  const payload = { compid: props.comp.id }
-  store.dispatch('getPointsPerRoute', payload)
-    .then(() => {
-      lastUpdate.value = dayjs()
-    })
 
-}, 27 * 1000) // every 30 seconds
+let timerID = null
+
+if (props.comp.tyyppi == 'variable_points') {
+  timerID = setInterval(() => {
+    // Update points per route
+    const payload = { compid: props.comp.id }
+    store.dispatch('getPointsPerRoute', payload)
+      .then(() => {
+        lastUpdate.value = dayjs()
+      })
+
+  }, 27 * 1000) // every 30 seconds
+}
+
 const fetchResults = () => {
   // Update points per route
   const payload = { compid: props.comp.id }
@@ -239,7 +237,9 @@ fetchResults()
 
 onUnmounted(() => {
   // Stop udpates when page unloads
-  clearInterval(timerID)
+  if (timerID != null) {
+    clearInterval(timerID)
+  }
   clearInterval(resultTimerID)
 })
 
@@ -249,15 +249,21 @@ setInterval(() => {
   timeLeft.value = dur.format('D[day(s)] HH[h] mm[m] ss[s]') + ' left'
 }, 1000)
 const timeLeft = ref(null)
+
 const doTick = (id) => {
-  const amountTries = tries.value[id].tries
+
+  const aTries = tries.value[id].tries
+  const aSportPoints = tries.value[id].sport_points
+
   const payload = {
     ticktype: 'tick',
-    tries: amountTries,
+    tries : aTries,
     created: new Date(),
     problemid: id,
+    sport_points : aSportPoints,
     grade_opinion: null,
   }
+  debugger
   store
     .dispatch('saveTick', payload)
     .then((ret) => {
@@ -284,7 +290,8 @@ const tickCount = computed(() => {
   }, 0)
 })
 const sortedProblems = computed(() => {
-  return props.comp.problems.sort((a, b) => {
+  
+  const probs =  props.comp.problems.sort((a, b) => {
     const anum = parseInt(a.pivot.num)
     const bnum = parseInt(b.pivot.num)
     if (anum - bnum == 0) {
@@ -293,5 +300,17 @@ const sortedProblems = computed(() => {
       return anum - bnum
     }
   })
+  if (props.comp.tyyppi == 'sport') {
+    // Add additional filtering, if there are route bindings...
+    const compClimber = props.comp.paidregistrations.find(x => x.id == climber.value.id)
+    return probs.filter(x => {
+        if (x.pivot == null) {
+            return true
+        }
+        return x.pivot.bind_to_category == compClimber.pivot.serieid 
+    })
+
+  }
+  return probs
 })
 </script>

@@ -185,7 +185,6 @@ const props = defineProps({
 const filteredBySerieCompProblems = computed(() => {
     // Filter by serie. Because certain routes are only for certain series and therefore for
     // certain climbers.
-    debugger
     const climber = selected.value
     if (climber == null ) {
         return props.comp.problems

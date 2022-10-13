@@ -14,13 +14,14 @@
           :key="comp.id"
           :link="getLink(comp)"
           :title="comp.name"
-          :after="comp.compdate"
+          :after="dayjs(comp.compdate).format('YYYY-MM-DD HH:mm')"
         >
           <template #text>
             <div v-html="getCompText(comp)"></div>
           </template>
           <template #subtitle>
             {{ comp.location }} 
+
             <span class="text-green-500" v-if="comp.isjudge">{{ t('comps.you_are_a_judge') }}</span>
             <span class="text-green-500 font-bold" v-if="comp.participates">{{ t('comps.you_are_registered') }}</span>
             <span v-else>
@@ -48,14 +49,13 @@ const { t } = useI18n()
 const isRegistrationPossible = (comp) => dayjs().isBefore(dayjs(comp.registration_end)) 
 const getCompText = (comp) => {
   const left = dayjs().to(comp.timespan_end)
-  return `${t('comps.ongoing_between')} ${comp.timespan_start} - ${
-    comp.timespan_end
+  return `${t('comps.ongoing_between')} ${dayjs(comp.timespan_start).format("YYYY-MM-DD HH:mm")} - ${
+    dayjs(comp.timespan_end).format("YYYY-MM-DD HH:mm")
   }<br />${t('comps.comp_time_ends_in')} ${left}`
 }
 const getLink = (comp) => {
     return `/competitions/` + comp.id
 }
-
 const comps = computed(() => store.state.upcomingcomps)
 
 if (comps.value.loaded === false) {
