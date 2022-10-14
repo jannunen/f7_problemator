@@ -7,6 +7,7 @@
       </div>
     </template>
 
+tai jotain 'tojoksikin muuksi' jadslkjasdlk
     <template #after>
       <strong class="text-white font-bold  mr-2 " v-if="problem.c_like > 0">
         {{ problem.c_like }}
