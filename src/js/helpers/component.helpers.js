@@ -4,7 +4,7 @@ import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
-const getAscentsByGrade = (grades, ticks, lastDays, showOfType) => {
+const getAscentsByGrade = (grades, ticks, lastDays,showOfType) => {
     let gradeMap = new Map()
     const deadline = dayjs().subtract(lastDays, 'day')
     const validTicks = ticks.filter(tick => dayjs(tick.tstamp).isAfter(deadline))

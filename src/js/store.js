@@ -333,8 +333,9 @@ export default createStore({
     },
     async fetchArchiveDate({state, commit, dispatch}, payload) {
       const ret = await api.getArchiveDay(payload)
-      commit('archive' , {...state.archive, ['dateDetails'] : {...state.archive.dateDetails, [payload.date] : ret.day} })
-      console.log("Fetched single day",state.archive.dateDetails[payload.date])
+      //commit('archive' , {...state.archive, ['dateDetails'] : {...state.archive.dateDetails, [payload.span] : ret.day} })
+      commit('archive' , {...state.archive, ['dateDetails'] : {...state.archive.dateDetails, [payload.span] : ret.day} })
+      console.log("Fetched date span",state.archive.dateDetails[payload.span])
       return ret.day
     },
     async getTickDates({state, commit, dispatch}, payload) {

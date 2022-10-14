@@ -7,6 +7,7 @@
             <f7-nav-title> {{ t('archive.archive_title') }} </f7-nav-title>
         </f7-navbar>
         <f7-block>
+            <div class="text-center">Span: {{ selectedSpan}}</div>
             <div class="flex flex-col items-center">
                 <div class="flex flex-col">
                     <div class="flex flex-row gap-2">
@@ -21,6 +22,7 @@
                 -->
                 </div>
                 <hr />
+                Click a date to see the details
                 <calendar :attributes='attrs' @dayclick="onDayClick">
                     <template #day-popover="{ day, format, masks }">
                         <div class="text-xs text-gray-300 font-semibold text-center">
@@ -28,28 +30,55 @@
                         </div>
                     </template>
                 </calendar>
-                Click a date to see the details
+
+                <label for="location" class="text-white">Show</label>
+                <select v-model="showSpan" class="text-black" id="location" name="location">
+                    <option value="day">Day</option>
+                    <option value="week">Week</option>
+                    <option value="month">Month</option>
+                    <option value="year">Year</option>
+                </select>
+
+
             </div>
 
             <div class="mx-auto w-11/12" v-if="archiveDate != null">
 
+
+
+
                 <div v-if="reversedTicks.length > 0 || reversedProjects.length > 0">
+
+                    <div class="flex flex-row justify-around my-1">
+                        <div class="text-center border border-gray-800 p-1">
+                            Ticks
+                            <Bar :chart-options="{plugins : { legend: { display: false } }}" :chart-data="data" chart-id="archive_chart" :width="200" :height="100" />
+                        </div>
+                        <div class="text-center border border-gray-700 p-1">
+                            Projects
+                            <Bar :chart-options="{plugins : { legend: { display: false } }}" :chart-data="projectData" chart-id="archive_chart" :width="200" :height="100" />
+                        </div>
+                    </div>
+
                     <f7-block-title>Ticks</f7-block-title>
                     <f7-list v-if="reversedTicks.length > 0" problem-list>
                         <f7-list-item @swipeout:deleted="(evt) => onDeleted(tick, j)" swipeout v-for="(tick, index) in reversedTicks" :key="tick.id">
                             <template #media> {{ index + 1 }}. </template>
                             <template #title>
-                                <div class="flex flex-col">
-                                    <div class="flex">
-                                        <div v-if="tick.tries == 1" class="rounded-full font-bold text-yellow-400  ">
-                                            {{ t('flash') }}
+                                <div class="flex flex-row">
+                                    <span class="px-1 pt-1 text-2xl font-bold">{{ tick.problem.grade.name }}</span>
+                                    <div class="flex flex-col">
+                                        <div class="flex">
+                                            <div v-if="tick.tries == 1" class="rounded-full font-bold text-yellow-400  ">
+                                                {{ t('flash') }}
+                                            </div>
+                                            <div v-else class="rounded-full font-bold  text-red-400  ">
+                                                {{ t('redpoint') }}
+                                            </div>
+                                            <div class="ps-2">@{{ tick.problem.gym.name }}</div>
                                         </div>
-                                        <div v-else class="rounded-full font-bold  text-red-400  ">
-                                            {{ t('redpoint') }}
-                                        </div>
-                                        <div class="ps-2">@{{ tick.problem.gym.name }}</div>
+                                        <div class="text-sm">{{ t('problem.tick_in_tries', parseInt(tick.tries)) }}</div>
                                     </div>
-                                    <div class="text-sm">{{ t('problem.tick_in_tries', parseInt(tick.tries)) }}</div>
                                 </div>
                             </template>
                             <template #after>
@@ -70,14 +99,17 @@
                         <f7-list-item @swipeout:deleted="(evt) => onProjectDeleted(tick, j)" swipeout v-for="(tick, index) in reversedProjects" :key="tick.id">
                             <template #media> {{ index + 1 }}. </template>
                             <template #title>
-                                <div class="flex flex-col">
-                                    <div class="flex flex-row">
-                                        <div class="rounded-full font-bold text-yellow-400">
-                                            {{ t('a burn') }}
+                                <div class="flex flex-row">
+                                    <span class="px-1 pt-1 text-2xl font-bold">{{ tick.problem.grade.name }}</span>
+                                    <div class="flex flex-col">
+                                        <div class="flex flex-row">
+                                            <div class="rounded-full font-bold text-yellow-400">
+                                                {{ t('a burn') }}
+                                            </div>
+                                            <div class="ps-2">@{{ tick.problem.gym.name }}</div>
                                         </div>
-                                        <div class="ps-2">@{{ tick.problem.gym.name }}</div>
+                                        <div class="text-sm">{{ t('problem.tick_in_tries', parseInt(tick.tries)) }}</div>
                                     </div>
-                                    <div class="text-sm">{{ t('problem.tick_in_tries', parseInt(tick.tries)) }}</div>
                                 </div>
                             </template>
                             <template #after>
@@ -95,7 +127,7 @@
                     </f7-list>
                 </div>
                 <div v-else class="my-2 text-center font-bold text-orange">
-                    {{ t('problem.you_have_no_ticks') }}
+                    {{ t('archive.you_have_no_ticks') }}
                 </div>
 
             </div>
@@ -113,6 +145,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import 'v-calendar/dist/style.css'
 import { Calendar, SetupCalendar, DatePicker } from 'v-calendar'
 import { toaster, alert } from '@js/helpers/notifications.js'
+import { Bar } from 'vue-chartjs'
 const store = useStore()
 
 dayjs.extend(relativeTime)
@@ -121,15 +154,79 @@ dayjs.extend(timezone)
 const guessed = ref(dayjs.tz.guess())
 dayjs.tz.setDefault(guessed.value)
 const { t } = useI18n()
-const selectedDay = ref(null)
+
+const showSpan = ref('day')
+const selectedSpan = ref([])
+const ascentsByGrade = computed(() => {
+    if (archiveDate.value == null || archiveDate.value.ticks == null) {
+        return []
+    }
+    // Take the ticks from the current state
+    return archiveDate.value.ticks.reduce((acc, item) => {
+        const grade = item.problem.grade.name
+        if (acc[grade] == null) {
+            acc[grade] = 1
+        } else {
+            acc[grade] += 1
+        }
+        return acc
+    }, {})
+
+})
+const projectsByGrade = computed(() => {
+    if (archiveDate.value == null || archiveDate.value.tries == null) {
+        return []
+    }
+    // Take the ticks from the current state
+    return archiveDate.value.tries.reduce((acc, item) => {
+        const grade = item.problem.grade.name
+        if (acc[grade] == null) {
+            acc[grade] = 1
+        } else {
+            acc[grade] += 1
+        }
+        return acc
+    }, {})
+
+})
+const labels = computed(() => Object.keys(ascentsByGrade.value).sort((a, b) => a.localeCompare(b)))
+const ascents = computed(() => Object.keys(ascentsByGrade.value).sort((a, b) => a.localeCompare(b)).map(key => ascentsByGrade.value[key]))
+const projectLabels = computed(() => Object.keys(projectsByGrade.value).sort((a, b) => a.localeCompare(b)))
+const projects = computed(() => Object.keys(projectsByGrade.value).sort((a, b) => a.localeCompare(b)).map(key => projectsByGrade.value[key]))
+const projectData = computed(() => ({
+    labels: projectLabels.value,
+    datasets: [
+        {
+            data: projects.value,
+            label: t("amount"),
+            backgroundColor: ["#97B0C4"],
+        },
+    ],
+}))
+
+const data = computed(() => ({
+    labels: labels.value,
+    datasets: [
+        {
+            data: ascents.value,
+            label: t("amount"),
+            backgroundColor: ["#97B0C4"],
+        },
+    ],
+}))
+
+
 const tickDates = computed(() => store.state.archive.dates)
-const archive = computed(() => store.state.archive)
+const dateDetails = computed(() => store.state.archive.dateDetails)
 store.dispatch("getTickDates")
 const archiveDate = computed(() => {
-    if (archive.value.dateDetails[selectedDay.value]) {
-        return archive.value.dateDetails[selectedDay.value]
+    if (Array.isArray(selectedSpan.value)) {
+        const keyed = selectedSpan.value.join(",")
+        if (dateDetails.value[keyed]) {
+            return dateDetails.value[keyed]
+        }
     }
-    return t('No training data available for this day')
+    return {}
 })
 const attrs = computed(() => [
     {
@@ -147,13 +244,25 @@ const attrs = computed(() => [
     }
 ])
 const onDayClick = (evt) => {
+    // Day click depends on the calendar span.
+    // day selectes days, weeks or months
     const date = evt.id
-    selectedDay.value = date
-    store.dispatch('fetchArchiveDate', { date })
+    if (showSpan.value == 'day') {
+        selectedSpan.value = [date, date]
+    } else if (showSpan.value == 'week') {
+        selectedSpan.value = [dayjs(date).startOf('week').format("YYYY-MM-DD"), dayjs(date).endOf('week').format("YYYY-MM-DD")]
+    } else if (showSpan.value == 'month') {
+        selectedSpan.value = [dayjs(date).startOf('month').format("YYYY-MM-DD"), dayjs(date).endOf('month').format("YYYY-MM-DD")]
+    } else if (showSpan.value == 'year') {
+        selectedSpan.value = [dayjs(date).startOf('year').format("YYYY-MM-DD"), dayjs(date).endOf('year').format("YYYY-MM-DD")]
+    } else {
+        console.log("No idea what to do")
+    }
+    console.log("span", selectedSpan)
+    store.dispatch('fetchArchiveDate', { span: selectedSpan.value })
 }
 
 const reversedTicks = computed(() => archiveDate.value.ticks?.reverse() || [])
-
 const reversedProjects = computed(() => archiveDate.value.tries?.reverse() || [])
 /*
 const onlyProjectDays = computed(() => Object.keys(tickDates.value).reduce((acc, datekey) => {

@@ -78,7 +78,7 @@ const api = {
     return ret.data
   },
   async getArchiveDay(payload) {
-    const ret = await axios.get(endpoint+"/climber/archive/date/"+payload.date)
+    const ret = await axios.get(endpoint+"/climber/archive/span/?span="+payload.span)
     return ret.data
   },
   async getTickDates(payload) {
