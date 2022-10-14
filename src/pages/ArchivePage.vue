@@ -7,13 +7,12 @@
             <f7-nav-title> {{ t('archive.archive_title') }} </f7-nav-title>
         </f7-navbar>
         <f7-block>
-            <div class="text-center">Span: {{ selectedSpan}}</div>
+        <p class="mb-2">What is this sorcery? By default this will show your daily
+           ticks. But if you choose weekly/mohthly/yearly span and click
+           a day, it will fetch the ticks accordingly and populate the data.</p>
             <div class="flex flex-col items-center">
-                <div class="flex flex-col">
-                    <div class="flex flex-row gap-2">
-                        <div class="rounded-lg w-4 h-4 bg-red-500"></div>
-                        <div>Day with activity</div>
-                    </div>
+                <div class="flex flex-col justify-around">
+                    <div class="text-center">date span: {{ selectedSpan}}</div>
                     <!--
                 <div class="flex flex-row gap-2">
                     <div class="rounded-lg w-4 h-4 bg-orange-500"></div>
@@ -31,7 +30,7 @@
                     </template>
                 </calendar>
 
-                <label for="location" class="text-white">Show</label>
+                <label for="location" class="text-white">Show time span</label>
                 <select v-model="showSpan" class="text-black" id="location" name="location">
                     <option value="day">Day</option>
                     <option value="week">Week</option>
@@ -49,24 +48,26 @@
 
                 <div v-if="reversedTicks.length > 0 || reversedProjects.length > 0">
 
-                    <div class="flex flex-row justify-around my-1">
-                        <div class="text-center border border-gray-800 p-1">
+                    <div class="flex flex-row justify-around my-1 gap-2">
+                        <div class="text-center border border-gray-800 p-1 ">
                             Ticks
-                            <Bar :chart-options="{plugins : { legend: { display: false } }}" :chart-data="data" chart-id="archive_chart" :width="200" :height="100" />
+                            <Bar v-if="!loading" :chart-options="{plugins : { legend: { display: false } }}" :chart-data="data" chart-id="archive_chart_ticks" :width="200" :height="100" />
                         </div>
                         <div class="text-center border border-gray-700 p-1">
                             Projects
-                            <Bar :chart-options="{plugins : { legend: { display: false } }}" :chart-data="projectData" chart-id="archive_chart" :width="200" :height="100" />
+                            <Bar v-if="!loading" :chart-options="{plugins : { legend: { display: false } }}" :chart-data="projectData" chart-id="archive_chart_projs" :width="200" :height="100" />
                         </div>
                     </div>
 
                     <f7-block-title>Ticks</f7-block-title>
-                    <f7-list v-if="reversedTicks.length > 0" problem-list>
+                    <small>Want to see your weekly stats? Just choose week as a time span and click any 
+                    day on the weekday you want to show the data on.</small>
+                    <f7-list v-if="reversedTicks.length > 0" problem-list>0
                         <f7-list-item @swipeout:deleted="(evt) => onDeleted(tick, j)" swipeout v-for="(tick, index) in reversedTicks" :key="tick.id">
                             <template #media> {{ index + 1 }}. </template>
                             <template #title>
                                 <div class="flex flex-row">
-                                    <span class="px-1 pt-1 text-2xl font-bold">{{ tick.problem.grade.name }}</span>
+                                    <span class="px-1 pt-1 text-2xl font-bold w-16">{{ tick.problem.grade.name }}</span>
                                     <div class="flex flex-col">
                                         <div class="flex">
                                             <div v-if="tick.tries == 1" class="rounded-full font-bold text-yellow-400  ">
@@ -100,7 +101,7 @@
                             <template #media> {{ index + 1 }}. </template>
                             <template #title>
                                 <div class="flex flex-row">
-                                    <span class="px-1 pt-1 text-2xl font-bold">{{ tick.problem.grade.name }}</span>
+                                    <span class="px-1 pt-1 text-2xl font-bold w-16">{{ tick.problem.grade.name }}</span>
                                     <div class="flex flex-col">
                                         <div class="flex flex-row">
                                             <div class="rounded-full font-bold text-yellow-400">
@@ -140,7 +141,7 @@ import { useStore } from 'vuex'
 import dayjs from 'dayjs'
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
-import { computed, ref } from 'vue'
+import { computed, ref , onMounted} from 'vue'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'v-calendar/dist/style.css'
 import { Calendar, SetupCalendar, DatePicker } from 'v-calendar'
@@ -155,6 +156,10 @@ const guessed = ref(dayjs.tz.guess())
 dayjs.tz.setDefault(guessed.value)
 const { t } = useI18n()
 
+onMounted(() => {
+ selectedSpan.value = [dayjs().format("YYYY-MM-DD"),dayjs().format("YYYY-MM-DD")]
+})
+const loading = ref(true)
 const showSpan = ref('day')
 const selectedSpan = ref([])
 const ascentsByGrade = computed(() => {
@@ -259,7 +264,11 @@ const onDayClick = (evt) => {
         console.log("No idea what to do")
     }
     console.log("span", selectedSpan)
+    loading.value = true
     store.dispatch('fetchArchiveDate', { span: selectedSpan.value })
+    .then(() => {
+        loading.value = false
+    })
 }
 
 const reversedTicks = computed(() => archiveDate.value.ticks?.reverse() || [])

@@ -72,6 +72,7 @@ const messages = {
             climbed_problems: "Climbed {n}% of {n} problems",
         },
         archive : {
+            you_have_no_ticks : 'You have no ticks',
             archive_title: 'Tick archive',
         },
         mylogs: {
