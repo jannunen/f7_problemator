@@ -123,7 +123,7 @@ const tries = computed(() => store.state.alltime.tries)
 const lastDays = ref(30)
 const showOfType = ref('boulder')
 const ascentsByGrade = computed(() => getAscentsByGrade(grades.value, ticks.value,lastDays.value,showOfType.value))
-const ascentsFound = (ascentsByGrade.value.size > 0)
+const ascentsFound = computed(() => ascentsByGrade.value.size > 0)
 const labels = computed(() => Array.from(ascentsByGrade.value.keys()).map(
   (gradeId) => grades.value.find((grade) => grade.id == gradeId).name
 ))

@@ -216,7 +216,7 @@ export default createStore({
         return null
       }
       console.log("Loading profile for gym id",state.gymid,user.email)
-      const ret = await api.getProfile(state.gymid, user.email)
+      const ret = await api.getProfile(state.gymid, user.email, user.sub)
       if (ret!=null && ret.profile != null) {
         commit('profile', ret.profile)
         commit('gym', ret.gym)

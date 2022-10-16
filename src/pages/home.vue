@@ -6,15 +6,11 @@
       <f7-nav-title>Problemator</f7-nav-title>
       <f7-nav-right>
         <f7-link @click.prevent="store.commit('setSidePanel', true)">
-            <f7-icon
-                md="material:menu"
-                aurora="f7:menu"
-                ios="f7:menu"
-              />
+          <f7-icon md="material:menu" aurora="f7:menu" ios="f7:menu" />
         </f7-link>
       </f7-nav-right>
     </f7-navbar>
-  <left-sidepanel></left-sidepanel>
+    <left-sidepanel></left-sidepanel>
     <!-- Page content -->
     <div v-if="profileLoaded">
       <gym-selector />
@@ -30,7 +26,7 @@
         <badge-ranking />
       </div>
     </div>
-    <div v-else class="text-center mt-20">
+    <div v-else class="text-center">
       <!-- If profile is not yet loaded -->
       <!-- If should show preloader, show only if gym IS selected -->
       <div v-if="accessToken != null">
@@ -51,39 +47,19 @@
         </div>
       </div>
       <div v-else class="flex flex-col justify-center">
-          <!-- Show this only when not loading stuff... -->
-           
-           <div v-if="!initializing">
-            <h1 class="text-3xl text-white font-bold">Problemator</h1>
-            <p>
-              You are not logged in, please click the login or register button below
-            </p>
-            <f7-button
-              class="btn-primary"
-              @click="loginWithRedirect()"
-              >{{ t('Login / Register') }}</f7-button >
+        <!-- Show this only when not loading stuff... -->
 
-            </div>
-            <div v-else>
-               Gearing up.
-            </div>
-          
-
+        <div v-if="!initializing">
+          <show-login-instructions />
+        </div>
+        <div v-else>
+          Gearing up.
+        </div>
       </div>
     </div>
 
-    <f7-sheet
-      v-model:opened="isOpened"
-      style="height: auto"
-      close-on-escape
-      close-by-outside-click
-      swipe-to-close
-      @sheet:closed="isOpened = false"
-    >
-      <SearchProblemsSheetVue
-        @close="onSearchSheetClosed"
-        @start-navigate="onStartNavigate"
-      />
+    <f7-sheet v-model:opened="isOpened" style="height: auto" close-on-escape close-by-outside-click swipe-to-close @sheet:closed="isOpened = false">
+      <SearchProblemsSheetVue @close="onSearchSheetClosed" @start-navigate="onStartNavigate" />
     </f7-sheet>
   </f7-page>
 </template>
@@ -96,32 +72,21 @@ import MyLogs from '@components/home/MyLogs.vue'
 import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
-import { useAuth0 } from '@auth0/auth0-vue'
+import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
 import { toaster } from '@helpers/notifications.js'
-import { onMounted , computed} from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { watch } from 'vue'
 import { ref } from 'vue'
 import { useStore } from 'vuex'
-import { Ticks } from 'chart.js'
-const {
-  idTokenClaims,
-  getAccessTokenSilently,
-  loginWithRedirect,
-  logout,
-  user,
-} = useAuth0()
 const store = useStore()
 const initializing = computed(() => store.state.initializing)
 const profile = computed(() => store.state.profile)
 const accessToken = computed(() => store.state.access_token)
-const allTime = computed(() => store.state.alltime)
 const gym = computed(() => store.state.gym)
 const gymid = computed(() => store.state.gymid)
 const isOpened = ref(false)
-if (allTime.value.ticks.length == 0 && allTime.value.tries.length == 0) {
-  store.dispatch('loadAllTimeTicks')
-}
+
 const { t } = useI18n()
 const props = defineProps({
   f7router: Object,

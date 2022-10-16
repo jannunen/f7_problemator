@@ -26,6 +26,7 @@
     setup() {
         const { t } = useI18n() 
         const store = useStore()
+        const allTime = computed(() => store.state.alltime)
         const profile = computed(() => store.state.profile)
         store.dispatch("changeGym",localStorage.gymid)
         const { getInstance, getAccessTokenSilently, loginWithRedirect, user, isAuthenticated } = useAuth0()
@@ -38,15 +39,21 @@
 
         getAccessTokenSilently()
         .then(async (token) => {
+          console.log(user)
+          debugger
           store.commit('setToken', token)
-          console.log("access token1",token)
           if (profile.value.info == null) {
             await store.dispatch('getProfile')
+          }
+          if (allTime.value.ticks.length == 0 && allTime.value.tries.length == 0) {
+            store.dispatch('loadAllTimeTicks')
           }
           store.commit('setReady',true)
           store.commit('setInitializing',false)
         })
         .catch(async (err) => {
+          debugger
+          store.commit('setInitializing',false)
           // Not logged in, show login...
           store.commit('setIsAuthenticated',false)
         })

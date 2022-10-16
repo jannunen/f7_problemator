@@ -144,9 +144,11 @@ watch(localDarkMode, (isDarkTheme, oldValue) => {
 
 
 const doLogout = () => {
+  logout()
+  localStorage.setItem('token',null)
+  store.commit('setSidePanel', false)
   store.commit('setSelectedLeftPanelItem', 'logout')
   store.commit('isAuthenticated', false)
-  logout()
 }
 const sidePanelOpen = computed(() => store.state.sidePanelOpen)
 const selectedItem = computed(() => store.state.selectedItem)

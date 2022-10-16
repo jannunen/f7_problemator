@@ -151,11 +151,11 @@ const api = {
    const ret = await   axios .get(endpoint + '/my/ticks')
    return ret.data
   },
-  async getProfile(gymid,email) {
+  async getProfile(gymid,email,sub) {
     // Email is sent because this is the first call (usually?) and
     // when we get the auth0 in the backend, we can couple the 
     // user (email) and the auth0 user id for future use
-    const url = endpoint + `/profile?gymid=${gymid}&email=${email}`
+    const url = endpoint + `/profile?gymid=${gymid}&email=${email}&sub=${sub}`
     const ret = await axios.get(url)
     return ret.data
   },
