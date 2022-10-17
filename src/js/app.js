@@ -13,7 +13,6 @@ import Framework7 from 'framework7/lite-bundle'
 // Import F7-Vue Plugin Bundle (with all F7 components registered)
 import Framework7Vue, { registerComponents } from 'framework7-vue/bundle'
 import store from "./store.js";
-console.log(store)
 
 
 
@@ -46,9 +45,9 @@ const i18n = createI18n({
 app.use(i18n);
 
   const params = {
-    domain: 'dev-gi6uwf0r.us.auth0.com',
-    client_id: '9w5hh6NwrSZoQiLDRCoNHf7j3C9GGelz',
-    audience : 'https://api.problemator.fi',
+    domain: import.meta.env.VITE_AUTH0_DOMAIN ,
+    client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
+    audience : import.meta.env.VITE_AUTH0_AUDIENCE,
     redirect_uri: window.location.origin
   }
 app.use( createAuth0(params));

@@ -4,6 +4,8 @@ import vue from '@vitejs/plugin-vue'
 import { defineConfig, loadEnv } from 'vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
 import loadVersion from 'vite-plugin-package-version';
+import EnvironmentPlugin from 'vite-plugin-environment'
+
 const fs = require('node:fs');
 
 const SRC_DIR = path.resolve(__dirname, './src')
@@ -11,12 +13,9 @@ const PUBLIC_DIR = path.resolve(__dirname, './public')
 const BUILD_DIR = path.resolve(__dirname, './www')
 
 export default defineConfig(({ command, mode }) => {
-  const env = loadEnv(mode, process.cwd(), '')
+  process.env = {...process.env, ...loadEnv(mode, process.cwd())}
   return {
-    define: {
-      __APP_ENV__: env.APP_ENV
-    },
-    plugins: [loadVersion(), basicSsl(), vue(), framework7({ emitCss: false })],
+    plugins: [ EnvironmentPlugin('all', {prefix : 'VITE_'}),loadVersion(), basicSsl(), vue(), framework7({ emitCss: false })],
     root: SRC_DIR,
     base: '',
     publicDir: PUBLIC_DIR,

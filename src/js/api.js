@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { errorNotify  } from './helpers/notifications';
-export const endpoint = "https://localapi.problemator.fi/api/v03"
+export const endpoint = import.meta.env.VITE_API_HOST+"/api/v03"
+
 
 const formatDate = (date) => {
   const year = date.getFullYear();
