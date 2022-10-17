@@ -63,7 +63,6 @@ const addAscent = () => {
     })
     .catch((err) => {
       console.log(err)
-      debugger
     })
 }
 

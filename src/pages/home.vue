@@ -3,13 +3,17 @@
     <f7-navbar>
       <f7-nav-left>
       </f7-nav-left>
-      <f7-nav-title>Problemator</f7-nav-title>
+      <f7-nav-title>Problemator
+
+      </f7-nav-title>
       <f7-nav-right>
         <f7-link @click.prevent="store.commit('setSidePanel', true)">
           <f7-icon md="material:menu" aurora="f7:menu" ios="f7:menu" />
         </f7-link>
       </f7-nav-right>
     </f7-navbar>
+    
+    <show-tick-help :opened="showTickHelpDialog" />
     <left-sidepanel></left-sidepanel>
     <!-- Page content -->
     <div v-if="profileLoaded">
@@ -18,6 +22,17 @@
       <TodayHeader :profile="profile" @addtick="onAddTick" />
       <floor-map-block />
       <competitions-badge />
+      <div class="px-2" v-if="alltime.ticks.length == 0">
+        <div class="mt-8 m-4 rounded-md raised shadow-lg p-4 border border-gray-800">
+        <div class="bg-red-600 border border-red-300 p-2 dark:text-black text-white">
+        It seems that you have no ticks, if you should have, click here for instructions.
+        <p-button @click="showTickHelpDialog=true" class="text-sm bg-blue-400 py-1 px-4 border-white ">Help me</p-button>
+        Othewise this message will disappear after you start ticking problems. You can find this later from Settings-menu.
+        
+        </div>
+        </div>
+      </div>
+
       <my-logs :show-selector="true" />
 
       <div class="m-4 grid grid-cols-2 gap-2" v-if="profile">
@@ -73,17 +88,20 @@ import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
+import ShowTickHelp from '@components/home/ShowTickHelp.vue'
 import { toaster } from '@helpers/notifications.js'
-import { computed } from 'vue'
+import { computed, effect } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { watch } from 'vue'
 import { ref } from 'vue'
 import { useStore } from 'vuex'
 const store = useStore()
+const showTickHelpDialog = ref(false)
 const initializing = computed(() => store.state.initializing)
 const profile = computed(() => store.state.profile)
 const accessToken = computed(() => store.state.access_token)
 const gym = computed(() => store.state.gym)
+const alltime = computed(() => store.state.alltime)
 const gymid = computed(() => store.state.gymid)
 const isOpened = ref(false)
 

@@ -3,6 +3,7 @@ import framework7 from 'rollup-plugin-framework7'
 import vue from '@vitejs/plugin-vue'
 import { defineConfig, loadEnv } from 'vite'
 import basicSsl from '@vitejs/plugin-basic-ssl'
+import loadVersion from 'vite-plugin-package-version';
 const fs = require('node:fs');
 
 const SRC_DIR = path.resolve(__dirname, './src')
@@ -15,7 +16,7 @@ export default defineConfig(({ command, mode }) => {
     define: {
       __APP_ENV__: env.APP_ENV
     },
-    plugins: [basicSsl(), vue(), framework7({ emitCss: false })],
+    plugins: [loadVersion(), basicSsl(), vue(), framework7({ emitCss: false })],
     root: SRC_DIR,
     base: '',
     publicDir: PUBLIC_DIR,

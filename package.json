@@ -1,8 +1,8 @@
 {
-  "name": "backlogger",
+  "name": "Problemator",
   "private": true,
-  "version": "1.0.0",
-  "description": "Backlogger",
+  "version": "0.8.2",
+  "description": "Problemator is an app for tracking your climbing",
   "repository": "",
   "license": "UNLICENSED",
   "scripts": {

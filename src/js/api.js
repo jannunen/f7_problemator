@@ -61,6 +61,10 @@ const resultHandler = async (res) => {
   return json
 }
 const api = {
+  async requestSync(payload) {
+    const ret = await axios.post(endpoint+"/climber/"+payload.climberid+"/request_sync",payload)
+    return ret.data
+  },
   async getCompResults(payload) {
     const ret = await axios.get(endpoint+"/competitions/"+payload+"/results/?json=true")
     return ret.data

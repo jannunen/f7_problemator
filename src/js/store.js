@@ -64,8 +64,17 @@ export default createStore({
       dates : {},
       dateDetails : {}
     },
+    version : "",
+    server_version : "",
   },
+
   mutations: {
+    serverVersion(state, payload) {
+      state.server_version = payload
+    },
+    setVersion(state, payload) {
+      state.version = payload
+    },
     setTipShowStatus (state, payload) {
       state.tipShowStatus = payload
     },
@@ -197,6 +206,11 @@ export default createStore({
     }
   },
   actions: {
+
+    async requestSync({ state}, payload) {
+      const ret = await api.requestSync(payload)
+      return ret
+    },
     tipShowStatus({commit, state}, payload) {
       // When status change, save to localStorage and 
       // update state.
@@ -231,6 +245,7 @@ export default createStore({
         commit('walls', ret.walls)
         commit('climber', ret.climber)
         commit('profileLoaded', true )
+        commit('serverVersion',ret.version)
         return state.profile
       }
       return null

@@ -1,5 +1,6 @@
 <template>
   <div class="mt-8 m-4 rounded-md raised shadow-lg p-4 border border-gray-800">
+
     <div class="font-bold text-lg" style="color: #3bb273">{{ t('mylogs.my_logs') }} <a class="text-blue-500 text-sm" href="/archive">{{ t('mylogs.open_archive') }}</a></div>
 
     <div class="grid grid-cols-4">

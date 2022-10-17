@@ -37,10 +37,12 @@
         const tipShowStatus = JSON.parse(localStorage.getItem('tipShowStatus'))
         store.dispatch('tipShowStatus',tipShowStatus)
 
+        const version = import.meta.env.PACKAGE_VERSION
+        store.commit('setVersion',version)
+
         getAccessTokenSilently()
         .then(async (token) => {
           console.log(user)
-          debugger
           store.commit('setToken', token)
           if (profile.value.info == null) {
             await store.dispatch('getProfile')
@@ -52,7 +54,6 @@
           store.commit('setInitializing',false)
         })
         .catch(async (err) => {
-          debugger
           store.commit('setInitializing',false)
           // Not logged in, show login...
           store.commit('setIsAuthenticated',false)

@@ -1,5 +1,8 @@
 const messages = {
     en: {
+        sidepanel : {
+            join : 'If you want, you can help developing a better Problemator. Fork it from the github and send a pull request.'
+        },
         ascentstatusfilter : {
             all : 'All',
             projects : 'Projects',

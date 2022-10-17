@@ -263,7 +263,6 @@ const doTick = (id) => {
     sport_points : aSportPoints,
     grade_opinion: null,
   }
-  debugger
   store
     .dispatch('saveTick', payload)
     .then((ret) => {

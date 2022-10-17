@@ -85,6 +85,14 @@ watch(profile,(newValue, oldValue) => {
                </f7-list-input>
 
                 <f7-list-input
+                    label="Email"
+                    type="text"
+                    readonly
+                    v-model:value="settings.email"
+                >
+                </f7-list-input>
+
+                <f7-list-input
                     label="Gender"
                     type="select"
                     v-model:value="settings.gender"
