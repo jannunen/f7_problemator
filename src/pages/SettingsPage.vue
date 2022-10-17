@@ -83,6 +83,20 @@ watch(profile,(newValue, oldValue) => {
                     clear-button
                 >
                </f7-list-input>
+                <f7-list-input
+                    label="Height"
+                    type="text"
+                    placeholder="in cm"
+                    v-model:value="settings.height"
+                >
+                </f7-list-input>
+                <f7-list-input
+                    label="Ape index"
+                    placeholder="eg. +9"
+                    type="text"
+                    v-model:value="settings.apeindex"
+                >
+                </f7-list-input>
 
                 <f7-list-input
                     label="Email"
