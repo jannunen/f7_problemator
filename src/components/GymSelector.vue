@@ -3,7 +3,7 @@
     <f7-list class="m-0">
       <f7-list-item v-if="gyms.length == 0" title="Loading gyms...">
         <template #media>
-          <f7-skeleton-block style="width: 40px; height: 40px"></f7-skeleton-block>
+          <i class="f7-icons">building_2_crop_circle</i>
         </template>
       </f7-list-item>
       <f7-list-item
@@ -18,7 +18,7 @@
         }"
       >
         <template #media>
-          <f7-skeleton-block style="width: 40px; height: 40px"></f7-skeleton-block>
+          <i class="text-yellow-500  f7-icons">building_2_crop_circle</i>
         </template>
         <select @change="selectGym" name="active_gym">
           <!--<optgroup label="American">-->

@@ -29,9 +29,11 @@
       </f7-page>
     </f7-popup>
 
+    <div class="flex flex-row justify-end">
+      <p-badge class="text-sm py-1 bg-green-500">{{ t('comps.' + comp.tyyppi) }}</p-badge>
+    </div>
     <div class="flex flex-row justify-between">
       <h1 class="p-0 m-0 text-2xl font-bold">{{ comp.name }}</h1>
-      <p-badge class="text-sm py-1 bg-green-500">{{ t('comps.' + comp.tyyppi) }}</p-badge>
     </div>
     <div class="flex flex-row justify-between">
       Competition venue opens at: {{ toLocalTime(comp.compdate) }}
@@ -167,7 +169,6 @@ const tries = ref({})
 const getJudgingLink = computed(() => {
   if (props.comp != null) {
     const url = `/competitions/${props.comp.id}/judging`
-    console.log("url", url)
     return url
   }
 })

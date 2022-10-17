@@ -42,7 +42,6 @@
 
         getAccessTokenSilently()
         .then(async (token) => {
-          console.log(user)
           store.commit('setToken', token)
           if (profile.value.info == null) {
             await store.dispatch('getProfile')

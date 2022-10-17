@@ -152,7 +152,6 @@ export default createStore({
       state.isAuthenticated = true
     },
     setSidePanel (state, payload) {
-      console.log("Sidepanel open",payload)
       state.sidePanelOpen = payload
     },
     setDarkMode(state, payload) {
@@ -226,10 +225,8 @@ export default createStore({
       const user = state.user
       if (user == null) {
         // Don't load, no user
-        console.log("Cannot load profile, user is not set.")
         return null
       }
-      console.log("Loading profile for gym id",state.gymid,user.email)
       const ret = await api.getProfile(state.gymid, user.email, user.sub)
       if (ret!=null && ret.profile != null) {
         commit('profile', ret.profile)
@@ -350,7 +347,6 @@ export default createStore({
       const ret = await api.getArchiveDay(payload)
       //commit('archive' , {...state.archive, ['dateDetails'] : {...state.archive.dateDetails, [payload.span] : ret.day} })
       commit('archive' , {...state.archive, ['dateDetails'] : {...state.archive.dateDetails, [payload.span] : ret.day} })
-      console.log("Fetched date span",state.archive.dateDetails[payload.span])
       return ret.day
     },
     async getTickDates({state, commit, dispatch}, payload) {

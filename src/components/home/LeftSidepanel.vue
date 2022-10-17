@@ -58,6 +58,8 @@
 
         <div class="mx-2">
           <div class="my-1 font-bold text-teal-100">
+          User ID: {{ climber?.id }}<br />
+          Gym ID: {{ gym?.id }}<br />
           Version: {{ version }}
           </div>
           <div v-if="serverVersion != version" class="text-center">
@@ -89,7 +91,9 @@ import PButton from '@components/PButton.vue'
 import $ from 'dom7'
 const store = useStore()
 const showTickHelpDialog = ref(false)
+const gym = computed(() => store.state.gym)
 const version = computed(() => store.state.version)
+const climber = computed(() => store.state.climber)
 const serverVersion = computed(() => store.state.server_version)
 
 const { t } = useI18n()
