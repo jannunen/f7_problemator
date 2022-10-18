@@ -100,6 +100,7 @@ import { useStore } from 'vuex'
 import PButton from '@components/PButton.vue'
 import { computed} from 'vue'
 import { confirm, toaster } from '@helpers/notifications.js'
+import { handleValidationErrors } from '@helpers'
 const store = useStore()
 
 const { t } = useI18n()
@@ -148,6 +149,7 @@ const askRegister = (cat) => {
         .then(ret => {
             toaster(ret.message)
         })
+        .catch(err => toaster(handleValidationErrors(err)))
     },() => {
         // cancle
     })

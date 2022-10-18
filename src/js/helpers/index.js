@@ -3,6 +3,7 @@ import { jwtInterceptor } from './jwt.interceptor.js'
 import  routes  from '@js/routes'
 import { debounce, getTagShort, getRandom ,left, right, tipShown} from './utils.js'
 import { calculatePoints } from './problemator.js'
+import { handleValidationErrors } from './errors.js'
 
 export {
     authGuard,
@@ -17,5 +18,6 @@ export {
     getRandom,
     tipShown,
     calculatePoints,
+    handleValidationErrors,
 
 }
