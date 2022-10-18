@@ -21,7 +21,10 @@
           <span v-if="comp.participates" class="font-bold text-green-500">{{ t('comps.you_are_registered') }}</span>
           <span v-else-if="comp.participatesunpaid" class="font-bold text-red-500">{{ t('comps.you_are_registered_not_paid') }}</span>
           <span v-else>
-               <span v-if="isRegistrationPossible(comp)" class="text-orange-400 font-bold">{{ t('comps.not_registered') }}</span>
+               <div v-if="isFull(comp)" class="flex flex-row">
+               <div class="pe-2 text-red-700 font-bold">{{ t('comps.full') }}</div>
+               </div>
+               <span v-else-if="isRegistrationPossible(comp)" class="text-orange-400 font-bold">{{ t('comps.not_registered') }}</span>
         </span>
         </template>
         
@@ -36,25 +39,36 @@ import { useStore } from 'vuex'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
+import { toLocalTime } from '../js/helpers/component.helpers'
 const store = useStore()
 const { t } = useI18n()
-const isRegistrationPossible = (comp) => dayjs().isBefore(dayjs(comp.registration_end)) 
+const isFull = (comp) => (comp.maxcontenders != 0 && comp.paidregistrations_count >= comp.maxcontenders)
+const isRegistrationPossible = (comp) => {
+  if (comp.registration_start == null) {
+    return dayjs().isBefore(dayjs(comp.registration_end)) 
+  } else {
+    return dayjs().isAfter(comp.registration_start) && dayjs().isBefore(dayjs(comp.registration_end)) 
+  }
+}
 dayjs.extend(relativeTime)
 
 const getCompText = (comp) => {
-    if (isRegistrationPossible(comp)) {
-        return `${t('comps.registration_ends')} ${comp.registration_end}`
-        + ". " + t('comps.thats') +" "+ dayjs(comp.registration_end).fromNow()
+    if (!isFull(comp) && isRegistrationPossible(comp)) {
+        return `
+        ${t('Registration between')}: ${comp.registration_start || 'now'} - ${comp.registration_end}`
+        + ", " + t('ending in') +" "+ dayjs(comp.registration_end).fromNow()
     } else {
-        return `<strong>${t('comps.registration_has_ended')}</strong>`
+      if (!isFull(comp)) {
+        return `Registration time was/is ${toLocalTime(comp.registration_start)} - ${toLocalTime(comp.registration_end)}`
+      }
     }
 }
 const getLink = (comp) => {
-    if (isRegistrationPossible(comp)) {
+    if (!isFull(comp) && isRegistrationPossible(comp)) {
         return `/competitions/`+comp.id
     } else {
         return null
-    }
+    } 
 }
 const comps = computed(() => store.state.upcomingcomps)
 

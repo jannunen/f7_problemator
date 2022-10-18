@@ -26,10 +26,11 @@
             <span class="text-green-500 font-bold" v-if="comp.participates">{{ t('comps.you_are_registered') }}</span>
             <span v-else>
                 <div class="text-orange-400 font-bold">{{ t('comps.not_registered') }}</div>
+                <span v-if="isFull(comp)" class="text-red-700 font-bold">{{ t('comps.full') }}</span>
                 <span v-if="isRegistrationPossible(comp)">
-                    <div>{{ t('comps.comp_registration_ends') }} {{ comp.registration_end }}</div>
+                    <div>{{ t('Registration between') }} {{ toLocalTime(comp.registration_start) }} - {{ toLocalTime(comp.registration_end) }}</div>
                 </span>
-                <div v-else>{{ t('comp.registration_has_ended') }}</div>
+                <div v-else>Registration is between {{ toLocalTime(comp.registration_start)}} -  {{ toLocalTime(comp.registration_end)}}</div>
           </span>
           </template>
         </f7-list-item>
@@ -42,11 +43,19 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { computed} from 'vue'
 import dayjs from 'dayjs'
+import { toLocalTime } from '@helpers/component.helpers'
 import relativeTime from 'dayjs/plugin/relativeTime'
 const store = useStore()
 dayjs.extend(relativeTime)
 const { t } = useI18n()
-const isRegistrationPossible = (comp) => dayjs().isBefore(dayjs(comp.registration_end)) 
+const isFull = (comp) => (comp.maxcontenders != 0 && comp.paidregistrations_count >= comp.maxcontenders)
+const isRegistrationPossible = (comp) => {
+  if (comp.registration_start == null) {
+    return dayjs().isBefore(dayjs(comp.registration_end)) 
+  } else {
+    return dayjs().isAfter(comp.registration_start) && dayjs().isBefore(dayjs(comp.registration_end)) 
+  }
+}
 const getCompText = (comp) => {
   const left = dayjs().to(comp.timespan_end)
   return `${t('comps.ongoing_between')} ${dayjs(comp.timespan_start).format("YYYY-MM-DD HH:mm")} - ${
@@ -54,7 +63,12 @@ const getCompText = (comp) => {
   }<br />${t('comps.comp_time_ends_in')} ${left}`
 }
 const getLink = (comp) => {
-    return `/competitions/` + comp.id
+    // The actual link will be used, if registration IS possible and comp IS NOT full
+    if (comp.isjudge || (!isFull(comp) && isRegistrationPossible(comp))) {
+      return `/competitions/` + comp.id
+    } else {
+      return null
+    }
 }
 const comps = computed(() => store.state.upcomingcomps)
 
