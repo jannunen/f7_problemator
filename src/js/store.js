@@ -205,7 +205,11 @@ export default createStore({
     }
   },
   actions: {
-
+    async version({commit}) {
+      const ret = await api.version()
+      commit('serverVersion',ret.version)
+      return ret
+    },
     async requestSync({ state}, payload) {
       const ret = await api.requestSync(payload)
       return ret
@@ -239,7 +243,7 @@ export default createStore({
         commit('problems',problems)
         commit('styles',ret.styles)
         commit('grades',ret.grades)
-        commit('walls', ret.walls)
+        commit('walls', ret.gym.walls)
         commit('climber', ret.climber)
         commit('profileLoaded', true )
         commit('serverVersion',ret.version)

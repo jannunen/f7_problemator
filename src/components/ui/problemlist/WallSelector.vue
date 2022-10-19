@@ -21,7 +21,7 @@ const store = useStore()
 
 const oma = ref([])
 const { t } = useI18n()
-const walls = computed(() => store.state.walls)
+const walls = computed(() => store.state.gym.walls)
 
 const wallsDropdown = computed(() => {
   return walls.value.map(a => ({id : a.id, label : a.wallchar +" "+ a.walldesc }))

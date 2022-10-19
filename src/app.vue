@@ -49,6 +49,7 @@
           if (allTime.value.ticks.length == 0 && allTime.value.tries.length == 0) {
             store.dispatch('loadAllTimeTicks')
           }
+          store.dispatch('version')
           store.commit('setReady',true)
           store.commit('setInitializing',false)
         })

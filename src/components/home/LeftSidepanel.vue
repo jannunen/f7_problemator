@@ -62,8 +62,8 @@
           Gym ID: {{ gym?.id }}<br />
           Version: {{ version }}
           </div>
-          <div v-if="serverVersion != version" class="text-center">
-           New version available {{ serverVersion }}.<br /><p-button class="font-bold bg-green-600">Update now</p-button>
+          <div v-if="serverVersion != null && serverVersion != version" class="text-center">
+           New version available {{ serverVersion }}.<br /><p-button @click="updateVersion" class="font-bold bg-green-600">Update now</p-button>
           </div>
           
 
@@ -117,7 +117,9 @@ const openArchive = () => {
   store.commit('setSidePanel', false)
   f7.views.main.router.navigate("/archive")
 }
-
+const updateVersion = () => {
+  window.location.reload()
+}
 // Handles changing the dark/light theme. Seems a bit kludge, because it is.
 watch(localDarkMode, (isDarkTheme, oldValue) => {
   const self = this

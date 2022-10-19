@@ -63,6 +63,10 @@ const resultHandler = async (res) => {
   return json
 }
 const api = {
+  async version() {
+    const ret = await axios.get(endpoint+"/version")
+    return ret.data
+  },
   async requestSync(payload) {
     const ret = await axios.post(endpoint+"/climber/"+payload.climberid+"/request_sync",payload)
     return ret.data
