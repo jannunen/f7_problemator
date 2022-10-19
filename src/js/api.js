@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { errorNotify  } from './helpers/notifications';
-export const endpoint = import.meta.env.VITE_API_HOST+"/api/v03"
+export const webendpoint =import.meta.env.VITE_API_HOST
+export const endpoint = webendpoint+"/api/v03"
 
 
 const formatDate = (date) => {

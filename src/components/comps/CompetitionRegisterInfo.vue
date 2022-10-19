@@ -45,7 +45,8 @@
                     >{{ t('comps.pay_comp') }}</f7-button>
                   </div>
                   <div v-else-if="isRegistered(cat.id)" class="text-green-400 font-bold">
-                      {{ t('comps.registered_paid') }}
+                      {{ t('comps.registered') }}
+                      <span v-if="isPaid(cat.id)">{{ t('paid')}}</span>
                   </div>
                   <div v-else>
                     <button  @click="askRegister(cat)" class="btn-primary btn-small" >{{ t('comps.register_button') }}</button>
@@ -101,6 +102,7 @@ import PButton from '@components/PButton.vue'
 import { computed} from 'vue'
 import { confirm, toaster } from '@helpers/notifications.js'
 import { handleValidationErrors } from '@helpers'
+import dayjs from 'dayjs'
 const store = useStore()
 
 const { t } = useI18n()
@@ -114,6 +116,10 @@ const isRegisteredButUnpaid= (catid) => {
 }
 const isRegistered = (catid) => {
   return (props.comp.paidregistrations.find(x => x.id == climber.value.id && x.pivot.serieid == catid ) != null  )
+}
+const isPaid = (catid) => {
+  const row = props.comp.paidregistrations.find(x => x.id == climber.value.id && x.pivot.serieid == catid ) 
+  return row != null && row.paid != null && dayjs(row.paid).year() != 0
 }
 const isCategoryFull = (cat) => cat.maxparticipants - cat.participants.length <= 0
 const user = computed(() => store.state.user)

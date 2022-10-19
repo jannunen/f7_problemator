@@ -55,40 +55,58 @@
 
     </div>
 
-    <div v-if="compOngoing">
+    <div class="my-1" v-if="!isPaidAndPriceIsSet && !isPaymentForced">
+      There is a fee ({{ totalPrice }}), but you haven't paid yet.
+      <p-button class="bg-green-400 dark:bg-green-600" @click="openPaymentWindow">Pay now</p-button>
+      
+    </div>
+    <div v-if="!isPaidAndPriceIsSet && isPaymentForced ">
+      <div class="text-center my-2 font-bold text-red-300">
+        Competition has a fee, and you haven't paid the registration fee.
+        You cannot enter the competition unless you pay the registration fee.
+        <p-button class="bg-green-400 dark:bg-green-600" @click="openPaymentWindow">Pay now</p-button>
+      After the payment is done, if the page does not update
+      automatically, 
+      <a class="text-green-500" href="#" @click.prevent="f7.views.main.router.refreshPage()">click here</a>.
+      </div>
+    </div>
+    <div v-else>
+
+    <div v-if="compOngoing ">
+
       <div v-if="comp.tyyppi == 'variable_points'">
         <p-button class="bg-yellow-400 dark:bg-yellow-600" @click="showPointsPerRoute=!showPointsPerRoute">Toggle show points per route</p-button>
       </div>
-        <p-button class="my-1 bg-teal-400 dark:bg-teal-600" @click="showResultList=!showResultList">Toggle show result list</p-button>
+      <p-button class="my-1 bg-teal-400 dark:bg-teal-600" @click="showResultList=!showResultList">Toggle show result list</p-button>
       <f7-block-title class="text-center">
         <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
       </f7-block-title>
 
       <p class="text-center">Swipe left to delete an ascent</p>
-    <f7-list>
-      <f7-list-item>
-        <template #title>
-          <span class="text-3xl font-bold">{{ tickCount }}</span> /<span class="text-lg">{{ sortedProblems.length }}</span>
-          {{ t('comps.ticked') }}
-        </template>
-      </f7-list-item>
+      <f7-list>
+        <f7-list-item>
+          <template #title>
+            <span class="text-3xl font-bold">{{ tickCount }}</span> /<span class="text-lg">{{ sortedProblems.length }}</span>
+            {{ t('comps.ticked') }}
+          </template>
+        </f7-list-item>
 
-      <f7-list-item swipeout v-for="prob in sortedProblems" :key="prob.id">
-        <f7-swipeout-actions right>
-          <f7-swipeout-button color="red" close @click="() => onDeleted(prob.id)" confirm-text="Are you sure you want to delete this tick?">Delete</f7-swipeout-button>
-        </f7-swipeout-actions>
-        <template #media>
-          <div class="w-16 flex flex-row justify-between">
-            <div class="flex flex-col">
-              <div class="mr-1 font-bold text-xl">{{ prob.pivot.num }}</div>
-              <div class="mr-2 pt-0 text-sm font-bold">{{ right(prob?.tag,4) }}</div>
+        <f7-list-item swipeout v-for="prob in sortedProblems" :key="prob.id">
+          <f7-swipeout-actions right>
+            <f7-swipeout-button color="red" close @click="() => onDeleted(prob.id)" confirm-text="Are you sure you want to delete this tick?">Delete</f7-swipeout-button>
+          </f7-swipeout-actions>
+          <template #media>
+            <div class="w-16 flex flex-row justify-between">
+              <div class="flex flex-col">
+                <div class="mr-1 font-bold text-xl">{{ prob.pivot.num }}</div>
+                <div class="mr-2 pt-0 text-sm font-bold">{{ right(prob?.tag,4) }}</div>
+              </div>
+              <div class="flex flex-col w-8">
+                <div class="h-6 mt-3 w-6 border border-white rounded-md" :style="getStyles(prob)"></div>
+              </div>
             </div>
-            <div class="flex flex-col w-8">
-              <div class="h-6 mt-3 w-6 border border-white rounded-md" :style="getStyles(prob)"></div>
-            </div>
-          </div>
-        </template>
-        <template #title>
+          </template>
+          <template #title>
             <div v-if="comp.tyyppi == 'variable_points'">
               <f7-stepper fill :value="tries[prob.id]?.tries" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
             </div>
@@ -96,25 +114,27 @@
               <input :value="tries[prob.id]?.sport_points" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
             </div>
             <div v-else>
-               Comp type not supported (yet)
+              Comp type not supported (yet)
             </div>
-        </template>
-        <template #after>
-          <p-button @click="() => doTick(prob.id)" class="w-24 dark:bg-green-500 bg-green-600">tick</p-button>
-          <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
-          <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
-        </template>
-      </f7-list-item>
-    </f7-list>
+          </template>
+          <template #after>
+            <p-button @click="() => doTick(prob.id)" class="w-24 dark:bg-green-500 bg-green-600">tick</p-button>
+            <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
+            <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
+          </template>
+        </f7-list-item>
+      </f7-list>
     </div>
     <div v-else>
       {{ t('comps.the_comp_has_not_started_yet') }}
     </div>
+    </div><!-- if paid -->
   </div>
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { f7 } from 'framework7-vue'
 
 import { onUnmounted, onMounted, computed, ref } from 'vue'
 import PButton from '@components/PButton.vue'
@@ -124,6 +144,7 @@ import isBetween from 'dayjs/plugin/isBetween'
 import PBadge from '@components/PBadge.vue'
 import PointsPerRoute from './PointsPerRoute.vue'
 import ShowResults from './ShowResults.vue'
+import { webendpoint } from '@js/api.js'
 
 import { confirm, toaster } from '@helpers/notifications.js'
 import { toLocalTime } from '@helpers/component.helpers'
@@ -139,7 +160,7 @@ const props = defineProps({
 
 const store = useStore()
 const isTicked = (pid) => {
-  return (tries.value[pid]?.ticked )
+  return (tries.value[pid]?.ticked)
 }
 const showPointsPerRoute = ref(false)
 const showResultList = ref(false)
@@ -159,9 +180,15 @@ const isJudge = computed(() => {
   const judgeids = comp.judges.map(jobj => jobj.id)
   return judgeids.includes(climber.value.id)
 })
-const onChangeSportPoints =(pid,e) => {
+const openPaymentWindow = () => {
+  const link = document.createElement("a")
+  link.href = `${webendpoint}/comps/${props.comp.id}/contender/${climber.value.id}/payment`
+  link.target = "_blank"
+  link.click()
+}
+const onChangeSportPoints = (pid, e) => {
   if (tries.value[pid] == null) {
-    tries.value[pid] = { tries: 0 , sport_points : 0}
+    tries.value[pid] = { tries: 0, sport_points: 0 }
   }
   tries.value[pid].sport_points = e.target.value
 }
@@ -172,6 +199,30 @@ const getJudgingLink = computed(() => {
     return url
   }
 })
+const totalPrice = ref(0)
+const isPaymentForced = computed(() => props.comp.forcepayment == 1)
+const isPaidAndPriceIsSet = computed(() => {
+  // Now go through each row and check prices and payment statuses
+  const rows = props.comp.categories.reduce((acc, cat) => {
+    const finding = cat.participants.find(x => x.contenderid == climber.value.id)
+    if (finding != null) {
+      acc.push(finding)
+    }
+    return acc
+  }, [])
+  for (const rowKey in rows) {
+    const row = rows[rowKey]
+    const serie = props.comp.categories.find(x => x.id == row.serieid)
+    const price = parseFloat(serie.pivot.price)
+    totalPrice.value += price
+    // IF there is a price, but no payment info, return false immediately
+    if (!isNaN(price) && price > 0 && (row.paid == null || dayjs(row.paid).year() == 0)) {
+      return false
+    }
+  }
+  return true
+})
+
 const compOngoing = computed(() => {
   return dayjs().isBetween(
     dayjs(props.comp.timespan_start),
@@ -186,7 +237,7 @@ tries.value = Object.keys(props.comp.userticks).reduce((acc, key) => {
     tries: parseInt(aTick.tries),
     tries_bonus: parseInt(aTick.tries_bonus),
     ticked: true,
-    sport_points :aTick.sport_points, 
+    sport_points: aTick.sport_points,
   }
   return acc
 }, {})
@@ -203,7 +254,7 @@ const onDeleted = (id) => {
 }
 const setTries = (id, triesAmount) => {
   if (!(id in tries.value)) {
-    tries.value[id] = { tries: 0 , sport_points : 0}
+    tries.value[id] = { tries: 0, sport_points: 0 }
   }
   const newTries = { ...tries.value[id], tries: triesAmount }
   tries.value[id] = newTries
@@ -233,7 +284,7 @@ const fetchResults = () => {
       lastResultUpdate.value = dayjs()
     })
 }
-const resultTimerID = setInterval(fetchResults, 58 * 1000) 
+const resultTimerID = setInterval(fetchResults, 58 * 1000)
 fetchResults()
 
 onUnmounted(() => {
@@ -258,10 +309,10 @@ const doTick = (id) => {
 
   const payload = {
     ticktype: 'tick',
-    tries : aTries,
+    tries: aTries,
     created: new Date(),
     problemid: id,
-    sport_points : aSportPoints,
+    sport_points: aSportPoints,
     grade_opinion: null,
   }
   store
@@ -290,8 +341,8 @@ const tickCount = computed(() => {
   }, 0)
 })
 const sortedProblems = computed(() => {
-  
-  const probs =  props.comp.problems.sort((a, b) => {
+
+  const probs = props.comp.problems.sort((a, b) => {
     const anum = parseInt(a.pivot.num)
     const bnum = parseInt(b.pivot.num)
     if (anum - bnum == 0) {
@@ -304,10 +355,10 @@ const sortedProblems = computed(() => {
     // Add additional filtering, if there are route bindings...
     const compClimber = props.comp.paidregistrations.find(x => x.id == climber.value.id)
     return probs.filter(x => {
-        if (x.pivot == null) {
-            return true
-        }
-        return x.pivot.bind_to_category == compClimber.pivot.serieid 
+      if (x.pivot == null) {
+        return true
+      }
+      return x.pivot.bind_to_category == compClimber.pivot.serieid
     })
 
   }
