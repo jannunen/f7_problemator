@@ -249,6 +249,7 @@ export default createStore({
         commit('walls', ret.gym.walls)
         commit('climber', ret.climber)
         commit('profileLoaded', true )
+        commit('setIsAuthenticated', true )
         commit('setReady',true)
         commit('serverVersion',ret.version)
         return state.profile
