@@ -6,7 +6,7 @@
             </f7-nav-left>
             <f7-nav-title> {{ t('archive.archive_title') }} </f7-nav-title>
         </f7-navbar>
-        <f7-block>
+        <f7-block class="m-0 p-1">
             <p class="mb-2">What is this sorcery? By default this will show your daily
                 ticks. But if you choose weekly/mohthly/yearly span and click
                 a day, it will fetch the ticks accordingly and populate the data.</p>
@@ -50,11 +50,11 @@ can click again. <span class="font-bold text-red-300" v-if="!newClickPossible">w
                         <div class="flex flex-row justify-around my-1 gap-2">
                             <div class="text-center border border-gray-800 p-1 ">
                                 Ticks
-                                <Bar v-if="!loading" :chart-options="{plugins : { legend: { display: false } }}" :chart-data="data" chart-id="archive_chart_ticks" :width="200" :height="100" />
+                                <Bar v-if="!loading" :chart-options="{plugins : { legend: { display: false } }}" :chart-data="data" chart-id="archive_chart_ticks" :width="150" :height="100" />
                             </div>
                             <div class="text-center border border-gray-700 p-1">
                                 Projects
-                                <Bar v-if="!loading" :chart-options="{plugins : { legend: { display: false } }}" :chart-data="projectData" chart-id="archive_chart_projs" :width="200" :height="100" />
+                                <Bar v-if="!loading" :chart-options="{plugins : { legend: { display: false } }}" :chart-data="projectData" chart-id="archive_chart_projs" :width="150" :height="100" />
                             </div>
                         </div>
 
