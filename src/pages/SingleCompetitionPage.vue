@@ -15,15 +15,17 @@
       <div v-else>
           <competition-entry :comp="comp" />
       </div>
-
-      
     </f7-block>
+    <f7-block v-if="loading">
+      <div class="text-center mt-2">Loading competition data...</div>
+    </f7-block>
+      
   </f7-page>
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { onMounted, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import CompetitionRegisterInfo from '@components/comps/CompetitionRegisterInfo.vue'
 import CompetitionEntry from '@components/comps/CompetitionEntry.vue'
 
@@ -46,7 +48,9 @@ const isJudge = computed(() => {
     return x.id == climber.value.id
    }) 
 })
+const loading = ref(true)
 onMounted(() => {
   store.dispatch('getCompetition',props.compid)
+  .then(() => loading.value=false)
 })
 </script>
