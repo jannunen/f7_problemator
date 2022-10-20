@@ -22,6 +22,9 @@
                 <f7-list-input label="Email (read only)" type="text" readonly :value="climber.email"> </f7-list-input>
                 <f7-list-input label="Height" type="text" placeholder="in cm" v-model:value="climber.height"> </f7-list-input>
                 <f7-list-input label="Ape index" placeholder="eg. +9" type="text" v-model:value="climber.apeindex"> </f7-list-input>
+                <f7-list-input label="Team" placeholder="BK Climbers" type="text" v-model:value="climber.team"> </f7-list-input>
+                <f7-list-input label="City" placeholder="Göteborg" type="text" v-model:value="climber.city"> </f7-list-input>
+                <f7-list-input label="Country" placeholder="Sweden" type="text" v-model:value="climber.country"> </f7-list-input>
                 <f7-list-input label="Gender" type="select" v-model:value="climber.gender" placeholder="Please choose...">
                     <option v-for="gender in genders" :value="gender.id" :key="gender.id">{{ gender.name }}</option>
                 </f7-list-input>
@@ -69,7 +72,6 @@ const climber = ref({})
 
 onMounted(() => {
     const parsed = JSON.parse(JSON.stringify(profile.value))
-    debugger
     settings.value = {...parsed}
     climber.value = JSON.parse(JSON.stringify(climberStore.value))
 })
@@ -84,7 +86,9 @@ const ascentTypes = ref([
     { id: '1', name: 'top-rope' },
 ])
 const saveSettings = () => {
-    store.dispatch('saveSettings', settings.value)
+    // Incorporate two data sources
+    const payload = {...climber.value, ...settings.value}
+    store.dispatch('saveSettings',payload)
         .then(ret => {
             toaster(ret.message)
         })
