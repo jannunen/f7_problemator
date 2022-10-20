@@ -15,9 +15,11 @@
       <div v-else>
           <competition-entry :comp="comp" />
       </div>
-
-      
     </f7-block>
+    <f7-block v-if="loading">
+      <div class="text-center mt-2">Loading competition data...</div>
+    </f7-block>
+      
   </f7-page>
 </template>
 <script setup>
@@ -46,7 +48,9 @@ const isJudge = computed(() => {
     return x.id == climber.value.id
    }) 
 })
+const loading = ref(true)
 onMounted(() => {
   store.dispatch('getCompetition',props.compid)
+  .then(() => loading.value=false)
 })
 </script>
