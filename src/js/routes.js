@@ -1,6 +1,4 @@
 import Home from '../pages/Home.vue';
-import Loading from '../pages/Loading.vue';
-import Login from '../pages/Login.vue';
 import ProblemPage from '../pages/ProblemPage.vue';
 import SettingsPage from '../pages/SettingsPage.vue';
 import ArchivePage from '../pages/ArchivePage.vue';
@@ -10,11 +8,6 @@ import ProblemList from '../pages/ProblemList.vue';
 import UpcomingCompetitionsPage from '../pages/UpcomingCompetitionsPage.vue';
 import OngoingCompetitionsPage from '../pages/OngoingCompetitionsPage.vue';
 import SingleCompetitionPage from '../pages/SingleCompetitionPage.vue';
-
-import { authGuard } from '@js/auth/authguard.js';
-import { useAuth0 } from '@auth0/auth0-vue';
-const {  isAuthenticated } = useAuth0;
-
 
 const routes = [
   {

@@ -48,8 +48,9 @@ app.use(i18n);
     domain: import.meta.env.VITE_AUTH0_DOMAIN ,
     client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
     audience : import.meta.env.VITE_AUTH0_AUDIENCE,
-    redirect_uri: window.location.origin
+    redirect_uri: import.meta.env.VITE_REDIRECT_URI,
   }
+  console.log('redirect url',import.meta.env.VITE_REDIRECT_URI)
 app.use( createAuth0(params));
 
 // Mounte Vue App

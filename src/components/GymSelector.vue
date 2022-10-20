@@ -40,11 +40,11 @@
 <script setup>
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
-import {  computed, ref } from 'vue'
+import {  computed } from 'vue'
 const { t } = useI18n()
 const store = useStore()
-
 const gyms = computed(() => store.state.gyms)
+const emit = defineEmits(['select'])
 store.dispatch('getGyms')
 const gymid = computed(() => store.state.gymid)
 const selectGym = ({ target }) => {
@@ -53,5 +53,6 @@ const selectGym = ({ target }) => {
   const selectedGym = opt.value
   console.log("Changing gym to",selectedGym)
   store.dispatch('changeGym', selectedGym)
+  emit('select',selectedGym)
 }
 </script>

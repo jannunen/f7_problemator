@@ -48,7 +48,7 @@
         
          Now, please click the login or register button below.
     </p>
-    <p-button class="btn-primary" @click="loginWithRedirect()">{{ t('Login / Register') }}</p-button>
+    <p-button class="btn-primary" @click="loginWithRedirect">{{ t('Login / Register') }}</p-button>
     </div>
     
 </template>

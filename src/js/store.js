@@ -44,6 +44,7 @@ export default createStore({
     isAuthenticated : false,
     gymid : null,
     profile : {
+      settings : null,
     },
     alltime : {
       ticks : [],
@@ -55,7 +56,9 @@ export default createStore({
     filters : {...filtersInitial},
     gyms : [],
     problems : [],
-    gym : null,
+    gym : { 
+      problems :[],
+    },
     styles : [],
     grades : [],
     walls : [],
@@ -149,7 +152,6 @@ export default createStore({
     setToken( state  , payload) {
       state.access_token = payload
       localStorage.setItem('token', payload)
-      state.isAuthenticated = true
     },
     setSidePanel (state, payload) {
       state.sidePanelOpen = payload
@@ -222,30 +224,32 @@ export default createStore({
     },
     async getProfile({ commit, state } , payload) {
       commit('profileLoaded', false)
-      if (state.gymid == null || state.gymid == "undefined") {
-        // Don't load... Gym not selected.
-        return null
-      }
       const user = state.user
       if (user == null) {
         // Don't load, no user
+        console.log("User is null, argh, fail. exit.")
         return null
       }
-      const ret = await api.getProfile(state.gymid, user.email, user.sub)
+      const gymid = localStorage.gymid
+      commit('gymid',gymid)
+      const ret = await api.getProfile(gymid, user.email, user.sub)
       if (ret!=null && ret.profile != null) {
         commit('profile', ret.profile)
         commit('gym', ret.gym)
-        const problems = ret.gym.problems.reduce(( acc, prob) => {
-          acc[prob.id] = prob
-          return acc
+        if (ret.gym.problems != null) {
+          const problems = ret.gym.problems.reduce(( acc, prob) => {
+            acc[prob.id] = prob
+            return acc
 
-        },{})
-        commit('problems',problems)
+          },{})
+          commit('problems',problems)
+        }
         commit('styles',ret.styles)
         commit('grades',ret.grades)
         commit('walls', ret.gym.walls)
         commit('climber', ret.climber)
         commit('profileLoaded', true )
+        commit('setReady',true)
         commit('serverVersion',ret.version)
         return state.profile
       }
@@ -307,7 +311,7 @@ export default createStore({
       commit('user' , payload)
       return payload
     },
-    async login({ state , commit}, payload) {
+    async login({  commit}, payload) {
       const ret = await api.login(payload)
       if (ret.user != null) {
         // Login ok
@@ -331,7 +335,8 @@ export default createStore({
       return problem
     },
     async changeGym({state, commit, dispatch}, gymid) {
-      localStorage.gymid = gymid
+      localStorage.setItem('gymid', gymid)
+      commit('setReady',false)
       commit('gymid' ,gymid)
       dispatch('getProfile')
     },

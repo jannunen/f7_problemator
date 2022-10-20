@@ -15,7 +15,6 @@
 <script setup>
 import { ref ,computed} from 'vue'
 import store from '@js/store.js'
-import { f7,  useStore } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 

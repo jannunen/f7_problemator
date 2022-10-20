@@ -3,18 +3,15 @@
     <f7-navbar>
       <f7-nav-left>
       </f7-nav-left>
-      <f7-nav-title>Problemator
-
-      </f7-nav-title>
+      <f7-nav-title>Problemator </f7-nav-title>
       <f7-nav-right>
         <f7-link @click.prevent="store.commit('setSidePanel', true)">
           <f7-icon md="material:menu" aurora="f7:menu" ios="f7:menu" />
         </f7-link>
       </f7-nav-right>
     </f7-navbar>
-    
     <show-tick-help :opened="showTickHelpDialog" />
-    <left-sidepanel></left-sidepanel>
+    <left-sidepanel />
     <!-- Page content -->
     <div v-if="profileLoaded">
       <gym-selector />
@@ -24,12 +21,12 @@
       <competitions-badge />
       <div class="px-2" v-if="alltime.ticks.length == 0">
         <div class="mt-8 m-4 rounded-md raised shadow-lg p-4 border border-gray-800">
-        <div class="bg-red-600 border border-red-300 p-2 dark:text-black text-white">
-        It seems that you have no ticks, if you should have, click here for instructions.
-        <p-button @click="showTickHelpDialog=true" class="text-sm bg-blue-400 py-1 px-4 border-white ">Help me</p-button>
-        Othewise this message will disappear after you start ticking problems. You can find this later from Settings-menu.
-        
-        </div>
+          <div class="bg-red-600 border border-red-300 p-2 dark:text-black text-white">
+            It seems that you have no ticks, if you should have, click here for instructions.
+            <p-button @click="showTickHelpDialog=true" class="text-sm bg-blue-400 py-1 px-4 border-white ">Help me</p-button>
+            Othewise this message will disappear after you start ticking problems. You can find this later from Settings-menu.
+
+          </div>
         </div>
       </div>
 
@@ -42,35 +39,16 @@
       </div>
     </div>
     <div v-else class="text-center">
-      <!-- If profile is not yet loaded -->
-      <!-- If should show preloader, show only if gym IS selected -->
-      <div v-if="accessToken != null">
-        <div v-if="!profileLoaded">
-          Profile not loaded<br />
+        <div v-if="!ready">
+          <div class="p-4">
           <f7-preloader class="my-2"></f7-preloader>
           <br />
           Loading ...
+          </div>
         </div>
         <div v-else>
-          <f7-block>
-            <h1 class="text-2xl font-bold text-center">
-              {{ t('home.gym_not_selected') }}
-            </h1>
-            <p class="my-3">{{ t('home.gym_selection_info') }}</p>
-            <gym-selector />
-          </f7-block>
-        </div>
-      </div>
-      <div v-else class="flex flex-col justify-center">
-        <!-- Show this only when not loading stuff... -->
-
-        <div v-if="!initializing">
           <show-login-instructions />
         </div>
-        <div v-else>
-          Gearing up.
-        </div>
-      </div>
     </div>
 
     <f7-sheet v-model:opened="isOpened" style="height: auto" close-on-escape close-by-outside-click swipe-to-close @sheet:closed="isOpened = false">
@@ -98,37 +76,23 @@ import { useStore } from 'vuex'
 const store = useStore()
 const showTickHelpDialog = ref(false)
 const initializing = computed(() => store.state.initializing)
+const ready = computed(() => store.state.ready)
 const profile = computed(() => store.state.profile)
 const accessToken = computed(() => store.state.access_token)
 const gym = computed(() => store.state.gym)
 const alltime = computed(() => store.state.alltime)
-const gymid = computed(() => store.state.gymid)
+const user = computed(() => store.state.user)
 const isOpened = ref(false)
 
 const { t } = useI18n()
 const props = defineProps({
   f7router: Object,
 })
-watch(gym, (newValue, oldValue) => {
-  if (newValue != null && oldValue != null && newValue.id != oldValue.id) {
-    toaster('The gym has been changed!')
-  }
-})
 const profileLoaded = computed(() => store.state.profileLoaded)
-const gymSelectorOpen = ref(false)
 const onSearchSheetClosed = () => {
   isOpened.value = false
 }
 
-
-if (gymid.value == null || gymid.value == '' || isNaN(gymid.value)) {
-  gymSelectorOpen.value = true
-}
-watch(gymid, (newValue, oldValue) => {
-  if (!isNaN(newValue)) {
-    gymSelectorOpen.value = false
-  }
-})
 const onAddTick = () => {
   isOpened.value = true
 }

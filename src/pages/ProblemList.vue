@@ -7,6 +7,7 @@
       <f7-nav-title> {{ t('problemlist.problemlist') }} </f7-nav-title>
     </f7-navbar>
     <f7-block>
+       <h1 class="font-bold text-2xl text-center">{{ gym.name }}</h1>
       <div v-if="unfilteredProblemsExist">
 
         <f7-list accordion-list>
@@ -136,6 +137,7 @@ import {
 } from '@components/ui/problemlist/sortFunctions.js'
 const store = useStore()
 dayjs.extend(relativeTime)
+const gym = computed(() => store.state.gym)
 const tipDismiss = (which) => {
   const payload = {...tipShowStatus.value, [which] : true} 
   store.dispatch('tipShowStatus', payload)
@@ -167,7 +169,7 @@ onMounted(() => {
 })
 const { t, d, locale } = useI18n()
 const problems = computed(() => store.state.problems)
-const walls = computed(() => store.state.walls)
+const walls = computed(() => store.state.gym.walls)
 const grades = computed(() => store.state.grades)
 const tipShowStatus = computed(() => store.state.tipShowStatus)
 

@@ -1,5 +1,4 @@
 import axios from 'axios'
-import { errorNotify  } from './helpers/notifications';
 export const webendpoint =import.meta.env.VITE_API_HOST
 export const endpoint = webendpoint+"/api/v03"
 
@@ -13,55 +12,6 @@ const formatDate = (date) => {
   }`;
 };
 
-const fetchPost = (url, payload) => {
-  return axios.post(url, payload)
-  /*
-  return fetch(url, {
-    method : 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify(payload) 
-  });
-  */
-}
-const fetchGet = (url, payload) => {
-  return axios.get(url, payload)
-  /*
-  return fetch(url, {
-    method : 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
-    },
-    body: JSON.stringify(payload) 
-  });
-  */
-}
-
-const errorHandler = async (err) => {
-  try {
-    const json = err.response.data
-    errorNotify('Error from server',json.message)
-    if (json.message != null && json.message.match(/unauthenticated/i)) {
-      return null
-    }
-  } catch (e) {
-
-  }
-  return null
-
-    
-}
-const resultHandler = async (res) => {
-  const json = res?.data
-  if (json.message != null && json.message.match(/unauthenticated/i)) {
-    console.log("Invalidated login in resultHandler")
-    return null
-  }
-  return json
-}
 const api = {
   async version() {
     const ret = await axios.get(endpoint+"/version")
@@ -73,7 +23,7 @@ const api = {
   },
   async getCompResults(payload) {
     const ret = await axios.get(endpoint+"/competitions/"+payload+"/results/?json=true")
-    return ret.data
+    return ret.datgga
   },
   async getPointsPerRoute(payload) {
     const ret = await axios.get(endpoint+"/competitions/"+payload+"/points_per_route")

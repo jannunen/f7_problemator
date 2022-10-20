@@ -56,7 +56,7 @@ import { f7 } from 'framework7-vue'
 const props = defineProps({
   f7router: Object,
 })
-const { loginWithRedirect, getAccessTokenSilently, logout, user, isAuthenticated } = useAuth0();
+const { loginWithRedirect, getAccessTokenSilently, logout, user } = useAuth0();
 const email = ref('')
 const password = ref('')
 const errorNotification = ref(null)
