@@ -3,7 +3,7 @@
   <f7-app name="Problemator" id="fi.problemator.v2" :routes="routes" theme="aurora">
     <!-- initial page is specified in routes.js -->
 
-    <f7-view main url="/" :push-state="true"></f7-view>
+    <f7-view :browser-history="true" main url="/" :push-state="true"></f7-view>
   </f7-app>
 </template>
 <script>
