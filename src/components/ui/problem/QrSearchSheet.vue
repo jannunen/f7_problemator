@@ -10,9 +10,7 @@
         <h1 class="font-bold my-2 text-2xl">{{ t('searchprob.scan_qr_code_title') }}</h1>
         <p class="p-1">{{ t('searchprob.scan_qr_code_explainer') }}</p>
         <qrcode-stream v-if="opened" @decode="onDecode" />
-        <!--
-        <f7-button @click="onDecode('http://localhost:3000/#!/problem/67243')">Test decode</f7-button>
-        -->
+        <!-- <f7-button @click="onDecode('this_is_a test')">Test decode</f7-button> -->
       </f7-block>
     </f7-page>
   </f7-popup>
@@ -29,8 +27,9 @@ import { f7 } from 'framework7-vue'
   const onDecode = (code) => {
 
     // The QR code has format https://pwa.problemator.fi/#!/problem/67243
-    //code = "https://pwa.problemator.fi/#!/problem/67243"
-    const matches = code.match(/.*(\d+)/)
+    code = "https://localhost:3000/#!/problem/74722"
+    debugger
+    const matches = code.match(/.*?(\d+)$/)
     if (matches !== false) {
       const problemid = matches[1]
       emit('close')
