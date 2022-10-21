@@ -19,7 +19,7 @@
       <TodayHeader :profile="profile" @addtick="onAddTick" />
       <floor-map-block />
       <competitions-badge />
-      <div class="px-2" v-if="alltime.ticks.length == 0">
+      <div class="px-2" v-if="ticksLoaded && alltime.ticks.length == 0">
         <div class="mt-8 m-4 rounded-md raised shadow-lg p-4 border border-gray-800">
           <div class="bg-red-600 border border-red-300 p-2 dark:text-black text-white">
             It seems that you have no ticks, if you should have, click here for instructions.
@@ -67,21 +67,17 @@ import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
-import { toaster } from '@helpers/notifications.js'
-import { computed, effect } from 'vue'
+import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { watch } from 'vue'
 import { ref } from 'vue'
 import { useStore } from 'vuex'
 const store = useStore()
 const showTickHelpDialog = ref(false)
-const initializing = computed(() => store.state.initializing)
 const ready = computed(() => store.state.ready)
 const profile = computed(() => store.state.profile)
-const accessToken = computed(() => store.state.access_token)
 const gym = computed(() => store.state.gym)
 const alltime = computed(() => store.state.alltime)
-const user = computed(() => store.state.user)
+const ticksLoaded = computed(() => store.state.ticksLoaded)
 const isOpened = ref(false)
 
 const { t } = useI18n()
