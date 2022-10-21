@@ -73,6 +73,9 @@ export default createStore({
   },
 
   mutations: {
+    ticksLoaded (state, payload) {
+      state.ticksLoaded = payload
+    },
     serverVersion(state, payload) {
       state.server_version = payload
     },

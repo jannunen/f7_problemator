@@ -3,8 +3,13 @@
     <f7-view>
       <show-tick-help :opened="showTickHelpDialog" />
       <f7-page>
-        <f7-block>Problemator menu</f7-block>
-        <f7-list menu-list>
+        <f7-block class="flex flex-col items-center">
+          <h1 class="font-bold text-lg"> Problemator </h1>
+          <small>{{ version }}</small>
+          <img width="70" :src="logo" />
+          <span class="font-bold text-sm uppercase">Every problem counts</span>
+        </f7-block>
+        <f7-list v-if="isAuthenticated" menu-list>
           <f7-list-item link title="Home" :selected="selectedItem === 'home'" @click="() => store.commit('setSelectedLeftPanelItem', 'home')">
             <template #media>
               <f7-icon md="material:home" aurora="f7:house_fill" ios="f7:house_fill" />
@@ -31,13 +36,7 @@
               <f7-icon md="material:settings" aurora="f7:gear_alt_fill" ios="f7:gear_alt_fill" />
             </template>
           </f7-list-item>
-          <f7-list-item>
-            Dark mode
-            <f7-toggle v-model:checked="localDarkMode"></f7-toggle>
-            <template #media>
-              <f7-icon md="material:home" aurora="f7:house_fill" ios="f7:house_fill" />
-            </template>
-          </f7-list-item>
+
           <f7-list-item link title="Tick archive" :selected="selectedItem === 'archive'" @click="openArchive">
             <template #media>
               <f7-icon md="material:calendar_month" aurora="f7:calendar_month" ios="f7:calendar_month" />
@@ -49,32 +48,43 @@
             </template>
           </f7-list-item>
 
+          <f7-list-item>
+            Dark mode
+            <f7-toggle v-model:checked="localDarkMode"></f7-toggle>
+            <template #media>
+              <f7-icon md="material:home" aurora="f7:house_fill" ios="f7:house_fill" />
+            </template>
+          </f7-list-item>
+          <f7-list-item divider />
           <f7-list-item link title="Logout" :selected="selectedItem === 'logout'" @click="doLogout">
             <template #media>
               <f7-icon md="material:logout" aurora="f7:square_arrow_left" ios="f7:square_arrow_left" />
             </template>
           </f7-list-item>
+
         </f7-list>
 
-        <div class="mx-2">
-          <div class="my-1 font-bold text-teal-100">
-          User ID: {{ climber?.id }}<br />
-          Gym ID: {{ gym?.id }}<br />
-          Version: {{ version }}
+        <div class="flex flex-col mx-2 h-full justify-end items-center mt-4">
+          <div class="font-bold text-teal-100 h-full">
+            User ID: {{ climber?.id || 'N/A'}}<br />
+            Gym ID: {{ gym?.id || 'N/A'}}<br />
           </div>
           <div v-if="serverVersion != null && serverVersion != version" class="text-center">
-           New version available {{ serverVersion }}.<br /><p-button @click="updateVersion" class="font-bold bg-green-600">Update now</p-button>
+            New version available {{ serverVersion }}.<br />
+            <p-button @click="updateVersion" class="font-bold bg-green-600">Update now</p-button>
           </div>
-          
 
-            <div class="my-2">
+
+          <!--
+          <div class="my-2">
             {{ t('sidepanel.join') }}
             <a class="block" href="https://github.com/jannunen/f7_problemator.git">
-              <i class="fa fa-github">Open github</i>
+              <i class="fa fa-brands fa-github"></i> Open github repository
             </a>
-            </div>
-          
           </div>
+          -->
+
+        </div>
       </f7-page>
     </f7-view>
   </f7-panel>
@@ -89,11 +99,13 @@ import { ref, watch, computed } from 'vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
 import PButton from '@components/PButton.vue'
 import $ from 'dom7'
+import logo from '../../assets/images/logo.png'
 const store = useStore()
 const showTickHelpDialog = ref(false)
 const gym = computed(() => store.state.gym)
 const version = computed(() => store.state.version)
 const climber = computed(() => store.state.climber)
+const isAuthenticated = computed(() => store.state.isAuthenticated)
 const serverVersion = computed(() => store.state.server_version)
 
 const { t } = useI18n()
