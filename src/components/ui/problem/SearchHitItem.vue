@@ -15,24 +15,26 @@
     </template>
 
     <template #header>
-      <small> {{ problem.ascents_count }} {{ t('home.ascents') }}</small>
+      <small> {{ problem.total_ascents }} {{ t('home.ascents') }}</small>
     </template>
 
     <template #inner-end>
-       <p-badge>{{ t('home.by') }} {{ problem.author?.etunimi }} {{ left(problem.author?.sukunimi,1) }}.</p-badge>
+       <div class="text-sm">{{ problem.author?.etunimi }}&nbsp;{{ left(problem.author?.sukunimi,1) }}.</div>
     </template>
 
 
 
     <template #content-start>
-      <div v-if="isMyProject(problem.id) && !isMyTick(problem.id)">
-        <span class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-yellow-100 bg-yellow-600 rounded-full">P</span>
-      </div>
-      <div v-else-if="isMyTick(problem.id)">
-        <span class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-green-100 bg-green-600 rounded-full">✓</span>
-      </div>
-      <div v-else>
-        <span class="m-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none ">&nbsp;</span>
+      <div class="w-8">
+        <div v-if="isMyProject(problem.id) && !isMyTick(problem.id)">
+          <span class="m-1 inline-flex items-center justify-center px-1 py-1 text-xs font-bold leading-none text-yellow-100 bg-yellow-600 rounded-full">P</span>
+        </div>
+        <div v-else-if="isMyTick(problem.id)">
+          <span class="m-1 inline-flex items-center justify-center px-1 py-1 text-xs font-bold leading-none text-green-100 bg-green-600 rounded-full">✓</span>
+        </div>
+        <div v-else>
+          <span class="m-1 inline-flex items-center justify-center px-1 py-1 text-xs font-bold leading-none ">&nbsp;</span>
+        </div>
       </div>
     </template>
 

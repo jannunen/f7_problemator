@@ -4,7 +4,7 @@
     <round-badge :width="32" :bgColor="problem.colour.code"></round-badge>
     <div class="my-2">{{ getTagShort(problem.tag) }}</div>
     <div class="my-2 text-sm font-bold">
-      {{ t('problem.ascents', problem.ascentCount) }}
+      {{ t('problem.ascents', problem.total_ascents) }}
     </div>
     <div class="mt-2 text-sm font-bold">
       {{ t('problem.likes', problem.likeCount) }}

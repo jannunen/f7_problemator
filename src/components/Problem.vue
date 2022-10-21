@@ -1,17 +1,12 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { debounce, getTagShort } from '@js/helpers'
 import { computed, ref, onMounted } from 'vue'
-import RoundBadge from '@components/ui/RoundBadge.vue'
-import TickList from '@components/ui/problem/TickList.vue'
-import MyTicks from '@components/problem/MyTicks.vue'
 import AddTick from '@components/problem/AddTick.vue'
 import LeftDetails from '@components/problem/LeftDetails.vue'
 import RightDetails from '@components/problem/RightDetails.vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
-import ListStyles from '@components/ui/problem/ListStyles.vue'
 
 import { useStore } from 'vuex'
 import { f7, f7ready } from 'framework7-vue'
