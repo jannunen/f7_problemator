@@ -73,18 +73,15 @@
 
         </f7-list>
 
+        <div v-if="serverVersion != null && serverVersion != version" class="text-center">
+          New version available {{ serverVersion }}.<br />
+          <p-button @click="updateVersion" class="font-bold bg-green-600">Update now</p-button>
+        </div>
         <div class="flex flex-col mx-2 h-full justify-end items-center mt-4">
           <div class="font-bold text-teal-100 h-full">
             User ID: {{ climber?.id || 'N/A'}}<br />
             Gym ID: {{ gym?.id || 'N/A'}}<br />
           </div>
-          <div v-if="serverVersion != null && serverVersion != version" class="text-center">
-            New version available {{ serverVersion }}.<br />
-            <p-button @click="updateVersion" class="font-bold bg-green-600">Update now</p-button>
-          </div>
-          <div v-else>
-            No new version available
-            </div>
 
 
           <!--
