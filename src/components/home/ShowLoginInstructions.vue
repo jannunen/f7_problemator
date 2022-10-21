@@ -5,7 +5,7 @@
         
     <p>
         First of all, I am sorry for the long overdue update. There 
-        has been a lot of going on. Please read through the followingjj text.
+        has been a lot of going on. Please read through the following text.
         <br /><br />
         <h2 class="font-bold my-2">What's new?</h2>
         In this update, many of the old functionality has been stripped
