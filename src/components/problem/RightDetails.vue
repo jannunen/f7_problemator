@@ -40,7 +40,7 @@
     <div class="my-2 flex flex-row justify-between">
       <strong class="">{{ t('problem.routesetter') }}</strong>
       <span class="">
-        {{ problem.author.etunimi }} {{ left(problem.author.sukunimi,1) }}.<br />
+        {{ problem.author?.etunimi }} {{ left(problem.author?.sukunimi,1) }}.<br />
         {{ fromNow(problem.added) }}</span>
     </div>
     <!-- Show additional details -->
