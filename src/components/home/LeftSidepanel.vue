@@ -55,6 +55,15 @@
               <f7-icon md="material:home" aurora="f7:house_fill" ios="f7:house_fill" />
             </template>
           </f7-list-item>
+          <f7-list-item link title="Check for update" :selected="selectedItem === 'checkupdate'" @click="doVersionCheck">
+            <template #media>
+              <f7-icon md="material:refresh" aurora="f7:refresh" ios="f7:refresh" />
+            </template>
+            <template #after>
+              v{{ serverVersion}}
+            </template>
+          </f7-list-item>
+
           <f7-list-item divider />
           <f7-list-item link title="Logout" :selected="selectedItem === 'logout'" @click="doLogout">
             <template #media>
@@ -73,6 +82,9 @@
             New version available {{ serverVersion }}.<br />
             <p-button @click="updateVersion" class="font-bold bg-green-600">Update now</p-button>
           </div>
+          <div v-else>
+            No new version available
+            </div>
 
 
           <!--
@@ -147,6 +159,9 @@ watch(localDarkMode, (isDarkTheme, oldValue) => {
 })
 
 
+const doVersionCheck = () => {
+  store.dispatch('version')
+}
 const doLogout = () => {
   logout()
   localStorage.setItem('token', null)
