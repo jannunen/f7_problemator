@@ -46,6 +46,7 @@ export default createStore({
     profile : {
       settings : null,
     },
+    ticksLoaded : false,
     alltime : {
       ticks : [],
       tries : []
@@ -72,6 +73,9 @@ export default createStore({
   },
 
   mutations: {
+    ticksLoaded (state, payload) {
+      state.ticksLoaded = payload
+    },
     serverVersion(state, payload) {
       state.server_version = payload
     },
@@ -259,6 +263,7 @@ export default createStore({
     async loadAllTimeTicks({ commit, state}, payload) {
       const ret = await api.loadAllTimeTicks(payload)
       commit('allTimeTicks', ret)
+      commit('ticksLoaded',true)
     },
     async deleteProject({ commit, state}, payload) {
       const ret = await api.deleteProject(payload)

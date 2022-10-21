@@ -31,6 +31,7 @@ export default {
       isAuthenticated,
     } = useAuth0()
 
+    store.dispatch('version')
     // Save tip showing status in locaStorage.
     const tipShowStatus = JSON.parse(localStorage.getItem('tipShowStatus'))
     const access_token = computed(() => store.state.access_token)
@@ -68,7 +69,6 @@ export default {
           console.log('Loading ticks')
           store.dispatch('loadAllTimeTicks')
         }
-        store.dispatch('version')
         store.commit('setReady', true)
       }
       store.commit('setInitializing', false)
