@@ -108,7 +108,7 @@
           </template>
           <template #title>
             <div v-if="comp.tyyppi == 'variable_points'">
-              <f7-stepper fill :value="tries[prob.id]?.tries" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+              <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
             </div>
             <div v-else-if="comp.tyyppi=='sport'">
               <input :value="tries[prob.id]?.sport_points" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
@@ -304,8 +304,12 @@ const timeLeft = ref(null)
 
 const doTick = (id) => {
 
-  const aTries = tries.value[id].tries
-  const aSportPoints = tries.value[id].sport_points
+  let aTries = 1
+  let aSportPoints = 0
+  if (tries.value[id] != null) {
+    aTries = tries.value[id].tries
+    aSportPoints = tries.value[id].sport_points
+  }
 
   const payload = {
     ticktype: 'tick',
