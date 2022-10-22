@@ -61,9 +61,9 @@ can click again. <span class="font-bold text-red-300" v-if="!newClickPossible">w
                         <f7-block-title>Ticks</f7-block-title>
                         <small>Want to see your weekly stats? Just choose week as a time span and click any
                             day on the weekday you want to show the data on.</small>
-                        <f7-list v-if="reversedTicks.length > 0" problem-list>0
+                        <f7-list v-if="reversedTicks.length > 0" problem-list>
                             <f7-list-item @swipeout:deleted="(evt) => onDeleted(tick, j)" swipeout v-for="(tick, index) in reversedTicks" :key="tick.id">
-                                <template #media> {{ index + 1 }}. </template>
+                                <template #media> <div class="flex flex-col items-center">{{ index + 1 }}.<br /><span class="font-bold">{{ right(tick.problem.tag,4) }}</span> </div></template>
                                 <template #title>
                                     <div class="flex flex-row">
                                         <span class="px-1 pt-1 text-2xl font-bold w-16">{{ tick.problem.grade.name }}</span>
@@ -97,7 +97,7 @@ can click again. <span class="font-bold text-red-300" v-if="!newClickPossible">w
                         <f7-block-title>Tries / Projecting</f7-block-title>
                         <f7-list v-if="reversedProjects.length > 0">
                             <f7-list-item @swipeout:deleted="(evt) => onProjectDeleted(tick, j)" swipeout v-for="(tick, index) in reversedProjects" :key="tick.id">
-                                <template #media> {{ index + 1 }}. </template>
+                                <template #media> <div class="flex flex-col items-center">{{ index + 1 }}.<br /><span class="font-bold">{{ right(tick.problem.tag,4) }}</span> </div></template>
                                 <template #title>
                                     <div class="flex flex-row">
                                         <span class="px-1 pt-1 text-2xl font-bold w-16">{{ tick.problem.grade.name }}</span>
@@ -146,6 +146,8 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import 'v-calendar/dist/style.css'
 import { Calendar, SetupCalendar, DatePicker } from 'v-calendar'
 import { toaster, alert } from '@js/helpers/notifications.js'
+import { right } from '@js/helpers'
+
 import { Bar } from 'vue-chartjs'
 const store = useStore()
 
