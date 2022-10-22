@@ -198,6 +198,8 @@ const messages = {
 
         },
         home: {
+            hardest_climb : 'Hardest climb',
+            score_today : 'Score today',
             floor_maps: 'Floor maps',
             start_by_clicking_a_wall_or: 'Start by clicking a wall or',
             maps: 'map(s)',

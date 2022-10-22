@@ -3,18 +3,39 @@ import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
 import { useStore } from 'vuex'
+import { calculatePoints } from '@/js/helpers'
+
 const { t } = useI18n()
 const store = useStore()
 const props = defineProps({
   profile: Object,
 })
 const emit = defineEmits(['addtick'])
-const problems = computed(() => store.state.gym.problems)
+const grades = computed(() => store.state.grades)
 const ticks = computed(() => store.state.alltime.ticks.filter(x => dayjs(x.tstamp).isSame(dayjs(),'date')))
 const tries = computed(() => store.state.alltime.tries.filter(x => dayjs(x.tstamp).isSame(dayjs(),'date')))
 
 const ticksToday = computed(() =>  ticks.value.length )
 const triesToday = computed(() => tries.value.length)
+const hardestClimb = computed(() => {
+  const best = ticks.value.sort((b, a) => a.gradeid - b.gradeid).slice(0, 10).find(x => x!= null)
+  if (best != null) {
+    const grade = grades.value.find(x => x.id == best.gradeid)
+    return grade.name
+  }
+  return null
+})
+const scoreToday = computed(() => {
+  const top10 = ticks.value.sort((b, a) => a.gradeid - b.gradeid).slice(0, 10)
+  const points = top10.reduce((acc, item) => {
+    const grade = grades.value.find(x => x.id == item.gradeid)
+    if (grade != null && grade.score != null) {
+      acc += calculatePoints(grade.score, parseInt(item.tries))
+    }
+    return acc
+  }, 0)
+  return points
+})
 
 </script>
 <template>
@@ -22,8 +43,15 @@ const triesToday = computed(() => tries.value.length)
     <div class="my-2 text-center text-lg font-bold">{{ t('home.today') }}</div>
     <div class="flex flex-row justify-center mt-3">
       <div class="flex flex-col mx-4 text-center">
+        <div class="text-5xl font-bold leading-8">{{ scoreToday }}<br /></div>
+        <small class="mt-1 mb-2">{{ t('home.score_today') }}</small>
+        <div class="text-xl text-center leading-3">{{ hardestClimb }}</div>
+        <small>{{ t('home.hardest_climb') }}</small>
+      </div>
+
+      <div class="flex flex-col mx-4 text-center">
         <div class="text-5xl font-bold leading-8">{{ ticksToday }}<br /></div>
-        <small class="mb-2">{{ t('home.ascents') }}</small>
+        <small class="mt-1 mb-2">{{ t('home.ascents') }}</small>
         <div class="text-sm text-center leading-3">{{ triesToday }}</div>
         <small>{{ t('home.tries') }}</small>
       </div>
