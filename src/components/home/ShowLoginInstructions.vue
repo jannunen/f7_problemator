@@ -31,7 +31,7 @@
         <br /><br />
         <h2 class="font-bold my-2">Read this carefully</h2>
         <div class="p-2 bg-red-600 opacity-80 border border-red-300 rounded-md text-white">
-          <strong>Important!</strong> The authorization library has changed a
+          <strong>Important!</strong> The authorization library has changed to a
           3rd party library called <a href="https://auth0.com/">Auth0</a>. Use
           the same email with Auth0 as you used with the old version of Problemator,
           then the accounts should sync just fine. When you click login, you are 
