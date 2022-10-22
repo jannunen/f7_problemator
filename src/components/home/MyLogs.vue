@@ -158,13 +158,16 @@ const progress = computed(() => {
 
   // Then calculate top10 from each week and find points
   const top10s = Object.keys(ticksByTimeGroup).reduce((acc,yearWeek) => {
+    
     const ticks = ticksByTimeGroup[yearWeek]
     // Sort by hardes to easiest and take top10
     const top10 = ticks.sort((b,a) => a.gradeid - b.gradeid).slice(0,10)
     // Calculate top 10.
     const points = top10.reduce((acc,item) => {
        const grade = grades.value.find(x=>x.id ==item.gradeid) 
-       acc += calculatePoints(grade.score, parseInt(item.tries))
+       if (grade != null && grade.score != null) {
+         acc += calculatePoints(grade.score, parseInt(item.tries))
+       }
        return acc
     },0)
     acc.push({yearWeek, points})
