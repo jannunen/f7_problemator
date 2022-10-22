@@ -10,7 +10,7 @@
         </f7-link>
       </f7-nav-right>
     </f7-navbar>
-    <p-button class="bg-red-500 m-1" @click="reloadPage">Reload page</p-button>
+    <p-button class="bg-red-500 " @click="reloadPage">Reload page</p-button>
     <show-tick-help :opened="showTickHelpDialog" />
     <left-sidepanel />
     <!-- Page content -->
