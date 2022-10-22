@@ -2,7 +2,7 @@
   <f7-page>
     <f7-navbar>
       <f7-nav-left>
-        <f7-link href="/">&lt; home</f7-link>
+        <f7-link back>&lt; back</f7-link>
       </f7-nav-left>
       <f7-nav-title> {{ t('problemlist.problemlist') }} </f7-nav-title>
     </f7-navbar>
