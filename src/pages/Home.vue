@@ -10,6 +10,7 @@
         </f7-link>
       </f7-nav-right>
     </f7-navbar>
+    <p-button class="bg-red-500 m-1" @click="reloadPage">Reload page</p-button>
     <show-tick-help :opened="showTickHelpDialog" />
     <left-sidepanel />
     <!-- Page content -->
@@ -32,11 +33,13 @@
 
       <my-logs :show-selector="true" />
 
-      <div class="m-4 grid grid-cols-2 gap-2" v-if="profile">
+      <!--
+      <div class="m-4 grid grid-cols-2 gap-2" >
         <badge-groups />
         <badge-competitions />
         <badge-ranking />
       </div>
+      -->
     </div>
     <div v-else class="text-center">
         <div v-if="!ready">
@@ -67,6 +70,7 @@ import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
+import PButton from '@components/PButton.vue'
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { ref } from 'vue'
@@ -84,6 +88,9 @@ const { t } = useI18n()
 const props = defineProps({
   f7router: Object,
 })
+const reloadPage = () => {
+ location.reload() 
+}
 const profileLoaded = computed(() => store.state.profileLoaded)
 const onSearchSheetClosed = () => {
   isOpened.value = false
