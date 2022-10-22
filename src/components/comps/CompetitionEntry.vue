@@ -29,7 +29,8 @@
       </f7-page>
     </f7-popup>
 
-    <div class="flex flex-row justify-end">
+    <div class="flex flex-row justify-between">
+      <p-badge class="text-sm py-1 bg-blue-500">{{ comp.location }}</p-badge>
       <p-badge class="text-sm py-1 bg-green-500">{{ t('comps.' + comp.tyyppi) }}</p-badge>
     </div>
     <div class="flex flex-row justify-between">
