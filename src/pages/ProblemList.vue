@@ -109,6 +109,10 @@
           </div>
         </div>
       </div>
+      <div v-else>
+         <h2 class="font-bold text-2xl text-center">Are you sure a gym is selected?</h2>
+          <gym-selector />
+      </div>
     </f7-block>
   </f7-page>
 </template>
@@ -117,7 +121,7 @@
 // TODO: Add filter routes, problems
 import { ref, computed, onMounted, toRefs } from 'vue'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
-
+import GymSelector from '@components/GymSelector.vue'
 import { tipShown, left, getRandom } from '@js/helpers'
 import WallSelector from '@components/ui/problemlist/WallSelector.vue'
 import { maxSnap } from '@js/constants.js'
