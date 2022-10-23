@@ -27,8 +27,7 @@ import { f7 } from 'framework7-vue'
   const onDecode = (code) => {
 
     // The QR code has format https://pwa.problemator.fi/#!/problem/67243
-    code = "https://localhost:3000/#!/problem/74722"
-    debugger
+    //code = "https://localhost:3000/#!/problem/74722"
     const matches = code.match(/.*?(\d+)$/)
     if (matches !== false) {
       const problemid = matches[1]
