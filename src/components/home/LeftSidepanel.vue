@@ -160,11 +160,11 @@ const doVersionCheck = () => {
   store.dispatch('version')
 }
 const doLogout = () => {
-  logout()
   localStorage.setItem('token', null)
   store.commit('setSidePanel', false)
   store.commit('setSelectedLeftPanelItem', 'logout')
   store.commit('isAuthenticated', false)
+  logout({returnTo : import.meta.env.VITE_REDIRECT_URI})
 }
 const sidePanelOpen = computed(() => store.state.sidePanelOpen)
 const selectedItem = computed(() => store.state.selectedItem)
