@@ -31,7 +31,9 @@
         <br /><br />
         <h2 class="font-bold my-2">Read this carefully</h2>
         <div class="p-2 bg-red-600 opacity-80 border border-red-300 rounded-md text-white">
-          <strong>Important!</strong>
+          <strong class="text-lg">You cannot use your old login/password.</strong> You have to signup or
+          use Facebook/Google login after clicking login.
+          <br /><br />
           The easiest way is to use the same email address you used to
           login to the old version OR the same email you have
           associated to your Facebook login.
