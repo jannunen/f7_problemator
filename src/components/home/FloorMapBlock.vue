@@ -11,15 +11,17 @@
     </div>
     <div class="m-1 text-center">
       {{ t('home.start_by_clicking_a_wall_or') }}
-      <f7-link href="/problems" class="font-bold text-white  dark:bg-sky-700 bg-blue-500  py-0 mx-3 px-4 my-1">{{
+      <f7-button href="/problems" class="font-bold text-white  dark:bg-sky-700 bg-blue-500  py-1 mx-3 px-4 my-2">{{
         t('home.show_all_problems')
-      }}</f7-link>
+      }}</f7-button>
     </div>
   </f7-block>
   <div v-else class="text-center">
       <div class="mt-2">{{ t('home.floor_map_missing') }}</div>
-    <div class="font-bold text-white text-lg dark:bg-sky-700 bg-blue-500  py-3 mx-4 px-8 my-2" >
-      <f7-link  href="/problems">{{ capitalize(t('home.show_all_problems')) }}</f7-link>
+    <div  class="w-full">
+      <f7-link  href="/problems">
+      <p-button class="font-bold text-white text-lg dark:bg-sky-700 bg-blue-500  py-3 mx-4 px-10 my-2">{{ capitalize(t('home.show_all_problems')) }}</p-button>
+      </f7-link>
     </div>
   </div>
   </div>

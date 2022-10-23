@@ -31,16 +31,13 @@
         <br /><br />
         <h2 class="font-bold my-2">Read this carefully</h2>
         <div class="p-2 bg-red-600 opacity-80 border border-red-300 rounded-md text-white">
-          <strong>Important!</strong> The authorization library has changed to a
-          3rd party library called <a href="https://auth0.com/">Auth0</a>. Use
-          the same email with Auth0 as you used with the old version of Problemator,
-          then the accounts should sync just fine. When you click login, you are 
-          redirected to Auth0 login, which in turn redirects back to The Problemator. 
+          <strong>Important!</strong>
+          The easiest way is to use the same email address you used to
+          login to the old version OR the same email you have
+          associated to your Facebook login.
           <br /><br />
-          If you have used Facebook login before,
-          you will probably fail to find your old ascents. If this is the case, 
-          open the menu (top right) and choose settings. Fill in the field
-          "sync old settings from email" and click "request". Then you will get
+          If you cannot see your old ascents, open the menu (top right) and 
+          choose "Import ticks". Fill in the field "email" and click "Send instructions". Then you will get
           an email to your old email address and by confirming the email address,
           you will get your old ticks back!
 

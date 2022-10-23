@@ -206,7 +206,7 @@ const messages = {
             gym_not_selected: 'Gym not selected',
             gym_selection_info: 'Please select a gym you want to activate. You can change this later, so no sweat.',
             floor_map_missing: 'The gym floor map is missing',
-            show_all_problems: 'Show all problems',
+            show_all_problems: 'SHOW ALL PROBLEMS',
             by: 'by',
             'tries': 'Tries',
             'ascents': 'Ascents',
