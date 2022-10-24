@@ -12,16 +12,24 @@ const props = defineProps({
 })
 const emit = defineEmits(['addtick'])
 const grades = computed(() => store.state.grades)
-const ticks = computed(() => store.state.alltime.ticks.filter(x => dayjs(x.tstamp).isSame(dayjs(),'date')))
-const tries = computed(() => store.state.alltime.tries.filter(x => dayjs(x.tstamp).isSame(dayjs(),'date')))
+const allTicks = computed(() => store.state.alltime.ticks)
+const allTries = computed(() => store.state.alltime.tries)
+const ticks = computed(() => allTicks.value.filter(x => {
+  return  dayjs(x.tstamp).isSame(dayjs(),'date')
+}))
+const tries = computed(() => allTries.value.filter(x => {
+  return  dayjs(x.tstamp).isSame(dayjs(),'date')
+}))
 
-const ticksToday = computed(() =>  ticks.value.length )
-const triesToday = computed(() => tries.value.length)
+const ticksTodayLength = computed(() =>  ticks.value.length )
+const triesTodayLength = computed(() => tries.value.length)
 const hardestClimb = computed(() => {
   const best = ticks.value.sort((b, a) => a.gradeid - b.gradeid).slice(0, 10).find(x => x!= null)
   if (best != null) {
     const grade = grades.value.find(x => x.id == best.gradeid)
-    return grade.name
+    if (grade.name != null) {
+      return grade.name
+    }
   }
   return null
 })
@@ -50,9 +58,9 @@ const scoreToday = computed(() => {
       </div>
 
       <div class="flex flex-col mx-4 text-center">
-        <div class="text-5xl font-bold leading-8">{{ ticksToday }}<br /></div>
+        <div class="text-5xl font-bold leading-8">{{ ticksTodayLength }}<br /></div>
         <small class="mt-1 mb-2">{{ t('home.ascents') }}</small>
-        <div class="text-sm text-center leading-3">{{ triesToday }}</div>
+        <div class="text-sm text-center leading-3">{{ triesTodayLength }}</div>
         <small>{{ t('home.tries') }}</small>
       </div>
       <div class="mt-2">
