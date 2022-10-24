@@ -47,7 +47,7 @@
                     <f7-list-input type="text" :placeholder="t('Filter by problem name')" v-model:value="nameFilter" clear-button></f7-list-input>
                   </f7-list>
 
-                  <p-button @click="store.dispatch('resetFilters')" class=" bg-red-500 text-white my-2">
+                  <p-button @click="store.commit('resetFilters')" class=" bg-red-500 text-white my-2">
                     {{ t('problemlist.reset_filters') }}
                   </p-button>
                 </ul>
@@ -232,11 +232,16 @@ const filteredProblems = computed(() => {
 
   let { problemFilters, styles, gradeMin, gradeMax, walls, sort } = toRefs(filters.value)
   if (gradeMax.value != 'max') {
+    debugger
     const maxScore = gradeMax.value.score == 0 ? 99999999 : gradeMax.value.score
-    probs = probs.filter((item) => item.grade.score <= maxScore)
+    probs = probs.filter((item) => parseInt(item.grade.score) <= maxScore)
+    debugger
   }
   if (gradeMin.value != 'min') {
-    probs = probs.filter((item) => item.grade.score >= gradeMin.value.score)
+    debugger
+    const minScore = gradeMin.value.score 
+    probs = probs.filter((item) => parseInt(item.grade.score) >= minScore)
+    debugger
   }
   if (styles.value != null && styles.value.length > 0) {
     probs = probs.filter((item) => styles.value.every((i) => item.styles.includes(i)))

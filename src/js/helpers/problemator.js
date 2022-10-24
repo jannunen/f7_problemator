@@ -1,7 +1,8 @@
 const calculatePoints = (points, tries) => {
     // Give a little bonus for a flash
     if (tries == 1) {
-        return points + 10
+        // Flash makes 7a -> 7b
+        return points + 200
     }
     if (tries < 10) {
         // Subtract a little for each extra try.
