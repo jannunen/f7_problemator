@@ -62,7 +62,7 @@
             {{ Object.keys(problems).length }} {{ t('problemlist.problems') }}
           </div>
           <div v-if="!tipShown(tipShowStatus, 'quicktick')" class="p-4 mb-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-blue-200 dark:text-blue-800" role="alert">
-            <span class="font-medium">Tip!</span> You can tick faster by swiping a problem left. Add a quick try by swiping right.
+            <span class="font-medium">Tip!</span> You can tick faster by swiping a problem LEFT. Add a quick try by swiping RIGHT.
             <a href="#" class="text-red-600 text-sm" @click.prevent="tipDismiss('quicktick')">do not show again</a>
           </div>
           <div v-if="filters.walls.length > 0">
@@ -232,13 +232,11 @@ const filteredProblems = computed(() => {
 
   let { problemFilters, styles, gradeMin, gradeMax, walls, sort } = toRefs(filters.value)
   if (gradeMax.value != 'max') {
-    debugger
     const maxScore = gradeMax.value.score == 0 ? 99999999 : gradeMax.value.score
     probs = probs.filter((item) => parseInt(item.grade.score) <= maxScore)
     debugger
   }
   if (gradeMin.value != 'min') {
-    debugger
     const minScore = gradeMin.value.score 
     probs = probs.filter((item) => parseInt(item.grade.score) >= minScore)
     debugger
