@@ -8,14 +8,18 @@
         has been a lot of going on. Please read through the following text.
         <br /><br />
         <h2 class="font-bold my-2">Read this carefully</h2>
-        <div class="p-2 bg-red-600 opacity-80 border border-red-300 rounded-md text-white">
-          <strong class="text-lg"> Do NOT use the old login</strong>
-          Sign up again with the same email you used before
-          OR use Facebook/Google login after clicking login.
-          <br /><br />
+        <div class="p-2 bg-red-600  border border-red-300 rounded-md text-white">
+          <div class="font-bold text-center">NEW USER</div>
+          Click the button below and signup
+          <br />
+          <br />
+          <div class="font-bold text-center">OLD USER</div>
+          Click the button below and signup again with the
+          email you used to use before.
+          <br />
         </div>
     </p>
-    <p-button class="btn-primary" @click="loginWithRedirect">{{ t('Login / Register') }}</p-button>
+    <p-button class="btn-primary" @click="loginWithRedirect">{{ t('Login / Signup') }}</p-button>
         <h2 class="font-bold my-2">Cookie policy</h2>
         And by the way, we <strong>do use</strong> cookies, as does almost
         every web app. We're not selling your soul to third parties. By
