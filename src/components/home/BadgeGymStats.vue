@@ -9,20 +9,19 @@
             <div class="font-bold">Routes</div>
             <p class="w-3/5 flex mx-auto flex-row justify-between gap-2 text-xl"><span class="text-2xl">{{ percentageRoutes }}%</span> of <span class="text-2xl">{{ totalRoutes }}</span></p>
         </div>
-        
     </div>
 </template>
 <script setup>
-import { ref ,computed} from 'vue'
+import { ref, computed } from 'vue'
 import store from '@js/store.js'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
 const props = defineProps({
-    gym : Object,
+    gym: Object,
 })
-const profile = computed(() => store.state.profile)
 const problems = computed(() => store.state.gym.problems)
+const ticks = computed(() => store.state.alltime.ticks)
 
 const percentageRoutes = ref(0)
 const totalRoutes = ref(0)
@@ -33,46 +32,44 @@ const totalBoulders = ref(0)
 const tickedAmountBoulders = ref(0)
 
 const amounts = problems.value.reduce((acc, item) => {
-    if (item.routetype =='boulder') {
+    if (item.routetype == 'boulder') {
         acc.totalBoulders = acc.totalBoulders + 1
-    } else if (item.routetype =='sport') {
+    } else if (item.routetype == 'sport') {
         acc.totalRoutes = acc.totalRoutes + 1
     }
     return acc
-},{totalRoutes : 0, totalBoulders : 0})
+}, { totalRoutes: 0, totalBoulders: 0 })
 
 totalRoutes.value = amounts.totalRoutes
 totalBoulders.value = amounts.totalBoulders
 
-if (profile.value.info != null) {
-    // Count only unique ticks
-    const problemsids = profile.value.info.ticked.map((tick) => tick.problemid);
+debugger
+const problemsids = ticks.value.map((tick) => tick.problemid)
 
-    // Calulate ticked problems/routes amounts
-    const distinctProblems = [...new Set(problemsids)];
+// Calulate ticked problems/routes amounts
+const distinctProblems = [...new Set(problemsids)]
 
-    const ret  = distinctProblems.reduce((acc,pid) => {
-        const problem = problems.value.find(item => item.id==pid)
-        if (problem != null) {
-            if (problem.routetype == 'boulder') {
-                acc.boulders = acc.boulders + 1
-            } else if (problem.routetype == 'sport') {
-                acc.routes = acc.routes + 1
-            }
-            acc.total = acc.total + 1
+const ret = distinctProblems.reduce((acc, pid) => {
+    const problem = problems.value.find(item => item.id == pid)
+    if (problem != null) {
+        if (problem.routetype == 'boulder') {
+            acc.boulders = acc.boulders + 1
+        } else if (problem.routetype == 'sport') {
+            acc.routes = acc.routes + 1
         }
-        return acc
+        acc.total = acc.total + 1
+    }
+    return acc
+}, { routes: 0, boulders: 0, total: 0 })
+tickedAmountBoulders.value = ret.boulders
+tickedAmountRoutes.value = ret.routes
 
-    },{routes : 0, boulders : 0, total : 0})
-    tickedAmountBoulders.value = ret.boulders
-    tickedAmountRoutes.value = ret.routes
-}
 if (totalRoutes.value > 0) {
-    percentageRoutes.value = Math.round((tickedAmountRoutes.value / totalRoutes.value) * 1000) / 10;
+    percentageRoutes.value = Math.round((tickedAmountRoutes.value / totalRoutes.value) * 1000) / 10
 }
 
 if (totalBoulders.value > 0) {
-    percentageBoulders.value = Math.round((tickedAmountBoulders.value / totalBoulders.value) * 1000) / 10;
+    percentageBoulders.value = Math.round((tickedAmountBoulders.value / totalBoulders.value) * 1000) / 10
 }
 
 </script>
