@@ -290,7 +290,7 @@ export default createStore({
     },
     async saveTick({ state, commit}, payload) {
       const ret = await api.saveTick(payload)
-      commit('updateProblem', ret)
+      commit('updateProblem', ret.problem)
       // Update also tries in profile
       if (payload.ticktype=='tick') {
         commit('addTicksAllTime',ret.tick) 
