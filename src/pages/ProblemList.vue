@@ -171,7 +171,6 @@ onMounted(() => {
 const { t, d, locale } = useI18n()
 const problems = computed(() => store.state.problems)
 watch (problems, (newValue) => {
-  debugger
   if (problems.value.length == 0) {
     store.dispatch('getProblems')
   }
