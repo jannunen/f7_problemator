@@ -4,7 +4,7 @@
     <!-- initial page is specified in routes.js -->
 
     <f7-view 
-    :push-state="false"
+    :push-state="true"
     :browser-history="true" 
     url="/" 
     main 
