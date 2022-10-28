@@ -8,13 +8,18 @@
     </f7-navbar>
   </f7-page>
   <f7-block>
-  <completion-bar-chart :width="400" :height="300" :data="getActiveProblemsByGrade" />
+    <div v-if="getActiveProblemsByGrade != null" >
+    <completion-bar-chart :width="400" :height="300" :data="getActiveProblemsByGrade" />
+    </div>
+    <div v-else>
+      No data
+      </div>
   </f7-block>
 </template>
 <script setup>
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
-import { watch, onMounted, computed } from 'vue'
+import { computed } from 'vue'
 import CompletionBarChart from '@components/gym_completion/CompletionBarChart.vue'
 
 const { t } = useI18n()
@@ -53,7 +58,8 @@ const getActiveProblemsByGrade = computed(() => {
     })
     /* these must be returned as in format:
     [
-      {grade : "6a+",available : 10, done: 8}
+      {grade : "6a+",available : 10, done: 8},
+      {grade : "6b+",available : 11, done: 4},
     ]
     */
     return grades.value.map(g => {
