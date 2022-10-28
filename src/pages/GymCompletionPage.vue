@@ -6,15 +6,15 @@
       </f7-nav-left>
       <f7-nav-title> {{ t('gym.gym_completion_title') }} </f7-nav-title>
     </f7-navbar>
-  </f7-page>
   <f7-block>
     <div v-if="getActiveProblemsByGrade != null" >
-    <completion-bar-chart :width="400" :height="300" :data="getActiveProblemsByGrade" />
+    <completion-bar-chart :width="400" :height="600" :data="getActiveProblemsByGrade" />
     </div>
     <div v-else>
       No data
       </div>
   </f7-block>
+  </f7-page>
 </template>
 <script setup>
 import { useStore } from 'vuex'
