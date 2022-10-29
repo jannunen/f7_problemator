@@ -1,5 +1,6 @@
 <template>
     <h2 class="text-lg font-bold my-1 text-center uppercase">Problem/Route completion status</h2>
+    <f7-button @click="f7.views.main.router.navigate('/gym/completion')">Open more details</f7-button>
     <div v-if="gym != null" class="p-2 border border-gray-700 text-center grid grid-cols-2">
         <div>
             <div class="font-bold">Boulders</div>
@@ -12,6 +13,7 @@
     </div>
 </template>
 <script setup>
+import { f7  } from 'framework7-vue'
 import { ref, computed } from 'vue'
 import store from '@js/store.js'
 import { useI18n } from 'vue-i18n'
@@ -43,7 +45,6 @@ const amounts = problems.value.reduce((acc, item) => {
 totalRoutes.value = amounts.totalRoutes
 totalBoulders.value = amounts.totalBoulders
 
-debugger
 const problemsids = ticks.value.map((tick) => tick.problemid)
 
 // Calulate ticked problems/routes amounts

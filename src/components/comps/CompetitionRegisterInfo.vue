@@ -8,7 +8,7 @@
         <div class="demo-facebook-name">{{ comp.name }}</div>
         <div class="demo-facebook-date">{{ comp.compdate }}</div>
       </f7-card-header>
-      <f7-card-content>
+      <f7-card-content v-if="comp != null">
         <small class="text-gray-300 my-0">ID: {{ comp.id }}</small>
         <div class="my-2">
           Location: <strong>@{{ comp.location }}</strong>
@@ -37,23 +37,20 @@
                   {{ t('comps.category_full_text') }}
                 </div>
                 <div v-else>
-                  <div v-if="isRegisteredButUnpaid(cat.id)" class="text-yellow-400 font-bold">
-                      {{ t('comps.registered_unpaid') }}
-                    <f7-button  
-                    color="green"
-                      :link="getPaymentLink(cat)"
-                    >{{ t('comps.pay_comp') }}</f7-button>
-                  </div>
-                  <div v-else-if="isRegistered(cat.id)" class="text-green-400 font-bold">
+                  <div v-if="isRegistered(cat.id)" class="text-green-400 font-bold">
                       {{ t('comps.registered') }}
-                      <span v-if="isPaid(cat.id)">{{ t('paid')}}</span>
+                    <div v-if="isPaid(cat.id)" class="text-green-400 font-bold">
+                      {{ t('comps.paid')}}
+                    </div>
+                    <div v-else class="text-yellow-400 font-bold">
+                        {{ t('comps.registered_unpaid') }}
+                      <f7-button  color="green" :link="getPaymentLink(cat)" >{{ t('comps.pay_comp') }}</f7-button>
+                      </div>
+                    <p-button  @click="askUnRegister(cat)" class="bg-red-500" >{{ t('comps.quit_comp') }}</p-button>
+
                   </div>
                   <div v-else>
                     <button  @click="askRegister(cat)" class="btn-primary btn-small" >{{ t('comps.register_button') }}</button>
-                  </div>
-                  <div v-if="isRegistered(cat.id) || isRegisteredButUnpaid(cat.id)">
-                    <p-button  @click="askUnRegister(cat)" class="bg-red-500" >{{ t('comps.quit_comp') }}</p-button>
-
                   </div>
                 </div>
               </template>
@@ -75,7 +72,7 @@
                 <br />
                 <span class="text-green-600 text-sm ">
                   {{ t('comps.paidregistrations') }}
-                  {{ cat.participants.length }}
+                  {{ cat.participants?.length || 0 }}
                 </span>
                 <span class="px-1 text-white">|</span>
                 <span class="text-orange-600 text-sm mx-1 ">
@@ -111,15 +108,19 @@ const props = defineProps({
 })
 const climber = computed(() => store.state.climber)
 
-const isRegisteredButUnpaid= (catid) => {
-  return  (props.comp.unpaidregistrations.find(x => x.id == climber.value.id && x.pivot.serieid == catid ) != null  )
-}
 const isRegistered = (catid) => {
-  return (props.comp.paidregistrations.find(x => x.id == climber.value.id && x.pivot.serieid == catid ) != null  )
+  if (climber.value == null) {
+    return false
+  }
+  return (props.comp.paidregistrations.find(x => x.id == climber.value.id && x.pivot.serieid == catid ) != null  ) ||
+  (props.comp.unpaidregistrations.find(x => x.id == climber.value.id && x.pivot.serieid == catid ) != null  ) 
 }
 const isPaid = (catid) => {
+  if (climber.value == null) {
+    return false
+  }
   const row = props.comp.paidregistrations.find(x => x.id == climber.value.id && x.pivot.serieid == catid ) 
-  return row != null && row.paid != null && dayjs(row.paid).year() != 0
+  return row != null && row.pivot.paid != null && dayjs(row.pivot.paid).year() != 0
 }
 const isCategoryFull = (cat) => cat.maxparticipants - cat.participants.length <= 0
 const user = computed(() => store.state.user)

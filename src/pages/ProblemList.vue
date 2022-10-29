@@ -7,9 +7,8 @@
       <f7-nav-title> {{ t('problemlist.problemlist') }} </f7-nav-title>
     </f7-navbar>
     <f7-block>
-       <h1 class="font-bold text-2xl text-center">{{ gym.name }}</h1>
+      <h1 class="font-bold text-2xl text-center">{{ gym.name }}</h1>
       <div v-if="unfilteredProblemsExist">
-
         <f7-list accordion-list>
           <f7-list-item accordion-item title="Show filters">
             <f7-accordion-content>
@@ -63,13 +62,11 @@
           </div>
           <div v-if="!tipShown(tipShowStatus, 'quicktick')" class="p-4 mb-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-blue-200 dark:text-blue-800" role="alert">
             <span class="font-medium">Tip!</span> You can tick faster by swiping a problem LEFT. Add a quick try by swiping RIGHT.
-            <a href="#" class="text-red-600 text-sm" @click.prevent="tipDismiss('quicktick')">do not show again</a>
+            <a href="#" class="text-red-600 text-md" @click.prevent="tipDismiss('quicktick')">do not show again</a>
           </div>
           <div v-if="filters.walls.length > 0">
             <div class="font-bold">{{ t('problemlist.wall_filter_active') }}:</div>
-            <span v-for="selWall in getSelectedWallNames" :key="selWall">{{
-              selWall
-            }}</span>
+            <span v-for="selWall in getSelectedWallNames" :key="selWall">{{ selWall }}</span>
           </div>
 
 
@@ -80,7 +77,7 @@
               </li>
               <li v-if="filters.sort.match(/routesetter/) && routesettersDiffer(idx)" class="list-group-title">
                 <h3>
-                  {{ problem.author.etunimi }} {{ left(problem.author.sukunimi ,1) }}.
+                  {{ problem.author.etunimi }} {{ left(problem.author.sukunimi, 1) }}.
                   <small>({{ problem.wall?.wallchar }} {{ problem.wall?.walldesc }})</small>
                 </h3>
               </li>
@@ -118,7 +115,7 @@
 <script setup>
 // TODO: Add list index
 // TODO: Add filter routes, problems
-import { ref, computed, onMounted, toRefs } from 'vue'
+import { watch, ref, computed, onMounted, toRefs } from 'vue'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
 import { tipShown, left, getRandom } from '@js/helpers'
 import { maxSnap } from '@js/constants.js'
@@ -140,7 +137,7 @@ const store = useStore()
 dayjs.extend(relativeTime)
 const gym = computed(() => store.state.gym)
 const tipDismiss = (which) => {
-  const payload = {...tipShowStatus.value, [which] : true} 
+  const payload = { ...tipShowStatus.value, [which]: true }
   store.dispatch('tipShowStatus', payload)
 }
 
@@ -170,7 +167,11 @@ onMounted(() => {
 })
 const { t, d, locale } = useI18n()
 const problems = computed(() => store.state.problems)
-
+watch (problems, (newValue) => {
+  if (problems.value.length == 0) {
+    store.dispatch('getProblems')
+  }
+})
 const walls = computed(() => store.state.gym.walls)
 const grades = computed(() => store.state.grades)
 const tipShowStatus = computed(() => store.state.tipShowStatus)
@@ -214,10 +215,10 @@ const sortedWalls = computed(() => {
 
 const minChanged = debounce((value) => {
   store.commit('setFilterGradeMin', value)
-},100)
+}, 100)
 const maxChanged = debounce((value) => {
   store.commit('setFilterGradeMax', value)
-},100)
+}, 100)
 const onStylesChanged = (changedStyles) => {
   // set active filters.
   store.commit('setFilterStyles', changedStyles)
@@ -235,7 +236,7 @@ const filteredProblems = computed(() => {
     probs = probs.filter((item) => parseInt(item.grade.score) <= maxScore)
   }
   if (gradeMin.value != 'min') {
-    const minScore = gradeMin.value.score 
+    const minScore = gradeMin.value.score
     probs = probs.filter((item) => parseInt(item.grade.score) >= minScore)
   }
   if (styles.value != null && styles.value.length > 0) {

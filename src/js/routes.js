@@ -4,6 +4,7 @@ import SettingsPage from '../pages/SettingsPage.vue';
 import ArchivePage from '../pages/ArchivePage.vue';
 import JudgingPage from '../pages/JudgingPage.vue';
 import ProblemPopup from '../pages/ProblemPopup.vue';
+import GymCompletionPage from '../pages/GymCompletionPage.vue';
 import ProblemList from '../pages/ProblemList.vue';
 import UpcomingCompetitionsPage from '../pages/UpcomingCompetitionsPage.vue';
 import OngoingCompetitionsPage from '../pages/OngoingCompetitionsPage.vue';
@@ -60,6 +61,10 @@ const routes = [
       component: ProblemPopup,
       swipeToClose: 'to-bottom',
     },
+  },
+  {
+    path: '/gym/completion',
+    component: GymCompletionPage,
   },
   {
     path: '/problem/:id',

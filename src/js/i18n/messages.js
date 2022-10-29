@@ -1,5 +1,8 @@
 const messages = {
     en: {
+        gym : {
+            gym_completion_title : 'Gym completion',
+        },
         sidepanel : {
             join : 'If you want, you can help developing a better Problemator. Fork it from the github and send a pull request.'
         },

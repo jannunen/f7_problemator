@@ -4,18 +4,10 @@
     <h1 class="text-3xl text-white font-bold">Problemator</h1>
         
     <p>
-        First of all, I am sorry for the long overdue update. There 
-        has been a lot of going on. Please read through the following text.
         <br /><br />
-        <h2 class="font-bold my-2">Read this carefully</h2>
         <div class="p-2 bg-red-600  border border-red-300 rounded-md text-white">
-          <div class="font-bold text-center">NEW USER</div>
-          Click the button below and signup
-          <br />
-          <br />
-          <div class="font-bold text-center">OLD USER</div>
-          Click the button below and signup again with the
-          email you used to use before.
+          <div class="font-bold text-2xl text-center">Do the SIGNUP</div>
+          Don't try to login with your old credentials.
           <br />
         </div>
     </p>

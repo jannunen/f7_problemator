@@ -70,7 +70,7 @@ watch(svg, (newValue) => {
         (data)
 
     // Show the bars
-    const bars = svg.append("g")
+    svg.append("g")
         .selectAll("g")
         // Enter in the stack data = loop key per key = group per group
         .data(stackedData)
@@ -86,7 +86,6 @@ watch(svg, (newValue) => {
         .attr("width", x.bandwidth())
 
 
-
 })
 const viewBox = computed(() => {
     return `0 0 ${props.width} ${props.height}`
@@ -95,11 +94,4 @@ const viewBox = computed(() => {
 
 <style lang="sass">
 
-#chart
-    background-color: #212121
-    opacity : 0.8
-
-.label 
-    color : #fff
-    fill : #fff
 </style>
