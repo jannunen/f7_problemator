@@ -271,7 +271,7 @@ const lastResultUpdate = ref(dayjs())
 let timerID = null
 
 if (props.comp.tyyppi == 'variable_points') {
-  timerID = setInterval(() => {
+  const fetchPointsPerRoute = () => {
     // Update points per route
     const payload = { compid: props.comp.id }
     store.dispatch('getPointsPerRoute', payload)
@@ -279,7 +279,9 @@ if (props.comp.tyyppi == 'variable_points') {
         lastUpdate.value = dayjs()
       })
 
-  }, 27 * 1000) // every 30 seconds
+  }
+  timerID = setInterval(fetchPointsPerRoute , 27 * 1000) // every 30 seconds
+  fetchPointsPerRoute()
 }
 
 const fetchResults = () => {
