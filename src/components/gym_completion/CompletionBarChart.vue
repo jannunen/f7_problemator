@@ -37,34 +37,8 @@ watch(svg, (newValue) => {
         .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")")
 
-    const data =
-        [
-            {
-                "group": "banana",
-                "Nitrogen": 12,
-                "normal": 1,
-                "stress": 13
-            },
-            {
-                "group": "poacee",
-                "Nitrogen": 6,
-                "normal": 6,
-                "stress": 33
-            },
-            {
-                "group": "sorgho",
-                "Nitrogen": 11,
-                "normal": 28,
-                "stress": 12
-            },
-            {
-                "group": "triticum",
-                "Nitrogen": 19,
-                "normal": 6,
-                "stress": 1
-            },
-        ]
-    const subgroups = [ 'Nitrogen', 'normal', 'stress']
+    const data = props.data
+    const subgroups = [ 'done','available']
     // List of groups = species here = value of the first column called group -> I show them on the X axis
     var groups = d3.map(data, function (d) { return (d.group) })
 
