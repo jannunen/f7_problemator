@@ -7,7 +7,7 @@
     <div  class="w-full" v-for="serie in results" :key="serie.category.id">
       <div class="font-bold my-1">{{ serie.category.nimi }}</div>
       <table width="100%" class="text-gray-500 dark:text-gray-400">
-        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-1" v-for="result in serie.results " :key="serie.category.id+'_'+result.id">
+        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-1" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+result.id">
           <td class="w-1/12">{{result.standing}}</td>
           <td class="w-4/12">{{ result.climber.etunimi }} {{ result.climber.sukunimi }}</td>
           <td class="w-3/12">{{ result.climber.team }} </td>
@@ -119,7 +119,7 @@ const props = defineProps({
   type: String, 
   results: Object, 
 })
-const sortResults = (keyedResults) =>  Object.keys(keyedResults).map(key => keyedResults[key]).sort((a,b) => { return a.standing - b.standing })
+const sortResults = (keyedResults) =>  Object.keys(keyedResults).map(key => keyedResults[key]).sort((a,b) => { return parseInt(a.standing) - parseInt(b.standing)})
 
 
 </script>
