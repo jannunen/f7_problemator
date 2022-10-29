@@ -1,4 +1,5 @@
 <template>
+  {{ type }}
   <!-- If competition is variable points, this works.. -->
   <div v-if="type == 'variable_points' && results != null">
     <small>Last update {{ lastUpdate.format("YYYY-MM-DD HH:mm.ss") }}<br /></small>

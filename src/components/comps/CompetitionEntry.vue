@@ -56,7 +56,7 @@
 
     </div>
 
-    <div class="my-1" v-if="!isPaidAndPriceIsSet && !isPaymentForced">
+    <div class="my-1" v-if="loaded && !isPaidAndPriceIsSet && !isPaymentForced">
       There is a fee ({{ totalPrice }}), but you haven't paid yet.
       <p-button class="bg-green-400 dark:bg-green-600" @click="openPaymentWindow">Pay now</p-button>
       
@@ -137,7 +137,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { f7 } from 'framework7-vue'
 
-import { onUnmounted, onMounted, computed, ref } from 'vue'
+import { onUnmounted,  computed, ref } from 'vue'
 import PButton from '@components/PButton.vue'
 import { right } from '@js/helpers'
 import duration from 'dayjs/plugin/duration'
@@ -155,6 +155,7 @@ import timezone from "dayjs/plugin/timezone"
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
+
 const props = defineProps({
   comp: Object,
 })
@@ -163,6 +164,7 @@ const store = useStore()
 const isTicked = (pid) => {
   return (tries.value[pid]?.ticked)
 }
+const loaded = ref(false)
 const showPointsPerRoute = ref(false)
 const showResultList = ref(false)
 dayjs.extend(duration)
@@ -203,6 +205,9 @@ const getJudgingLink = computed(() => {
 const totalPrice = ref(0)
 const isPaymentForced = computed(() => props.comp.forcepayment == 1)
 const isPaidAndPriceIsSet = computed(() => {
+  if (climber.value == null) {
+    return false
+  }
   // Now go through each row and check prices and payment statuses
   const rows = props.comp.categories.reduce((acc, cat) => {
     const finding = cat.participants.find(x => x.contenderid == climber.value.id)
@@ -266,7 +271,7 @@ const lastResultUpdate = ref(dayjs())
 let timerID = null
 
 if (props.comp.tyyppi == 'variable_points') {
-  timerID = setInterval(() => {
+  const fetchPointsPerRoute = () => {
     // Update points per route
     const payload = { compid: props.comp.id }
     store.dispatch('getPointsPerRoute', payload)
@@ -274,7 +279,9 @@ if (props.comp.tyyppi == 'variable_points') {
         lastUpdate.value = dayjs()
       })
 
-  }, 27 * 1000) // every 30 seconds
+  }
+  timerID = setInterval(fetchPointsPerRoute , 27 * 1000) // every 30 seconds
+  fetchPointsPerRoute()
 }
 
 const fetchResults = () => {
@@ -283,9 +290,10 @@ const fetchResults = () => {
   store.dispatch('getCompResults', payload)
     .then(() => {
       lastResultUpdate.value = dayjs()
+      loaded.value = true
     })
 }
-const resultTimerID = setInterval(fetchResults, 58 * 1000)
+const resultTimerID = setInterval(fetchResults, 32 * 1000)
 fetchResults()
 
 onUnmounted(() => {

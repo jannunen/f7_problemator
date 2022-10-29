@@ -1,12 +1,13 @@
 <template>
   <!-- Main Framework7 App component where we pass Framework7 params -->
-  <f7-app name="Problemator" id="fi.problemator.v2" :routes="routes" theme="aurora">
+  <f7-app name="Problemator" id="fi.problemator.v2" :routes="routes" theme="aurora"
+  >
     <!-- initial page is specified in routes.js -->
 
     <f7-view 
-    :push-state="false"
-    :browser-history="true" 
-    url="/" 
+    :push-state="true"
+    :browser-history="true"
+    :browser-history-root="historyRoot"
     main 
     ></f7-view>
   </f7-app>
@@ -28,6 +29,7 @@ export default {
     const store = useStore()
     const allTime = computed(() => store.state.alltime)
     const profile = computed(() => store.state.profile)
+    const historyRoot = import.meta.env.VITE_REDIRECT_URI
     const {
       getInstance,
       getAccessTokenSilently,
@@ -84,6 +86,7 @@ export default {
       store,
       routes,
       isAuthenticated,
+      historyRoot,
       accessToken : access_token.value,
     }
   },

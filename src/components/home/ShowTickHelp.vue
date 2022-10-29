@@ -50,6 +50,7 @@ import { useI18n } from 'vue-i18n'
 import { tipShown } from '@js/helpers'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
+import { f7  } from 'framework7-vue'
 
 const {
   idTokenClaims,
