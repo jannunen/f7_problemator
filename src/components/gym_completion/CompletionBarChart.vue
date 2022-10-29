@@ -23,65 +23,93 @@ const g = ref(null)
 
 
 watch(svg, (newValue) => {
-
     // set the dimensions and margins of the graph
-    var margin = { top: 20, right: 30, bottom: 40, left: 50 },
-        width = props.width - margin.left - margin.right,
-        height = props.height - margin.top - margin.bottom
+    var margin = { top: 10, right: 30, bottom: 20, left: 50 },
+        width = 460 - margin.left - margin.right,
+        height = 400 - margin.top - margin.bottom
 
     // append the svg object to the body of the page
-
-    // Add X axis
-    var x = d3.scaleLinear()
-        .domain([0, d3.max(props.data, (d) => d.available)])
-        .range([0, width])
-
-    const svg = d3.select("#chart")
+    var svg = d3.select("#chart")
         .append("svg")
         .attr("width", width + margin.left + margin.right)
-        .attr("height", height + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
         .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        .attr("transform",
+            "translate(" + margin.left + "," + margin.top + ")")
+
+    const data =
+        [
+            {
+                "group": "banana",
+                "Nitrogen": 12,
+                "normal": 1,
+                "stress": 13
+            },
+            {
+                "group": "poacee",
+                "Nitrogen": 6,
+                "normal": 6,
+                "stress": 33
+            },
+            {
+                "group": "sorgho",
+                "Nitrogen": 11,
+                "normal": 28,
+                "stress": 12
+            },
+            {
+                "group": "triticum",
+                "Nitrogen": 19,
+                "normal": 6,
+                "stress": 1
+            },
+        ]
+    const subgroups = [ 'Nitrogen', 'normal', 'stress']
+    // List of groups = species here = value of the first column called group -> I show them on the X axis
+    var groups = d3.map(data, function (d) { return (d.group) })
 
 
+     // Add X axis
+  const x = d3.scaleBand()
+      .domain(groups)
+      .range([0, width])
+      .padding([0.2])
+  svg.append("g")
+    .attr("transform", `translate(0, ${height})`)
+    .call(d3.axisBottom(x).tickSizeOuter(0));
 
-    // Y axis
-    var y = d3.scaleBand()
-        .range([0, height])
-        .domain(props.data.map(function (d) { return d.grade }))
-        .padding(.1)
-    svg.append("g")
-        .attr("class", "ylabel") // class can be used to define the font.
-        .call(d3.axisLeft(y))
+  // Add Y axis
+  const y = d3.scaleLinear()
+    .domain([0, 60])
+    .range([ height, 0 ]);
+  svg.append("g")
+    .call(d3.axisLeft(y));
 
-    //Bars
-    svg.selectAll("myRect")
-        .data(props.data)
-        .enter()
-        .append("rect")
-        .attr("x", x(0))
-        .attr("y", function (d) { return y(d.grade) })
-        .attr("width", function (d) { return x(d.available) })
-        .attr("height", y.bandwidth())
-        .attr("fill", "#69b3a2")
+  // color palette = one color per subgroup
+  const color = d3.scaleOrdinal()
+    .domain(subgroups)
+    .range(['#e41a1c','#377eb8','#4daf4a'])
 
-    var bars = svg.selectAll(".bar")
-        .data(props.data)
-        .enter()
-        .append("g")
+  //stack the data? --> stack per subgroup
+  const stackedData = d3.stack()
+    .keys(subgroups)
+    (data)
 
-    //add a value label to the right of each bar
-    bars.append("text")
-        .attr("class", "label") // class can be used to define the font.
-        .attr("y", function (d) {
-            return y(d.grade) + 13
-        })
-        .attr("x", function (d) {
-            return x(d.available) + 3
-        })
-        .text(function (d) {
-            return d.available
-        })
+  // Show the bars
+  svg.append("g")
+    .selectAll("g")
+    // Enter in the stack data = loop key per key = group per group
+    .data(stackedData)
+    .join("g")
+      .attr("fill", d => color(d.key))
+      .selectAll("rect")
+      // enter a second time = loop subgroup per subgroup to add all rectangles
+      .data(d => d)
+      .join("rect")
+        .attr("x", d => x(d.data.group))
+        .attr("y", d => y(d[1]))
+        .attr("height", d => y(d[0]) - y(d[1]))
+        .attr("width",x.bandwidth())
 
 
 })
@@ -91,20 +119,5 @@ const viewBox = computed(() => {
 </script>
 
 <style lang="sass">
-#chart
-  background-color : #323232
-  margin: 25px
-  &__line
-    fill: none
-    stroke: #f00
-    stroke-width: 1px
-.bar 
-    fill: #00f
-.label
-    font-size : 0.8rem
-    fill : #fff
-.ylabel
-    fill : #eee
-    color : #ffe
 
 </style>
