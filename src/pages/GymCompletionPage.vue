@@ -64,9 +64,8 @@ const getActiveProblemsByGrade = computed(() => {
     */
     return grades.value.map(g => {
       return {
-        id : g.id,
-        grade: g.name,
-        available: gradeMap.get(g.id),
+        group: g.name,
+        available: gradeMap.get(g.id)-tickedGradeMap.get(g.id),
         done: tickedGradeMap.get(g.id),
       }
     })
