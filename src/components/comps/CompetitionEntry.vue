@@ -79,12 +79,11 @@
         <p-button class="bg-yellow-400 dark:bg-yellow-600" @click="showPointsPerRoute=!showPointsPerRoute">Toggle show points per route</p-button>
       </div>
       <p-button class="my-1 bg-teal-400 dark:bg-teal-600" @click="showResultList=!showResultList">Toggle show result list</p-button>
-      <f7-block-title class="text-center">
+      <div class="text-center">
         <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
-      </f7-block-title>
-
+      </div>
       <p class="text-center">Swipe left to delete an ascent</p>
-      <f7-list>
+      <f7-list class="m-0">
         <f7-list-item>
           <template #title>
             <span class="text-3xl font-bold">{{ tickCount }}</span> /<span class="text-lg">{{ sortedProblems.length }}</span>
@@ -119,7 +118,7 @@
             </div>
           </template>
           <template #after>
-            <p-button @click="() => doTick(prob.id)" class="w-24 dark:bg-green-500 bg-green-600">tick</p-button>
+            <p-button @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">tick</p-button>
             <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
             <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
           </template>
