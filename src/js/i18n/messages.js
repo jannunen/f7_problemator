@@ -1,5 +1,11 @@
 const messages = {
     en: {
+        results : {
+            'name' :  'Name',
+            'team' : 'Team',
+            'tops' : 'Tops',
+            'points' : 'Points',
+        },
         gym : {
             gym_completion_title : 'Gym completion',
         },

@@ -2,17 +2,33 @@
   {{ type }}
   <!-- If competition is variable points, this works.. -->
   <div v-if="type == 'variable_points' && results != null">
-    <small>Last update {{ lastUpdate.format("YYYY-MM-DD HH:mm.ss") }}<br /></small>
-    Results update automatically every 60secs
+    <div>
+    <small>Last update {{ lastUpdate.format("YYYY-MM-DD HH:mm.ss") }}</small>,
+    <small>next reload in {{ secsToReload }}</small>
+    </div>
+    Results update automatically, check the countdown. 
     <div  class="w-full" v-for="serie in results" :key="serie.category.id">
       <div class="font-bold my-1">{{ serie.category.nimi }}</div>
       <table width="100%" class="text-gray-500 dark:text-gray-400">
+      <thead>
+        <tr>
+          <th>&nbps;</th>
+          <th>{{ t('results.name')}}</th>
+          <th>{{ t('results.team')}}</th>
+          <th>{{ t('results.tops')}}</th>
+          <th>{{ t('results.points')}}</th>
+        </tr>
+      </thead>
         <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-1" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+result.id">
           <td class="w-1/12">{{result.standing}}</td>
           <td class="w-4/12">{{ result.climber.etunimi }} {{ result.climber.sukunimi }}</td>
           <td class="w-3/12">{{ result.climber.team }} </td>
+<!--
+
           <td class="w-2/12">{{ result.climber.height }} </td>
           <td class="w-2/12">{{ result.climber.apeindex }} </td>
+          -->
+                  <td class="w-1/12"> {{ result.amountTops }}</td>
           <td class="w-1/12">{{ result.points}} </td>
         </tr>
       </table>
@@ -111,8 +127,12 @@
 import dayjs  from 'dayjs'
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
+import {onUnmounted, computed, ref} from 'vue'
+import { useI18n } from 'vue-i18n'
+const { t } = useI18n()
 dayjs.extend(utc)
 dayjs.extend(timezone)
+
 
 const props = defineProps({
   lastUpdate: Object,
@@ -120,6 +140,19 @@ const props = defineProps({
   results: Object, 
 })
 const sortResults = (keyedResults) =>  Object.keys(keyedResults).map(key => keyedResults[key]).sort((a,b) => { return parseInt(a.standing) - parseInt(b.standing)})
+const reloadInterval = 45
+
+const secsToReload = ref(reloadInterval)
+const calcSecsToReload  = () => {
+  const secsFromLastReload =  dayjs().format('X')-  props.lastUpdate.format('X')
+  secsToReload.value = reloadInterval - secsFromLastReload
+}
+const secsToInt = setInterval(calcSecsToReload,1000)
+
+onUnmounted(() => {
+    clearInterval(secsToInt)
+})
+
 
 
 </script>
