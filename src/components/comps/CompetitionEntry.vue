@@ -293,7 +293,7 @@ const fetchResults = () => {
       loaded.value = true
     })
 }
-const resultTimerID = setInterval(fetchResults, 32 * 1000)
+const resultTimerID = setInterval(fetchResults, 45 * 1000)
 fetchResults()
 
 onUnmounted(() => {
