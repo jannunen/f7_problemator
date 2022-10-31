@@ -2,6 +2,8 @@
   <f7-panel left v-model:opened="sidePanelOpen" @panel:close="store.commit('setSidePanel', false)">
     <f7-view>
       <show-tick-help :opened="showTickHelpDialog" />
+      <show-tips :opened="showTipsDialog" />
+      <show-changelog :opened="showChangeLogDialog" />
       <f7-page>
         <f7-block class="flex flex-col items-center">
           <h1 class="font-bold text-lg"> Problemator </h1>
@@ -47,7 +49,16 @@
               <f7-icon md="material:arrow_merge" aurora="f7:arrow_merge" ios="f7:arrow_merge" />
             </template>
           </f7-list-item>
-
+          <f7-list-item link title="Tips" :selected="selectedItem === 'tips'" @click="showTipsDialog=true">
+            <template #media>
+              <f7-icon md="material:lightbulb" aurora="f7:lightbulb" ios="f7:lightbulb" />
+            </template>
+          </f7-list-item>
+          <f7-list-item link title="Changelog" :selected="selectedItem === 'changelog'" @click="showChangeLogDialog=true">
+            <template #media>
+              <f7-icon md="material:list_dash" aurora="f7:list_dash" ios="f7:list_dash" />
+            </template>
+          </f7-list-item>
           <f7-list-item>
             Dark mode
             <f7-toggle v-model:checked="localDarkMode"></f7-toggle>
@@ -106,11 +117,16 @@ import { useStore } from 'vuex'
 import { f7 } from 'framework7-vue'
 import { ref, watch, computed } from 'vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
+import ShowTips from '@components/home/ShowTips.vue'
+import ShowChangelog from '@components/home/ShowChangelog.vue'
 import PButton from '@components/PButton.vue'
 import $ from 'dom7'
 import logo from '../../assets/images/logo.png'
 const store = useStore()
 const showTickHelpDialog = ref(false)
+const showTipsDialog = ref(false)
+const showChangeLogDialog = ref(false)
+
 const gym = computed(() => store.state.gym)
 const version = computed(() => store.state.version)
 const climber = computed(() => store.state.climber)
