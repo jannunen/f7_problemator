@@ -58,7 +58,7 @@ can click again. <span class="font-bold text-red-300" v-if="!newClickPossible">w
                             </div>
                         </div>
 
-                        <f7-block-title>Ticks ({{ ascents.length }})</f7-block-title>
+                        <f7-block-title>Ticks ({{ reversedTicks.length }})</f7-block-title>
                         <small>Want to see your weekly stats? Just choose week as a time span and click any
                             day on the weekday you want to show the data on.</small>
                         <f7-list v-if="reversedTicks.length > 0" problem-list>
@@ -94,7 +94,7 @@ can click again. <span class="font-bold text-red-300" v-if="!newClickPossible">w
                                 </f7-swipeout-actions>
                             </f7-list-item>
                         </f7-list>
-                        <f7-block-title>Tries / Projecting ({{ projects.length}})</f7-block-title>
+                        <f7-block-title>Tries / Projecting ({{ reversedProjects.length}})</f7-block-title>
                         <f7-list v-if="reversedProjects.length > 0">
                             <f7-list-item @swipeout:deleted="(evt) => onProjectDeleted(tick, j)" swipeout v-for="(tick, index) in reversedProjects" :key="tick.id">
                                 <template #media> <div class="flex flex-col items-center">{{ index + 1 }}.<br /><span class="font-bold">{{ right(tick.problem.tag,4) }}</span> </div></template>
