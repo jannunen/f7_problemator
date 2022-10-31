@@ -12,7 +12,7 @@
       <table width="100%" class="text-gray-500 dark:text-gray-400">
       <thead>
         <tr>
-          <th>&nbps;</th>
+          <th>&nbsp;</th>
           <th>{{ t('results.name')}}</th>
           <th>{{ t('results.team')}}</th>
           <th>{{ t('results.tops')}}</th>
