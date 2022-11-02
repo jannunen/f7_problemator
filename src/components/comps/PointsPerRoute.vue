@@ -26,8 +26,13 @@ const props = defineProps({
   lastUpdate : Object,
   pointsPerRoute: Object,
 })
-const sortByNum = (points) => Object.keys(points).map(x => points[x]).sort((b,a)   => {
-  return a.num?.localeCompare(b.num)
-})
+const sortByNum = (points) => {
+    if (points == null) {
+      return []
+    }
+    Object.keys(points).map(x => points[x]).sort((b,a)   => {
+    return a.num?.localeCompare(b.num)
+  })
+}
 
 </script>

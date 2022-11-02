@@ -129,6 +129,7 @@
       {{ t('comps.the_comp_has_not_started_yet') }}
     </div>
     </div><!-- if paid -->
+    {{ errors }}
   </div>
 </template>
 <script setup>
@@ -146,8 +147,9 @@ import PointsPerRoute from './PointsPerRoute.vue'
 import ShowResults from './ShowResults.vue'
 import { webendpoint } from '@js/api.js'
 
-import { confirm, toaster } from '@helpers/notifications.js'
+import {  toaster } from '@helpers/notifications.js'
 import { toLocalTime } from '@helpers/component.helpers'
+import { handleValidationErrors } from '@helpers'
 import dayjs from 'dayjs'
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
@@ -163,6 +165,7 @@ const store = useStore()
 const isTicked = (pid) => {
   return (tries.value[pid]?.ticked)
 }
+const errors = ref("")
 const loaded = ref(false)
 const showPointsPerRoute = ref(false)
 const showResultList = ref(false)
@@ -277,6 +280,9 @@ if (props.comp.tyyppi == 'variable_points') {
       .then(() => {
         lastUpdate.value = dayjs()
       })
+      .catch(err => {
+        errors.value = handleValidationErrors(err)
+      })
 
   }
   timerID = setInterval(fetchPointsPerRoute , 27 * 1000) // every 30 seconds
@@ -291,6 +297,9 @@ const fetchResults = () => {
       lastResultUpdate.value = dayjs()
       loaded.value = true
     })
+      .catch(err => {
+        //errors.value = handleValidationErrors(err)
+      })
 }
 const resultTimerID = setInterval(fetchResults, 45 * 1000)
 fetchResults()

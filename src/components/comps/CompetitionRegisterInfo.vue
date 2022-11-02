@@ -50,7 +50,7 @@
 
                   </div>
                   <div v-else>
-                    <button  @click="askRegister(cat)" class="btn-primary btn-small" >{{ t('comps.register_button') }}</button>
+                    <button  @click="askRegister(cat)" :disabled="isRegistering" class="btn-primary btn-small" >{{ t('comps.register_button') }}</button>
                   </div>
                 </div>
               </template>
@@ -96,12 +96,13 @@
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import PButton from '@components/PButton.vue'
-import { computed} from 'vue'
+import { ref, computed} from 'vue'
 import { confirm, toaster } from '@helpers/notifications.js'
 import { handleValidationErrors } from '@helpers'
 import dayjs from 'dayjs'
 const store = useStore()
 
+const isRegistering = ref(false)
 const { t } = useI18n()
 const props = defineProps({
   comp: Object,
@@ -152,11 +153,16 @@ const askRegister = (cat) => {
             compid : props.comp.id,
             category : cat.id,
         }
+        isRegistering.value = true
         store.dispatch('registerToComp',payload)
         .then(ret => {
             toaster(ret.message)
         })
         .catch(err => toaster(handleValidationErrors(err)))
+        .finally(() => {
+            isRegistering.value = false
+
+        })
     },() => {
         // cancle
     })
