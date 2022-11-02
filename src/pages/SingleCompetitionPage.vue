@@ -9,7 +9,7 @@
         <f7-block-title>{{ t('comps.you_are_a_judge') }}</f7-block-title>
         <f7-link :href="getJudgingLink" class="w-full px-8 py-3 bg-blue-500 font-bold ">Open judging sheet</f7-link>
       </div>
-      <div v-if="isPaidAndRegistered">
+      <div v-if="!isPaidAndRegistered">
           <competition-register-info :comp="comp" />
       </div>
       <div v-else>
@@ -37,7 +37,10 @@ const store = useStore()
 const comp = computed(() => store.state.competition)
 const climber = computed(() => store.state.climber)
 const isPaidAndRegistered = computed(() => {
-  const found = comp.value.paidregistrations.find(x => x.id == climber.valueid)
+  if (climber.value == null) {
+    return false
+  }
+  const found = comp.value.paidregistrations.find(x => x.id == climber.value.id) != null
   return found
 })
 const getJudgingLink = computed(() => {
