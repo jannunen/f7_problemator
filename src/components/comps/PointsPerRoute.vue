@@ -5,8 +5,8 @@
     <div class="w-1/3 p-2" v-for="(cat) in pointsPerRoute" :key="cat.category.id">
       <h2 class="font-bold ">{{ cat.category.nimi }}</h2>
       <ul>
-        <li v-for="problem in sortByNum(cat.points)" :key="problem.id" class="flex justify-between">
-          <span class="font-bold font-mono flex-1">{{ right(problem?.tag,4) }}</span>
+        <li v-for="problem in cat.points" :key="problem.id" class="flex justify-between">
+          <span class="font-bold font-mono flex-1">{{ problem?.tag?.substr(7) }}</span>
           <div class="font-bold ml-1 text-yellow-400 flex-1">{{ problem.pivot.num }}</div>
           <div class="font-bold text-right text-green-500 flex-1 "> {{ problem.points }} </div>
         </li>
@@ -30,6 +30,7 @@ const sortByNum = (points) => {
     if (points == null) {
       return []
     }
+    
     Object.keys(points).map(x => points[x]).sort((b,a)   => {
     return a.num?.localeCompare(b.num)
   })
