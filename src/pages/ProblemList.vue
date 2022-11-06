@@ -46,7 +46,7 @@
                     <f7-list-input type="text" :placeholder="t('Filter by problem name')" v-model:value="nameFilter" clear-button></f7-list-input>
                   </f7-list>
 
-                  <p-button @click="store.commit('resetFilters')" class=" bg-red-500 text-white my-2">
+                  <p-button @click="resetFilters" class=" bg-red-500 text-white my-2">
                     {{ t('problemlist.reset_filters') }}
                   </p-button>
                 </ul>
@@ -123,6 +123,7 @@ import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import GradeFilter from '@components/ui/problemlist/GradeFilter.vue'
 import StyleFilter from '@components/ui/problemlist/StyleFilter.vue'
+import WallSelector from '@components/ui/problemlist/WallSelector.vue'
 import PButton from '@components/PButton.vue'
 import AscentStatusFilter from '@components/ui/problemlist/AscentStatusFilter.vue'
 import SortBy from '@components/ui/problemlist/SortBy.vue'
@@ -321,8 +322,8 @@ const gradesDiffer = (idx) => {
 }
 const resetFilters = () => {
   nameFilter.value = ''
-  store.commit('resetFilters')
   selectedWalls.value = []
+  store.commit('resetFilters')
 }
 const getSelectedWallNames = computed(() => {
   return filters.value.walls.map((wallid) => {

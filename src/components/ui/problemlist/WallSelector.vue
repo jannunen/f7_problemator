@@ -1,7 +1,7 @@
 <template>
     <div class="flex flex-row">
       <select name="wall" v-model="modeValue" @change="selectWall" class="m-0 h-20 bg-gray-50 border border-gray-300 text-gray-900 text focus:ring-blue-500 focus:border-blue-500 block w-full p-2 dark:bg-gray-800 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
-      <option :value="null">Filter by walls</option>
+      <option class="h-20" :value="null">Filter by walls</option>
       <option 
       v-for="w in wallsDropdown" 
       :value="w.id"
@@ -21,7 +21,7 @@ const store = useStore()
 
 const oma = ref([])
 const { t } = useI18n()
-const walls = computed(() => store.state.gym.walls)
+const walls = computed(() => store.state.walls)
 
 const wallsDropdown = computed(() => {
   return walls.value.map(a => ({id : a.id, label : a.wallchar +" "+ a.walldesc }))
