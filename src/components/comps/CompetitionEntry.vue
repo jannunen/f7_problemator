@@ -162,8 +162,9 @@ const props = defineProps({
 })
 
 const store = useStore()
+const ticks = computed(() => store.state.alltime.ticks)
 const isTicked = (pid) => {
-  return (tries.value[pid]?.ticked)
+  return ticks.value.find(x => x.problemid == pid) != null
 }
 const errors = ref("")
 const loaded = ref(false)
@@ -252,10 +253,8 @@ tries.value = Object.keys(props.comp.userticks).reduce((acc, key) => {
 
 const onDeleted = (id) => {
   store
-    .dispatch('deleteTickByProblem', { problemid: id })
+    .dispatch('deleteTickByProblem', { problemid: id  })
     .then((ret) => {
-      // Remove the tick
-      tries.value[id] = { ...tries.value[id], ticked: false, tries: 0 }
       toaster(t(ret.message))
     })
     .catch((err) => { })

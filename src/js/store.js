@@ -21,6 +21,7 @@ export default createStore({
     home,
   },
   state: {
+    rankings : null,
     settings : {
       darkMode : true,
     },
@@ -73,6 +74,9 @@ export default createStore({
   },
 
   mutations: {
+    rankings (state, payload) {
+      state.rankings = payload
+    },
     ticksLoaded (state, payload) {
       state.ticksLoaded = payload
     },
@@ -116,6 +120,9 @@ export default createStore({
     },
     addTicksAllTime(state, payload) {
       state.alltime.ticks = [...state.alltime.ticks,payload]
+    },
+    removeTick(state, pid) {
+      state.alltime.ticks = state.alltime.ticks.filter(x => x.problemid != pid)
     },
     expires_in(state, payload) {
       state.expires_in = payload
@@ -211,6 +218,12 @@ export default createStore({
     }
   },
   actions: {
+    async rankings({commit},payload) {
+      const ret = await api.ranking(payload)
+      commit('rankings',ret)
+      return ret
+
+    },
     async version({commit}) {
       const ret = await api.version()
       commit('serverVersion',ret.version)
@@ -279,8 +292,9 @@ export default createStore({
       commit('updatePointsPerRoute',{ compid : payload.compid, points : ret})
       return ret
     },
-     async deleteTickByProblem({ state}, payload) {
+     async deleteTickByProblem({ state,commit}, payload) {
       const ret = await api.deleteTickByProblem(payload.problemid)
+      commit('removeTick',payload.problemid)
       return ret
     },
     async deleteTick({ state, commit}, payload) {
