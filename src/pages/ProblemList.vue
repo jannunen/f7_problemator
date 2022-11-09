@@ -9,51 +9,58 @@
     <f7-block>
       <h1 class="font-bold text-2xl text-center">{{ gym.name }}</h1>
       <div v-if="unfilteredProblemsExist">
-        <f7-list accordion-list>
-          <f7-list-item accordion-item title="Show filters">
-            <f7-accordion-content>
-              <div class="my-0 mx-2">
-                <h2 class="uppercase text-xl my-2 font-bold">
-                  {{ t('problemlist.gradefilter') }}
-                </h2>
-                <ul class="my-0">
-                  <li :title="t('problemlist.filters')">
-                    <grade-filter :min="filters.gradeMin" :max="filters.gradeMax" :grades="grades" @min="minChanged" @max="maxChanged"></grade-filter>
+        <p-button class="bg-blue-500 font-bold my-1 uppercase" @click="showFilters=!showFilters">{{ showFilters ? "Hide filters" : "Show  filters"}}</p-button> 
+        <div v-if="showFilters" class="my-0 mx-2">
+          <h2 class="uppercase text-xl mt-2 mb-1 font-bold">
+            {{ t('problemlist.routetype') }}
+          </h2>
+          <f7-list class="m-0 p-0" simple-list>
+            <f7-list-item v-for="rt in routeTypes" :key="rt">
+              <span>{{ rt }}</span>
+              <f7-toggle @toggle:change="selectRoutetype(rt)" :checked="filters.routetypes.includes(rt)"></f7-toggle>
+            </f7-list-item>
+          </f7-list>
+          <h2 class="uppercase text-xl my-2 font-bold">
+            {{ t('problemlist.gradefilter') }}
+          </h2>
+          <ul class="my-0">
+            <li :title="t('problemlist.filters')">
+              <grade-filter :min="filters.gradeMin" :max="filters.gradeMax" :grades="grades" @min="minChanged" @max="maxChanged"></grade-filter>
 
-                    <h2 class="uppercase text-xl my-2 font-bold">
-                      {{ t('problemlist.stylefilter') }}
-                    </h2>
-                    <style-filter @styles-changed="onStylesChanged" :styles="styles" :selected-styles="filters.styles"></style-filter>
-                    <h2 class="uppercase text-xl my-2 font-bold">
-                      {{ t('problemlist.sortby') }}
-                    </h2>
-                    <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
-                  </li>
-                  <li>
-                    <h2 class="uppercase text-xl mt-2 p-0 font-bold">
-                      {{ t('problemlist.wallfilter') }}
-                    </h2>
+              <h2 class="uppercase text-xl my-2 font-bold">
+                {{ t('problemlist.stylefilter') }}
+              </h2>
+              <style-filter @styles-changed="onStylesChanged" :styles="styles" :selected-styles="filters.styles"></style-filter>
+              <h2 class="uppercase text-xl my-2 font-bold">
+                {{ t('problemlist.sortby') }}
+              </h2>
+              <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
+            </li>
+            <li>
+              <h2 class="uppercase text-xl mt-2 p-0 font-bold">
+                {{ t('problemlist.wallfilter') }}
+              </h2>
                     <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
-                  </li>
-                  <h2 class="uppercase text-xl mt-2 p-0 font-bold">
-                    {{ t('problemlist.ascent_status_filter') }}
-                  </h2>
-                  <ascent-status-filter v-model="ascentTypeFilter" />
-                  <f7-list no-hairlines-md>
-                    <h2 class="uppercase text-xl my-2 font-bold">
-                      {{ t('problemlist.problemnamefilter') }}
-                    </h2>
-                    <f7-list-input type="text" :placeholder="t('Filter by problem name')" v-model:value="nameFilter" clear-button></f7-list-input>
-                  </f7-list>
+            </li>
+            <h2 class="uppercase text-xl mt-2 p-0 font-bold">
+              {{ t('problemlist.ascent_status_filter') }}
+            </h2>
+            <ascent-status-filter v-model="ascentTypeFilter" />
+            <f7-list no-hairlines-md>
+              <h2 class="uppercase text-xl my-2 font-bold">
+                {{ t('problemlist.problemnamefilter') }}
+              </h2>
+              <f7-list-input type="text" :placeholder="t('Filter by problem name')" v-model:value="nameFilter" clear-button></f7-list-input>
+            </f7-list>
 
-                  <p-button @click="resetFilters" class=" bg-red-500 text-white my-2">
-                    {{ t('problemlist.reset_filters') }}
-                  </p-button>
-                </ul>
-              </div>
-            </f7-accordion-content>
-          </f7-list-item>
-        </f7-list>
+            <p-button @click="resetFilters" class=" bg-red-500 text-white my-2">
+              {{ t('problemlist.reset_filters') }}
+            </p-button>
+          </ul>
+        </div>
+
+
+
 
         <div v-if="filteredProblems.length > 0">
           <div class="font-bold my-1 text-center">
@@ -107,8 +114,8 @@
         </div>
       </div>
       <div v-else>
-         <h2 class="font-bold text-2xl text-center">Are you sure a gym is selected?</h2>
-          </div>
+        <h2 class="font-bold text-2xl text-center">Are you sure a gym is selected?</h2>
+      </div>
     </f7-block>
   </f7-page>
 </template>
@@ -137,10 +144,15 @@ import {
 const store = useStore()
 dayjs.extend(relativeTime)
 const gym = computed(() => store.state.gym)
+const routeTypes = computed(() => store.state.routetypes)
 const tipDismiss = (which) => {
   const payload = { ...tipShowStatus.value, [which]: true }
   store.dispatch('tipShowStatus', payload)
 }
+const showFilters = ref(false)
+const wallsDropdown = computed(() => {
+  return walls.value.map(a => ({ id: a.id, label: a.wallchar + " " + a.walldesc }))
+})
 
 const props = defineProps({
   areaSelected: {
@@ -155,6 +167,14 @@ const props = defineProps({
     type: Object,
   },
 })
+const selectWall = (evt) => {
+  debugger
+  const selectedOption = parseInt(evt.target.value)
+  const newSelection = [...props.modelValue, selectedOption]
+  emit('select', newSelection)
+  emit('update:modelValue', newSelection)
+}
+
 onMounted(() => {
   // The areaSelected is an object, which has the wall name as title.
   // So resolve the wall ids based on the wall name.
@@ -168,7 +188,7 @@ onMounted(() => {
 })
 const { t, d, locale } = useI18n()
 const problems = computed(() => store.state.problems)
-watch (problems, (newValue) => {
+watch(problems, (newValue) => {
   if (problems.value.length == 0) {
     store.dispatch('getProblems')
   }
@@ -195,6 +215,16 @@ const onStartNavigate = (problem) => {
   props.f7router.navigate('/problem/' + problem.id, {
     props: { problem },
   })
+}
+const selectRoutetype = (rt) => {
+  let payload = JSON.parse(JSON.stringify(filters.value.routetypes))
+  if (payload.includes(rt)) {
+    payload = payload.filter(x => x != rt)
+  } else {
+    payload = [...payload, rt]
+  }
+  store.commit('setFilterRoutetype', payload)
+
 }
 const onClearWalls = () => {
   selectedWalls.value = []
@@ -242,6 +272,10 @@ const filteredProblems = computed(() => {
   }
   if (styles.value != null && styles.value.length > 0) {
     probs = probs.filter((item) => styles.value.every((i) => item.styles.includes(i)))
+  }
+  // Filter by route types
+  if (filters.value.routetypes.length > 0) {
+    probs = probs.filter((item) => filters.value.routetypes.includes(item.routetype))
   }
 
   // Filter by nameFilter

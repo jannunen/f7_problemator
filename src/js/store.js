@@ -7,6 +7,7 @@ export const filtersInitial = {
   gradeMax: 'max',
   sort: 'sector_asc',
   problemFilters : 'all',
+  routetypes :['boulder','sport'],
   styles: [],
   walls: [],
   problemStates: ['all'], // all, ticked, projects
@@ -21,6 +22,7 @@ export default createStore({
     home,
   },
   state: {
+    routetypes : ['boulder','sport'],
     rankings : null,
     settings : {
       darkMode : true,
@@ -169,6 +171,9 @@ export default createStore({
     },
     setDarkMode(state, payload) {
       state.settings.darkMode = payload
+    },
+    setFilterRoutetype(state, payload) {
+      state.filters = { ...state.filters, ['routetypes']: payload }
     },
     setFilterProblems(state, payload) {
       state.filters = { ...state.filters, ['problemFilters']: payload }

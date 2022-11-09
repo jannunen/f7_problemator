@@ -100,6 +100,7 @@ const messages = {
             boulder: 'Boulder',
         },
         problemlist: {
+            routetype : 'Route type',
             ascent_status_filter : 'Ascent status',
             wallfilter: 'Wall filtering',
             problemnamefilter: 'Problem name filtering',
