@@ -27,7 +27,7 @@ const hardestClimb = computed(() => {
   const best = ticks.value.sort((b, a) => a.gradeid - b.gradeid).slice(0, 10).find(x => x!= null)
   if (best != null) {
     const grade = grades.value.find(x => x.id == best.gradeid)
-    if (grade.name != null) {
+    if (grade != null && grade.name != null) {
       return grade.name
     }
   }
