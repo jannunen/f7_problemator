@@ -24,9 +24,11 @@
                 <f7-list-input label="Ape index" placeholder="eg. +9" type="text" v-model:value="climber.apeindex"> </f7-list-input>
                 <f7-list-input label="Team" placeholder="Enter team" type="text" v-model:value="climber.team"> </f7-list-input>
                 <f7-list-input label="City" placeholder="Enter city" type="text" v-model:value="climber.city"> </f7-list-input>
-                <f7-list-input type="select" label="Country" v-model:value="climber.country">
+                <f7-list-item>
+                <select type="select" label="Country" v-model="climber.maa">
                     <option v-for="country in getNames()" :value="country" :key="country">{{ country }}</option>
-                </f7-list-input>
+                </select>
+                </f7-list-item>
                 <f7-list-input label="Gender" type="select" v-model:value="climber.gender" placeholder="Please choose...">
                     <option v-for="gender in genders" :value="gender.id" :key="gender.id">{{ gender.name }}</option>
                 </f7-list-input>
