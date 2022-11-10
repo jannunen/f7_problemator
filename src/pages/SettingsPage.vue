@@ -8,14 +8,14 @@
             </f7-nav-left>
             <f7-nav-title> {{ t('settings.settings_title') }} </f7-nav-title>
         </f7-navbar>
-        <f7-block>
+        <f7-block v-if="climber != null">
             <f7-block strong>
                 <p>
                     Here are your personal settings. You can toggle some visibility items
                     and some convenience settings.
                 </p>
             </f7-block>
-            <f7-list v-if="climber != null">
+            <f7-list >
                 <f7-block-title>Personal details (optional)</f7-block-title>
                 <f7-list-input label="First name" type="text" placeholder="Your first name" v-model:value="climber.etunimi" clear-button> </f7-list-input>
                 <f7-list-input label="Last name" type="text" placeholder="Your last name" v-model:value="climber.sukunimi" clear-button> </f7-list-input>
@@ -36,7 +36,7 @@
             <f7-list>
 
                 <f7-block-title>Default ascent type</f7-block-title>
-                <f7-list-input label="Affects only sport climbing" type="select" v-model:value="settings.sport_tick_ascent_type" placeholder="Please choose...">
+                <f7-list-input label="Affects only sport climbing" type="select" v-model:value="climber.sport_tick_ascent_type" placeholder="Please choose...">
                     <option v-for="ascentType in ascentTypes" :value="ascentType.id" :key="ascentType.id">{{ ascentType.name }}</option>
                 </f7-list-input>
             </f7-list>
@@ -61,7 +61,7 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { onMounted, ref,  computed } from 'vue'
+import { onMounted, watch,  ref,  computed } from 'vue'
 import { useStore } from 'vuex'
 import { toaster, alert } from '@js/helpers/notifications.js'
 import { getNames } from 'country-list'
@@ -70,14 +70,13 @@ const { t } = useI18n()
 const props = defineProps({
     f7router: Object,
 })
-const profile = computed(() => store.state.profile.settings)
 const climberStore = computed(() => store.state.climber)
-const settings = ref({})
 const climber = ref(null)
 
+watch(climberStore, (newValue) => {
+    climber.value = JSON.parse(JSON.stringify(newValue))
+})
 onMounted(() => {
-    const parsed = JSON.parse(JSON.stringify(profile.value))
-    settings.value = {...parsed}
     climber.value = JSON.parse(JSON.stringify(climberStore.value))
 })
 
@@ -92,22 +91,21 @@ const ascentTypes = ref([
 ])
 const saveSettings = () => {
     // Incorporate two data sources
-    const payload = {...climber.value, ...settings.value}
+    const payload = {...climber.value}
     store.dispatch('saveSettings',payload)
         .then(ret => {
             toaster(ret.message)
         })
 }
 const isChecked = (field) => {
-    const val = settings.value[field]
+    const val = climber.value[field]
     return parseInt(val) == 1
 }
 const toggleTrueFalseWithNumber = (field, boolikka) => {
     if (boolikka) {
-        settings.value[field] = 1
+        climber.value[field] = 1
     } else {
-        settings.value[field] = 0
-
+        climber.value[field] = 0
     }
 }
 

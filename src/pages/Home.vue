@@ -20,6 +20,7 @@
       <TodayHeader :profile="profile" @addtick="onAddTick" />
       <floor-map-block />
       <competitions-badge />
+      <ranking  />
       <div class="px-2" v-if="ticksLoaded && alltime.ticks.length == 0">
         <div class="mt-8 m-4 rounded-md raised shadow-lg p-4 border border-gray-800">
           <div class="bg-red-600 border border-red-300 p-2 dark:text-black text-white">
@@ -68,6 +69,7 @@ import MyLogs from '@components/home/MyLogs.vue'
 import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
+import Ranking from '@components/home/Ranking.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
 import PButton from '@components/PButton.vue'

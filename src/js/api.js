@@ -13,6 +13,16 @@ const formatDate = (date) => {
 };
 
 const api = {
+  async ranking(payload) {
+    // pagination defines the urls 
+    let ret = null
+    if (payload != null && payload.url != null) {
+      ret = await axios.get(payload.url+"&country="+payload?.country)
+    } else {
+      ret = await axios.get(endpoint+"/ranking?country="+payload?.country)
+    }
+    return ret.data
+  },
   async version() {
     const ret = await axios.get(endpoint+"/version")
     return ret.data
@@ -136,7 +146,7 @@ const api = {
     return ret.data
   },
   async saveTick(payload) {
-    const url = endpoint + "/tick/"
+    const url = endpoint + "/tick"
     const ret = await  axios.post(url, payload)
     return ret.data
   },

@@ -2,8 +2,8 @@
   <f7-panel left v-model:opened="sidePanelOpen" @panel:close="store.commit('setSidePanel', false)">
     <f7-view>
       <show-tick-help :opened="showTickHelpDialog" />
-      <show-tips :opened="showTipsDialog" />
-      <show-changelog :opened="showChangeLogDialog" />
+      <show-tips :opened="showTipsDialog" @close="showTipsDialog=false" />
+      <show-changelog :opened="showChangeLogDialog" @close="showChangeLogDialog=false" />
       <f7-page>
         <f7-block class="flex flex-col items-center">
           <h1 class="font-bold text-lg"> Problemator </h1>
