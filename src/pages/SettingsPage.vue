@@ -15,16 +15,18 @@
                     and some convenience settings.
                 </p>
             </f7-block>
-            <f7-list>
+            <f7-list v-if="climber != null">
                 <f7-block-title>Personal details (optional)</f7-block-title>
                 <f7-list-input label="First name" type="text" placeholder="Your first name" v-model:value="climber.etunimi" clear-button> </f7-list-input>
                 <f7-list-input label="Last name" type="text" placeholder="Your last name" v-model:value="climber.sukunimi" clear-button> </f7-list-input>
                 <f7-list-input label="Email (read only)" type="text" readonly :value="climber.email"> </f7-list-input>
                 <f7-list-input label="Height" type="text" placeholder="in cm" v-model:value="climber.height"> </f7-list-input>
                 <f7-list-input label="Ape index" placeholder="eg. +9" type="text" v-model:value="climber.apeindex"> </f7-list-input>
-                <f7-list-input label="Team" placeholder="BK Climbers" type="text" v-model:value="climber.team"> </f7-list-input>
-                <f7-list-input label="City" placeholder="Göteborg" type="text" v-model:value="climber.city"> </f7-list-input>
-                <f7-list-input label="Country" placeholder="Sweden" type="text" v-model:value="climber.country"> </f7-list-input>
+                <f7-list-input label="Team" placeholder="Enter team" type="text" v-model:value="climber.team"> </f7-list-input>
+                <f7-list-input label="City" placeholder="Enter city" type="text" v-model:value="climber.city"> </f7-list-input>
+                <f7-list-input type="select" label="Country" v-model:value="climber.country">
+                    <option v-for="country in getNames()" :value="country" :key="country">{{ country }}</option>
+                </f7-list-input>
                 <f7-list-input label="Gender" type="select" v-model:value="climber.gender" placeholder="Please choose...">
                     <option v-for="gender in genders" :value="gender.id" :key="gender.id">{{ gender.name }}</option>
                 </f7-list-input>
@@ -60,6 +62,7 @@ import { useI18n } from 'vue-i18n'
 import { onMounted, ref,  computed } from 'vue'
 import { useStore } from 'vuex'
 import { toaster, alert } from '@js/helpers/notifications.js'
+import { getNames } from 'country-list'
 const store = useStore()
 const { t } = useI18n()
 const props = defineProps({
@@ -68,7 +71,7 @@ const props = defineProps({
 const profile = computed(() => store.state.profile.settings)
 const climberStore = computed(() => store.state.climber)
 const settings = ref({})
-const climber = ref({})
+const climber = ref(null)
 
 onMounted(() => {
     const parsed = JSON.parse(JSON.stringify(profile.value))
