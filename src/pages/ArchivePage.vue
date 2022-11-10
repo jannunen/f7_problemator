@@ -161,7 +161,12 @@ const loading = ref(true)
 
 onMounted(() => {
     selectedSpan.value = [dayjs().format("YYYY-MM-DD"), dayjs().format("YYYY-MM-DD")]
-    loading.value = false
+    loading.value = true
+    store.dispatch('fetchArchiveDate', { span: selectedSpan.value })
+        .then(() => {
+            loading.value = false
+            setTimeout(() => {newClickPossible.value=true}, 2000)
+        })
 })
 const showSpan = ref('day')
 const selectedSpan = ref([])
