@@ -54,7 +54,7 @@
               <f7-icon md="material:lightbulb" aurora="f7:lightbulb" ios="f7:lightbulb" />
             </template>
           </f7-list-item>
-          <f7-list-item link title="Changelog" :selected="selectedItem === 'changelog'" @click="showChangeLogDialog=true">
+          <f7-list-item link title="Roadmap &amp; Changes" :selected="selectedItem === 'changelog'" @click="showChangeLogDialog=true">
             <template #media>
               <f7-icon md="material:list_dash" aurora="f7:list_dash" ios="f7:list_dash" />
             </template>
