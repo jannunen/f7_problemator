@@ -34,7 +34,6 @@ const props = defineProps({
 
 })
 const selectWall = (evt) => {
-  debugger
   const selectedOption = parseInt(evt.target.value)
   const newSelection = [...props.modelValue, selectedOption]
   emit('select', newSelection)
