@@ -8,6 +8,8 @@
       </f7-navbar>
       <f7-block>
           <h1 class="font-bold text-xl">Tips</h1>
+          <f7-block-title>{{ t('I climbed one 7a three times, yet my ranking does not change') }}</f7-block-title>
+          <f7-block strong inset>One problem is calculated only once. If you climb a problem eg. 3 times, with 3 tries, it is counted as one problem with 3 tries.</f7-block>
           <f7-block-title>{{ t('My name is not in the ranking') }}</f7-block-title>
           <f7-block strong inset>Usually two reasons.<br />1. Check that you have correct country in the settings.<br />2. Check that you have 'Ranking visibility' as true</f7-block>
           <f7-block-title>{{ t('Add Problemator to home screen') }}</f7-block-title>

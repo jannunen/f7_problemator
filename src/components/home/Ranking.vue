@@ -19,8 +19,8 @@
                 </th></tr>
                 <tr><td>Flash (= 1st try)</td><td>+93</td></tr>
                 <tr><td>2nd go </td><td>+20</td></tr>
-                <tr><td>3rd-10th</td><td>-11</td></tr>
-                <tr><td>more than 10</td><td>0</td></tr>
+                <tr><td>3rd-10th</td><td>+3</td></tr>
+                <tr><td>more than 10</td><td>-1</td></tr>
 
                 <tr><th class="bg-blue-700 " colspan="100">
                 <strong>Sport:</strong>
@@ -28,8 +28,8 @@
                 <tr><td>Onsight (no prior knowledge)</td><td>+143</td></tr>
                 <tr><td>Flash </td><td>+53</td></tr>
                 <tr><td>2nd go</td><td>+11</td></tr>
-                <tr><td>3rd-10th</td><td>-10</td></tr>
-                <tr><td>more than 10</td><td>0</td></tr>
+                <tr><td>3rd-10th</td><td>+3</td></tr>
+                <tr><td>more than 10</td><td>-1</td></tr>
                 </table>
                 </div>
 

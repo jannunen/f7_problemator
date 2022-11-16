@@ -1,6 +1,8 @@
 const messages = {
     en: {
         ranking : {
+            try : 'try',
+            tries : 'tries',
             ranking_title : 'Ranking',
         },
         results : {

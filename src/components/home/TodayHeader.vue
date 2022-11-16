@@ -43,7 +43,7 @@ const scoreToday = computed(() => {
   const points = top10.reduce((acc, item) => {
     const grade = grades.value.find(x => x.id == item.gradeid)
     if (grade != null && grade.score != null) {
-      acc += calculatePoints(item.routetype, grade.score, parseInt(item.tries))
+      acc += calculatePoints(item.routetype, parseInt(item.tries))
     }
     return acc
   }, 0)
