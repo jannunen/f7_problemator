@@ -1,4 +1,4 @@
-# Backlogger
+# Problemator Mobile PWA
 
 Problemator is an app which is used as a tool for routesetters, but there's also
 a mobile version for climbers to track their climbing.
