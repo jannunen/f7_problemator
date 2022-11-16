@@ -11,11 +11,11 @@
                 ticks. But if you choose weekly/mohthly/yearly span and click
                 a day, it will fetch the ticks accordingly and populate the data.</p>
             <div class="flex flex-col items-center">
-                    <div class="text-center">date span: {{ selectedSpan}}</div>
-<br />
-<br />
-The chart loading is throttled, so there is a 2 second wait before you
-can click again. <span class="font-bold text-red-300" v-if="!newClickPossible">wait</span><span  class="font-bold text-green-300" v-else>ready</span>
+                <div class="text-center">date span: {{ selectedSpan }}</div>
+                <br />
+                <br />
+                The chart loading is throttled, so there is a 2 second wait before you
+                can click again. <span class="font-bold text-red-300" v-if="!newClickPossible">wait</span><span class="font-bold text-green-300" v-else>ready</span>
                 <calendar :attributes='attrs' @dayclick="onDayClick">
                     <template #day-popover="{ day, format, masks }">
                         <div class="text-xs text-gray-300 font-semibold text-center">
@@ -34,104 +34,108 @@ can click again. <span class="font-bold text-red-300" v-if="!newClickPossible">w
 
 
             </div>
-            
-
-                <div class="mx-auto w-11/12" v-if="archiveDate != null">
 
 
-                    <div v-if="loading" class="flex flex-col items-center justify-center mt-3">
-                        <f7-preloader class="my-2"></f7-preloader>
-                        Loading date(s)...
-                    </div>
+            <div class="mx-auto w-11/12" v-if="archiveDate != null">
 
 
-                    <div v-if="reversedTicks.length > 0 || reversedProjects.length > 0">
-
-                        <div class="flex flex-row justify-around my-1 gap-2">
-                            <div class="text-center border border-gray-800 p-1 ">
-                                {{ascents.length}} tick(s)
-                                <Bar v-if="!loading" :chart-options="{plugins : { legend: { display: false } }}" :chart-data="data" chart-id="archive_chart_ticks" :width="150" :height="100" />
-                            </div>
-                            <div class="text-center border border-gray-700 p-1">
-                                {{projects.length}} project(s)
-                                <Bar v-if="!loading" :chart-options="{plugins : { legend: { display: false } }}" :chart-data="projectData" chart-id="archive_chart_projs" :width="150" :height="100" />
-                            </div>
-                        </div>
-
-                        <f7-block-title>Ticks ({{ reversedTicks.length }})</f7-block-title>
-                        <small>Want to see your weekly stats? Just choose week as a time span and click any
-                            day on the weekday you want to show the data on.</small>
-                        <f7-list v-if="reversedTicks.length > 0" problem-list>
-                            <f7-list-item @swipeout:deleted="(evt) => onDeleted(tick, j)" swipeout v-for="(tick, index) in reversedTicks" :key="tick.id">
-                                <template #media> <div class="flex flex-col items-center">{{ index + 1 }}.<br /><span class="font-bold">{{ right(tick.problem.tag,4) }}</span> </div></template>
-                                <template #title>
-                                    <div class="flex flex-row">
-                                        <span class="px-1 pt-1 text-2xl font-bold w-16">{{ tick.problem.grade.name }}</span>
-                                        <div class="flex flex-col">
-                                            <div class="flex">
-                                                <div v-if="tick.tries == 1" class="rounded-full font-bold text-yellow-400  ">
-                                                    {{ t('flash') }}
-                                                </div>
-                                                <div v-else class="rounded-full font-bold  text-red-400  ">
-                                                    {{ t('redpoint') }}
-                                                </div>
-                                                <div class="ps-2">@{{ tick.problem.gym.name }}</div>
-                                            </div>
-                                            <div class="text-sm">{{ t('problem.tick_in_tries', parseInt(tick.tries)) }}</div>
-                                        </div>
-                                    </div>
-                                </template>
-                                <template #after>
-                                    <div class="flex flex-col">
-                                        <div class="text-sm">{{ dayjs.utc(tick.tstamp).fromNow() }}</div>
-                                        <div class="text-sm">
-                                            {{ dayjs.utc(tick.tstamp).local().format('DD.MM.YYYY HH:mm') }}
-                                        </div>
-                                    </div>
-                                </template>
-                                <f7-swipeout-actions right>
-                                    <f7-swipeout-button delete :confirm-text="t('problem.tick_delete_are_you_sure')">{{ t('delete') }}</f7-swipeout-button>
-                                </f7-swipeout-actions>
-                            </f7-list-item>
-                        </f7-list>
-                        <f7-block-title>Tries / Projecting ({{ reversedProjects.length}})</f7-block-title>
-                        <f7-list v-if="reversedProjects.length > 0">
-                            <f7-list-item @swipeout:deleted="(evt) => onProjectDeleted(tick, j)" swipeout v-for="(tick, index) in reversedProjects" :key="tick.id">
-                                <template #media> <div class="flex flex-col items-center">{{ index + 1 }}.<br /><span class="font-bold">{{ right(tick.problem.tag,4) }}</span> </div></template>
-                                <template #title>
-                                    <div class="flex flex-row">
-                                        <span class="px-1 pt-1 text-2xl font-bold w-16">{{ tick.problem.grade.name }}</span>
-                                        <div class="flex flex-col">
-                                            <div class="flex flex-row">
-                                                <div class="rounded-full font-bold text-yellow-400">
-                                                    {{ t('a burn') }}
-                                                </div>
-                                                <div class="ps-2">@{{ tick.problem.gym.name }}</div>
-                                            </div>
-                                            <div class="text-sm">{{ t('problem.tick_in_tries', parseInt(tick.tries)) }}</div>
-                                        </div>
-                                    </div>
-                                </template>
-                                <template #after>
-                                    <div class="flex flex-col">
-                                        <div class="text-sm">{{ dayjs.utc(tick.tstamp).fromNow() }}</div>
-                                        <div class="text-sm">
-                                            {{ dayjs.utc(tick.tstamp).local().format('DD.MM.YYYY HH:mm') }}
-                                        </div>
-                                    </div>
-                                </template>
-                                <f7-swipeout-actions right>
-                                    <f7-swipeout-button delete :confirm-text="t('problem.tick_delete_are_you_sure')">{{ t('delete') }}</f7-swipeout-button>
-                                </f7-swipeout-actions>
-                            </f7-list-item>
-                        </f7-list>
-                    </div>
-                    <div v-else class="my-2 text-center font-bold text-orange">
-                        {{ t('archive.you_have_no_ticks') }}
-                    </div>
+                <div v-if="loading" class="flex flex-col items-center justify-center mt-3">
+                    <f7-preloader class="my-2"></f7-preloader>
+                    Loading date(s)...
                 </div>
 
-            
+
+                <div v-if="reversedTicks.length > 0 || reversedProjects.length > 0">
+
+                    <div class="flex flex-row justify-around my-1 gap-2">
+                        <div class="text-center border border-gray-800 p-1 ">
+                            {{ ascents.length }} tick(s)
+                            <Bar v-if="!loading" :chart-options="{ plugins: { legend: { display: false } } }" :chart-data="data" chart-id="archive_chart_ticks" :width="150" :height="100" />
+                        </div>
+                        <div class="text-center border border-gray-700 p-1">
+                            {{ projects.length }} project(s)
+                            <Bar v-if="!loading" :chart-options="{ plugins: { legend: { display: false } } }" :chart-data="projectData" chart-id="archive_chart_projs" :width="150" :height="100" />
+                        </div>
+                    </div>
+
+                    <f7-block-title>Ticks ({{ reversedTicks.length }})</f7-block-title>
+                    <small>Want to see your weekly stats? Just choose week as a time span and click any
+                        day on the weekday you want to show the data on.</small>
+                    <f7-list v-if="reversedTicks.length > 0" problem-list>
+                        <f7-list-item @swipeout:deleted="(evt) => onDeleted(tick, j)" swipeout v-for="(tick, index) in reversedTicks" :key="tick.id">
+                            <template #media>
+                                <div class="flex flex-col items-center">{{ index + 1 }}.<br /><span class="font-bold">{{ right(tick.problem.tag, 4) }}</span> </div>
+                            </template>
+                            <template #title>
+                                <div class="flex flex-row">
+                                    <span class="px-1 pt-1 text-2xl font-bold w-16">{{ tick.problem.grade.name }}</span>
+                                    <div class="flex flex-col">
+                                        <div class="flex">
+                                            <div v-if="tick.tries == 1" class="rounded-full font-bold text-yellow-400  ">
+                                                {{ t('flash') }}
+                                            </div>
+                                            <div v-else class="rounded-full font-bold  text-red-400  ">
+                                                {{ t('redpoint') }}
+                                            </div>
+                                            <div class="ps-2">@{{ tick.problem.gym.name }}</div>
+                                        </div>
+                                        <div class="text-sm">{{ t('problem.tick_in_tries', parseInt(tick.tries)) }}</div>
+                                    </div>
+                                </div>
+                            </template>
+                            <template #after>
+                                <div class="flex flex-col">
+                                    <div class="text-sm">{{ dayjs.utc(tick.tstamp).fromNow() }}</div>
+                                    <div class="text-sm">
+                                        {{ dayjs.utc(tick.tstamp).local().format('DD.MM.YYYY HH:mm') }}
+                                    </div>
+                                </div>
+                            </template>
+                            <f7-swipeout-actions right>
+                                <f7-swipeout-button delete :confirm-text="t('problem.tick_delete_are_you_sure')">{{ t('delete') }}</f7-swipeout-button>
+                            </f7-swipeout-actions>
+                        </f7-list-item>
+                    </f7-list>
+                    <f7-block-title>Tries / Projecting ({{ reversedProjects.length }})</f7-block-title>
+                    <f7-list v-if="reversedProjects.length > 0">
+                        <f7-list-item @swipeout:deleted="(evt) => onProjectDeleted(tick, j)" swipeout v-for="(tick, index) in reversedProjects" :key="tick.id">
+                            <template #media>
+                                <div class="flex flex-col items-center">{{ index + 1 }}.<br /><span class="font-bold">{{ right(tick.problem.tag, 4) }}</span> </div>
+                            </template>
+                            <template #title>
+                                <div class="flex flex-row">
+                                    <span class="px-1 pt-1 text-2xl font-bold w-16">{{ tick.problem.grade.name }}</span>
+                                    <div class="flex flex-col">
+                                        <div class="flex flex-row">
+                                            <div class="rounded-full font-bold text-yellow-400">
+                                                {{ t('a burn') }}
+                                            </div>
+                                            <div class="ps-2">@{{ tick.problem.gym.name }}</div>
+                                        </div>
+                                        <div class="text-sm">{{ t('problem.tick_in_tries', parseInt(tick.tries)) }}</div>
+                                    </div>
+                                </div>
+                            </template>
+                            <template #after>
+                                <div class="flex flex-col">
+                                    <div class="text-sm">{{ dayjs.utc(tick.tstamp).fromNow() }}</div>
+                                    <div class="text-sm">
+                                        {{ dayjs.utc(tick.tstamp).local().format('DD.MM.YYYY HH:mm') }}
+                                    </div>
+                                </div>
+                            </template>
+                            <f7-swipeout-actions right>
+                                <f7-swipeout-button delete :confirm-text="t('problem.tick_delete_are_you_sure')">{{ t('delete') }}</f7-swipeout-button>
+                            </f7-swipeout-actions>
+                        </f7-list-item>
+                    </f7-list>
+                </div>
+                <div v-else class="my-2 text-center font-bold text-orange">
+                    {{ t('archive.you_have_no_ticks') }}
+                </div>
+            </div>
+
+
         </f7-block>
     </f7-page>
 </template>
@@ -165,7 +169,7 @@ onMounted(() => {
     store.dispatch('fetchArchiveDate', { span: selectedSpan.value })
         .then(() => {
             loading.value = false
-            setTimeout(() => {newClickPossible.value=true}, 2000)
+            setTimeout(() => { newClickPossible.value = true }, 2000)
         })
 })
 const showSpan = ref('day')
@@ -282,7 +286,7 @@ const onDayClick = (evt) => {
     store.dispatch('fetchArchiveDate', { span: selectedSpan.value })
         .then(() => {
             loading.value = false
-            setTimeout(() => {newClickPossible.value=true}, 2000)
+            setTimeout(() => { newClickPossible.value = true }, 2000)
         })
 }
 
