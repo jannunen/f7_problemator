@@ -24,6 +24,7 @@ export default createStore({
   state: {
     routetypes : ['boulder','sport'],
     rankings : null,
+    rankingTarget : 'global',
     settings : {
       darkMode : true,
     },
@@ -76,6 +77,9 @@ export default createStore({
   },
 
   mutations: {
+    rankingTarget(state, payload) {
+      state.rankingTarget = payload
+    },
     rankings (state, payload) {
       state.rankings = payload
     },
@@ -258,6 +262,7 @@ export default createStore({
       if (ret!=null && ret.profile != null) {
         commit('profile', ret.profile)
         commit('gym', ret.gym)
+        commit('rankingTarget',ret.gym.country)
         if (ret.gym.problems != null) {
           const problems = ret.gym.problems.reduce(( acc, prob) => {
             acc[prob.id] = prob
@@ -302,12 +307,14 @@ export default createStore({
       commit('removeTick',payload.problemid)
       return ret
     },
-    async deleteTick({ state, commit}, payload) {
+    async deleteTick({ state, commit, dispatch}, payload) {
       const ret = await api.deleteTick(payload)
       commit('problems', {...state.problems,[ret.problem.id] : ret.problem})
+      dispatch('rankings', { country: state.rankingTarget })
+
       return ret
     },
-    async saveTick({ state, commit}, payload) {
+    async saveTick({ state, commit, dispatch}, payload) {
       const ret = await api.saveTick(payload)
       commit('updateProblem', ret.problem)
       // Update also tries in profile
@@ -316,6 +323,7 @@ export default createStore({
       } else {
         commit('addTriesAllTime',ret.tick) 
       }
+      dispatch('rankings', { country: state.rankingTarget })
       return ret
     },
     async likeProblem({ state , commit}, payload) {
