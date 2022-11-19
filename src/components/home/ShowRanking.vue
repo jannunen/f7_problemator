@@ -142,7 +142,10 @@ const grades = computed(() => store.state.grades)
 const getFirstTickTimestamp=(problem) => {
     const ascents = problem.ascents
     const firstTick = ascents.shift()
-    return toLocalTime(firstTick.timestamp,'YYYY-MM-DD')
+    if (firstTick != null) {
+        return toLocalTime(firstTick.tstamp,'YYYY-MM-DD')
+    }
+    return "N/A"
 }
 const estimateGrade = (points) => {
     const singleGrade = points / 10
