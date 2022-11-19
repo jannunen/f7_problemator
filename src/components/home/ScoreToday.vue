@@ -50,11 +50,15 @@ const scoreToday = computed(() => {
     if (grades.value == null) {
         return 0
     }
-    const top10 = ticks?.value.sort((b, a) => a.gradeid - b.gradeid).slice(0, 10)
+    if (ticks?.value == null) {
+        return 0
+    }
+    const ticksToday = ticks.value
+    const top10 = ticksToday.sort((b, a) => a.gradeid - b.gradeid).slice(0, 10)
     const points = top10.reduce((acc, item) => {
         const grade = grades.value.find(x => x.id == item.gradeid)
         if (grade != null && grade.score != null) {
-            acc += calculatePoints(item.routetype, parseInt(item.tries))
+            acc += grade.score + calculatePoints(item.routetype, parseInt(item.tries))
         }
         return acc
     }, 0)
