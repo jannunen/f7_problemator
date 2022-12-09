@@ -241,7 +241,7 @@ export default createStore({
   actions: {
     async getPublicAscents({commit},payload) {
       const ret = await api.getPublicAscents(payload)
-      commit('public_ascents',{problemid: payload, ascents : ret})
+      commit('public_ascents',{problemid: payload, ascents : ret.ascents})
       return ret
     },
     async rankings({commit},payload) {
