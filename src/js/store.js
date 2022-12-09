@@ -36,6 +36,7 @@ export default createStore({
       ongoing : [],
     },
     tipShowStatus : {},
+    public_ascents : {},
     searchQuery: '',
     searchState: 'idle',
     initializing : true,
@@ -77,6 +78,17 @@ export default createStore({
   },
 
   mutations: {
+    public_ascents(state, payload) {
+      /*
+      state.public_ascents = state.public_ascents.map(asc => {
+        if (asc.id == payload.id) {
+          return {...asc,payload}
+        }
+        return asc
+      })
+      */
+      state.public_ascents = {...state.public_ascents, [payload.problemid] : payload.ascents}
+    },
     rankingTarget(state, payload) {
       state.rankingTarget = payload
     },
@@ -227,11 +239,15 @@ export default createStore({
     }
   },
   actions: {
+    async getPublicAscents({commit},payload) {
+      const ret = await api.getPublicAscents(payload)
+      commit('public_ascents',{problemid: payload, ascents : ret})
+      return ret
+    },
     async rankings({commit},payload) {
       const ret = await api.ranking(payload)
       commit('rankings',ret)
       return ret
-
     },
     async version({commit}) {
       const ret = await api.version()

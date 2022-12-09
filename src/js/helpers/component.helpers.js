@@ -4,6 +4,9 @@ import timezone from "dayjs/plugin/timezone";
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
+const showAgo = (tstamp) => {
+    return dayjs.utc(tstamp).local().fromNow()
+}
 const getAscentsByGrade = (grades, ticks, lastDays,showOfType) => {
     let gradeMap = new Map()
     const deadline = dayjs().subtract(lastDays, 'day')
@@ -81,4 +84,5 @@ export {
     getAscentsByGrade,
     getSessionCount,
     toLocalTime,
+    showAgo,
 }

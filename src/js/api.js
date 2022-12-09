@@ -13,6 +13,10 @@ const formatDate = (date) => {
 };
 
 const api = {
+  async getPublicAscents(payload) {
+    const ret = await axios.get(endpoint+"/problem/"+payload+"/public_ascents")
+    return ret.data
+  },
   async ranking(payload) {
     // pagination defines the urls 
     let ret = null

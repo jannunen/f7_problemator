@@ -4,6 +4,7 @@ import { computed, ref, onMounted } from 'vue'
 import AddTick from '@components/problem/AddTick.vue'
 import LeftDetails from '@components/problem/LeftDetails.vue'
 import RightDetails from '@components/problem/RightDetails.vue'
+import showPublicAscents from '@components/problem/ShowPublicAscents.vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
@@ -12,6 +13,7 @@ import { useStore } from 'vuex'
 import { f7, f7ready } from 'framework7-vue'
 import { useAuth0 } from '@auth0/auth0-vue';
 const store = useStore()
+const showPublicAscentsDialog = ref(false)
 const { idTokenClaims, getAccessTokenSilently, loginWithRedirect, logout, user } = useAuth0();
 dayjs.extend(LocalizedFormat)
 dayjs.extend(relativeTime)
@@ -26,6 +28,8 @@ if (props.id != null) {
 }
 const problems = computed(() => store.state.problems)
 const isAuthenticated = computed(() => store.state.isAuthenticated)
+const problemAscents = computed(() => store.state.public_ascents[props.id])
+
 const onLoginClick = () => {
   f7.views.main.router.navigate({url : '/'  });
 }
@@ -36,6 +40,12 @@ const problem = computed(() => {
   return problems.value[props.id]
 })
 
+const onShowPublicAscents = (pid) => {
+  store.dispatch("getPublicAscents",pid)
+  .then(() => {
+    showPublicAscentsDialog.value = true
+  })
+}
 const openAddTick = () => {
   const url = `/problem/${problem.id}/addtick`
   props.f7router.navigate(url)
@@ -43,11 +53,13 @@ const openAddTick = () => {
 </script>
 <template>
   <div v-if="problem != null && problem.id != null">
+
+  <show-public-ascents :problem="problem" :opened="showPublicAscentsDialog" @close="showPublicAscentsDialog=false" :ascents="problemAscents"> </show-public-ascents>
     <div class="m-0 p-0">
 
       <!-- problem details -->
       <div class="grid grid-cols-3 gap-4 my-3">
-        <left-details :problem="problem"></left-details>
+        <left-details :problem="problem" @show-public-ascents="onShowPublicAscents"></left-details>
         <right-details :problem="problem"></right-details>
       </div>
 

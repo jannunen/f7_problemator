@@ -3,9 +3,9 @@
     <h1 class="text-4xl p-2 m-1">{{ problem.grade.name }}</h1>
     <round-badge :width="32" :bgColor="problem.colour.code"></round-badge>
     <div class="my-2">{{ getTagShort(problem.tag) }}</div>
-    <div class="my-2 text-sm font-bold">
+    <a class="my-2 text-sm font-bold" @click.prevent="showPublicAscents">
       {{ t('problem.ascents', problem.total_ascents) }}
-    </div>
+    </a>
     <div class="mt-2 text-sm font-bold">
       {{ t('problem.likes', problem.likeCount) }}
     </div>
@@ -82,9 +82,12 @@ const { t } = useI18n()
 const props = defineProps({
   problem: Object,
 })
-const emit = defineEmits(['open-my-ticks'])
+const emit = defineEmits(['open-my-ticks','show-public-ascents'])
 const ticks = computed(() => store.state.alltime.ticks)
 const tries = computed(() => store.state.alltime.tries)
+const showPublicAscents = () => {
+  emit('show-public-ascents',props.problem.id)
+}
 
 const isMyProject = (pid) => {
   return tries.value.find(x => x.problemid == pid)
