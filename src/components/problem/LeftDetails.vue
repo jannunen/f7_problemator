@@ -3,7 +3,7 @@
     <h1 class="text-4xl p-2 m-1">{{ problem.grade.name }}</h1>
     <round-badge :width="32" :bgColor="problem.colour.code"></round-badge>
     <div class="my-2">{{ getTagShort(problem.tag) }}</div>
-    <a class="my-2 text-sm font-bold" @click.prevent="showPublicAscents">
+    <a href="#" class="my-2 text-sm font-bold" @click.prevent="showPublicAscents">
       {{ t('problem.ascents', problem.total_ascents) }}
     </a>
     <div class="mt-2 text-sm font-bold">
