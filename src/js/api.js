@@ -14,7 +14,7 @@ const formatDate = (date) => {
 
 const api = {
   async getPublicAscents(payload) {
-    const ret = await axios.get(endpoint+"/problem/"+payload+"/public_ascents")
+    const ret = await axios.post(endpoint+"/problem/"+payload+"/ascents/public")
     return ret.data
   },
   async ranking(payload) {
