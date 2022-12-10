@@ -1,9 +1,9 @@
 <template>
     <f7-sheet :opened="opened" style="height:auto; " @sheet:close="onSheetClose" swipe-to-close backdrop>
         <f7-page-content>
-            <f7-block-title large>Public ascents (<small>{{ ascents.length }} ascents</small>)</f7-block-title>
+            <f7-block-title large>{{ t('publicascents.title') }} (<small>{{ ascents.length }} {{ t('publicascents.ascents') }}</small>)</f7-block-title>
             <f7-block>
-                <br /> (The number of ascents may differ from the number of ascents shown on the problem page, because some climbers prefer not to show their ascents.)
+                <br /> {{ t('publicascents.not_all_ascents_are_public') }}
                 <br />
                 <f7-list media-list>
                     <f7-list-item v-for="(asc, idx) in ascents.reverse()" :key="asc.id" >
@@ -16,10 +16,10 @@
                         </template>
                         <template #title>
                             <div v-if="asc.climber != null">
-                            {{ asc.climber?.etunimi }} {{ asc.climber?.sukunimi }}
+                            {{ asc.climber?.etunimi || 'Secret'}} {{ asc.climber?.sukunimi || 'Nugget'}}
                             </div>
                             <div v-else>
-                               Too much secret climber
+                               {{ t('publicascents.secret_climber') }}
                             </div>
                         </template>
                         <template #media>
@@ -34,18 +34,18 @@
 </template>
   
 <script setup>
-/*
 import { useI18n } from 'vue-i18n'
+import { showAgo, toLocalTime } from '@helpers'
+/*
 import store from '@js/store.js'
 import { useStore } from "framework7-vue"
 import { left, getTagShort } from '@js/helpers'
 import { ref, onMounted, computed } from "vue"
 import { emit } from 'process'
-const { t } = useI18n()
-
 const grades = computed(() => store.state.grades)
 */
-import { showAgo, toLocalTime } from '@helpers'
+const { t } = useI18n()
+
 
 const showTryText = (tries) => {
     const flashText = (props.problem.routetype == 'boulder')  ? 'Flash' : 'Onsight'
