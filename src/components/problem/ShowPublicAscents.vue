@@ -49,8 +49,6 @@ const { t } = useI18n()
 
 const showTryText = (tries) => {
     const flashText = (props.problem.routetype == 'boulder')  ? 'Flash' : 'Onsight'
-
-
     if (tries == 1) {
         return `<span class="text-yellow-400 font-bold">*${flashText}*</span>`
     }
