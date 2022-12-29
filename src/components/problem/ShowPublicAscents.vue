@@ -1,10 +1,16 @@
 <template>
-    <f7-sheet :opened="opened" style="height:auto; " @sheet:close="onSheetClose" swipe-to-close backdrop>
+    <f7-sheet :opened="opened" style="height : 60%;" @sheet:close="onSheetClose" swipe-to-close backdrop>
+        <f7-toolbar>
+            <div class="left"></div>
+            {{ t('publicascents.title') }}
+            <div class="right">
+                <f7-link sheet-close>Close</f7-link>
+            </div>
+        </f7-toolbar>
         <f7-page-content>
-            <f7-block-title large>{{ t('publicascents.title') }} (<small>{{ ascents.length }} {{ t('publicascents.ascents') }}</small>)</f7-block-title>
             <f7-block>
+                <div class="my-1">{{ ascents.length }} {{ t('publicascents.ascents') }}</div>
                 <br /> {{ t('publicascents.not_all_ascents_are_public') }}
-                <br />
                 <f7-list media-list>
                     <f7-list-item v-for="(asc, idx) in ascents.reverse()" :key="asc.id" >
                         <template #subtitle>
