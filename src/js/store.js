@@ -78,7 +78,8 @@ export default createStore({
   },
 
   mutations: {
-    public_ascents(state, payload) {
+    set_public_ascents(state, payload) {
+      debugger
       /*
       state.public_ascents = state.public_ascents.map(asc => {
         if (asc.id == payload.id) {
@@ -87,6 +88,7 @@ export default createStore({
         return asc
       })
       */
+
       state.public_ascents = {...state.public_ascents, [payload.problemid] : payload.ascents}
     },
     rankingTarget(state, payload) {
@@ -241,7 +243,8 @@ export default createStore({
   actions: {
     async getPublicAscents({ commit }, payload) {
       const ret = await api.getPublicAscents(payload)
-      commit('public_ascents', { problemid: payload, ascents: ret.ascents })
+      debugger
+      commit('set_public_ascents', { problemid: payload, ascents: ret.ascents })
       return ret
     },
     async rankings({commit},payload) {

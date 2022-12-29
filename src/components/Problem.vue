@@ -28,7 +28,7 @@ if (props.id != null) {
 }
 const problems = computed(() => store.state.problems)
 const isAuthenticated = computed(() => store.state.isAuthenticated)
-const problemAscents = computed(() => store.state.public_ascents[props.id])
+const problemAscents = computed(() => store.state.public_ascents[problem.value.id])
 
 const onLoginClick = () => {
   f7.views.main.router.navigate({url : '/'  });
