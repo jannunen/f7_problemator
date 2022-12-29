@@ -8,7 +8,7 @@
             </div>
         </f7-toolbar>
         <f7-page-content>
-            <f7-block>
+            <f7-block v-if="ascents != null && ascents.length > 0">
                 <div class="my-1">{{ ascents.length }} {{ t('publicascents.ascents') }}</div>
                 <br /> {{ t('publicascents.not_all_ascents_are_public') }}
                 <f7-list media-list>
@@ -43,6 +43,9 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { showAgo, toLocalTime } from '@helpers'
+import { computed, ref, onMounted } from 'vue'
+import { useStore } from 'vuex'
+const store = useStore()
 /*
 import store from '@js/store.js'
 import { useStore } from "framework7-vue"
@@ -63,9 +66,9 @@ const showTryText = (tries) => {
 }
 const props = defineProps({
     problem : Object,
-    ascents: { type: Array, default: [] },
     opened: Boolean,
 })
+const ascents = computed(() => store.state.public_ascents[props.problem.id])
 const emits = defineEmits(['close'])
 const onSheetClose = () => {
     emits('close')
