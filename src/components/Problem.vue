@@ -28,7 +28,6 @@ if (props.id != null) {
 }
 const problems = computed(() => store.state.problems)
 const isAuthenticated = computed(() => store.state.isAuthenticated)
-const problemAscents = computed(() => store.state.public_ascents[problem.value.id])
 
 const onLoginClick = () => {
   f7.views.main.router.navigate({url : '/'  });
@@ -54,7 +53,7 @@ const openAddTick = () => {
 <template>
   <div v-if="problem != null && problem.id != null">
 
-  <show-public-ascents :problem="problem" :opened="showPublicAscentsDialog" @close="showPublicAscentsDialog=false" :ascents="problemAscents"> </show-public-ascents>
+  <show-public-ascents :problem="problem" :opened="showPublicAscentsDialog" @close="showPublicAscentsDialog=false"> </show-public-ascents>
     <div class="m-0 p-0">
 
       <!-- problem details -->
