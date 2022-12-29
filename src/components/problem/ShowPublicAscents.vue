@@ -33,6 +33,7 @@
                         </template>
                     </f7-list-item>
                 </f7-list>
+            {{ ascents }}
 
             </f7-block>
         </f7-page-content>
