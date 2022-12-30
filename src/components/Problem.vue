@@ -4,7 +4,7 @@ import { computed, ref, onMounted } from 'vue'
 import AddTick from '@components/problem/AddTick.vue'
 import LeftDetails from '@components/problem/LeftDetails.vue'
 import RightDetails from '@components/problem/RightDetails.vue'
-import showPublicAscents from '@components/problem/ShowPublicAscents.vue'
+import ShowPublicAscents from '@components/problem/ShowPublicAscents.vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
@@ -40,10 +40,7 @@ const problem = computed(() => {
 })
 
 const onShowPublicAscents = (pid) => {
-  store.dispatch("getPublicAscents",pid)
-  .then(() => {
     showPublicAscentsDialog.value = true
-  })
 }
 const openAddTick = () => {
   const url = `/problem/${problem.id}/addtick`
@@ -53,7 +50,7 @@ const openAddTick = () => {
 <template>
   <div v-if="problem != null && problem.id != null">
 
-  <show-public-ascents :problem="problem" :opened="showPublicAscentsDialog" @close="showPublicAscentsDialog=false"> </show-public-ascents>
+  <show-public-ascents v-if="showPublicAscentsDialog" :problem="problem" :opened="showPublicAscentsDialog" @close="showPublicAscentsDialog=false"> </show-public-ascents>
     <div class="m-0 p-0">
 
       <!-- problem details -->
