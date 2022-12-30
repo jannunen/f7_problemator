@@ -7,7 +7,7 @@
                 <f7-link sheet-close>Close</f7-link>
             </div>
         </f7-toolbar>
-        <f7-page-content>
+        
             <f7-block v-if="ascents != null && ascents.length > 0">
                 <div class="my-1">{{ ascents.length }} {{ t('publicascents.ascents') }}</div>
                 <br /> {{ t('publicascents.not_all_ascents_are_public') }}
@@ -33,10 +33,9 @@
                         </template>
                     </f7-list-item>
                 </f7-list>
-            {{ ascents }}
 
             </f7-block>
-        </f7-page-content>
+        
     </f7-sheet>
 </template>
   
@@ -56,6 +55,7 @@ const grades = computed(() => store.state.grades)
 */
 const { t } = useI18n()
 
+const ascents = ref([])
 
 const showTryText = (tries) => {
     const flashText = (props.problem.routetype == 'boulder')  ? 'Flash' : 'Onsight'
@@ -68,7 +68,13 @@ const props = defineProps({
     problem : Object,
     opened: Boolean,
 })
-const ascents = computed(() => store.state.public_ascents[props.problem.id])
+onMounted(() => {
+    store.dispatch("getPublicAscents", props.problem.id)
+        .then((a) => {
+            ascents.value = a.ascents
+        })
+})
+
 const emits = defineEmits(['close'])
 const onSheetClose = () => {
     emits('close')
