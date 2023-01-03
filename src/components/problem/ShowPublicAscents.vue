@@ -7,7 +7,7 @@
                 <f7-link sheet-close>Close</f7-link>
             </div>
         </f7-toolbar>
-        
+        <f7-page-content class="m-0 p-0">
             <f7-block v-if="ascents != null && ascents.length > 0">
                 <div class="my-1">{{ ascents.length }} {{ t('publicascents.ascents') }}</div>
                 <br /> {{ t('publicascents.not_all_ascents_are_public') }}
@@ -35,6 +35,7 @@
                 </f7-list>
 
             </f7-block>
+        </f7-page-content>
         
     </f7-sheet>
 </template>
