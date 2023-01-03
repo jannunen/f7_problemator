@@ -12,7 +12,7 @@
                 <div class="my-1">{{ ascents.length }} {{ t('publicascents.ascents') }}</div>
                 <br /> {{ t('publicascents.not_all_ascents_are_public') }}
                 <f7-list media-list>
-                    <f7-list-item v-for="(asc, idx) in ascents.reverse()" :key="asc.id" >
+                    <f7-list-item v-for="(asc, idx) in ascents" :key="asc.id" >
                         <template #subtitle>
                         {{ toLocalTime(asc.tstamp) }}
                          ({{ showAgo(asc.tstamp)}})
@@ -45,14 +45,6 @@ import { showAgo, toLocalTime } from '@helpers'
 import { computed, ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 const store = useStore()
-/*
-import store from '@js/store.js'
-import { useStore } from "framework7-vue"
-import { left, getTagShort } from '@js/helpers'
-import { ref, onMounted, computed } from "vue"
-import { emit } from 'process'
-const grades = computed(() => store.state.grades)
-*/
 const { t } = useI18n()
 
 const ascents = ref([])
