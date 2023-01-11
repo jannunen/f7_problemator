@@ -5,6 +5,7 @@
       <f7-nav-title> {{ t('comps.upcoming_competitions') }} </f7-nav-title>
     </f7-navbar>
     <f7-block>
+    {{ toLocalTime(nowUTC) }}
       <f7-list media-list>
         <f7-list-item
           v-for="comp in comps.upcoming"
@@ -17,7 +18,7 @@
           <div v-html="getCompText(comp)"></div>
         </template>
         <template #subtitle>
-          @{{ comp.compdate }}
+          @{{ toLocalTime(comp.compdate) }}
           <span v-if="comp.participates" class="font-bold text-green-500">{{ t('comps.you_are_registered') }}</span>
           <span v-else-if="comp.participatesunpaid" class="font-bold text-red-500">{{ t('comps.you_are_registered_not_paid') }}</span>
           <span v-else>
@@ -43,23 +44,32 @@ import { toLocalTime } from '../js/helpers/component.helpers'
 const store = useStore()
 const { t } = useI18n()
 const isFull = (comp) => (comp.maxcontenders != 0 && comp.paidregistrations_count >= comp.maxcontenders)
+const nowUTC = ref(dayjs().utc())
+setInterval(() => nowUTC.value = dayjs().utc(),1000*30)
+
 const isRegistrationPossible = (comp) => {
-  if (comp.registration_start == null) {
-    return dayjs().isBefore(dayjs(comp.registration_end)) 
+  const nowInTime = nowUTC.value
+  const regStart = dayjs.utc(comp.registration_start)
+  const regEnd = dayjs.utc(comp.registration_end)
+  let isPossible = true
+  if (regStart == null) {
+    isPossible = nowInTime.isBefore(regEnd) 
   } else {
-    return dayjs().isAfter(comp.registration_start) && dayjs().isBefore(dayjs(comp.registration_end)) 
+     isPossible =  nowInTime.isAfter(regStart) && nowInTime.isBefore(regEnd) 
   }
+  console.log("ispossible",isPossible)
+  return isPossible
 }
 dayjs.extend(relativeTime)
 
 const getCompText = (comp) => {
     if (!isFull(comp) && isRegistrationPossible(comp)) {
         return `
-        ${t('Registration between')}: ${comp.registration_start || 'now'} - ${comp.registration_end}`
-        + ", " + t('ending in') +" "+ dayjs(comp.registration_end).fromNow()
+        <div class="text-green-400">${t('Registration between')}: ${toLocalTime(comp.registration_start) || 'now'} - ${toLocalTime(comp.registration_end)}`
+        + ", " + t('ending in') +" "+ dayjs.utc(comp.registration_end).fromNow()+ "</div>"
     } else {
       if (!isFull(comp)) {
-        return `Registration time was/is ${toLocalTime(comp.registration_start)} - ${toLocalTime(comp.registration_end)}`
+        return `<div class="text-orange-400">Registration time was/is ${toLocalTime(comp.registration_start)} - ${toLocalTime(comp.registration_end)}</div>`
       }
     }
 }
