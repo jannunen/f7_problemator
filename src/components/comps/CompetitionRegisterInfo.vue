@@ -6,20 +6,21 @@
           <i class="icon material-icons md-only">emoji_events</i>
         </div>
         <div class="demo-facebook-name">{{ comp.name }}</div>
-        <div class="demo-facebook-date">{{ comp.compdate }}</div>
+        <div class="demo-facebook-date">{{ toLocalTime(comp.compdate) }}</div>
       </f7-card-header>
       <f7-card-content v-if="comp != null">
         <small class="text-gray-300 my-0">ID: {{ comp.id }}</small>
         <div class="my-2">
-          Location: <strong>@{{ comp.location }}</strong>
+          {{ t('comps.location') }}: <strong>@{{ comp.location }}</strong>
         </div>
         <div class="my-2">
-          Time span: <strong>{{ comp.timespan_start }} - {{ comp.timespan_end }} </strong>
+          {{ t('comps.tick_time_span') }}: <strong>{{ toLocalTime(comp.timespan_start) }} - {{ toLocalTime(comp.timespan_end) }} </strong>
         </div>
 
         <p v-html="comp.register_form_text"></p>
         <h1 class="my-1 font-bold text-lg">{{ t('comps.categories') }}</h1>
         <p class="text-blue-300">{{ t('comps.fastest_hands_wins') }}</p>
+        <div v-if="comp.categories.length > 0">
         <div class="my-2">
           <f7-list media-list>
             <f7-list-item v-for="cat in comp.categories" :key="cat.id" :title="cat.nimi">
@@ -50,7 +51,12 @@
 
                   </div>
                   <div v-else>
-                    <button  @click="askRegister(cat)" :disabled="isRegistering" class="btn-primary btn-small" >{{ t('comps.register_button') }}</button>
+
+                    <div v-if="isRegistrationPossible(comp, nowUTC)" >
+                      {{ t('comps.registration_ends') }} {{ toLocalTime(comp.registration_end) }}
+                      <button  @click="askRegister(cat)" :disabled="isRegistering" class="btn-primary btn-small" >{{ t('comps.register_button') }}</button>
+                    </div>
+                    <div v-else>{{ t('comps.registration_has_closed') }}</div>
                   </div>
                 </div>
               </template>
@@ -83,6 +89,9 @@
             </f7-list-item>
           </f7-list>
         </div>
+        </div>
+        <div v-else class="my-1 p-4 border rounded-lg bg-orange-300 text-black ">
+          {{ t('comps.no_categories_with_help') }}        </div>
         <p class="likes mt-2">
           {{ t('comps.paid_contenders_in_total') }}: {{ comp.paidregistrations?.length  || 0}}
         </p>
@@ -99,6 +108,10 @@ import PButton from '@components/PButton.vue'
 import { ref, computed} from 'vue'
 import { confirm, toaster } from '@helpers/notifications.js'
 import { handleValidationErrors } from '@helpers'
+import { isRegistrationPossible, toLocalTime } from '@helpers/component.helpers'
+
+const nowUTC = ref(dayjs().utc())
+setInterval(() => nowUTC.value = dayjs().utc(),1000*30)
 import dayjs from 'dayjs'
 const store = useStore()
 

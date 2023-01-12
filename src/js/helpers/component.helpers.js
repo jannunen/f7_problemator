@@ -1,12 +1,29 @@
 import dayjs from 'dayjs'
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import relativeTime from 'dayjs/plugin/relativeTime'
+dayjs.extend(relativeTime)
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
 const showAgo = (tstamp) => {
     return dayjs.utc(tstamp).local().fromNow()
 }
+const isRegistrationPossible = (comp, nowInTimeUTC ) => {
+    if (nowInTimeUTC == null) {
+        nowInTimeUTC = dayjs().utc()
+    }
+  const regStart = dayjs.utc(comp.registration_start)
+  const regEnd = dayjs.utc(comp.registration_end)
+  let isPossible = true
+  if (regStart == null) {
+    isPossible = nowInTimeUTC.isBefore(regEnd) 
+  } else {
+     isPossible =  nowInTimeUTC.isAfter(regStart) && nowInTimeUTC.isBefore(regEnd) 
+  }
+  return isPossible
+}
+
 const getAscentsByGrade = (grades, ticks, lastDays,showOfType) => {
     let gradeMap = new Map()
     const deadline = dayjs().subtract(lastDays, 'day')
@@ -85,4 +102,5 @@ export {
     getSessionCount,
     toLocalTime,
     showAgo,
+    isRegistrationPossible,
 }
