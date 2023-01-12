@@ -5,7 +5,6 @@
       <f7-nav-title> {{ t('comps.upcoming_competitions') }} </f7-nav-title>
     </f7-navbar>
     <f7-block>
-    {{ toLocalTime(nowUTC) }}
       <f7-list media-list>
         <f7-list-item
           v-for="comp in comps.upcoming"
@@ -25,7 +24,7 @@
                <div v-if="isFull(comp)" class="flex flex-row">
                <div class="pe-2 text-red-700 font-bold">{{ t('comps.full') }}</div>
                </div>
-               <span v-else-if="isRegistrationPossible(comp)" class="text-orange-400 font-bold">{{ t('comps.not_registered') }}</span>
+               <span v-else-if="isRegistrationPossible(comp, nowUTC.value)" class="text-orange-400 font-bold">{{ t('comps.not_registered') }}</span>
         </span>
         </template>
         
@@ -40,30 +39,17 @@ import { useStore } from 'vuex'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
-import { toLocalTime } from '../js/helpers/component.helpers'
+import { isRegistrationPossible, toLocalTime } from '../js/helpers/component.helpers'
 const store = useStore()
 const { t } = useI18n()
 const isFull = (comp) => (comp.maxcontenders != 0 && comp.paidregistrations_count >= comp.maxcontenders)
 const nowUTC = ref(dayjs().utc())
 setInterval(() => nowUTC.value = dayjs().utc(),1000*30)
 
-const isRegistrationPossible = (comp) => {
-  const nowInTime = nowUTC.value
-  const regStart = dayjs.utc(comp.registration_start)
-  const regEnd = dayjs.utc(comp.registration_end)
-  let isPossible = true
-  if (regStart == null) {
-    isPossible = nowInTime.isBefore(regEnd) 
-  } else {
-     isPossible =  nowInTime.isAfter(regStart) && nowInTime.isBefore(regEnd) 
-  }
-  console.log("ispossible",isPossible)
-  return isPossible
-}
 dayjs.extend(relativeTime)
 
 const getCompText = (comp) => {
-    if (!isFull(comp) && isRegistrationPossible(comp)) {
+    if (!isFull(comp) && isRegistrationPossible(comp, nowUTC.value)) {
         return `
         <div class="text-green-400">${t('Registration between')}: ${toLocalTime(comp.registration_start) || 'now'} - ${toLocalTime(comp.registration_end)}`
         + ", " + t('ending in') +" "+ dayjs.utc(comp.registration_end).fromNow()+ "</div>"
@@ -74,7 +60,7 @@ const getCompText = (comp) => {
     }
 }
 const getLink = (comp) => {
-    if (!isFull(comp) && isRegistrationPossible(comp)) {
+    if (!isFull(comp) && isRegistrationPossible(comp, nowUTC.value)) {
         return `/competitions/`+comp.id
     } else {
         return null

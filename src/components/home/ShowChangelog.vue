@@ -27,6 +27,7 @@
             </ul>
           </f7-tab>
           <f7-tab id="tab-2" class="mt-2" >
+            <release-note title="0.9.5" :notes="['Nailed some bugs from competition times']"></release-note>
             <release-note title="0.9.4" :notes="['Added public ascents listing to problem details page']"></release-note>
             <release-note title="0.9.2" :notes="['Possibility list your hardest ascents (works from ranking\'s \'my rank\')']"></release-note>
             <release-note title="0.8.36 (2022-11-10)" :notes="['Re-added ranking. Let us see if it works']" />
