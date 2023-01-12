@@ -36,7 +36,12 @@ const messages = {
             judging_competitions : 'Judging sheet',
         },
         comps : {
+            registration_has_closed: 'Registration has closed',
+            tick_time_span : 'Tick time span',
+            location : 'Location',
+            no_categories_with_help: 'The comp has no categories set, registering is not possible. Wait for the competition organizer to add some categories.',
             thats : 'That\'s',
+
             'No ongoing competitions currently' : 'No ongoing competitions currently',
             quit_comp : 'Resign',
             are_you_sure_you_want_to_unregister : 'Are you sure you want to resign the registration? You will not be refunded if you resign the competition',

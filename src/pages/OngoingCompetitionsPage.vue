@@ -14,8 +14,10 @@
           :key="comp.id"
           :link="getLink(comp)"
           :title="comp.name"
-          :after="dayjs(comp.compdate).format('YYYY-MM-DD HH:mm')"
         >
+          <template #after>
+          {{ toLocalTime(comp.compdate) }}
+          </template>
           <template #text>
             <div v-html="getCompText(comp)"></div>
           </template>
@@ -23,15 +25,23 @@
             {{ comp.location }} 
 
             <span class="text-green-500" v-if="comp.isjudge">{{ t('comps.you_are_a_judge') }}</span>
-            <span class="text-green-500 font-bold" v-if="isPaidAndRegistered(comp)">{{ t('comps.you_are_registered') }}</span>
-            <span v-else>
-                <div class="text-orange-400 font-bold">{{ t('comps.not_registered') }}</div>
-                <span v-if="isFull(comp)" class="text-red-700 font-bold">{{ t('comps.full') }}</span>
-                <span v-if="isRegistrationPossible(comp)">
-                    <div>{{ t('Registration between') }} {{ toLocalTime(comp.registration_start) }} - {{ toLocalTime(comp.registration_end) }}</div>
-                </span>
-                <div v-else>Registration is between {{ toLocalTime(comp.registration_start)}} -  {{ toLocalTime(comp.registration_end)}}</div>
-          </span>
+
+            
+            <span v-if="isRegistrationPossible(comp, nowUTC.value)">
+              <span class="text-green-500 font-bold" v-if="isPaidAndRegistered(comp)">{{ t('comps.you_are_registered') }}</span>
+              <span v-else>
+                  <div class="text-orange-400 font-bold">{{ t('comps.not_registered') }}</div>
+                  <span v-if="isFull(comp)" class="text-red-700 font-bold">{{ t('comps.full') }}</span>
+                  <span v-if="isRegistrationPossible(comp, nowUTC.value)">
+                      <div>{{ t('Registration between') }} {{ toLocalTime(comp.registration_start) }} - {{ toLocalTime(comp.registration_end) }}</div>
+                  </span>
+                  <div v-else>Registration is between {{ toLocalTime(comp.registration_start)}} -  {{ toLocalTime(comp.registration_end)}}</div>
+              </span>
+            </span>
+            <div v-else class="text-red-500">
+              {{ t('Not registered and the registration time is closed.') }}
+            </div>
+
           </template>
         </f7-list-item>
       </f7-list>
@@ -41,12 +51,14 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { computed} from 'vue'
+import { computed, ref} from 'vue'
 import dayjs from 'dayjs'
-import { toLocalTime } from '@helpers/component.helpers'
+import { isRegistrationPossible, toLocalTime } from '@helpers/component.helpers'
 import relativeTime from 'dayjs/plugin/relativeTime'
 const store = useStore()
 const climber = computed(() => store.state.climber)
+const nowUTC = ref(dayjs().utc())
+setInterval(() => nowUTC.value = dayjs().utc(),1000*30)
 dayjs.extend(relativeTime)
 const { t } = useI18n()
 const isPaidAndRegistered = (comp) => {
@@ -60,22 +72,15 @@ const isPaidAndRegistered = (comp) => {
 }
 
 const isFull = (comp) => (comp.maxcontenders != 0 && comp.paidregistrations_count >= comp.maxcontenders)
-const isRegistrationPossible = (comp) => {
-  if (comp.registration_start == null) {
-    return dayjs().isBefore(dayjs(comp.registration_end)) 
-  } else {
-    return dayjs().isAfter(comp.registration_start) && dayjs().isBefore(dayjs(comp.registration_end)) 
-  }
-}
 const getCompText = (comp) => {
   const left = dayjs().to(comp.timespan_end)
-  return `${t('comps.ongoing_between')} ${dayjs(comp.timespan_start).format("YYYY-MM-DD HH:mm")} - ${
+  return `<span class="text-white">${t('comps.ongoing_between')} ${dayjs(comp.timespan_start).format("YYYY-MM-DD HH:mm")} - ${
     dayjs(comp.timespan_end).format("YYYY-MM-DD HH:mm")
-  }<br />${t('comps.comp_time_ends_in')} ${left}`
+  }</span><br />${t('comps.comp_time_ends_in')} ${left}`
 }
 const getLink = (comp) => {
     // The actual link will be used, if registration IS possible and comp IS NOT full
-    if (comp.isjudge || (!isFull(comp) && isRegistrationPossible(comp)) || isPaidAndRegistered(comp)) {
+    if (comp.isjudge || (!isFull(comp) || isPaidAndRegistered(comp) )) {
       return `/competitions/` + comp.id
     } else {
       return null
