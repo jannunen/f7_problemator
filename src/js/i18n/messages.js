@@ -47,7 +47,7 @@ const messages = {
             are_you_sure_you_want_to_unregister : 'Are you sure you want to resign the registration? You will not be refunded if you resign the competition',
             are_you_sure_you_want_to_register : 'Are you sure you want to register?',
             competitions: 'Competitions',
-            upcoming_competitions: 'Upcoming competitions',
+            upcoming_competitions: 'Active competitions',
             ongoing_competitions: 'Ongoing competitions',
             ongoing_between: 'Comp is held between',
             comp_time_ends_in: 'Comp time ends in',
