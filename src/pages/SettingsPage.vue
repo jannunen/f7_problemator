@@ -22,6 +22,7 @@
                 <f7-list-input label="Email (read only)" type="text" readonly :value="climber.email"> </f7-list-input>
                 <f7-list-input label="Height" type="text" placeholder="in cm" v-model:value="climber.height"> </f7-list-input>
                 <f7-list-input label="Ape index" placeholder="eg. +9" type="text" v-model:value="climber.apeindex"> </f7-list-input>
+                <f7-list-input label="Birthday" placeholder="1998-11-24" type="text" v-model:value="climber.birthday"> </f7-list-input>
                 <f7-list-input label="Team" placeholder="Enter team" type="text" v-model:value="climber.team"> </f7-list-input>
                 <f7-list-input label="City" placeholder="Enter city" type="text" v-model:value="climber.city"> </f7-list-input>
                 <f7-list-item>

@@ -3,6 +3,7 @@ import ProblemPage from '../pages/ProblemPage.vue';
 import SettingsPage from '../pages/SettingsPage.vue';
 import ArchivePage from '../pages/ArchivePage.vue';
 import JudgingPage from '../pages/JudgingPage.vue';
+import ClimberProfilePage from '../pages/ClimberProfilePage.vue';
 import ProblemPopup from '../pages/ProblemPopup.vue';
 import GymCompletionPage from '../pages/GymCompletionPage.vue';
 import ProblemList from '../pages/ProblemList.vue';
@@ -70,6 +71,10 @@ const routes = [
     path: '/problem/:id',
     //beforeEnter: authGuard,
     component: ProblemPage,
+  },
+  {
+    path: '/climber/:id',
+    component: ClimberProfilePage,
   },
 ];
 

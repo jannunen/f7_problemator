@@ -99,7 +99,9 @@
     <f7-list class="my-2">
     <f7-list-item 
     v-for="row in pagination.data"
-    :title="getClimberName(row)" >
+    :title="getClimberName(row)" 
+    :link="climberProfileLink(row)"
+    >
       <template #after-start>
       <div class="text-yellow-400">{{ row.points}}</div>
       </template>
@@ -195,6 +197,14 @@ const getPoints = (problem) => {
 }
 
 const showAscents = ref(false)
+const climberProfileLink=(row) => {
+    if (row.publicascents==1) {
+        return "/climber/" + row.climber_id
+    } else {
+        return "#"
+    }
+}
+
 const getClimberName = (row) => {
     if (row.etunimi == null && row.sukunimi == null) {
         return "Secret Nugget"

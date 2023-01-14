@@ -1,6 +1,7 @@
 import { createStore } from "vuex";
 import api from './api'
 import home from "./store/home.store.js"
+import climber from './store/climber.store.js'
 
 export const filtersInitial = {
   gradeMin: 'min',
@@ -20,7 +21,9 @@ const getFromLocalStorage = (key, defaultValue) => {
 export default createStore({
   modules : {
     home,
+    climber,
   },
+  namespaced: true,
   state: {
     routetypes : ['boulder','sport'],
     rankings : null,

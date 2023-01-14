@@ -1,5 +1,8 @@
 const messages = {
     en: {
+        profile : {
+            climber_profile : 'Climber profile',
+        },
         publicascents: {
                 secret_climber : 'Too much secret climber',
                 not_all_ascents_are_public : 'The number of ascents may differ from the number of ascents shown on the problem page, because some climbers prefer not to show their ascents.',

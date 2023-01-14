@@ -1,6 +1,7 @@
 import axios from 'axios'
 export const webendpoint =import.meta.env.VITE_API_HOST
 export const endpoint = webendpoint+"/api/v03"
+import climber from './api.climber'
 
 
 const formatDate = (date) => {
@@ -13,6 +14,7 @@ const formatDate = (date) => {
 };
 
 const api = {
+  climber,
   async getPublicAscents(payload) {
     const ret = await (await fetch(endpoint+"/problem/"+payload+"/ascents/public")).json()
     return ret
