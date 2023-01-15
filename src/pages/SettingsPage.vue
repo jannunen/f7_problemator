@@ -20,21 +20,40 @@
                 <f7-list-input label="First name" type="text" placeholder="Your first name" v-model:value="climber.etunimi" clear-button> </f7-list-input>
                 <f7-list-input label="Last name" type="text" placeholder="Your last name" v-model:value="climber.sukunimi" clear-button> </f7-list-input>
                 <f7-list-input label="Email (read only)" type="text" readonly :value="climber.email"> </f7-list-input>
-                <f7-list-input label="Height" type="text" placeholder="in cm" v-model:value="climber.height"> </f7-list-input>
-                <f7-list-input label="Ape index" placeholder="eg. +9" type="text" v-model:value="climber.apeindex"> </f7-list-input>
                 <f7-list-input label="Birthday" placeholder="1998-11-24" type="text" v-model:value="climber.birthday"> </f7-list-input>
                 <f7-list-input label="Team" placeholder="Enter team" type="text" v-model:value="climber.team"> </f7-list-input>
-                <f7-list-input label="City" placeholder="Enter city" type="text" v-model:value="climber.city"> </f7-list-input>
+                <f7-list-input label="Gender" type="select" v-model:value="climber.gender" placeholder="Please choose...">
+                    <option v-for="gender in genders" :value="gender.id" :key="gender.id">{{ gender.name }}</option>
+                </f7-list-input>
                 <f7-list-item>
                 <select type="select" label="Country" v-model="climber.maa">
                     <option v-for="country in getNames()" :value="country" :key="country">{{ country }}</option>
                 </select>
                 </f7-list-item>
-                <f7-list-input label="Gender" type="select" v-model:value="climber.gender" placeholder="Please choose...">
-                    <option v-for="gender in genders" :value="gender.id" :key="gender.id">{{ gender.name }}</option>
-                </f7-list-input>
             </f7-list>
+                <p class="text-red-500 font-bold uppercase">Please note that the info below will be shown on your public profile page. If you don't like them to
+                show, please leave these fields empty!</p>
             <f7-list>
+                
+                
+                <f7-list-input label="Height" type="text" placeholder="in cm" v-model:value="climber.height"> </f7-list-input>
+                <f7-list-input label="Ape index" placeholder="eg. +9" type="text" v-model:value="climber.apeindex"> </f7-list-input>
+                <f7-list-input label="City" placeholder="Enter city" type="text" v-model:value="climber.city"> </f7-list-input>
+                <f7-list-input label="Bio" type="textarea" v-model:value="climber.bio" resizable placeholder="Bio"> </f7-list-input>
+                </f7-list>
+
+                <p>Enter your social media links here. If you don't have one, leave the field empty.</p>
+                <f7-list>
+                <f7-list-input label="27 Crags"  type="text" v-model:value="climber.social_27crags"> </f7-list-input>
+                <f7-list-input label="Twitter"  type="text" v-model:value="climber.social_twitter"> </f7-list-input>
+                <f7-list-input label="Instagram"  type="text" v-model:value="climber.social_ig"> </f7-list-input>
+                <f7-list-input label="Tiktok"  type="text" v-model:value="climber.social_tiktok"> </f7-list-input>
+                <f7-list-input label="Facebook"  type="text" v-model:value="climber.social_fb"> </f7-list-input>
+                <f7-list-input label="Snapchat"  type="text" v-model:value="climber.social_snapchat"> </f7-list-input>
+                </f7-list>
+
+
+                <f7-list>
 
                 <f7-block-title>Default ascent type</f7-block-title>
                 <f7-list-input label="Affects only sport climbing" type="select" v-model:value="climber.sport_tick_ascent_type" placeholder="Please choose...">

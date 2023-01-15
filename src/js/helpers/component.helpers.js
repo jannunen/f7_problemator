@@ -111,9 +111,24 @@ const getSessionCount = (problem) => {
       return grade.toLowerCase()
     }
 
+const estimateGrade = (points, grades) => {
+    const singleGrade = points / 10
+    const gradeScore = Math.ceil(singleGrade / 50) * 50
+
+    if (grades == null) {
+        return "N/A"
+    }
+    const gradeObj = grades.find(x => x.score == gradeScore)
+    if (gradeObj != null) {
+        return gradeObj.name
+    }
+    return "N/A"
+}
+
 export {
     getAscentsByGrade,
     getSessionCount,
+    estimateGrade,
     toLocalTime,
     showAgo,
     getGrade,

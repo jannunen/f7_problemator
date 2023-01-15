@@ -4,7 +4,7 @@ import  routes  from '@js/routes'
 import { debounce, getTagShort, getRandom ,left, right, tipShown} from './utils.js'
 import { calculatePoints } from './problemator.js'
 import { handleValidationErrors } from './errors.js'
-import { getGrade, toLocalTime ,showAgo } from './component.helpers.js'
+import { estimateGrade, getGrade, toLocalTime ,showAgo } from './component.helpers.js'
 
 export {
     authGuard,
@@ -23,5 +23,6 @@ export {
     calculatePoints,
     handleValidationErrors,
     getGrade,
+    estimateGrade,
 
 }

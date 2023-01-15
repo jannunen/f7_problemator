@@ -60,7 +60,7 @@
                         </template>
                         <template #after>
                             <div class="text-yellow-400 font-bold text-lg">
-                                {{estimateGrade(getScore(myRank.problems)) }}
+                                {{estimateGrade(getScore(myRank.problems),grades) }}
                             </div>
                         </template>
                         </f7-list-item><f7-list-item>
@@ -73,7 +73,7 @@
                         </template>
                         <template #after>
                             <div class="text-yellow-400 font-bold text-lg">
-                                {{estimateGrade(myRank.points) }}
+                                {{estimateGrade(myRank.points,grades) }}
                             </div>
                         </template>
                         </f7-list-item>
@@ -88,7 +88,7 @@
       <div class="text-yellow-400">{{ myRank.points}}</div>
       </template>
       <template #after>
-       <div class="pl-1 font-bold w-10 text-white">~{{ estimateGrade(myRank.points)}}</div>
+       <div class="pl-1 font-bold w-10 text-white">~{{ estimateGrade(myRank.points),grades}}</div>
       </template>
       <template #media>
         <f7-icon icon="demo-list-icon">{{ myRank.rank}}.</f7-icon>
@@ -106,7 +106,7 @@
       <div class="text-yellow-400">{{ row.points}}</div>
       </template>
       <template #after>
-       <div class="pl-1 font-bold w-10 text-white">~{{ estimateGrade(row.points)}}</div>
+       <div class="pl-1 font-bold w-10 text-white">~{{ estimateGrade(row.points,grades)}}</div>
       </template>
       <template #media>
         <f7-icon icon="demo-list-icon">{{ row.rank}}.</f7-icon>
@@ -131,7 +131,7 @@ import { useI18n } from 'vue-i18n'
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import { right } from '@js/helpers'
-import { toLocalTime, calculatePoints } from '@/js/helpers'
+import { estimateGrade, toLocalTime, calculatePoints } from '@/js/helpers'
 
 
 const props = defineProps({
@@ -146,16 +146,6 @@ const getFirstTickTimestamp=(problem) => {
     const firstTick = ascents.shift()
     if (firstTick != null) {
         return toLocalTime(firstTick.tstamp,'YYYY-MM-DD')
-    }
-    return "N/A"
-}
-const estimateGrade = (points) => {
-    const singleGrade = points / 10
-    const gradeScore = Math.ceil(singleGrade / 50) * 50
-
-    const gradeObj = grades.value.find(x => x.score == gradeScore)
-    if (gradeObj != null) {
-        return gradeObj.name
     }
     return "N/A"
 }

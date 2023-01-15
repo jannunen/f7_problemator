@@ -22,8 +22,9 @@
     </div>
     <div>
       <div class="">
+        <div class="text-right  mb-2">Joined: {{ profile.added ?? 'Too long ago'}}</div>
         <div class="text-right font-bold mb-2">{{ profile.city }}</div>
-        <social-buttons />
+        <social-buttons :profile="profile" />
       </div>
     </div>
   </div>
