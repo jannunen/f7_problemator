@@ -2,7 +2,7 @@
     <f7-page>
         <f7-navbar>
             <f7-nav-left>
-                <f7-link href="/">&lt;
+                <f7-link  back>&lt;
                     <f7-icon md="material:home" aurora="f7:home" ios="f7:home" />
                 </f7-link>
             </f7-nav-left>

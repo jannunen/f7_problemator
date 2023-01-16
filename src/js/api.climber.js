@@ -8,5 +8,9 @@ export default {
     const ret = await axios.get(endpoint+"/climber/"+payload+"/profile")
     return ret.data
   },
+  async followUnFollow(payload) {
+    const ret = await axios.get(endpoint+"/climber/"+payload+"/follow")
+    return ret.data
+  },
 }
 

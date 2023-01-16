@@ -31,6 +31,7 @@ export default defineConfig(({ command, mode }) => {
         '@helpers': SRC_DIR + "/js/helpers",
         '@auth': SRC_DIR + "/js/auth",
         '@components': SRC_DIR + "/components",
+        '@assets': SRC_DIR + "/assets",
         '@pages': SRC_DIR + "/pages"
       },
     },

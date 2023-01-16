@@ -1,7 +1,7 @@
 import { createStore } from "vuex";
 import api from './api'
 import home from "./store/home.store.js"
-import climber from './store/climber.store.js'
+import climbers from './store/climber.store.js'
 
 export const filtersInitial = {
   gradeMin: 'min',
@@ -21,7 +21,7 @@ const getFromLocalStorage = (key, defaultValue) => {
 export default createStore({
   modules : {
     home,
-    climber,
+    climbers,
   },
   namespaced: true,
   state: {
@@ -398,8 +398,11 @@ export default createStore({
       commit('gyms' , ret.gyms)
       return ret
     },
-    async saveSettings({state, dispatch}, payload) {
-      return await api.saveSettings(payload)
+    async saveSettings({state, commit, dispatch}, payload) {
+      const ret =  await api.saveSettings(payload)
+      commit('climber', ret.climber)
+      return ret
+      
     },
     async removeCompAscent({state, dispatch}, payload) {
       const ret = await api.removeCompAscent(payload)
