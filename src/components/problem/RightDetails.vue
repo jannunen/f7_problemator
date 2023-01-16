@@ -34,8 +34,8 @@
     <div class="my-2 flex flex-row justify-between">
       <strong class="">{{ t('problem.wall') }}</strong>
       <span class="">
-        <span class="font-bold">{{ problem.wall.wallchar }}</span>,
-        {{ problem.wall.walldesc }}</span>
+        <span class="font-bold">{{ problem.wall?.wallchar }}</span>,
+        {{ problem.wall?.walldesc }}</span>
     </div>
     <div class="my-2 flex flex-row justify-between">
       <strong class="">{{ t('problem.routesetter') }}</strong>

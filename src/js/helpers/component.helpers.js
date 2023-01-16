@@ -9,6 +9,7 @@ dayjs.extend(timezone)
 const showAgo = (tstamp) => {
     return dayjs.utc(tstamp).local().fromNow()
 }
+
 const isRegistrationPossible = (comp, nowInTimeUTC ) => {
     if (nowInTimeUTC == null) {
         nowInTimeUTC = dayjs().utc()
@@ -96,11 +97,40 @@ const getSessionCount = (problem) => {
     return projectDays.length
 
 }
+    const getGrade = (routetype, gradeObj) => {
+      if (gradeObj == null) {
+        return 'N/A'  
+      }
+      const grade = gradeObj.name
+      if (grade == 'project') {
+        return "proj"
+      }
+      if (routetype == 'boulder') {
+        return grade.toUpperCase()
+      }
+      return grade.toLowerCase()
+    }
+
+const estimateGrade = (points, grades) => {
+    const singleGrade = points / 10
+    const gradeScore = Math.ceil(singleGrade / 50) * 50
+
+    if (grades == null) {
+        return "N/A"
+    }
+    const gradeObj = grades.find(x => x.score == gradeScore)
+    if (gradeObj != null) {
+        return gradeObj.name
+    }
+    return "N/A"
+}
 
 export {
     getAscentsByGrade,
     getSessionCount,
+    estimateGrade,
     toLocalTime,
     showAgo,
+    getGrade,
     isRegistrationPossible,
 }
