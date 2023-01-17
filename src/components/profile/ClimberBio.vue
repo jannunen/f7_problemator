@@ -1,15 +1,15 @@
 <template>
   
-  <h1 class="pt-8 font-bold text-2xl bottom-0 text-center">
+  <h1 class="pt-4 font-bold text-2xl bottom-0 text-center">
     {{ profile.etunimi }}
     {{ profile.sukunimi }}
   </h1>
-  <p class="mx-auto w-4/5 px-10 italic">
+  <p class="mx-auto w-4/5 px-0 md:px-10 italic">
     {{ profile.bio }}
   </p>
   <div class="absolute bottom-5 w-full">
     <div class="flex justify-between">
-      <div class="py-2 px-4">
+      <div class="py-2 pl-1">
         <span class="font-bold text-2xl">{{
           profile.boulder_hardest?.name.toUpperCase()
         }}</span>
@@ -20,7 +20,7 @@
         <h2>Hardest sport</h2>
       </div>
 
-      <div class="p-2 text-center">
+      <div class="py-2 text-center">
         <span class="font-bold text-2xl">{{ profile.total_ascents }}</span>
         <h2>Total ascents</h2>
       </div>
@@ -30,12 +30,12 @@
           >{{ estimateGrade(profile.boulder_top10_alltime, grades).toUpperCase() }}
         </span>
         <small class="px-1">({{ profile.boulder_top10_alltime }})</small>
-        <h2>Top 10 alltime, boulder</h2>
+        <h2>Top 10, boulder</h2>
         <span class="font-bold text-2xl">{{
           estimateGrade(profile.sport_top10_alltime, grades)
         }}</span>
         <small class="px-1">({{ profile.sport_top10_alltime }})</small>
-        <h2>Top 10 alltime, sport</h2>
+        <h2>Top 10, sport</h2>
       </div>
     </div>
   </div>
