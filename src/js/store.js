@@ -28,6 +28,9 @@ export default createStore({
     routetypes : ['boulder','sport'],
     rankings : null,
     rankingTarget : 'global',
+    feed : [],
+    feedLoading : true,
+    newProblems : [],
     settings : {
       darkMode : true,
     },
@@ -240,9 +243,30 @@ export default createStore({
     },
     climber(state, payload) {
       state.climber = payload
-    }
+    },
+    feed(state, payload) {
+      state.feed = payload
+    },
+    feedLoading(state, payload) {
+      state.feedLoading = payload
+    },
+    newProblems(state, payload) {
+      state.newProblems = payload
+    },
   },
   actions: {
+    async newProblems({ commit }, payload) {
+      const ret = await api.newProblems(payload)
+      commit('newProblems', ret)
+      return ret
+    },
+    async getFeed({ commit }, payload) {
+      commit('feedLoading',true)
+      const ret = await api.getFeed(payload)
+      commit('feed', ret.feed)
+      commit('feedLoading',false)
+      return ret
+    },
     async getPublicAscents({ commit }, payload) {
       const ret = await api.getPublicAscents(payload)
       //commit('set_public_ascents', { problemid: payload, ascents: ret.ascents })

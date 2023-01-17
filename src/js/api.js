@@ -15,6 +15,14 @@ const formatDate = (date) => {
 
 const api = {
   climber,
+  async newProblems(payload) {
+    const ret = await axios.get(endpoint+"/gym/"+payload+"/problems/new")
+    return ret.data
+  },
+  async getFeed(payload) {
+    const ret =  await axios.get(endpoint+"/social/feed")
+    return ret.data
+  },
   async getPublicAscents(payload) {
     const ret = await (await fetch(endpoint+"/problem/"+payload+"/ascents/public")).json()
     return ret
