@@ -1,7 +1,7 @@
 <template>
   <div class="flex justify-between -mt-36">
     <div>
-      <table class="w-40">
+      <table class="w-32">
         <tr>
           <td>Weight</td>
           <td>{{ profile.weight }}kg</td>
