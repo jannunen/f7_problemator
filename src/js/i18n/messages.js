@@ -51,6 +51,7 @@ const messages = {
             are_you_sure_you_want_to_register : 'Are you sure you want to register?',
             competitions: 'Competitions',
             upcoming_competitions: 'Active competitions',
+            past_competitions: 'Past competitions',
             ongoing_competitions: 'Ongoing competitions',
             ongoing_between: 'Comp is held between',
             comp_time_ends_in: 'Comp time ends in',

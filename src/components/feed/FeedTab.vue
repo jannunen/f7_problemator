@@ -44,7 +44,7 @@ const feed = computed(() => store.state.feed)
 const feedLoading = computed(() => store.state.feedLoading)
 // Set feed reloading every 10 mins.
 setInterval(() => {
-  store.dispatch('feed')
+  store.dispatch('getFeed')
 }, 600000)
 const onStartNavigate = (item) => {
   f7.views.main.router.navigate('/problem/' + item.problem.id + '/popup', {
