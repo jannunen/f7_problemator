@@ -1,5 +1,5 @@
 <template>
-  <div class="flex justify-between -mt-44">
+  <div class="flex justify-between -mt-36">
     <div>
       <table class="w-40">
         <tr>

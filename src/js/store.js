@@ -40,6 +40,7 @@ export default createStore({
       loaded : false,
       upcoming : [],
       ongoing : [],
+      past : [],
     },
     tipShowStatus : {},
     public_ascents : {},
@@ -485,6 +486,7 @@ export default createStore({
       commit('upcomingcomps' , {
         upcoming : comps.upcoming,
         ongoing : comps.ongoing,
+        past : comps.past,
         loaded : true
       })
       return comps
