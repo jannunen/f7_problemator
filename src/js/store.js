@@ -1,7 +1,7 @@
 import { createStore } from "vuex";
 import api from './api'
 import home from "./store/home.store.js"
-import climber from './store/climber.store.js'
+import climbers from './store/climber.store.js'
 
 export const filtersInitial = {
   gradeMin: 'min',
@@ -21,13 +21,16 @@ const getFromLocalStorage = (key, defaultValue) => {
 export default createStore({
   modules : {
     home,
-    climber,
+    climbers,
   },
   namespaced: true,
   state: {
     routetypes : ['boulder','sport'],
     rankings : null,
     rankingTarget : 'global',
+    feed : [],
+    feedLoading : true,
+    newProblems : [],
     settings : {
       darkMode : true,
     },
@@ -240,9 +243,30 @@ export default createStore({
     },
     climber(state, payload) {
       state.climber = payload
-    }
+    },
+    feed(state, payload) {
+      state.feed = payload
+    },
+    feedLoading(state, payload) {
+      state.feedLoading = payload
+    },
+    newProblems(state, payload) {
+      state.newProblems = payload
+    },
   },
   actions: {
+    async newProblems({ commit }, payload) {
+      const ret = await api.newProblems(payload)
+      commit('newProblems', ret)
+      return ret
+    },
+    async getFeed({ commit }, payload) {
+      commit('feedLoading',true)
+      const ret = await api.getFeed(payload)
+      commit('feed', ret.feed)
+      commit('feedLoading',false)
+      return ret
+    },
     async getPublicAscents({ commit }, payload) {
       const ret = await api.getPublicAscents(payload)
       //commit('set_public_ascents', { problemid: payload, ascents: ret.ascents })
@@ -398,8 +422,11 @@ export default createStore({
       commit('gyms' , ret.gyms)
       return ret
     },
-    async saveSettings({state, dispatch}, payload) {
-      return await api.saveSettings(payload)
+    async saveSettings({state, commit, dispatch}, payload) {
+      const ret =  await api.saveSettings(payload)
+      commit('climber', ret.climber)
+      return ret
+      
     },
     async removeCompAscent({state, dispatch}, payload) {
       const ret = await api.removeCompAscent(payload)

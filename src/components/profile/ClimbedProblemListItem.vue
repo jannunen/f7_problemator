@@ -17,9 +17,7 @@
 
     <template #inner-end>
       <div class="text-sm">
-        {{ problem.author?.etunimi }}&nbsp;{{
-            left(problem.author?.sukunimi, 1)
-        }}.
+            {{problem.gym?.name}} 
       </div>
     </template>
 
@@ -74,6 +72,7 @@ const getAuthor = (group) => {
 }
 const getAfter = (group) => {
   const date = dayjs(group.ascent.tstamp)
-  return "@" + date.format("YYYY-mm-DD HH:MM") + " " + date.fromNow()
+  return "@" + date.format("YYYY-mm-DD HH:MM") 
+  //+ " " + date.fromNow()
 }
 </script>
