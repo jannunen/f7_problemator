@@ -8,6 +8,7 @@
     </f7-navbar>
     <f7-block>
       <h1 class="font-bold text-2xl text-center">{{ gym.name }}</h1>
+      {{ filters }}
       <div v-if="unfilteredProblemsExist">
         <p-button class="bg-blue-500 font-bold my-1 uppercase" @click="showFilters=!showFilters">{{ showFilters ? "Hide filters" : "Show  filters"}}</p-button> 
         <div v-if="showFilters" class="my-0 mx-2">
@@ -53,12 +54,12 @@
               <f7-list-input type="text" :placeholder="t('Filter by problem name')" v-model:value="nameFilter" clear-button></f7-list-input>
             </f7-list>
 
-            <p-button @click="resetFilters" class=" bg-red-500 text-white my-2">
-              {{ t('problemlist.reset_filters') }}
-            </p-button>
           </ul>
         </div>
 
+        <p-button @click="resetFilters" class=" bg-red-500 text-white my-2">
+          {{ t('problemlist.reset_filters') }}
+        </p-button>
 
 
 
@@ -177,17 +178,20 @@ const selectWall = (evt) => {
 onMounted(() => {
   // The areaSelected is an object, which has the wall name as title.
   // So resolve the wall ids based on the wall name.
+  debugger
   if (props.areaSelected !== null) {
     const wallChar = props.areaSelected.title
     const wall = walls.value.find(x => x.wallchar === wallChar)
     if (wall !== null) {
       selectedWalls.value = [wall.id]
+      store.dispatch('setSelectedWalls', [wall.id])
     }
   }
 })
 const { t, d, locale } = useI18n()
 const problems = computed(() => store.state.problems)
 watch(problems, (newValue) => {
+  debugger
   if (problems.value.length == 0) {
     store.dispatch('getProblems')
   }
@@ -227,6 +231,7 @@ const selectRoutetype = (rt) => {
 }
 const onClearWalls = () => {
   selectedWalls.value = []
+  store.dispatch('setFilterWalls', [])
 }
 /*
 const onWallSelect = (selection) => {
@@ -301,12 +306,12 @@ const filteredProblems = computed(() => {
   }
 
   // Filter by walls
-  if (selectedWalls.value != null && selectedWalls.value.length > 0) {
+  if (filters.value.walls != null && filters.value.walls.length > 0) {
     probs = probs.filter((item) => {
       if (item.wall == null) {
         return true
       }
-      return selectedWalls.value.includes(item.wall.id)
+      return filters.value.walls.includes(item.wall.id)
     })
   }
   // Filter by route props (all, new, expiring, circuits)
@@ -358,6 +363,10 @@ const resetFilters = () => {
   selectedWalls.value = []
   store.commit('resetFilters')
 }
+watch(selectedWalls, (newValue) => {
+ // propagate to store
+  store.commit('setFilterWalls', newValue)
+})
 const getSelectedWallNames = computed(() => {
   return filters.value.walls.map((wallid) => {
     return walls.value.find((wall) => wall.id == wallid).walldesc
