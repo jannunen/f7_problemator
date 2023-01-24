@@ -8,7 +8,6 @@
     </f7-navbar>
     <f7-block>
       <h1 class="font-bold text-2xl text-center">{{ gym.name }}</h1>
-      {{ filters }}
       <div v-if="unfilteredProblemsExist">
         <p-button class="bg-blue-500 font-bold my-1 uppercase" @click="showFilters=!showFilters">{{ showFilters ? "Hide filters" : "Show  filters"}}</p-button> 
         <div v-if="showFilters" class="my-0 mx-2">
@@ -178,7 +177,6 @@ const selectWall = (evt) => {
 onMounted(() => {
   // The areaSelected is an object, which has the wall name as title.
   // So resolve the wall ids based on the wall name.
-  debugger
   if (props.areaSelected !== null) {
     const wallChar = props.areaSelected.title
     const wall = walls.value.find(x => x.wallchar === wallChar)
@@ -191,7 +189,6 @@ onMounted(() => {
 const { t, d, locale } = useI18n()
 const problems = computed(() => store.state.problems)
 watch(problems, (newValue) => {
-  debugger
   if (problems.value.length == 0) {
     store.dispatch('getProblems')
   }
@@ -207,6 +204,7 @@ const selectedWalls = ref([])
 const filters = computed(() => store.state.filters)
 const nameFilter = ref('')
 const styles = computed(() => store.state.styles)
+const storeNameFilter = computed(() => store.state.filters.nameFilter)
 const ascentTypeFilter = ref('all')
 const unfilteredProblemsExist = computed(() => {
   if (problems.value == null) {
@@ -283,8 +281,8 @@ const filteredProblems = computed(() => {
   }
 
   // Filter by nameFilter
-  if (nameFilter.value != "") {
-    const filter = nameFilter.value.toLowerCase()
+  if (storeNameFilter.value != "" && storeNameFilter.value != null) {
+    const filter = storeNameFilter.value.toLowerCase()
     probs = probs.filter((prob) => prob.tag.toLowerCase().indexOf(filter) != -1)
   }
 
@@ -363,6 +361,10 @@ const resetFilters = () => {
   selectedWalls.value = []
   store.commit('resetFilters')
 }
+watch(nameFilter, (newValue) => {
+ // propagate to store
+  store.commit('setNameFilter', newValue)
+})
 watch(selectedWalls, (newValue) => {
  // propagate to store
   store.commit('setFilterWalls', newValue)

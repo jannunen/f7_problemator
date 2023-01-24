@@ -9,6 +9,7 @@ export const filtersInitial = {
   sort: 'sector_asc',
   problemFilters : 'all',
   routetypes :['boulder','sport'],
+  nameFilter : null,
   styles: [],
   walls: [],
   problemStates: ['all'], // all, ticked, projects
@@ -210,6 +211,9 @@ export default createStore({
     },
     setFilterGradeMax(state, payload) {
       state.filters = { ...state.filters, ['gradeMax']: payload }
+    },
+    setNameFilter(state, payload) {
+      state.filters = { ...state.filters, ['nameFilter']: payload }
     },
     setFilterWalls(state, payload) {
       state.filters = { ...state.filters, ['walls']: payload }
