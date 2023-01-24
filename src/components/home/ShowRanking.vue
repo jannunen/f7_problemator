@@ -1,7 +1,7 @@
 <template>
     <f7-popup v-model:opened="showAscents">
         <f7-page>
-            <f7-navbar title="Popup Title">
+            <f7-navbar title="My top10 ascents for ranking">
                 <f7-nav-right>
                     <f7-link popup-close>Close</f7-link>
                 </f7-nav-right>
@@ -79,19 +79,19 @@
                         </f7-list-item>
                     </f7-list>
             </f7-block>
+            <f7-block v-else>
+                <f7-block-title class="px-2">No ascents for ranking</f7-block-title>
+            </f7-block>
         </f7-page>
     </f7-popup>
 
     <f7-list class="mt-1 mb-3">
-    <f7-list-item  link="#" @click.prevent="showAscents=true" title="My rank (click for details)" >
+    <f7-list-item  link="#" @click.prevent="showAscents=true" title="Show my top10" >
       <template #after-start>
       <div class="text-yellow-400">{{ myRank.points}}</div>
       </template>
       <template #after>
        <div class="pl-1 font-bold w-10 text-white">~{{ estimateGrade(myRank.points),grades}}</div>
-      </template>
-      <template #media>
-        <f7-icon icon="demo-list-icon">{{ myRank.rank}}.</f7-icon>
       </template>
         
     </f7-list-item >
