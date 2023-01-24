@@ -21,13 +21,13 @@ const emit = defineEmits(['addtick'])
     <div class="flex flex-row justify-center mt-3">
       <score-today />
       <div class="mt-2 mx-1">
-        <f7-link @click="openQRReader" href="#" no-link-class class="ml-4 w-20 h-20 rounded-full bg-purple-800 p-2 text-white flex flex-col justify-center items-center font-bold">
+        <f7-link @click="openQRReader" href="#" no-link-class class="ml-2 w-20 h-20 rounded-full bg-purple-800 py-2 px-1 text-white flex flex-col justify-center items-center font-bold">
           <i class="icon f7-icons">qrcode</i>
           <small>{{ t('searchprob.read_qr') }}</small>
         </f7-link>
       </div>
       <div class="mt-2">
-        <button @click="emit('addtick')" class="w-20 h-20 rounded-full bg-purple-800 p-2 text-white flex flex-col justify-center items-center font-bold">
+        <button @click="emit('addtick')" class="w-20 h-20 rounded-full bg-purple-800 py-2 px-0 text-white flex flex-col justify-center items-center font-bold">
           <f7-icon material="add" color="white" size="26px"></f7-icon>
           <span class="uppercase">{{ t('home.add') }}</span>
         </button>
