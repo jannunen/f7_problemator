@@ -9,6 +9,7 @@ export const filtersInitial = {
   sort: 'sector_asc',
   problemFilters : 'all',
   routetypes :['boulder','sport'],
+  nameFilter : null,
   styles: [],
   walls: [],
   problemStates: ['all'], // all, ticked, projects
@@ -28,6 +29,7 @@ export default createStore({
     routetypes : ['boulder','sport'],
     rankings : null,
     rankingTarget : 'global',
+    rankingtop10 : null, // This holds ranking top 10 per selected climber
     feed : [],
     feedLoading : true,
     newProblems : [],
@@ -96,6 +98,9 @@ export default createStore({
       */
 
       state.public_ascents = {...state.public_ascents, [payload.problemid] : payload.ascents}
+    },
+    rankingtop10(state, payload) {
+      state.rankingtop10= payload
     },
     rankingTarget(state, payload) {
       state.rankingTarget = payload
@@ -211,6 +216,9 @@ export default createStore({
     setFilterGradeMax(state, payload) {
       state.filters = { ...state.filters, ['gradeMax']: payload }
     },
+    setNameFilter(state, payload) {
+      state.filters = { ...state.filters, ['nameFilter']: payload }
+    },
     setFilterWalls(state, payload) {
       state.filters = { ...state.filters, ['walls']: payload }
     },
@@ -272,6 +280,12 @@ export default createStore({
       const ret = await api.getPublicAscents(payload)
       //commit('set_public_ascents', { problemid: payload, ascents: ret.ascents })
       return ret
+    },
+    async getRankingTop10({commit},payload) {
+      const ret = await api.rankingtop10(payload)
+      commit('rankingtop10',ret)
+      return ret
+
     },
     async rankings({commit},payload) {
       const ret = await api.ranking(payload)

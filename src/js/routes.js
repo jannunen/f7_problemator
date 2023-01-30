@@ -8,6 +8,7 @@ import ProblemPopup from '../pages/ProblemPopup.vue';
 import GymCompletionPage from '../pages/GymCompletionPage.vue';
 import ProblemList from '../pages/ProblemList.vue';
 import UpcomingCompetitionsPage from '../pages/UpcomingCompetitionsPage.vue';
+import ShowRankingTop10Page from '../pages/ShowRankingTop10Page.vue';
 import PastCompetitionsPage from '../pages/PastCompetitionsPage.vue';
 import OngoingCompetitionsPage from '../pages/OngoingCompetitionsPage.vue';
 import SingleCompetitionPage from '../pages/SingleCompetitionPage.vue';
@@ -68,6 +69,10 @@ const routes = [
       component: ProblemPopup,
       swipeToClose: 'to-bottom',
     },
+  },
+  {
+    path: '/ranking/top10',
+    component: ShowRankingTop10Page,
   },
   {
     path: '/gym/completion',

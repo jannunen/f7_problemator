@@ -53,12 +53,12 @@
               <f7-list-input type="text" :placeholder="t('Filter by problem name')" v-model:value="nameFilter" clear-button></f7-list-input>
             </f7-list>
 
-            <p-button @click="resetFilters" class=" bg-red-500 text-white my-2">
-              {{ t('problemlist.reset_filters') }}
-            </p-button>
           </ul>
         </div>
 
+        <p-button @click="resetFilters" class=" bg-red-500 text-white my-2">
+          {{ t('problemlist.reset_filters') }}
+        </p-button>
 
 
 
@@ -182,6 +182,7 @@ onMounted(() => {
     const wall = walls.value.find(x => x.wallchar === wallChar)
     if (wall !== null) {
       selectedWalls.value = [wall.id]
+      store.dispatch('setSelectedWalls', [wall.id])
     }
   }
 })
@@ -203,6 +204,7 @@ const selectedWalls = ref([])
 const filters = computed(() => store.state.filters)
 const nameFilter = ref('')
 const styles = computed(() => store.state.styles)
+const storeNameFilter = computed(() => store.state.filters.nameFilter)
 const ascentTypeFilter = ref('all')
 const unfilteredProblemsExist = computed(() => {
   if (problems.value == null) {
@@ -227,6 +229,7 @@ const selectRoutetype = (rt) => {
 }
 const onClearWalls = () => {
   selectedWalls.value = []
+  store.dispatch('setFilterWalls', [])
 }
 /*
 const onWallSelect = (selection) => {
@@ -278,8 +281,8 @@ const filteredProblems = computed(() => {
   }
 
   // Filter by nameFilter
-  if (nameFilter.value != "") {
-    const filter = nameFilter.value.toLowerCase()
+  if (storeNameFilter.value != "" && storeNameFilter.value != null) {
+    const filter = storeNameFilter.value.toLowerCase()
     probs = probs.filter((prob) => prob.tag.toLowerCase().indexOf(filter) != -1)
   }
 
@@ -301,12 +304,12 @@ const filteredProblems = computed(() => {
   }
 
   // Filter by walls
-  if (selectedWalls.value != null && selectedWalls.value.length > 0) {
+  if (filters.value.walls != null && filters.value.walls.length > 0) {
     probs = probs.filter((item) => {
       if (item.wall == null) {
         return true
       }
-      return selectedWalls.value.includes(item.wall.id)
+      return filters.value.walls.includes(item.wall.id)
     })
   }
   // Filter by route props (all, new, expiring, circuits)
@@ -358,6 +361,14 @@ const resetFilters = () => {
   selectedWalls.value = []
   store.commit('resetFilters')
 }
+watch(nameFilter, (newValue) => {
+ // propagate to store
+  store.commit('setNameFilter', newValue)
+})
+watch(selectedWalls, (newValue) => {
+ // propagate to store
+  store.commit('setFilterWalls', newValue)
+})
 const getSelectedWallNames = computed(() => {
   return filters.value.walls.map((wallid) => {
     return walls.value.find((wall) => wall.id == wallid).walldesc

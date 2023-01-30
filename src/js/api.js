@@ -27,6 +27,12 @@ const api = {
     const ret = await (await fetch(endpoint+"/problem/"+payload+"/ascents/public")).json()
     return ret
   },
+  async rankingtop10(payload) {
+    let ret = null
+    ret = await axios.get(endpoint + `/ranking/top10/?climber_id=${payload.climber_id}&ranking_id=${payload.ranking_id}&country=${payload.country}`)
+    return ret.data
+
+  },
   async ranking(payload) {
     // pagination defines the urls 
     let ret = null

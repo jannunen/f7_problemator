@@ -1,29 +1,29 @@
 <template>
-    <f7-popup v-model:opened="showAscents">
+  <f7-popup v-model:opened="opened">
     <f7-page>
       <f7-navbar title="Top10 ascents for ranking">
         <f7-nav-right>
-          <f7-link @click="closeTop10Popup" popup-close>Close</f7-link>
+          <f7-link @click="emit('close')" popup-close>Close</f7-link>
         </f7-nav-right>
       </f7-navbar>
 
       <f7-block v-if="loading" class="text-center">
         <f7-block-title><i class="fa fa-spinner fa-spin"></i> Loading...</f7-block-title>
       </f7-block>
-      <f7-block class="m-0" v-if="climber != null && !loading">
-        <h2 class="text-2xl uppercase my-2 text-center font-bold">{{  first }} {{ last }}</h2>
-        <div class="my-1 text-center bg-blue-500 font-bold uppercase w-full">
-          <a class="w-full block py-2 px-4 " @click="closeTop10Popup" :href="climberProfileLink(climber)">Open profile</a>
+      <f7-block class="m-0" v-if="climber_id != null && !loading">
+        <h2 class="text-2xl uppercase my-2 text-center font-bold">{{  props.first }} {{ props.last }}</h2>
+        <div class="my-1 py-2 text-center px-4 bg-blue-500 font-bold uppercase w-full">
+          <a href="#" class="" :link="climberProfileLink(climber_id)">Open profile</a>
         </div>
 
-        <div class="m-0" v-if="rankingtop10 != null && rankingtop10.id != null">
+        <div class="m-0" v-if="ranking != null && ranking.id != null">
           <f7-block-title class="px-2"
-            >Rank consists of {{ rankingtop10.problems.length }} problem(s)</f7-block-title
+            >Rank consists of {{ ranking.problems.length }} problem(s)</f7-block-title
           >
           <f7-list problem-list>
             <f7-list-item
               @swipeout:deleted="(evt) => onDeleted(problem, j)"
-              v-for="(problem, index) in rankingtop10.problems"
+              v-for="(problem, index) in ranking.problems"
               :key="problem.id"
             >
               <template #media>
@@ -72,7 +72,7 @@
             <f7-list-item>
               <template #after>
                 <div class="text-yellow-400 font-bold text-lg">
-                  {{ rankingtop10.points }}
+                  {{ ranking.points }}
                 </div>
               </template>
             </f7-list-item>
@@ -84,7 +84,7 @@
               </template>
               <template #after>
                 <div class="text-yellow-400 font-bold text-lg">
-                  {{ estimateGrade(getScore(rankingtop10.problems), grades) }}
+                  {{ estimateGrade(getScore(ranking.problems), grades) }}
                 </div>
               </template> </f7-list-item
             ><f7-list-item>
@@ -95,7 +95,7 @@
               </template>
               <template #after>
                 <div class="text-yellow-400 font-bold text-lg">
-                  {{ estimateGrade(rankingtop10.points, grades) }}
+                  {{ estimateGrade(ranking.points, grades) }}
                 </div>
               </template>
             </f7-list-item>
@@ -105,105 +105,41 @@
       </f7-block>
     </f7-page>
   </f7-popup>
-<div>
-    
-    <f7-list class="my-2">
-    <f7-list-item 
-    v-for="row in pagination.data"
-    :title="getClimberName(row)" 
-    @click.prevent="openTop10(row)"
-    >
-      <template #after-start>
-      <div class="text-yellow-400">{{ row.points }}</div>
-      </template>
-      <template #after>
-       <div class="pl-1 font-bold w-10 text-white">~{{ estimateGrade(row.points, grades) }}</div>
-      </template>
-      <template #media>
-        <f7-icon icon="demo-list-icon">{{ row.rank }}.</f7-icon>
-      </template>
-    </f7-list-item>
-    
-    
-  </f7-list>
-
-
-    <hr class="mt-1" />
-    <div class="flex flex-row justify-between">
-       <a class="text-blue-500" href="#" @click.prevent="loadRanking(pagination.first_page_ur)">first</a>
-       <a class="text-blue-500" h href="#" @click.prevent="loadRanking(pagination.prev_page_url)">prev</a>
-       {{ pagination.current_page }} / {{ pagination.last_page }}
-       <a class="text-blue-500" h href="#" @click.prevent="loadRanking(pagination.next_page_url)">next</a>
-       <a class="text-blue-500" h href="#" @click.prevent="loadRanking(pagination.last_page_url)">last</a>
-    </div> 
-    </div>
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { ref, computed } from 'vue'
-import { useStore } from 'vuex'
+import { watch, ref, computed, onMounted } from 'vue'
 import { right } from '@js/helpers'
+import { useStore } from 'vuex'
 import { estimateGrade, toLocalTime, calculatePoints } from '@/js/helpers'
-import ShowClimberTop10 from '../ranking/ShowClimberTop10.vue'
-
-
+const { t } = useI18n()
 const props = defineProps({
-    'ranking': Object,
-    'country': String,
+  opened: Boolean,
+  climber_id: Number,
+  country: String,
+  ranking_id: Number,
+  first : String,
+  last : String,
 })
 
-const { t } = useI18n()
+const emit = defineEmits(['close'])
+const loading = ref(true)
+onMounted(() => {
+
+  loading.value = true
+  // Find the top10
+  const payload = {
+    climber_id: props.climber_id,
+    country: props.country,
+    ranking_id: props.ranking_id,
+  }
+  store.dispatch('getRankingTop10', payload).then(() => {
+    loading.value = false
+    })
+})
+const ranking = computed(() => store.state.rankingtop10)
 const store = useStore()
 const grades = computed(() => store.state.grades)
-const showAscents = ref(false)
-const user = computed(() => store.state.climber)
-const showMyTop10 = () => {
-    climber.value = user.value.id
-    showAscents.value = true
-}
-const getLink = (row) => {
-    return "/ranking/top10"
-}
-const closeTop10Popup = () => {
-    showAscents.value = false
-    climber.value = null
-    first.value = null
-    last.value = null
-    loading.value = true
-}
-const getClimberName = (row) => {
-    if (row.etunimi == null && row.sukunimi == null) {
-        return "Secret Nugget"
-    }
-    return row.etunimi + ' ' + row.sukunimi
-}
-const loadRanking = (url) => {
-    store.dispatch('rankings', { url, country: props.country })
-}
-const pagination = computed(() => props.ranking.pagination)
-const climber = ref(null)
-const first = ref(null)
-const last = ref(null)
-const myRank = computed(() => props.ranking.myrank)
-const loading = ref(true)
-const openTop10 = (row) => {
-    climber.value = row.climber_id
-    showAscents.value = true
-    first.value = row.etunimi
-    last.value = row.sukunimi
-    loading.value = true
-    // Find the top10
-    const payload = {
-        climber_id: climber.value,
-        country: props.country,
-        ranking_id: props.ranking.ranking.id,
-    }
-    store.dispatch('getRankingTop10', payload).then(() => {
-        loading.value = false
-    })
-}
-
-const rankingtop10 = computed(() => store.state.rankingtop10)
 const getFirstTickTimestamp = (problem) => {
   return toLocalTime(problem.ascent_tstamp, 'YYYY-MM-DD')
 }
@@ -221,8 +157,8 @@ const problemSortedByGrade = computed(() => {
     return gradeB - gradeA
   })
 })
-const climberProfileLink = (id) => {
-  return '/climber/' + id
+const climberProfileLink = (row) => {
+  return '/climber/' + props.climber_id
 }
 const getScore = (problems) => {
   return problems.reduce((acc, x) => acc + x.grade.score, 0)
@@ -246,6 +182,4 @@ const getPoints = (problem) => {
   // and sum up the tries (= you get less from the ascents)
   return problem.grade.score + getChange(problem)
 }
-
-
 </script>
