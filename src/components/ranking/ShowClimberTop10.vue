@@ -134,7 +134,6 @@ onMounted(() => {
     ranking_id: props.ranking_id,
   }
   store.dispatch('getRankingTop10', payload).then(() => {
-    debugger
     loading.value = false
     })
 })

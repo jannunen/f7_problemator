@@ -42,6 +42,7 @@
             Ranking is based on top10 hardest problems. Flashes give more points, tries deduce.
             <f7-icon @click.prevent="showRankingSheet = true" material="info"></f7-icon>
             <span class="text-blue-300 font-bold">If you don't see your ranking in your country's list, go to the settings page, check set the country and climb some problems.</span>
+            <span class="my-1 text-blue-300 font-bold">By clicking the line, </span>
         </p>
         <div class="flex gap-2 mt-2">
             Show Ranking:
