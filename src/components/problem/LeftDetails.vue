@@ -10,7 +10,7 @@
       {{ t('problem.likes', problem.likeCount) }}
     </div>
     <div class="mb-2 flex flex-row my-1 w-4/5" v-if="isAuthenticated">
-      <button @click="askLike" raised class="bg-white text-purple-900 px-1 py-1 ">
+      <button @click="askLike" raised class="bg-white text-purple-900 px-1 py-1">
         <div material="favorite" color="red"></div>
         <f7-icon f7="heart_fill" size="20" color="red"></f7-icon>
         <span class="font-bold">{{ t('problem.dolike') }}</span>
@@ -21,10 +21,14 @@
       {{ t('problem.dislikes', problem.dislikeCount) }}
     </div>
     <div class="mb-2 flex flex-row my-1 w-4/5" v-if="isAuthenticated">
-      <button @click="askDislike" raised class="bg-white text-purple-900 px-1 py-1 w-full">
-          <f7-icon f7="hand_thumbsdown_fill" size="20" color="black"></f7-icon>
-          <span class="font-bold">{{ t('problem.dislike') }} +</span>
-        </button>
+      <button
+        @click="askDislike"
+        raised
+        class="bg-white text-purple-900 px-1 py-1 w-full"
+      >
+        <f7-icon f7="hand_thumbsdown_fill" size="20" color="black"></f7-icon>
+        <span class="font-bold">{{ t('problem.dislike') }} +</span>
+      </button>
     </div>
 
     <!-- show ticked if so -->
@@ -33,7 +37,7 @@
         {{ t('problem.ticked') }}
         <div size="12px" material="check"></div>
       </div>
-      <button @click="myTicksPopupOpen=true" class="my-2 font-bold">
+      <button @click="myTicksPopupOpen = true" class="my-2 font-bold">
         {{ t('problem.see_ticks') }}
       </button>
     </div>
@@ -50,17 +54,17 @@
       <div class="bg-yellow-500 px-2 py-1 text-white text-center text-xs rounded-full">
         {{ t('problem.projecting') }}
       </div>
-      <button @click="myTicksPopupOpen=true" class="my-2 font-bold">
-      <div class="my-1">{{ t('problem.sessions',sessionCount) }}</div>
+      <button @click="myTicksPopupOpen = true" class="my-2 font-bold">
+        <div class="my-1">{{ t('problem.sessions', sessionCount) }}</div>
       </button>
     </div>
     <popup-list-ticks
-    :problem="problem"
-    :ticks="problem.myTicks"
-    :projects="problem.myProjects"
-    :opened="myTicksPopupOpen"
-    key="popuplistticks"
-    @close="myTicksPopupOpen=false" 
+      :problem="problem"
+      :ticks="problem.myTicks"
+      :projects="problem.myProjects"
+      :opened="myTicksPopupOpen"
+      key="popuplistticks"
+      @close="myTicksPopupOpen = false"
     />
   </div>
 </template>
@@ -70,40 +74,47 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { getTagShort } from '@js/helpers'
 import { ref, computed } from 'vue'
-import  { confirm } from '@js/helpers/notifications.js'
+import { confirm } from '@js/helpers/notifications.js'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 import PopupListTicks from '@components/ui/problem/TickList.vue'
 import { getSessionCount } from '@helpers/component.helpers.js'
-import { useAuth0 } from '@auth0/auth0-vue';
+import { useAuth0 } from '@auth0/auth0-vue'
 const store = useStore()
-const { idTokenClaims, getAccessTokenSilently, loginWithRedirect, logout, user, isAuthenticated } = useAuth0();
+const {
+  idTokenClaims,
+  getAccessTokenSilently,
+  loginWithRedirect,
+  logout,
+  user,
+  isAuthenticated,
+} = useAuth0()
 
 const { t } = useI18n()
 const props = defineProps({
   problem: Object,
 })
-const emit = defineEmits(['open-my-ticks','show-public-ascents'])
+const emit = defineEmits(['open-my-ticks', 'show-public-ascents'])
 const ticks = computed(() => store.state.alltime.ticks)
 const tries = computed(() => store.state.alltime.tries)
 const showPublicAscents = () => {
-  emit('show-public-ascents',props.problem.id)
+  emit('show-public-ascents', props.problem.id)
 }
 
 const isMyProject = (pid) => {
-  return tries.value.find(x => x.problemid == pid)
+  return tries.value.find((x) => x.problemid == pid)
 }
 const isMyTick = (pid) => {
-  return ticks.value.find(x => x.problemid == pid)
+  return ticks.value.find((x) => x.problemid == pid)
 }
 const myTicksPopupOpen = ref(false)
 const askLike = () => {
-  confirm(t('global.are_you_sure'),t('problem.confirm_like'),() => {
-    store.dispatch('likeProblem', {id : props.problem.id})
+  confirm(t('global.are_you_sure'), t('problem.confirm_like'), () => {
+    store.dispatch('likeProblem', { id: props.problem.id })
   })
 }
 const askDislike = () => {
-  confirm(t('global.are_you_sure'),t('problem.confirm_dislike'),() => {
-    store.dispatch('dislikeProblem', {id : props.problem.id})
+  confirm(t('global.are_you_sure'), t('problem.confirm_dislike'), () => {
+    store.dispatch('dislikeProblem', { id: props.problem.id })
   })
 }
 const sessionCount = () => getSessionCount(props.problem)
