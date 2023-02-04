@@ -85,7 +85,7 @@ const messages = {
             ticked: 'ticked',
             you_are_a_judge: 'You are a judge in this competition',
             comp_type: 'Competition type',
-            the_comp_has_not_started_yet: 'The competition time has not started yet',
+            the_comp_has_not_started_yet: 'The competition time is either not starter or has already ended',
         },
         global: {
             'join': 'If you want Problemator to be better, The easiest way is to create a pull request. The source code can be found from Github.',
