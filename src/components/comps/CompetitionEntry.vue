@@ -28,6 +28,7 @@
         </f7-block>
       </f7-page>
     </f7-popup>
+    {{ now }}
 
     <div class="flex flex-row justify-between">
       <p-badge class="text-sm py-1 bg-blue-500">{{ comp.location }}</p-badge>
@@ -156,6 +157,7 @@ import timezone from "dayjs/plugin/timezone"
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
+const now = computed(() =>   dayjs().format("DD.MM.YYYY HH:mm") )
 
 const props = defineProps({
   comp: Object,
@@ -233,9 +235,12 @@ const isPaidAndPriceIsSet = computed(() => {
 })
 
 const compOngoing = computed(() => {
-  return dayjs().isBetween(
-    dayjs(props.comp.timespan_start),
-    dayjs(props.comp.timespan_end)
+  debugger
+  const nowUTC = dayjs().utc()
+
+  return nowUTC.isBetween(
+    dayjs.utc(props.comp.timespan_start),
+    dayjs.utc(props.comp.timespan_end)
   )
 })
 
