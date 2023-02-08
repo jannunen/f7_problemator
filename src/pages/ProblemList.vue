@@ -31,10 +31,6 @@
                 {{ t('problemlist.stylefilter') }}
               </h2>
               <style-filter @styles-changed="onStylesChanged" :styles="styles" :selected-styles="filters.styles"></style-filter>
-              <h2 class="uppercase text-xl my-2 font-bold">
-                {{ t('problemlist.sortby') }}
-              </h2>
-              <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
             </li>
             <li>
               <h2 class="uppercase text-xl mt-2 p-0 font-bold">
@@ -60,6 +56,10 @@
           {{ t('problemlist.reset_filters') }}
         </p-button>
 
+              <h2 class="uppercase text-xl my-2 font-bold">
+                {{ t('problemlist.sortby') }}
+              </h2>
+              <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
 
 
         <div v-if="filteredProblems.length > 0">

@@ -1,12 +1,9 @@
 <template>
   <div>
-    <f7-card class="demo-facebook-card">
+    <f7-card class="">
       <f7-card-header class="no-border">
-        <div class="demo-facebook-avatar">
-          <i class="icon material-icons md-only">emoji_events</i>
-        </div>
-        <div class="demo-facebook-name">{{ comp.name }}</div>
-        <div class="demo-facebook-date">{{ toLocalTime(comp.compdate) }}</div>
+        <div class="">{{ comp.name }}</div>
+        <div class="">{{ toLocalTime(comp.compdate) }}</div>
       </f7-card-header>
       <f7-card-content v-if="comp != null">
         <small class="text-gray-300 my-0">ID: {{ comp.id }}</small>
@@ -22,18 +19,10 @@
         <p class="text-blue-300">{{ t('comps.fastest_hands_wins') }}</p>
         <div v-if="comp.categories.length > 0">
         <div class="my-2">
-          <f7-list media-list>
-            <f7-list-item v-for="cat in comp.categories" :key="cat.id" :title="cat.nimi">
-              <template #subtitle>
-                Max. participants
-                <span class="text-green-400" v-if="cat.pivot.maxparticipants == null">
-                  unlimited
-                </span>
-                <span v-else>
-                  {{ cat.pivot.maxparticipants }}
-                </span>
-              </template>
-              <template #after>
+
+          <ul>
+            <li v-for="cat in comp.categories" :key="cat.id" class="bg-gray-900 my-2 rounded-md p-2 border border-blue-800">
+                 <div class=" text-xl font-bold my-1 text-white">{{  cat.nimi }}</div>
                 <div v-if="isCategoryFull(cat)">
                   {{ t('comps.category_full_text') }}
                 </div>
@@ -59,35 +48,56 @@
                     <div v-else>{{ t('comps.registration_has_closed') }}</div>
                   </div>
                 </div>
-              </template>
-              <template #text>
-                <span
-                  v-if="!isNaN(parseFloat(cat.pivot.price))"
-                  class="font-bold text-indigo-400"
-                >
-                  {{ t('comps.prices') }}
-                  {{ cat.pivot.price }}€
-                </span>
-                <span class="text-white font-bold" v-else>{{ t('comps.no_entry_fee') }}</span>
-                <span v-if="!isNaN(parseFloat(cat.pivot.memberprice))">
-                  {{ t('comps.special_price') }}
-                  <span class="font-bold text-indigo-300"
-                    >{{ cat.pivot.memberprice }}€</span
-                  >
-                </span>
-                <br />
-                <span class="text-green-600 text-sm ">
-                  {{ t('comps.paidregistrations') }}
-                  {{ cat.participants?.length || 0 }}
-                </span>
-                <span class="px-1 text-white">|</span>
-                <span class="text-orange-600 text-sm mx-1 ">
-                  {{ t('comps.unpaidregistrations') }}  
-                  {{ cat.unpaidparticipants || 0 }}
-                </span>
-              </template>
-            </f7-list-item>
-          </f7-list>
+                
+                <div class="flex flex-row justify-between">
+                  <div>Max. participants</div>
+                  <div class="text-green-400" v-if="cat.pivot.maxparticipants == null">
+                    unlimited
+                  </div>
+                  <div v-else>
+                    {{ cat.pivot.maxparticipants }}
+                  </div>
+                </div>
+              
+              
+
+                <div class="flex flex-row justify-between">
+                    <div> {{ t('comps.prices') }} </div>
+                  <div>
+                    <span v-if="!isNaN(parseFloat(cat.pivot.price))" >
+                      {{ cat.pivot.price }}€
+                    </span>
+                    <span class="text-white font-bold" v-else>{{ t('comps.no_entry_fee') }}</span>
+                  </div>
+                </div>
+
+                <div class="flex flex-row justify-between">
+                  <div>{{ t('comps.special_price') }}</div>
+                  <div v-if="!isNaN(parseFloat(cat.pivot.memberprice))">
+                    <span class="font-bold text-indigo-300"
+                      >{{ cat.pivot.memberprice }}€</span
+                    >
+                  </div>
+                </div>
+
+   
+                <div class="flex flex-row justify-between">
+                  <div>Participants</div>
+                  <div class="flex flex-start">
+                    <div class="text-green-600 text-sm ">
+                      {{ t('comps.paidregistrations') }}
+                      {{ cat.participants?.length || 0 }}
+                    </div>
+                    <div class="px-1 text-white">|</div>
+                    <div class="text-orange-600 text-sm mx-1 ">
+                      {{ t('comps.unpaidregistrations') }}  
+                      {{ cat.unpaidparticipants || 0 }}
+                    </div>
+                  </div>
+                </div>
+              
+            </li>
+          </ul>
         </div>
         </div>
         <div v-else class="my-1 p-4 border rounded-lg bg-orange-300 text-black ">
