@@ -11,13 +11,13 @@
           :key="comp.id"
           :link="getLink(comp)"
           :title="comp.name"
-          :after="comp.location"
         >
         <template #text>
           <div v-html="getCompText(comp)"></div>
         </template>
         <template #subtitle>
-          @{{ toLocalTime(comp.compdate) }}
+          <span>@{{ toLocalTime(comp.compdate) }}</span>
+          <div >{{ comp.location }}</div>
           <span v-if="comp.participates" class="font-bold text-green-500">{{ t('comps.you_are_registered') }}</span>
           <span v-else-if="comp.participatesunpaid" class="font-bold text-red-500">{{ t('comps.you_are_registered_not_paid') }}</span>
           <span v-else>
