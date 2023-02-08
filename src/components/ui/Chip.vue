@@ -1,6 +1,6 @@
 <template>
-    <div @click="toggle" :class="[...getExtraStyles,'flex', 'border','justify-center','items-center','rounded-full', 'm-1','px-2','text-center','text-sm']">
-        {{ text }}
+    <div @click="toggle" :class="[...getExtraStyles,'flex', 'border','justify-center','items-center','rounded-lg', 'm-1','px-2','text-center','text-sm','break-keep']">
+        {{ text.replaceAll(" ","&nbsp;") }}
     </div>
 </template>
 
