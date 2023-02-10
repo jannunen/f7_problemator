@@ -28,10 +28,12 @@
         </f7-block>
       </f7-page>
     </f7-popup>
-    {{ now }}
-
+    <div class="flex flex-row justify-between w-full">
+    <div>{{ now }}</div>
+    <div>ID: {{ comp.id  }}</div>
+    </div>
     <div class="flex flex-row justify-between">
-      <p-badge class="text-sm py-1 bg-blue-500">{{ comp.location }}</p-badge>
+      <p-badge class="text-sm py-1 bg-blue-500">{{ comp.location ?? "Location not set"}}</p-badge>
       <p-badge class="text-sm py-1 bg-green-500">{{ t('comps.' + comp.tyyppi) }}</p-badge>
     </div>
     <div class="flex flex-row justify-between">
@@ -177,6 +179,7 @@ dayjs.extend(isBetween)
 const { t } = useI18n()
 const compResults = computed(() => store.state.compResults)
 const climber = computed(() => store.state.climber)
+
 const isJudge = computed(() => {
   const comp = props.comp
   if (comp.judges == null) {
@@ -235,7 +238,6 @@ const isPaidAndPriceIsSet = computed(() => {
 })
 
 const compOngoing = computed(() => {
-  debugger
   const nowUTC = dayjs().utc()
 
   return nowUTC.isBetween(
