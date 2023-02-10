@@ -466,28 +466,20 @@ export default createStore({
     },
     async registerToComp({state, commit, dispatch}, payload) {
       const ret = await api.registerToComp(payload)
-      // Update the status of participation status
+      // Update the status of participation status for UPCOMING comps
+      commit('updatecompparticipates',ret.participates)
       let newData = {
         ...state.upcomingcomps
       } 
       newData.upcoming = newData.upcoming.map(comp => {
         if (comp.id == payload.compid) {
           return {...comp,
-            participates : true,
+            ['paidregistrations'] : [...comp.paidregistrations, ret.participates]
           }
         }
         return comp
       })
-      newData.ongoing = newData.ongoing.map(comp => {
-        if (comp.id == payload.compid) {
-          return {...comp,
-            participates : true,
-          }
-        }
-        return comp
-      })
-      commit('updatecompparticipates',ret.participates)
-      commit('upcomingcomps' , newData)
+      commit('upcomingcomps' , ret.participates)
       return ret
     },
     async getCompetition({state, commit, dispatch}, payload) {
