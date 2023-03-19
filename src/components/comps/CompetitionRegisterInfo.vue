@@ -34,9 +34,10 @@
                     </div>
                     <div v-else class="text-yellow-400 font-bold">
                         {{ t('comps.registered_unpaid') }}
-                      <f7-button  color="green" :link="getPaymentLink(cat)" >{{ t('comps.pay_comp') }}</f7-button>
+                      <!--<f7-button  color="green" :link="getPaymentLink(cat)" >{{ t('comps.pay_comp') }}</f7-button>
+                      -->
                       </div>
-                    <p-button  @click="askUnRegister(cat)" class="bg-red-500" >{{ t('comps.quit_comp') }}</p-button>
+                    <p-button  @click="askUnRegister(cat)" class="my-2 bg-red-500" >{{ t('comps.quit_comp') }}</p-button>
 
                   </div>
                   <div v-else>
@@ -44,6 +45,7 @@
                     <div v-if="isRegistrationPossible(comp, nowUTC)" >
                       {{ t('comps.registration_ends') }} {{ toLocalTime(comp.registration_end) }}
                       <button  @click="askRegister(cat)" :disabled="isRegistering" class="btn-primary btn-small" >{{ t('comps.register_button') }}</button>
+                      <div class="font-bold text-center my-1 text-orange-600" v-if="isRegistering"> Please wait, registering...</div>
                     </div>
                     <div v-else>{{ t('comps.registration_has_closed') }}</div>
                   </div>
