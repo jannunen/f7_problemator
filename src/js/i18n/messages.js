@@ -69,6 +69,7 @@ const messages = {
             fastest_hands_wins: 'If categories have max. participants, paid contenders will get the spot over unpaid registrations.',
             category_full_text: 'FULL',
             register_button: 'Register',
+            registered: 'You are registered to this competition. ',
             registered_unpaid: 'Registered, unpaid',
             registered_paid: 'Registered, paid',
             pay_comp: 'Pay now',

@@ -463,6 +463,7 @@ export default createStore({
       const ret = await api.unRegisterToComp(payload)
       // Remove these from the state
       commit('removeParticipation', payload)
+      return ret
     },
     async registerToComp({state, commit, dispatch}, payload) {
       const ret = await api.registerToComp(payload)

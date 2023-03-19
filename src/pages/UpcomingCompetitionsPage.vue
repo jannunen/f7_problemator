@@ -11,6 +11,7 @@
           :key="comp.id"
           :link="getLink(comp)"
           :title="comp.name"
+          :after="comp.id"
         >
         <template #text>
           <div v-html="getCompText(comp)"></div>
