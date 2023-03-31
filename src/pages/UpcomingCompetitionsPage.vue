@@ -61,11 +61,7 @@ const getCompText = (comp) => {
     }
 }
 const getLink = (comp) => {
-    if (!isFull(comp) && isRegistrationPossible(comp, nowUTC.value)) {
         return `/competitions/`+comp.id
-    } else {
-        return null
-    } 
 }
 const comps = computed(() => store.state.upcomingcomps)
 
