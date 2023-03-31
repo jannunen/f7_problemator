@@ -6,6 +6,8 @@
         <div class="">{{ toLocalTime(comp.compdate) }}</div>
       </f7-card-header>
       <f7-card-content v-if="comp != null">
+
+        <f7-link :href="getResultsLink" class="link external pt-2 btn-primary font-bold ">Open results page</f7-link>
         <small class="text-gray-300 my-0">ID: {{ comp.id }}</small>
         <div class="my-2">
           {{ t('comps.location') }}: <strong>@{{ comp.location }}</strong>
@@ -126,6 +128,10 @@ const nowUTC = ref(dayjs().utc())
 setInterval(() => nowUTC.value = dayjs().utc(),1000*30)
 import dayjs from 'dayjs'
 const store = useStore()
+const getResultsLink = computed(() => {
+    return  `https://api3.problemator.fi/comps/${props.comp.id}/results`
+
+  })
 
 const isRegistering = ref(false)
 const { t } = useI18n()
