@@ -59,22 +59,7 @@
 
     </div>
 
-    <div class="my-1" v-if="loaded && !isPaidAndPriceIsSet && !isPaymentForced">
-      There is a fee ({{ totalPrice }}), but you haven't paid yet.
-      <p-button class="bg-green-400 dark:bg-green-600" @click="openPaymentWindow">Pay now</p-button>
-      
-    </div>
-    <div v-if="!isPaidAndPriceIsSet && isPaymentForced ">
-      <div class="text-center my-2 font-bold text-red-300">
-        Competition has a fee, and you haven't paid the registration fee.
-        You cannot enter the competition unless you pay the registration fee.
-        <p-button class="bg-green-400 dark:bg-green-600" @click="openPaymentWindow">Pay now</p-button>
-      After the payment is done, if the page does not update
-      automatically, 
-      <a class="text-green-500" href="#" @click.prevent="f7.views.main.router.refreshPage()">click here</a>.
-      </div>
-    </div>
-    <div v-else>
+    <div>
 
     <div v-if="compOngoing ">
 
