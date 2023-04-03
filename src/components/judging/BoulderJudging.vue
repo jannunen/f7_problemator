@@ -2,8 +2,10 @@
 import { useI18n } from 'vue-i18n'
 import { computed, onMounted, ref } from 'vue'
 import useDebouncedRef, { debounce } from '@helpers/debouncedRef.js'
+import { useStore } from 'vuex'
 import axios from 'axios'
 const { t } = useI18n()
+const store = useStore()
 const props = defineProps(['comp'])
 const contid = ref(null)
 const selected = ref(null)
@@ -13,7 +15,8 @@ const triesTop = ref(1)
 const triesBonus = ref(1)
 const hits = ref([])
 const search = ref('')
-const apiurl = 'https://www.problemator.fi'
+const apiurl = 'https://pwa.problemator.fi'
+const comp = computed(() => store.state.competition)
 const clearSearch= () => {
  search.value = ''
  hits.value = [] 
@@ -99,18 +102,21 @@ const selectContender = (hit) => {
 const fetchContender = debounce(() => {
   selected.value = null
   hits.value = []
-  const url =
-    apiurl +
-    '/t/problemator/competitions/findcontenderincomp/?term=' +
-    search.value +
-    '&compid=' +
-    props.comp.id
-  axios
-    .post(url)
-    .then((r) => r.data)
-    .then((data) => {
-      hits.value = data
+  // Find  from local paidregistrations
+  const contenders = comp.value.paidregistrations
+  hits.value = contenders.filter((contender) => {
+    const lower = search.value.toLowerCase()
+    if (contender.etunimi.toLowerCase().includes(lower)) {
+        return true
+        }
+    if (contender.sukunimi.toLowerCase().includes(lower)) {
+        return true
+      }
+      return false
+
     })
+      
+  
 }, 200)
 </script>
 <template>
@@ -152,7 +158,7 @@ const fetchContender = debounce(() => {
             class="my-1 border border-gray-700 mx-4 text-center py-1 px-2 bg-blue-400"
           >
             <div @click="() => selectContender(hit)">
-              {{ hit.nimi }} <small class="self-end">{{ hit.id }}</small>
+              {{ hit.name }} <small class="self-end">{{ hit.id }}</small>
             </div>
           </li>
           <li class="redButton my-2" @click="clearSearch" > Close </li>
