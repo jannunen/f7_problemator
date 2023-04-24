@@ -9,7 +9,7 @@
       <f7-block>
         <h1 class="font-bold my-2 text-2xl">{{ t('searchprob.scan_qr_code_title') }}</h1>
         <p class="p-1">{{ t('searchprob.scan_qr_code_explainer') }}</p>
-        <qrcode-stream v-if="opened" @decode="onDecode" />
+        <qrcode-stream @decode="onDecode" />
         <!-- <f7-button @click="onDecode('this_is_a test')">Test decode</f7-button> -->
       </f7-block>
     </f7-page>
@@ -17,8 +17,9 @@
 </template>
 <script setup>
   import { useI18n } from 'vue-i18n'
-import { f7 } from 'framework7-vue'
+  import { f7 } from 'framework7-vue'
   import { QrcodeStream } from 'vue3-qrcode-reader'
+
   const { t } = useI18n()
   const props = defineProps({
     opened  : Boolean
