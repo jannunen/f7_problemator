@@ -1,5 +1,4 @@
 <template>
-  <qr-search-sheet @close="qrReaderOpened=false" :opened="qrReaderOpened" @read="onReadQRCode"></qr-search-sheet>
   <div class="mt-4 mb-1 font-bold text-2xl text-center">
     {{ t('searchprob.find_a_route') }}
   </div>
@@ -8,12 +7,7 @@
       {{ t('searchprob.instructions') }}
     </div>
     <div class="flex flex-row w-full p-1">
-      <div class="mt-2 flex">
-        <f7-link @click="openQRReader" href="#" no-link-class class="ml-4 w-20 h-20 rounded-full bg-purple-800 p-2 text-white flex flex-col justify-center items-center font-bold">
-          <i class="icon f7-icons">qrcode</i>
-          <small>{{ t('searchprob.read_qr') }}</small>
-        </f7-link>
-      </div>
+      
       <div class="self-center w-full px-2">
         <f7-input :label="t('searchprob.search_for_problems')" class="w-full mt-1 px-2 py-2 border border-gray-300 h-10 " @input:clear="onClearSearchText" @keyup="searchProblemTextChanged" v-model="searchProblemText" type="text" clear-button :placeholder="t('searchprob.search_for_problems')" />
       </div>
@@ -45,7 +39,6 @@ import {  computed, ref } from 'vue'
 import { debounce } from '@js/helpers'
 import { useStore } from 'vuex'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
-import QrSearchSheet from '@components/ui/problem/QrSearchSheet.vue'
 const store = useStore()
 const props = defineProps({
   opened: {
