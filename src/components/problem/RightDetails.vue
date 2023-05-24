@@ -22,12 +22,9 @@
     -->
       <list-styles class="my-2" :styles="problem.styles"></list-styles>
     <div class="my-2 flex flex-row justify-between">
-      <strong class="">{{ t('problem.start') }}</strong>
+      <strong class="">{{ t('problem.start') }} / {{ t('problem.end') }}</strong>
       <span class="">
         {{ problem.startdefinition }}</span>
-    </div>
-    <div class="my-2 flex flex-row justify-between">
-      <strong class="">{{ t('problem.end') }}</strong>
       <span class="">
         {{ problem.enddefinition }}</span>
     </div>
