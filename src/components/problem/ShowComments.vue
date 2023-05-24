@@ -14,18 +14,18 @@
                 <div class="my-1">{{ problem.messages.length }} {{ t('showcomments.comments') }}</div>
                 <f7-list media-list>
                     <f7-list-item v-for="(m, idx) in problem.messages" :key="m.id" >
-                        <template #subtitle>
-                         <small>
-                         by
-                            {{  m.climber.etunimi  }}
-                            {{  m.climber.sukunimi  }}
-                            </small>
+                        <template #text>
+                            {{  m.message  }}
                         </template>
                         <template #after>
                             {{  toLocalTime(m.timestamp ) }}
                         </template>
                         <template #title>
-                            {{  m.message  }}
+                         <small>
+                         by
+                            {{  m.climber.etunimi  }}
+                            {{  m.climber.sukunimi  }}
+                            </small>
                         </template>
                         
                     </f7-list-item>
