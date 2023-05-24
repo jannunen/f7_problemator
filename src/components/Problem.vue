@@ -5,6 +5,7 @@ import AddTick from '@components/problem/AddTick.vue'
 import LeftDetails from '@components/problem/LeftDetails.vue'
 import RightDetails from '@components/problem/RightDetails.vue'
 import ShowPublicAscents from '@components/problem/ShowPublicAscents.vue'
+import ShowComments from '@components/problem/ShowComments.vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
@@ -14,10 +15,13 @@ import { f7, f7ready } from 'framework7-vue'
 import { useAuth0 } from '@auth0/auth0-vue';
 const store = useStore()
 const showPublicAscentsDialog = ref(false)
+const showCommentsDialog = ref(false)
+const loading = ref(true)
 const { idTokenClaims, getAccessTokenSilently, loginWithRedirect, logout, user } = useAuth0();
 dayjs.extend(LocalizedFormat)
 dayjs.extend(relativeTime)
 const { t } = useI18n()
+const problem = ref(null)
 const props = defineProps({
   problem: Object,
   f7router: Object,
@@ -25,6 +29,15 @@ const props = defineProps({
 })
 if (props.id != null) {
   store.dispatch('getProblemDetails', props.id)
+  .then((prob) => {
+    loading.value = false
+    problem.value = prob
+  })
+  .catch((err) => {
+    console.log(err)
+    loading.value = false
+  })
+  
 }
 const problems = computed(() => store.state.problems)
 const isAuthenticated = computed(() => store.state.isAuthenticated)
@@ -32,15 +45,12 @@ const isAuthenticated = computed(() => store.state.isAuthenticated)
 const onLoginClick = () => {
   f7.views.main.router.navigate({url : '/'  });
 }
-const problem = computed(() => {
-  if (problems.value == null) {
-    return {} 
-  }
-  return problems.value[props.id]
-})
 
 const onShowPublicAscents = (pid) => {
     showPublicAscentsDialog.value = true
+}
+const onShowComments = (pid) => {
+    showCommentsDialog.value = true
 }
 const openAddTick = () => {
   const url = `/problem/${problem.id}/addtick`
@@ -50,12 +60,14 @@ const openAddTick = () => {
 <template>
   <div v-if="problem != null && problem.id != null">
 
+  
+  <show-comments v-if="showCommentsDialog" :problem="problem" :opened="showCommentsDialog" @close="showCommentsDialog=false"> </show-comments>
   <show-public-ascents v-if="showPublicAscentsDialog" :problem="problem" :opened="showPublicAscentsDialog" @close="showPublicAscentsDialog=false"> </show-public-ascents>
     <div class="m-0 p-0">
 
       <!-- problem details -->
       <div class="grid grid-cols-3 gap-4 my-3">
-        <left-details :problem="problem" @show-public-ascents="onShowPublicAscents"></left-details>
+        <left-details :problem="problem" @show-comments="onShowComments" @show-public-ascents="onShowPublicAscents"></left-details>
         <right-details :problem="problem"></right-details>
       </div>
 

@@ -119,6 +119,10 @@ const api = {
     const ret = await axios.post(endpoint+`/problem/${id}/dislike`)
     return ret.data
   },
+  async commentProblem(payload) {
+    const ret = await axios.post(endpoint+`/problem/${payload.id}/comment`,{comment:payload.comment})
+    return ret.data
+  },
   async getProblemDetails(id) {
     const ret = await axios.get(endpoint+"/problem/"+id)
     return ret.data

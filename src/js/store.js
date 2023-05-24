@@ -399,6 +399,13 @@ export default createStore({
       const problem = state.problems[pid]
       commit('problems' , { ...state.problems, [pid]: {...problem,['likeCount'] : ret.likeCount, ['dislikeCount'] : ret.dislikeCount } })
     },
+    async commentProblem({ state , commit}, payload) {
+      const pid = payload.id
+      const ret = await api.commentProblem(payload)
+      // Update problem comments
+      const problem = state.problems[pid]
+      commit('problems' , { ...state.problems, [pid]: {...problem, ['messages'] : ret.messages, ['messageCount'] : ret.messages.length } })
+    },
     setUser({  commit}, payload) {
       commit('user' , payload)
       return payload
