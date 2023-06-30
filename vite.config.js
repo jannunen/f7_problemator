@@ -37,7 +37,7 @@ export default defineConfig(({ command, mode }) => {
         '@/components': SRC_DIR + "/components",
         '@assets': SRC_DIR + "/assets",
         '@/assets': SRC_DIR + "/assets",
-        '@pages': SRC_DIR + "/pages"
+        '@pages': SRC_DIR + "/pages",
         '@/pages': SRC_DIR + "/pages"
       },
     },
