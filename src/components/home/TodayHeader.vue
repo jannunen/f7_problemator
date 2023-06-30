@@ -15,7 +15,7 @@ const emit = defineEmits(['addtick'])
 </script>
 <template>
   <div>
-    <div class="my-2 text-center text-lg font-bold">{{ t('home.today') }}</div>
+    <div class="my-2 text-center uppercase text-lg font-bold">{{ t('home.today') }}</div>
     <div class="flex flex-row justify-center mt-3">
       <score-today />
       

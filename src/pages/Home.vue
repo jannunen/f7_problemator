@@ -36,9 +36,10 @@
           <left-sidepanel />
           <!-- Page content -->
           <gym-selector />
-          <badge-gym-stats :gym="gym" />
           <TodayHeader :profile="profile" @addtick="onAddTick" />
           <floor-map-block />
+          <expiring-problems-alert />
+          <badge-gym-stats :gym="gym" />
           <competitions-badge />
           <ranking />
           <div class="px-2" v-if="ticksLoaded && alltime.ticks.length == 0">
@@ -110,6 +111,7 @@ import GymSelector from '@components/GymSelector.vue'
 import MyLogs from '@components/home/MyLogs.vue'
 import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
+import ExpiringProblemsAlert from '@components/ExpiringProblemsAlert.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import Ranking from '@components/home/Ranking.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'

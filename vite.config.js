@@ -27,12 +27,18 @@ export default defineConfig(({ command, mode }) => {
     resolve: {
       alias: {
         '@': SRC_DIR,
+        '@/': SRC_DIR,
         '@js': SRC_DIR + "/js",
+        '@/js': SRC_DIR + "/js",
         '@helpers': SRC_DIR + "/js/helpers",
+        '@/helpers': SRC_DIR + "/js/helpers",
         '@auth': SRC_DIR + "/js/auth",
         '@components': SRC_DIR + "/components",
+        '@/components': SRC_DIR + "/components",
         '@assets': SRC_DIR + "/assets",
+        '@/assets': SRC_DIR + "/assets",
         '@pages': SRC_DIR + "/pages"
+        '@/pages': SRC_DIR + "/pages"
       },
     },
     server: {

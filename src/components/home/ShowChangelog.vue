@@ -27,6 +27,7 @@
             </ul>
           </f7-tab>
           <f7-tab id="tab-2" class="mt-2" >
+            <release-note title="0.9.12" :notes="['Expiring problems notification']"></release-note>
             <release-note title="0.9.7" :notes="['Added past comps']"></release-note>
             <release-note title="0.9.6" :notes="['Added climber profile page, following and feed.']"></release-note>
             <release-note title="0.9.5" :notes="['Nailed some bugs from competition times']"></release-note>

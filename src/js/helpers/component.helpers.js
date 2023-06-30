@@ -6,6 +6,14 @@ dayjs.extend(relativeTime)
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
+
+const date_format = (date,format='YYYY-MM-DD') => {
+    if (date == null) {
+        return ""
+    }
+    return dayjs(date).format(format)
+}
+
 const showAgo = (tstamp) => {
     return dayjs.utc(tstamp).local().fromNow()
 }
@@ -130,6 +138,7 @@ export {
     getSessionCount,
     estimateGrade,
     toLocalTime,
+    date_format,
     showAgo,
     getGrade,
     isRegistrationPossible,

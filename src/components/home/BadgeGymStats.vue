@@ -1,15 +1,22 @@
 <template>
-    <h2 class="text-lg font-bold my-1 text-center uppercase">Problem/Route completion status</h2>
-    <f7-button @click="f7.views.main.router.navigate('/gym/completion')">Open more details</f7-button>
-    <div v-if="gym != null" class="p-2 border border-gray-700 text-center grid grid-cols-2">
+    <div v-if="gym != null" class="mt-8 m-4 rounded-md raised shadow-lg border border-gray-800">
+    <div class="py-2 px-4 font-bold text-lg" style="color: #3bb273">Problem/Route completion status</div>
+    <div class="p-1 my-1 border-gray-700 text-center grid grid-cols-2">
+      <div class="col-span-2">
+        <h2 class="text-lg font-bold my-1 text-center uppercase"></h2>
+        </div>
         <div>
-            <div class="font-bold">Boulders</div>
             <p class="w-3/5 flex mx-auto flex-row justify-between gap-2 text-xl"><span class="text-2xl">{{ percentageBoulders }}%</span> of <span class="text-2xl">{{ totalBoulders }}</span></p>
+            <div class="font-bold">Boulders</div>
         </div>
         <div>
-            <div class="font-bold">Routes</div>
             <p class="w-3/5 flex mx-auto flex-row justify-between gap-2 text-xl"><span class="text-2xl">{{ percentageRoutes }}%</span> of <span class="text-2xl">{{ totalRoutes }}</span></p>
+            <div class="font-bold">Routes</div>
         </div>
+      <div class="col-span-2">
+       <f7-link @click="f7.views.main.router.navigate('/gym/completion')" class="uppercase my-1 text-blue-400 font-bold cursor-pointer text-center">Open more details</f7-link>
+      </div>
+    </div>
     </div>
 </template>
 <script setup>
