@@ -20,7 +20,12 @@
                 <f7-list-input label="First name" type="text" placeholder="Your first name" v-model:value="climber.etunimi" clear-button> </f7-list-input>
                 <f7-list-input label="Last name" type="text" placeholder="Your last name" v-model:value="climber.sukunimi" clear-button> </f7-list-input>
                 <f7-list-input label="Email (read only)" type="text" readonly :value="climber.email"> </f7-list-input>
-                <f7-list-input label="Birthday" placeholder="1998-11-24" type="text" v-model:value="climber.birthday"> </f7-list-input>
+                <f7-list-input type="datepicker" 
+                  dateFormat="yyyy-mm-dd"
+                  formatValue="yyyy-mm-dd"
+                 :value="[climber.birthday]"
+                  @calendar:change="(value) => setBirthDay(value)"
+                />
                 <f7-list-input label="Team" placeholder="Enter team" type="text" v-model:value="climber.team"> </f7-list-input>
                 <f7-list-input label="Gender" type="select" v-model:value="climber.gender" placeholder="Please choose...">
                     <option v-for="gender in genders" :value="gender.id" :key="gender.id">{{ gender.name }}</option>
@@ -85,6 +90,7 @@ import { onMounted, watch,  ref,  computed } from 'vue'
 import { useStore } from 'vuex'
 import { toaster, alert } from '@js/helpers/notifications.js'
 import { getNames } from 'country-list'
+import dayjs from 'dayjs'
 const store = useStore()
 const { t } = useI18n()
 const props = defineProps({
@@ -111,11 +117,19 @@ const ascentTypes = ref([
 ])
 const saveSettings = () => {
     // Incorporate two data sources
-    const payload = {...climber.value}
+    let payload = {...climber.value}
+  if (Array.isArray(payload.birthday)) {
+    payload.birthday = payload.birthday[0]
+  }
     store.dispatch('saveSettings',payload)
         .then(ret => {
             toaster(ret.message)
         })
+}
+const setBirthDay = (value) => {
+    if (value.length == 1) {
+      climber.value.birthday = dayjs(value[0]).format('YYYY-MM-DD')
+    }
 }
 const isChecked = (field) => {
     const val = climber.value[field]
