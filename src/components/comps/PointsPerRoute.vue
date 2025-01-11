@@ -8,7 +8,14 @@
         <li v-for="problem in cat.points" :key="problem.id" class="flex justify-between">
           <span class="font-bold font-mono flex-1">{{ problem?.tag?.substr(7) }}</span>
           <div class="font-bold ml-1 text-yellow-400 flex-1">{{ problem.pivot.num }}</div>
-          <div class="font-bold text-right text-green-500 flex-1 "> {{ problem.points }} </div>
+          <div class="font-bold text-right text-green-500 flex-1 "> 
+            <div v-if="problem.ascents == 1">
+            {{ problem.points /2  }} 
+            </div>
+            <div v-else>
+            {{ problem.points  }} 
+            </div>
+            </div>
         </li>
       </ul>
     </div>
@@ -30,7 +37,6 @@ const sortByNum = (points) => {
     if (points == null) {
       return []
     }
-    
     Object.keys(points).map(x => points[x]).sort((b,a)   => {
     return a.num?.localeCompare(b.num)
   })
