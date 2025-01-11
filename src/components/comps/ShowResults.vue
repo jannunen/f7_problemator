@@ -144,13 +144,18 @@ const reloadInterval = 45
 
 const secsToReload = ref(reloadInterval)
 const calcSecsToReload  = () => {
-  const secsFromLastReload =  dayjs().format('X')-  props.lastUpdate.format('X')
+  const now = dayjs().unix()
+  const lastUpdate = dayjs(props.lastUpdate).unix()
+  const secsFromLastReload =  now - lastUpdate
   secsToReload.value = reloadInterval - secsFromLastReload
+  if (secsToReload.value < 0) {
+    secsToReload.value = 0
+  }
 }
-const secsToInt = setInterval(calcSecsToReload,1000)
+const secsToInterval = setInterval(calcSecsToReload,1000)
 
 onUnmounted(() => {
-    clearInterval(secsToInt)
+    clearInterval(secsToInterval)
 })
 
 
