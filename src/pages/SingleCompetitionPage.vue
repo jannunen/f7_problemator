@@ -25,7 +25,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watch } from 'vue'
 import CompetitionRegisterInfo from '@components/comps/CompetitionRegisterInfo.vue'
 import CompetitionEntry from '@components/comps/CompetitionEntry.vue'
 
@@ -36,7 +36,23 @@ const { t } = useI18n()
 const store = useStore()
 const comp = computed(() => store.state.competition)
 const climber = computed(() => store.state.climber)
+const url = window.location.href
+const urlParams = new URLSearchParams(url.split('?')[1])
+// this key can be used to open the entry page without logging in
+const key = urlParams.get('key')
+if (key != null) {
+  store.dispatch('getClimberByKey', { compid: props.compid, key: key })
+  .then(() => {
+    store.dispatch('getCompetition',{compid:props.compid, point_entry_key: key})
+    .then(() => loading.value=false)
+  })
+} else {
+      store.dispatch('getCompetition',{compid:props.compid})
+      .then(() => loading.value=false)
+}
+
 const isPaidAndRegistered = computed(() => {
+
   if (climber.value == null) {
     return false
   }
@@ -54,9 +70,13 @@ const isJudge = computed(() => {
     return x.id == climber.value.id
    }) 
 })
+  
+
 const loading = ref(true)
-onMounted(() => {
-  store.dispatch('getCompetition',props.compid)
+watch(key,() => {
+  store.dispatch('getCompetition',{compid:props.compid})
   .then(() => loading.value=false)
+})
+onMounted(() => {
 })
 </script>

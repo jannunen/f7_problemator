@@ -67,6 +67,7 @@ export default createStore({
     },
     user : null,
     climber : null,
+    pointEntryKey : null,
     access_token : null,
     filters : {...filtersInitial},
     gyms : [],
@@ -151,6 +152,14 @@ export default createStore({
     },
     addTicksAllTime(state, payload) {
       state.alltime.ticks = [...state.alltime.ticks,payload]
+    },
+    addTickToCompetition(state, payload) {
+      state.competition.userticks = {...state.competition.userticks, [payload.problemid] : payload}
+    },
+    removeTickFromCompetition(state, payload) {
+      const newTicks = {...state.competition.userticks}
+      delete newTicks[payload]
+      state.competition.userticks = newTicks
     },
     removeTick(state, pid) {
       state.alltime.ticks = state.alltime.ticks.filter(x => x.problemid != pid)
@@ -253,6 +262,9 @@ export default createStore({
     climber(state, payload) {
       state.climber = payload
     },
+    pointEntryKey(state, payload) {
+      state.pointEntryKey = payload
+    },
     feed(state, payload) {
       state.feed = payload
     },
@@ -351,8 +363,8 @@ export default createStore({
       const ret = await api.deleteProject(payload)
       commit('problems', {...state.problems,[ret.problem.id] : ret.problem})
     },
-     async getCompResults({ commit }, payload) {
-      const ret = await api.getCompResults(payload.compid)
+     async getCompResults({ state, commit }, payload) {
+      const ret = await api.getCompResults(payload)
       commit('compResults',ret)
       return ret
     },
@@ -362,8 +374,13 @@ export default createStore({
       return ret
     },
      async deleteTickByProblem({ state,commit}, payload) {
+      if (state.climber != null && state.climber.point_entry_key != null) {
+        payload.point_entry_key = state.climber.point_entry_key  
+      }
+
       const ret = await api.deleteTickByProblem(payload.problemid)
       commit('removeTick',payload.problemid)
+      commit('removeTickFromCompetition',payload.problemid)
       return ret
     },
     async deleteTick({ state, commit, dispatch}, payload) {
@@ -374,11 +391,15 @@ export default createStore({
       return ret
     },
     async saveTick({ state, commit, dispatch}, payload) {
+      if (state.climber != null && state.climber.point_entry_key != null) {
+        payload.point_entry_key = state.climber.point_entry_key  
+      }
       const ret = await api.saveTick(payload)
       commit('updateProblem', ret.problem)
       // Update also tries in profile
       if (payload.ticktype=='tick') {
         commit('addTicksAllTime',ret.tick) 
+        commit('addTickToCompetition',ret.tick)
       } else {
         commit('addTriesAllTime',ret.tick) 
       }
@@ -490,9 +511,22 @@ export default createStore({
       commit('upcomingcomps' , ret.participates)
       return ret
     },
-    async getCompetition({state, commit, dispatch}, payload) {
+    async getCompetition({state, commit }, payload) {
       const ret = await api.getCompetition(payload)
       commit('competition' , ret)
+      return ret
+    },
+    async getClimber({state, commit}, payload) {
+      const ret = await api.getClimber(payload)
+      commit('climber', ret)
+      return ret
+    },
+    async getClimberByKey({state, commit}, payload) {
+      const ret = await api.getClimberByKey(payload)
+      commit('climber', ret)
+      if (ret.id != null) {
+        commit('pointEntryKey', payload.key)
+      }
       return ret
     },
     async getUpcomingCompetitions ({commit}, payload) {

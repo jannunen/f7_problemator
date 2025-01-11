@@ -29,8 +29,8 @@
       </f7-page>
     </f7-popup>
     <div class="flex flex-row justify-between w-full">
-    <div>{{ now }}</div>
-    <div>ID: {{ comp.id  }}</div>
+      <div>{{ now }}</div>
+      <div>ID: {{ comp.id  }}</div>
     </div>
     <div class="flex flex-row justify-between">
       <p-badge class="text-sm py-1 bg-blue-500">{{ comp.location ?? "Location not set"}}</p-badge>
@@ -46,9 +46,13 @@
     <h3 class=""> {{ t('comps.timespan') }} {{ toLocalTime(comp.timespan_start) }} - {{ toLocalTime(comp.timespan_end) }} </h3>
     <div class="my-1 flex flex-row justify-between">
       <h2 class="text-xl">
-        {{ sortedProblems.length }} problem(s)
+        <p-badge class="text-xl py-1 bg-blue-500">  {{ sortedProblems.length }}</p-badge>
+        problem(s)
       </h2>
-      <h4 class="text-lg">{{ t('comps.participants') }} : {{ comp.paidregistrations?.length }}</h4>
+      <div class="text-xl">
+      {{ t('comps.participants') }}
+      <p-badge class="text-xl py-1 bg-blue-500">  {{ comp.paidregistrations?.length }}</p-badge>
+      </div>
     </div>
     <div v-if="sortedProblems.length == 0" class="my-3 text-2xl">
       No problems have been added - yet.
@@ -61,61 +65,63 @@
 
     <div>
 
-    <div v-if="compOngoing ">
+      <div v-if="compOngoing ">
 
-      <div v-if="comp.tyyppi == 'variable_points'">
-        <p-button class="bg-yellow-400 dark:bg-yellow-600" @click="showPointsPerRoute=!showPointsPerRoute">Toggle show points per route</p-button>
-      </div>
-      <p-button class="my-1 bg-teal-400 dark:bg-teal-600" @click="showResultList=!showResultList">Toggle show result list</p-button>
-      <div class="text-center">
-        <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
-      </div>
-      <p class="text-center">Swipe left to delete an ascent</p>
-      <f7-list class="m-0">
-        <f7-list-item>
-          <template #title>
-            <span class="text-3xl font-bold">{{ tickCount }}</span> /<span class="text-lg">{{ sortedProblems.length }}</span>
-            {{ t('comps.ticked') }}
-          </template>
-        </f7-list-item>
+        <div v-if="comp.tyyppi == 'variable_points'">
+          <p-button class="bg-yellow-400 dark:bg-yellow-600" @click="showPointsPerRoute=!showPointsPerRoute">Toggle show points per route</p-button>
+        </div>
+        <p-button class="my-1 bg-teal-400 dark:bg-teal-600" @click="showResultList=!showResultList">Toggle show result list</p-button>
+        <div class="text-center">
+          <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
+        </div>
+        <p class="text-center">Swipe left to delete an ascent</p>
+        <f7-list class="m-0">
+          <f7-list-item>
+            <template #title>
+              <span class="text-3xl font-bold">{{ tickCount }}</span> /<span class="text-lg">{{ sortedProblems.length }}</span>
+              {{ t('comps.ticked') }}
+            </template>
+          </f7-list-item>
 
-        <f7-list-item swipeout v-for="prob in sortedProblems" :key="prob.id">
-          <f7-swipeout-actions right>
-            <f7-swipeout-button color="red" close @click="() => onDeleted(prob.id)" confirm-text="Are you sure you want to delete this tick?">Delete</f7-swipeout-button>
-          </f7-swipeout-actions>
-          <template #media>
-            <div class="w-16 flex flex-row justify-between">
-              <div class="flex flex-col">
-                <div class="mr-1 font-bold text-xl">{{ prob.pivot.num }}</div>
-                <div class="mr-2 pt-0 text-sm font-bold">{{ right(prob?.tag,4) }}</div>
+          <f7-list-item swipeout v-for="prob in sortedProblems" :key="prob.id">
+            <f7-swipeout-actions right>
+              <f7-swipeout-button color="red" close @click="() => onDeleted(prob.id)" confirm-text="Are you sure you want to delete this tick?">Delete</f7-swipeout-button>
+            </f7-swipeout-actions>
+            <template #media>
+              <div class="w-16 flex flex-row justify-between">
+                <div class="flex flex-col">
+                  <div class="mr-1 font-bold text-xl">{{ prob.pivot.num }}</div>
+                  <div class="mr-2 pt-0 text-sm font-bold">{{ right(prob?.tag,4) }}</div>
+                </div>
+                <div class="flex flex-col w-8">
+                  <div class="h-6 mt-3 w-6 border border-white rounded-md" :style="getStyles(prob)"></div>
+                </div>
               </div>
-              <div class="flex flex-col w-8">
-                <div class="h-6 mt-3 w-6 border border-white rounded-md" :style="getStyles(prob)"></div>
+            </template>
+            <template #title>
+              <div v-if="comp.tyyppi == 'variable_points'">
+                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
-            </div>
-          </template>
-          <template #title>
-            <div v-if="comp.tyyppi == 'variable_points'">
-              <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
-            </div>
-            <div v-else-if="comp.tyyppi=='sport'">
-              <input :value="tries[prob.id]?.sport_points" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
-            </div>
-            <div v-else>
-              Comp type not supported (yet)
-            </div>
-          </template>
-          <template #after>
-            <p-button @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">tick</p-button>
-            <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
-            <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
-          </template>
-        </f7-list-item>
-      </f7-list>
-    </div>
-    <div v-else>
-      {{ t('comps.the_comp_has_not_started_yet') }}
-    </div>
+              <div v-else-if="comp.tyyppi=='sport'">
+                <input :value="tries[prob.id]?.sport_points" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
+              </div>
+              <div v-else>
+                Comp type not supported (yet)
+              </div>
+            </template>
+            <template #after>
+              <p-button @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">tick</p-button>
+              <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
+              <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
+            </template>
+          </f7-list-item>
+        </f7-list>
+      </div>
+      <div v-else>
+        <div class="text-center font-bold text-xl text-red-500 border-t-2 border-red-700 mt-2">
+          {{ t('comps.the_comp_has_not_started_yet') }}
+        </div>
+      </div>
     </div><!-- if paid -->
     {{ errors }}
   </div>
@@ -153,7 +159,13 @@ const props = defineProps({
 const store = useStore()
 const ticks = computed(() => store.state.alltime.ticks)
 const isTicked = (pid) => {
-  return ticks.value.find(x => x.problemid == pid) != null
+  // check this against comp ticks
+  const comp = store.state.competition
+  if (comp == null) {
+    return false
+  }
+  const tick = comp.userticks[pid]
+  return tick != null
 }
 const errors = ref("")
 const loaded = ref(false)
@@ -282,7 +294,7 @@ if (props.comp.tyyppi == 'variable_points') {
 
 const fetchResults = () => {
   // Update points per route
-  const payload = { compid: props.comp.id }
+  const payload = { compid: props.comp.id   }
   store.dispatch('getCompResults', payload)
     .then(() => {
       lastResultUpdate.value = dayjs()
@@ -344,13 +356,11 @@ const getStyles = (prob) => {
   }
 }
 const tickCount = computed(() => {
-  return Object.keys(tries.value).reduce((acc, key) => {
-    const tryObj = tries.value[key]
-    if (tryObj.ticked) {
-      acc = acc + 1
-    }
-    return acc
-  }, 0)
+  const comp = store.state.competition
+  if (comp == null) {
+    return 0
+  }
+  return Object.keys(comp.userticks).length
 })
 const sortedProblems = computed(() => {
 

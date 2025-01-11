@@ -52,7 +52,7 @@ const api = {
     return ret.data
   },
   async getCompResults(payload) {
-    const ret = await axios.get(endpoint+"/competitions/"+payload+"/results/?json=true")
+    const ret = await axios.get(endpoint+"/competitions/"+payload.compid+"/results/?json=true")
     return ret.data
   },
   async getPointsPerRoute(payload) {
@@ -83,6 +83,10 @@ const api = {
     const ret = await axios.get(endpoint+"/competitions/findcontenderincomp?term="+payload.term+"&compid="+payload.compid)
     return ret.data
   },
+  async getClimberByKey(payload) {
+    const ret = await axios.get(endpoint+"/climber/key/"+payload.compid+"/"+payload.key)
+    return ret.data
+  },
   async getClimber(payload) {
     const ret = await axios.get(endpoint+"/climber/auth_user")
     return ret.data
@@ -96,7 +100,7 @@ const api = {
     return ret.data
   },
   async getCompetition(payload) {
-    const ret = await axios.get(endpoint+"/competitions/"+payload)
+    const ret = await axios.get(endpoint+"/competitions/"+payload.compid+"/?point_entry_key="+payload.point_entry_key)
     return ret.data
   },
   async getUpcomingCompetitions(payload) {
@@ -170,7 +174,7 @@ const api = {
     return ret.data
   },
   async saveTick(payload) {
-    const url = endpoint + "/tick"
+    let url = endpoint + "/tick"
     const ret = await  axios.post(url, payload)
     return ret.data
   },

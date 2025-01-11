@@ -31,7 +31,7 @@
     <f7-tabs>
       <f7-tab id="tab-1" tab-active>
         <div v-if="profileLoaded">
-          <p-button class="bg-red-500" @click="reloadPage">Reload app</p-button>
+          <PButton class="bg-red-500" @click="reloadPage">Reload app</PButton>
           <show-tick-help :opened="showTickHelpDialog" />
           <left-sidepanel />
           <!-- Page content -->
