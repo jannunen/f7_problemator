@@ -51,12 +51,12 @@ const api = {
     const ret = await axios.post(endpoint+"/climber/"+payload.climberid+"/request_sync",payload)
     return ret.data
   },
-  async getCompResults(payload) {
-    const ret = await axios.get(endpoint+"/competitions/"+payload.compid+"/results/?json=true")
+  async getCompResults(payload,prefix='') {
+    const ret = await axios.get(endpoint+prefix+"/competitions/"+payload.compid+"/results/?json=true&key="+payload.point_entry_key)
     return ret.data
   },
-  async getPointsPerRoute(payload) {
-    const ret = await axios.get(endpoint+"/competitions/"+payload+"/points_per_route")
+  async getPointsPerRoute(payload,prefix='') {
+    const ret = await axios.get(endpoint+prefix+"/competitions/"+payload.compid+"/points_per_route/?key="+payload.point_entry_key)
     return ret.data
   },
   async fetchCompAscents(payload) {
@@ -83,8 +83,9 @@ const api = {
     const ret = await axios.get(endpoint+"/competitions/findcontenderincomp?term="+payload.term+"&compid="+payload.compid)
     return ret.data
   },
-  async getClimberByKey(payload) {
-    const ret = await axios.get(endpoint+"/climber/key/"+payload.compid+"/"+payload.key)
+  async getClimberByKey(payload,prefix='') {
+    // The ?key is needed so that the compkey guard can get it.
+    const ret = await axios.get(endpoint+prefix+"/climber/key/"+payload.compid+"/"+payload.key+"/?key="+payload.key)
     return ret.data
   },
   async getClimber(payload) {
@@ -99,8 +100,8 @@ const api = {
     const ret = await axios.post(endpoint+"/competitions/join_comp",payload)
     return ret.data
   },
-  async getCompetition(payload) {
-    const ret = await axios.get(endpoint+"/competitions/"+payload.compid+"/?point_entry_key="+payload.point_entry_key)
+  async getCompetition(payload,prefix='') {
+    const ret = await axios.get(endpoint+prefix+"/competitions/"+payload.compid+"/?key="+payload.point_entry_key)
     return ret.data
   },
   async getUpcomingCompetitions(payload) {
@@ -162,8 +163,8 @@ const api = {
     const ret = await fetchPost(url, payload)
     return ret.data
   },
-  async deleteTickByProblem(payload) {
-    const url = endpoint + "/tick/byproblem/"+payload
+  async deleteTickByProblem(payload,prefix='') {
+    const url = endpoint + prefix + "/tick/byproblem/"+payload.problemid+"?key="+payload.point_entry_key
     const ret = await   axios.delete(url, payload)
     return ret.data
 
@@ -173,8 +174,8 @@ const api = {
     const ret = await axios.delete(url, payload)
     return ret.data
   },
-  async saveTick(payload) {
-    let url = endpoint + "/tick"
+  async saveTick(payload,prefix='') {
+    let url = endpoint + prefix + "/tick/?key="+payload.point_entry_key
     const ret = await  axios.post(url, payload)
     return ret.data
   },

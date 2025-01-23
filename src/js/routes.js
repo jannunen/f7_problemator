@@ -12,7 +12,7 @@ import ShowRankingTop10Page from '../pages/ShowRankingTop10Page.vue';
 import PastCompetitionsPage from '../pages/PastCompetitionsPage.vue';
 import OngoingCompetitionsPage from '../pages/OngoingCompetitionsPage.vue';
 import SingleCompetitionPage from '../pages/SingleCompetitionPage.vue';
-
+import PublicSingleCompetitionPage from '../pages/PublicSingleCompetitionPage.vue';
 const routes = [
   {
     path: '/',
@@ -47,6 +47,10 @@ const routes = [
   {
     path: '/competitions/:compid/judging',
     component: JudgingPage,
+  },
+  {
+    path: '/competitions/public/:compid',
+    component: PublicSingleCompetitionPage,
   },
   {
     path: '/competitions/:compid',

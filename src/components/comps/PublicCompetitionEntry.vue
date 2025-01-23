@@ -261,7 +261,7 @@ const onDeleted = (id) => {
     point_entry_key: climber.value.point_entry_key,
   }
   store
-    .dispatch('deleteTickByProblem', payload)
+    .dispatch('publicDeleteTickByProblem', payload)
     .then((ret) => {
       toaster(t(ret.message))
     })
@@ -282,8 +282,8 @@ let timerID = null
 if (props.comp.tyyppi == 'variable_points') {
   const fetchPointsPerRoute = () => {
     // Update points per route
-    const payload = { compid: props.comp.id  }
-    store.dispatch('getPointsPerRoute', payload)
+    const payload = { compid: props.comp.id, point_entry_key: climber.value.point_entry_key }
+    store.dispatch('publicGetPointsPerRoute', payload)
       .then(() => {
         lastUpdate.value = dayjs()
       })
@@ -298,8 +298,8 @@ if (props.comp.tyyppi == 'variable_points') {
 
 const fetchResults = () => {
   // Update points per route
-  const payload = { compid: props.comp.id  }
-  store.dispatch('getCompResults', payload)
+  const payload = { compid: props.comp.id  , point_entry_key: climber.value.point_entry_key }
+  store.dispatch('publicGetCompResults', payload)
     .then(() => {
       lastResultUpdate.value = dayjs()
       loaded.value = true
@@ -342,9 +342,10 @@ const doTick = (id) => {
     problemid: id,
     sport_points: aSportPoints,
     grade_opinion: null,
+    point_entry_key: climber.value.point_entry_key,
   }
   store
-    .dispatch('saveTick', payload)
+    .dispatch('publicSaveTick', payload)
     .then((ret) => {
       tries.value[id] = { ...tries.value[id], ticked: true }
       toaster(t('comps.tick_saved'))

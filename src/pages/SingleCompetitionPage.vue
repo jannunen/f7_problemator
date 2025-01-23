@@ -38,21 +38,10 @@ const comp = computed(() => store.state.competition)
 const climber = computed(() => store.state.climber)
 const url = window.location.href
 const urlParams = new URLSearchParams(url.split('?')[1])
-// this key can be used to open the entry page without logging in
-const key = urlParams.get('key')
-if (key != null) {
-  store.dispatch('getClimberByKey', { compid: props.compid, key: key })
-  .then(() => {
-    store.dispatch('getCompetition',{compid:props.compid, point_entry_key: key})
-    .then(() => loading.value=false)
-  })
-} else {
-      store.dispatch('getCompetition',{compid:props.compid})
-      .then(() => loading.value=false)
-}
+store.dispatch('getCompetition', { compid: props.compid })
+  .then(() => loading.value = false)
 
 const isPaidAndRegistered = computed(() => {
-
   if (climber.value == null) {
     return false
   }
@@ -73,10 +62,6 @@ const isJudge = computed(() => {
   
 
 const loading = ref(true)
-watch(key,() => {
-  store.dispatch('getCompetition',{compid:props.compid})
-  .then(() => loading.value=false)
-})
 onMounted(() => {
 })
 </script>

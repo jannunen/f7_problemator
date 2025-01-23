@@ -276,6 +276,53 @@ export default createStore({
     },
   },
   actions: {
+    // These actions use the public comp key
+    async getClimberByKey({state, commit}, payload) {
+      const ret = await api.getClimberByKey(payload,'/compkey')
+      commit('climber', ret)
+      if (ret.id != null) {
+        commit('pointEntryKey', payload.key)
+      }
+      return ret
+    },
+     async publicGetPointsPerRoute({ commit }, payload) {
+      const ret = await api.getPointsPerRoute(payload,'/compkey')
+      commit('updatePointsPerRoute',{ compid : payload.compid, points : ret})
+      return ret
+    },
+     async publicGetCompResults({ state, commit }, payload) {
+      const ret = await api.getCompResults(payload,'/compkey')
+      commit('compResults',ret)
+      return ret
+    },
+    async publicSaveTick({ state, commit, dispatch}, payload) {
+      if (state.climber != null && state.climber.point_entry_key != null) {
+        payload.point_entry_key = state.climber.point_entry_key  
+      }
+      const ret = await api.saveTick(payload,'/compkey')
+      commit('updateProblem', ret.problem)
+      // Update also tries in profile
+      if (payload.ticktype=='tick') {
+        commit('addTicksAllTime',ret.tick) 
+        commit('addTickToCompetition',ret.tick)
+      } else {
+        commit('addTriesAllTime',ret.tick) 
+      }
+      dispatch('rankings', { country: state.rankingTarget })
+      return ret
+    },
+     async publicDeleteTickByProblem({ state,commit}, payload) {
+      const ret = await api.deleteTickByProblem(payload,'/compkey')
+      commit('removeTick',payload.problemid)
+      commit('removeTickFromCompetition',payload.problemid)
+      return ret
+    },
+    async publicGetCompetition({state, commit }, payload) {
+      const ret = await api.getCompetition(payload,'/compkey')
+      commit('competition' , ret)
+      return ret
+    },
+    // These actions use the normal oauth
     async newProblems({ commit }, payload) {
       const ret = await api.newProblems(payload)
       commit('newProblems', ret)
@@ -369,16 +416,12 @@ export default createStore({
       return ret
     },
      async getPointsPerRoute({ commit }, payload) {
-      const ret = await api.getPointsPerRoute(payload.compid)
+      const ret = await api.getPointsPerRoute(payload)
       commit('updatePointsPerRoute',{ compid : payload.compid, points : ret})
       return ret
     },
      async deleteTickByProblem({ state,commit}, payload) {
-      if (state.climber != null && state.climber.point_entry_key != null) {
-        payload.point_entry_key = state.climber.point_entry_key  
-      }
-
-      const ret = await api.deleteTickByProblem(payload.problemid)
+      const ret = await api.deleteTickByProblem(payload)
       commit('removeTick',payload.problemid)
       commit('removeTickFromCompetition',payload.problemid)
       return ret
@@ -519,14 +562,6 @@ export default createStore({
     async getClimber({state, commit}, payload) {
       const ret = await api.getClimber(payload)
       commit('climber', ret)
-      return ret
-    },
-    async getClimberByKey({state, commit}, payload) {
-      const ret = await api.getClimberByKey(payload)
-      commit('climber', ret)
-      if (ret.id != null) {
-        commit('pointEntryKey', payload.key)
-      }
       return ret
     },
     async getUpcomingCompetitions ({commit}, payload) {
