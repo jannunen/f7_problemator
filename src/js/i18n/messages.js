@@ -39,6 +39,7 @@ const messages = {
             judging_competitions : 'Judging sheet',
         },
         comps : {
+            standalone_competition_title : 'Competition Point Entry',
             registration_has_closed: 'Registration has closed',
             tick_time_span : 'Tick time span',
             location : 'Location',
