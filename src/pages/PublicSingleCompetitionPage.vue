@@ -43,8 +43,7 @@ const key = urlParams.get('key')
 if (key != null) {
   store.dispatch('getClimberByKey', { compid: props.compid, key: key },'/compkey')
   .then((ret) => {
-    debugger
-    if (ret.match(/access.to.this.comp/i)) {
+    if (ret != null && typeof ret == 'string' && ret.match(/access.to.this.comp/i)) {
       notAuthorized.value = true
     } else {
       store.dispatch('publicGetCompetition',{compid:props.compid, point_entry_key: key})
