@@ -2,7 +2,7 @@
     
     <div @mouseup="selectPolygon" @mousemove="checkForHits" style="position : relative; display : flex; flex-direction : column; align-items : center" v-if="map != null">
         <img @load="onImageLoaded" ref="imagemapcontainer" style="opacity : 0.9; width : 100%;" :src="getImageURL(map)" :usemap="'#image-map-'+map.id"/>
-        <canvas ref="graph" style="; position : absolute;z-index : 1000; " :width="width" :height="height"> </canvas>
+        <canvas ref="graph" style=" position : absolute;z-index : 1000; " :width="width" :height="height"> </canvas>
         <canvas ref="active" style=" position : absolute;z-index : 1000; " :width="width" :height="height"> </canvas>
     </div>
     </template>

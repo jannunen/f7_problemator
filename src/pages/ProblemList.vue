@@ -9,7 +9,7 @@
     <f7-block>
       <h1 class="font-bold text-2xl text-center">{{ gym.name }}</h1>
       <div v-if="unfilteredProblemsExist">
-        <p-button class="bg-blue-500 font-bold my-1 uppercase" @click="showFilters=!showFilters">{{ showFilters ? "Hide filters" : "Show  filters"}}</p-button> 
+        <p-button class="bg-blue-500 font-bold my-1 uppercase" @click="showFilters=!showFilters">{{ showFilters ? "Hide filters" : "Show  filters"}}</p-button>
         <div v-if="showFilters" class="my-0 mx-2">
           <h2 class="uppercase text-xl mt-2 mb-1 font-bold">
             {{ t('problemlist.routetype') }}
@@ -36,7 +36,7 @@
               <h2 class="uppercase text-xl mt-2 p-0 font-bold">
                 {{ t('problemlist.wallfilter') }}
               </h2>
-                    <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
+              <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
             </li>
             <h2 class="uppercase text-xl mt-2 p-0 font-bold">
               {{ t('problemlist.ascent_status_filter') }}
@@ -55,11 +55,17 @@
         <p-button @click="resetFilters" class=" bg-red-500 text-white my-2">
           {{ t('problemlist.reset_filters') }}
         </p-button>
+        <f7-block v-if="gym != null && gym.floormaps != null && gym.floormaps.length > 0" class="my-0">
 
-              <h2 class="uppercase text-xl my-2 font-bold">
-                {{ t('problemlist.sortby') }}
-              </h2>
-              <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
+          <div v-for="floormap in gym.floormaps" :key="floormap.id" class="my-1">
+            <floor-map @area-selected="onAreaSelected" :map="floormap"></floor-map>
+          </div>
+        </f7-block>
+
+        <h2 class="uppercase text-xl my-2 font-bold">
+          {{ t('problemlist.sortby') }}
+        </h2>
+        <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
 
 
         <div v-if="filteredProblems.length > 0">
@@ -123,6 +129,7 @@
 // TODO: Add list index
 // TODO: Add filter routes, problems
 import { watch, ref, computed, onMounted, toRefs } from 'vue'
+import FloorMap from '@components/ui/FloorMap.vue'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
 import { tipShown, left, getRandom } from '@js/helpers'
 import { maxSnap } from '@js/constants.js'
@@ -145,6 +152,19 @@ const store = useStore()
 dayjs.extend(relativeTime)
 const gym = computed(() => store.state.gym)
 const routeTypes = computed(() => store.state.routetypes)
+const onAreaSelected = (area) => {
+  // Filter by wall
+  const wallChar = area.title
+  const wall = walls.value.find(x => x.wallchar === wallChar)
+  if (wall !== null) {
+    selectedWalls.value = [wall.id]
+  }
+  // Update the selected walls
+  const newSelection = [...props.modelValue, wall.id]
+  emit('select', newSelection)
+  emit('update:modelValue', newSelection)
+}
+
 const tipDismiss = (which) => {
   const payload = { ...tipShowStatus.value, [which]: true }
   store.dispatch('tipShowStatus', payload)
