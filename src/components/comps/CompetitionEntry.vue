@@ -102,6 +102,16 @@
               <div v-if="comp.tyyppi == 'variable_points'">
                 <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
+              <div v-if="comp.tyyppi == 'predefined_plus_flashcomp'" class="flex flex-row ">
+                
+                <div class="flex flex-row items-center mr-2">
+                <div class="text-sm font-bold bg-blue-500 text-white rounded-md p-1 dark:bg-blue-600 mr-1 w-8 h-8 flex items-center justify-center">
+                  {{ getPointsPerProblem(prob.pivot.num) }} 
+                </div>
+                point(s)
+                </div>
+                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+              </div>
               <div v-else-if="comp.tyyppi=='sport'">
                 <input :value="tries[prob.id]?.sport_points" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
               </div>
@@ -156,8 +166,31 @@ const props = defineProps({
   comp: Object,
 })
 
+const getPointsPerProblem = (num) => {
+  if (pointRules.value == null) {
+    return "Points not set at all" 
+  }
+  // Find the rule for the problem if exists..
+  const rule = pointRules.value.points_for_route.find(x => x.route_number == num)
+  if (rule == null) {
+    // Check for "other" rule
+    const otherrule = pointRules.value.points_for_route.find(x => x.route_number == "other")
+    if (otherrule != null) {
+      return otherrule.points
+    }
+    return "Points not set for this problem"
+  }
+  return rule.points
+}
 const store = useStore()
 const ticks = computed(() => store.state.alltime.ticks)
+const pointRules = computed(() => {
+  const comp = store.state.competition
+  if (comp.pointsharingobj == null) {
+    return null
+  }
+  return comp.pointsharingobj
+})
 const isTicked = (pid) => {
   // check this against comp ticks
   const comp = store.state.competition
