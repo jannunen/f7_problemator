@@ -70,6 +70,7 @@
         <div v-if="comp.tyyppi == 'variable_points'">
           <p-button class="bg-yellow-400 dark:bg-yellow-600" @click="showPointsPerRoute=!showPointsPerRoute">Toggle show points per route</p-button>
         </div>
+
         <p-button class="my-1 bg-teal-400 dark:bg-teal-600" @click="showResultList=!showResultList">Toggle show result list</p-button>
         <div class="text-center">
           <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
@@ -100,6 +101,16 @@
             </template>
             <template #title>
               <div v-if="comp.tyyppi == 'variable_points'">
+                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+              </div>
+              <div v-if="comp.tyyppi == 'predefined_plus_flashcomp'" class="flex flex-row ">
+                
+                <div class="flex flex-row items-center mr-2">
+                <div class="text-sm font-bold bg-blue-500 text-white rounded-md p-1 dark:bg-blue-600 mr-1 w-8 h-8 flex items-center justify-center">
+                  {{ getPointsPerProblem(prob.pivot.num) }} 
+                </div>
+                point(s)
+                </div>
                 <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
               <div v-else-if="comp.tyyppi=='sport'">
