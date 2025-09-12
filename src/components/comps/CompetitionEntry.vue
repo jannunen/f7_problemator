@@ -108,7 +108,6 @@
                 <div class="text-sm font-bold bg-blue-500 text-white rounded-md p-1 dark:bg-blue-600 mr-1 w-8 h-8 flex items-center justify-center">
                   {{ getPointsPerProblem(prob.pivot.num) }} 
                 </div>
-                point(s)
                 </div>
                 <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
