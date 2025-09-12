@@ -363,6 +363,30 @@ const doTick = (id) => {
     })
     .catch((err) => { })
 }
+const getPointsPerProblem = (num) => {
+  if (pointRules.value == null) {
+    return "Points not set at all" 
+  }
+  // Find the rule for the problem if exists..
+  const rule = pointRules.value.points_for_route.find(x => x.route_number == num)
+  if (rule == null) {
+    // Check for "other" rule
+    const otherrule = pointRules.value.points_for_route.find(x => x.route_number == "other")
+    if (otherrule != null) {
+      return otherrule.points
+    }
+    return "Points not set for this problem"
+  }
+  return rule.points
+}
+const pointRules = computed(() => {
+  const comp = store.state.competition
+  if (comp.pointsharingobj == null) {
+    return null
+  }
+  return comp.pointsharingobj
+})
+
 const getStyles = (prob) => {
   const htmlcolour = prob.colour.code
   const textcolor = prob.colour.textcolor
