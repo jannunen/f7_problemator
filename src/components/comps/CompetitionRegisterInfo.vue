@@ -77,6 +77,8 @@
 
                 <div class="flex flex-row justify-between">
                   <div>{{ t('comps.special_price') }}</div>
+                  <div>{{ t('comps.if_you_want_to_activate_the_special_price_contact_the_competition_organizer') }}</div>
+
                   <div v-if="!isNaN(parseFloat(cat.pivot.memberprice))">
                     <span class="font-bold text-indigo-300"
                       >{{ cat.pivot.memberprice }}€</span
