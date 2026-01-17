@@ -17,6 +17,7 @@ const store = useStore()
 const showPublicAscentsDialog = ref(false)
 const showCommentsDialog = ref(false)
 const loading = ref(true)
+const error = ref(false)
 const { idTokenClaims, getAccessTokenSilently, loginWithRedirect, logout, user } = useAuth0();
 dayjs.extend(LocalizedFormat)
 dayjs.extend(relativeTime)
@@ -36,6 +37,7 @@ if (props.id != null) {
   .catch((err) => {
     console.log(err)
     loading.value = false
+    error.value = true
   })
   
 }
@@ -58,7 +60,18 @@ const openAddTick = () => {
 }
 </script>
 <template>
-  <div v-if="problem != null && problem.id != null">
+  <div> 
+  <div v-if="error" class="p-6 text-center">
+    <div class="text-6xl mb-4">🤔</div>
+    <h1 class="text-2xl font-bold mb-3">{{ t('problem.not_found_title', 'Oops! Route not found') }}</h1>
+    <p class="text-gray-600 dark:text-gray-400 mb-4">
+      {{ t('problem.not_found_message', "It's not you, it's us. We couldn't find this route.") }}
+    </p>
+    <p class="text-sm text-gray-500 dark:text-gray-500">
+      {{ t('problem.not_found_reasons', 'This could happen if the route has been removed or if you have a different gym selected.') }}
+    </p>
+  </div>
+  <div v-else-if="problem != null && problem.id != null">
 
   
   <show-comments v-if="showCommentsDialog" :problem="problem" :opened="showCommentsDialog" @close="showCommentsDialog=false"> </show-comments>
@@ -83,5 +96,6 @@ const openAddTick = () => {
       class="my-2 mx-2 uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
        @click="onLoginClick">{{ t('Login') }}</f7-button>
     </div>
+  </div>
   </div>
 </template>

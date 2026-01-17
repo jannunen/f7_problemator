@@ -9,7 +9,7 @@
       <f7-block>
         <h1 class="font-bold my-2 text-2xl">{{ t('searchprob.scan_qr_code_title') }}</h1>
         <p class="p-1">{{ t('searchprob.scan_qr_code_explainer') }}</p>
-        <qrcode-stream @decode="onDecode" />
+        <qrcode-stream v-if="opened" @detect="onDetect" @init="onInit" />
         <!-- <f7-button @click="onDecode('this_is_a test')">Test decode</f7-button> -->
       </f7-block>
     </f7-page>
@@ -25,17 +25,33 @@
     opened  : Boolean
     })
   const emit = defineEmits(['close'])
-  const onDecode = (code) => {
+  const onDetect = async (detectedCodes) => {
+    // Handle promise if library passes one
+    if (detectedCodes && typeof detectedCodes.then === 'function') {
+      detectedCodes = await detectedCodes
+    }
+    if (!detectedCodes || detectedCodes.length === 0) return
 
-    // The QR code has format https://pwa.problemator.fi/#!/problem/67243
-    //code = "https://localhost:3000/#!/problem/74722"
-    const matches = code.match(/.*?(\d+)$/)
-    if (matches !== false) {
-      const problemid = matches[1]
-      emit('close')
-       f7.views.main.router.navigate('/problem/' + problemid + '/popup')
+    let problemid = null
+    let problemData = null
+    if (detectedCodes.content) {
+      problemData = detectedCodes.content
     }
 
+    console.log("problemData", problemData)
+    // If problemdata is numeric, use it as problemid
+    if (problemData && typeof problemData === 'number') {
+      problemid = problemData
+    } else {
+      // The QR code has format https://pwa.problemator.fi/#!/problem/67243
+      const matches = problemData.match(/.*?(\d+)$/)
+      problemid = matches[1]
+    }
+    console.log("got problemid", problemid)
+    if (problemid) {
+      emit('close')
+      f7.views.main.router.navigate('/problem/' + problemid + '/popup')
+    }
   }
    const  onInit = async (promise) => {
 

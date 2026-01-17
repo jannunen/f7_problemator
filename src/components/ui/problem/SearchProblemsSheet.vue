@@ -7,10 +7,12 @@
       {{ t('searchprob.instructions') }}
     </div>
     <div class="flex flex-row w-full p-1">
-      
       <div class="self-center w-full px-2">
         <f7-input :label="t('searchprob.search_for_problems')" class="w-full mt-1 px-2 py-2 border border-gray-300 h-10 " @input:clear="onClearSearchText" @keyup="searchProblemTextChanged" v-model="searchProblemText" type="text" clear-button :placeholder="t('searchprob.search_for_problems')" />
       </div>
+      <button @click="openQRReader" class="self-center px-3 py-2 bg-blue-500 text-white rounded">
+        <i class="fa fa-qrcode"></i>
+      </button>
     </div>
     <div class="text-center bg-gray-700 py-1" v-if="searching"><i class="fa fa-spinner fa-spin"></i> Searching...</div>
     <div class="my-1 text-small text-center">
@@ -30,6 +32,7 @@
     </button>
     <br class="block my-4 " />
   </div>
+  <qr-search-sheet :opened="qrReaderOpened" @close="qrReaderOpened = false"  />
 </template>
 
 
@@ -39,6 +42,8 @@ import {  computed, ref } from 'vue'
 import { debounce } from '@js/helpers'
 import { useStore } from 'vuex'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
+import QrSearchSheet from '@components/ui/problem/QrSearchSheet.vue'
+import api from '@js/api.js'
 const store = useStore()
 const props = defineProps({
   opened: {
@@ -53,12 +58,8 @@ const searchProblemText = ref('')
 const searching = ref(false)
 const problems = ref([])
 const qrReaderOpened = ref(false)
-const onReadQRCode = (code) => {
-  debugger
-}
 const openQRReader = () => {
   qrReaderOpened.value = true
-  // Emit close for the sheet
   emit('close')
 }
 const onStartNavigate = (problem, sec) => {
