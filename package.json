@@ -1,7 +1,7 @@
 {
   "name": "Problemator",
   "private": true,
-"version": "0.9.11",
+"version": "0.9.21",
   "description": "Problemator is an app for tracking your climbing",
   "repository": "",
   "license": "UNLICENSED",
@@ -11,7 +11,6 @@
     "build": "cross-env NODE_ENV=production vite build && npx workbox generateSW workbox-config.js",
     "builddev": "cross-env NODE_ENV=development vite build && npx workbox generateSW workbox-config.js",
     "postinstall": "cpy ./node_modules/framework7-icons/fonts/*.* ./src/fonts/ && cpy ./node_modules/material-icons/iconfont/*.* ./src/fonts/",
-    "deploy": "aws s3 sync ./www s3://problematorpws --delete && aws cloudfront create-invalidation --distribution-id EA0UQAAMYCBH9 --paths '/*'",
     "lint": "eslint --ext .js,.jsx ."
   },
   "browserslist": [

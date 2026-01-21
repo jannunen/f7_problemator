@@ -6,5 +6,5 @@ read newver
 sed -i "4s/.*/\"version\": \"$newver\",/" package.json
 sed -i "6s/.*/APP_VERSION=$newver/" ../backend/.env
 npm run build
-npm run deploy
+#npm run deploy
 
