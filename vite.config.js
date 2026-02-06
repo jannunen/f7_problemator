@@ -44,7 +44,7 @@ export default defineConfig(({ command, mode }) => {
     server: {
       host: true,
       https: true,
-      port : 3000,
+      port : 3002,
     },
     esbuild: {
       jsxFactory: '$jsx',

@@ -36,7 +36,15 @@ export default {
       loginWithRedirect,
       user,
       isAuthenticated,
+      isLoading,
     } = useAuth0()
+
+    // Watch Auth0 loading state - when it finishes loading and user is not authenticated, set ready
+    watch(isLoading, (loading) => {
+      if (!loading && !isAuthenticated.value) {
+        store.commit('setReady', true)
+      }
+    }, { immediate: true })
 
     store.dispatch('version')
     // Save tip showing status in locaStorage.

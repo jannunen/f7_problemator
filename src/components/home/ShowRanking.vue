@@ -120,7 +120,12 @@
        <div class="pl-1 font-bold w-10 text-white">~{{ estimateGrade(row.points, grades) }}</div>
       </template>
       <template #media>
-        <f7-icon icon="demo-list-icon">{{ row.rank }}.</f7-icon>
+        <f7-icon icon="demo-list-icon">
+          <div class="flex flex-col items-center">
+            <span>{{ row.rank }}.</span>
+            <span v-if="country && country !== 'global' && row.global_rank" class="text-xs text-gray-400">#{{ row.global_rank }}</span>
+          </div>
+        </f7-icon>
       </template>
     </f7-list-item>
     

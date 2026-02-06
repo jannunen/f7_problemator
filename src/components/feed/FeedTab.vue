@@ -1,6 +1,6 @@
 <template>
   <f7-page>
-    <f7-toolbar tabbar :position="isBottom ? 'bottom' : 'top'" @toolbar:show="init">
+    <f7-toolbar tabbar :position="isBottom ? 'bottom' : 'top'">
       <f7-link tab-link="#feed-1" tab-link-active>Follow feed</f7-link>
       <f7-link tab-link="#feed-2" >New problems</f7-link>
     </f7-toolbar>
