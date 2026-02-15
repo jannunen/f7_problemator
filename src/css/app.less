@@ -1,12 +1,12 @@
 
 :root {
-  --f7-theme-color: #00ccff;
-  --f7-theme-color-rgb: 0, 204, 255;
-  --f7-theme-color-shade: #00abd6;
-  --f7-theme-color-tint: #29d4ff;
-  --light-color: #7d859e;
-  --dark-color: #202945;
-  --image-border-color: #202944;
+  --f7-theme-color: #38bdf8;
+  --f7-theme-color-rgb: 56, 189, 248;
+  --f7-theme-color-shade: #0ea5e9;
+  --f7-theme-color-tint: #7dd3fc;
+  --light-color: #94a3b8;
+  --dark-color: #162032;
+  --image-border-color: #162032;
   --f7-photobrowser-dark-bg-color: var(--f7-page-bg-color);
   --f7-photobrowser-dark-bars-bg-color: rgba(var(--f7-bars-bg-color-rgb), 0.8);
   --f7-popup-tablet-height: 90vh;
@@ -18,13 +18,13 @@
   background: var(--f7-page-bg-color);
   --f7-stepper-fill-button-bg-color: var(--f7-theme-color);
   &.ios {
-    --f7-bars-border-color: transparent;
-    --f7-searchbar-input-bg-color: var(--f7-page-bg-color);
+    --f7-bars-border-color: rgba(255, 255, 255, 0.06);
+    --f7-searchbar-input-bg-color: rgba(255, 255, 255, 0.04);
     --f7-searchbar-placeholder-color: var(--light-color);
     --f7-searchbar-search-icon-color: var(--light-color);
   }
   &.md {
-    --f7-searchbar-input-bg-color: var(--f7-bars-bg-color);
+    --f7-searchbar-input-bg-color: rgba(255, 255, 255, 0.04);
     --f7-searchbar-link-color: var(--f7-theme-color);
     --f7-searchbar-placeholder-color: var(--light-color);
     --f7-searchbar-search-icon-color: var(--light-color);
@@ -34,14 +34,50 @@
   }
   &.ios,
   &.md {
-    --f7-text-color: #fff;
-    --f7-tabbar-link-inactive-color: var(--light-color);
-    --f7-bars-bg-color: #18213b;
-    --f7-bars-bg-color-rgb: 24, 33, 59;
-    --f7-page-bg-color: #0f1526;
+    --f7-text-color: #f1f5f9;
+    --f7-tabbar-link-inactive-color: #64748b;
+    --f7-bars-bg-color: rgba(15, 21, 38, 0.92);
+    --f7-bars-bg-color-rgb: 15, 21, 38;
+    --f7-page-bg-color: #0c1220;
     --f7-block-title-text-color: var(--light-color);
     --f7-block-title-medium-text-color: var(--light-color);
     --f7-block-title-large-text-color: var(--light-color);
+
+    /* Navbar */
+    --f7-navbar-bg-color: rgba(15, 21, 38, 0.92);
+    --f7-navbar-border-color: rgba(255, 255, 255, 0.06);
+    --f7-navbar-title-font-weight: 700;
+
+    /* Sheet & Popup */
+    --f7-sheet-bg-color: #111827;
+    --f7-sheet-border-color: rgba(255, 255, 255, 0.06);
+    --f7-popup-bg-color: #0c1220;
+
+    /* List */
+    --f7-list-bg-color: transparent;
+    --f7-list-item-border-color: rgba(255, 255, 255, 0.06);
+    --f7-list-chevron-icon-color: #475569;
+
+    /* Panel */
+    --f7-panel-bg-color: #0f1526;
+    --f7-panel-border-color: rgba(255, 255, 255, 0.06);
+
+    /* Range slider */
+    --f7-range-bar-bg-color: rgba(255, 255, 255, 0.1);
+    --f7-range-bar-active-bg-color: #38bdf8;
+    --f7-range-knob-color: #38bdf8;
+    --f7-range-knob-size: 24px;
+
+    /* Chip */
+    --f7-chip-bg-color: rgba(255, 255, 255, 0.04);
+    --f7-chip-text-color: #94a3b8;
+    --f7-chip-outline-border-color: rgba(255, 255, 255, 0.08);
+
+    /* Toggle */
+    --f7-toggle-active-color: #38bdf8;
+
+    /* Swipeout */
+    --f7-swipeout-button-bg-color: rgba(56, 189, 248, 0.15);
   }
 }
 .ios {

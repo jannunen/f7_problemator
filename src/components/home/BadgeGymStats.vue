@@ -1,21 +1,18 @@
 <template>
-    <div v-if="gym != null" class="mt-8 m-4 rounded-md raised shadow-lg border border-gray-800">
-    <div class="py-2 px-4 font-bold text-lg" style="color: #3bb273">Problem/Route completion status</div>
-    <div class="p-1 my-1 border-gray-700 text-center grid grid-cols-2">
-      <div class="col-span-2">
-        <h2 class="text-lg font-bold my-1 text-center uppercase"></h2>
-        </div>
-        <div>
-            <p class="w-3/5 flex mx-auto flex-row justify-between gap-2 text-xl"><span class="text-2xl">{{ percentageBoulders }}%</span> of <span class="text-2xl">{{ totalBoulders }}</span></p>
-            <div class="font-bold">Boulders</div>
-        </div>
-        <div>
-            <p class="w-3/5 flex mx-auto flex-row justify-between gap-2 text-xl"><span class="text-2xl">{{ percentageRoutes }}%</span> of <span class="text-2xl">{{ totalRoutes }}</span></p>
-            <div class="font-bold">Routes</div>
-        </div>
-      <div class="col-span-2">
-       <f7-link @click="f7.views.main.router.navigate('/gym/completion')" class="uppercase my-1 text-blue-400 font-bold cursor-pointer text-center">Open more details</f7-link>
+    <div v-if="gym != null" class="p-card">
+    <div class="p-card__title">Problem/Route completion status</div>
+    <div class="grid grid-cols-2 gap-4 my-3">
+      <div class="p-stat">
+        <div class="p-stat__value">{{ percentageBoulders }}<span style="font-size: 1rem;">%</span></div>
+        <div class="p-stat__label">of {{ totalBoulders }} Boulders</div>
       </div>
+      <div class="p-stat">
+        <div class="p-stat__value">{{ percentageRoutes }}<span style="font-size: 1rem;">%</span></div>
+        <div class="p-stat__label">of {{ totalRoutes }} Routes</div>
+      </div>
+    </div>
+    <div class="text-center mt-2">
+      <a @click="f7.views.main.router.navigate('/gym/completion')" class="p-link text-sm font-semibold uppercase cursor-pointer">Open more details</a>
     </div>
     </div>
 </template>

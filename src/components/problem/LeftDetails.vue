@@ -1,76 +1,70 @@
 <template>
-  <div class="dark:bg-blue-900/50 bg-gray-300 rounded-r-2xl flex flex-col items-center">
-    <h1 class="text-4xl p-2 m-1">{{ problem.grade.name }}</h1>
+  <div class="left-panel">
+    <h1 class="grade-display">{{ problem.grade.name }}</h1>
     <round-badge :width="32" :bgColor="problem.colour.code"></round-badge>
-    <div class="my-2">{{ getTagShort(problem.tag) }}</div>
-    <a href="#" class="my-2 text-sm font-bold" @click.prevent="showPublicAscents">
+    <div class="tag-name">{{ getTagShort(problem.tag) }}</div>
+
+    <a href="#" class="stat-link" @click.prevent="showPublicAscents">
       {{ t('problem.ascents', problem.total_ascents) }}
     </a>
-    <div class="mt-2 text-sm font-bold">
+
+    <div class="stat-text">
       {{ t('problem.likes', problem.likeCount) }}
     </div>
-    <div class="mb-2 flex flex-row my-1 w-4/5" v-if="isAuthenticated">
-      <button @click="askLike" raised class="bg-white text-purple-900 px-1 py-1">
-        <div material="favorite" color="red"></div>
-        <f7-icon f7="heart_fill" size="20" color="red"></f7-icon>
-        <span class="font-bold">{{ t('problem.dolike') }}</span>
+    <div class="action-row" v-if="isAuthenticated">
+      <button @click="askLike" class="action-btn action-btn--like">
+        <span class="material-icons" style="font-size: 16px; color: #ef4444;">favorite</span>
+        <span>{{ t('problem.dolike') }}</span>
       </button>
     </div>
 
-    <div class="mt-2 text-sm font-bold">
+    <div class="stat-text">
       {{ t('problem.dislikes', problem.dislikeCount) }}
     </div>
-    <div class="mb-2 flex flex-row my-1 w-4/5" v-if="isAuthenticated">
-      <button
-        @click="askDislike"
-        raised
-        class="bg-white text-purple-900 px-1 py-1 w-full"
-      >
-        <f7-icon f7="hand_thumbsdown_fill" size="20" color="black"></f7-icon>
-        <span class="font-bold">{{ t('problem.dislike') }} +</span>
+    <div class="action-row" v-if="isAuthenticated">
+      <button @click="askDislike" class="action-btn action-btn--dislike">
+        <span class="material-icons" style="font-size: 16px;">thumb_down</span>
+        <span>{{ t('problem.dislike') }} +</span>
       </button>
     </div>
 
-    <div class="mt-2 my-1 text-sm font-bold">
-      <a href="#" class="mt-1 text-sm " @click.prevent="showComments">
-      {{ t('problem.comments', problem.messages.length ) }}
+    <div class="stat-text">
+      <a href="#" class="stat-link" @click.prevent="showComments">
+        {{ t('problem.comments', problem.messages.length ) }}
       </a>
     </div>
-  <div class="flex flex-row my-1 w-4/5" v-if="isAuthenticated">
-      <button
-        @click="askComment"
-        raised
-        class="bg-white text-purple-900 px-1 py-1 w-full"
-      >
-        <f7-icon f7="bubble_right_fill" size="20" color="black"></f7-icon>
-        <span class="font-bold">{{ t('problem.comment') }} +</span>
+    <div class="action-row" v-if="isAuthenticated">
+      <button @click="askComment" class="action-btn">
+        <span class="material-icons" style="font-size: 16px;">chat_bubble</span>
+        <span>{{ t('problem.comment') }} +</span>
       </button>
     </div>
-    <!-- show ticked if so -->
-    <div class="my-2" v-if="isMyTick(problem.id) || isMyProject(problem.id)">
-      <div class="bg-green-500 px-2 py-1 text-white text-center text-xs rounded-full">
+
+    <!-- Ticked badge -->
+    <div class="my-3" v-if="isMyTick(problem.id) || isMyProject(problem.id)">
+      <div class="status-badge status-badge--ticked">
+        <span class="material-icons" style="font-size: 12px;">check</span>
         {{ t('problem.ticked') }}
-        <div size="12px" material="check"></div>
       </div>
-      <button @click="myTicksPopupOpen = true" class="my-2 font-bold">
+      <button @click="myTicksPopupOpen = true" class="p-link text-xs mt-1 block text-center">
         {{ t('problem.see_ticks') }}
       </button>
     </div>
 
-    <!-- Show project if so -->
+    <!-- Projecting badge -->
     <div
-      class="my-2"
+      class="my-3"
       v-if="
         problem.myTicks != null &&
         problem.myTicks.length == 0 &&
         problem.myProjects.length > 0
       "
     >
-      <div class="bg-yellow-500 px-2 py-1 text-white text-center text-xs rounded-full">
+      <div class="status-badge status-badge--projecting">
         {{ t('problem.projecting') }}
       </div>
-      <button @click="myTicksPopupOpen = true" class="my-2 font-bold">
-        <div class="my-1">{{ t('problem.sessions', sessionCount) }}</div>
+      <button @click="myTicksPopupOpen = true" class="p-link text-xs mt-1 block text-center">
+        {{ t('problem.sessions', sessionCount) }}
       </button>
     </div>
     <popup-list-ticks
@@ -142,4 +136,92 @@ const askComment = () => {
 const sessionCount = () => getSessionCount(props.problem)
 </script>
 
-<style></style>
+<style scoped>
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--p-bg-card);
+  border: 1px solid var(--p-border);
+  border-radius: 0 16px 16px 0;
+  padding: 1rem 0.75rem;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.grade-display {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--p-text);
+  line-height: 1;
+  margin-bottom: 0.5rem;
+}
+.tag-name {
+  font-size: 0.8rem;
+  color: var(--p-text-muted);
+  margin: 0.5rem 0;
+}
+.stat-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--p-accent);
+  text-decoration: none;
+  margin: 0.25rem 0;
+}
+.stat-link:hover {
+  opacity: 0.8;
+}
+.stat-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--p-text-muted);
+  margin-top: 0.5rem;
+}
+.action-row {
+  width: 85%;
+  margin: 0.375rem 0;
+}
+.action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  width: 100%;
+  padding: 0.375rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--p-border-light);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--p-text-secondary);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.action-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+.action-btn:active {
+  transform: scale(0.97);
+}
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.status-badge--ticked {
+  background: rgba(59, 178, 115, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(59, 178, 115, 0.3);
+}
+.status-badge--projecting {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+</style>

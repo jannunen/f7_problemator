@@ -1,19 +1,17 @@
 <template>
   <div class="flex flex-start overflow-x-scroll flex-wrap gap-1 py-1">
-    <chip
-      :togglable="false"
+    <span
       v-for="sort in sorts"
       :key="sort"
-      :checked="sort == activeSort"
+      class="p-chip"
+      :class="{ 'p-chip--active': sort == activeSort }"
       @click="onChangeSort(sort)"
-      :text="t(`sortby.` + sort)"
-    ></chip>
+    >{{ t(`sortby.` + sort) }}</span>
   </div>
 </template>
 <script>
 import { onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import Chip from '@components/ui/Chip.vue'
 export default {
   props: {
     sort: {
@@ -22,7 +20,7 @@ export default {
     },
   },
   setup(props, context) {
-    const { t, d, locale } = useI18n()
+    const { t } = useI18n()
     const activeSort = ref(null)
     const sorts = ref([])
     sorts.value = [
@@ -49,23 +47,13 @@ export default {
       activeSort.value = newSort
       context.emit('sort-change', newSort)
     }
-    const getColor = (sort) => {
-      if (activeSort.value == sort) {
-        return 'red'
-      }
-      return null
-    }
     return {
       onChangeSort,
       activeSort,
       t,
       sorts,
-      getColor,
     }
   },
-  components: {
-    Chip,
-  },
+  components: {},
 }
 </script>
-<style></style>

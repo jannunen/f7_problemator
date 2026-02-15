@@ -1,115 +1,105 @@
 <template>
-  <f7-page name="home" hide-toolbar-on-scroll>
+  <f7-page name="home" class="p-page-with-tabbar">
     <f7-navbar>
       <f7-nav-left> </f7-nav-left>
       <f7-nav-title>Problemator </f7-nav-title>
       <f7-nav-right>
         <f7-link @click.prevent="store.commit('setSidePanel', true)">
-          <f7-icon md="material:menu" aurora="f7:menu" ios="f7:menu" />
+          <span class="material-icons" style="font-size: 24px;">menu</span>
         </f7-link>
       </f7-nav-right>
     </f7-navbar>
-    <f7-toolbar tabbar labels position="bottom">
-      <f7-link
-        tab-link="#tab-1"
-        :tab-link-active="activeTab === 'home'"
+
+    <!-- Custom bottom tab bar -->
+    <div class="p-tab-bar">
+      <button
+        class="p-tab-bar__item"
+        :class="{ 'p-tab-bar__item--active': activeTab === 'home' }"
         @click="activeTab = 'home'"
-        text="Home"
-        icon-ios="f7:house"
-        icon-aurora="f7:house"
-        icon-md="material:house"
-      ></f7-link>
-      <f7-link
-        :tab-link-active="activeTab === 'map'"
+      >
+        <span class="material-icons p-tab-bar__icon">home</span>
+        <span class="p-tab-bar__label">Home</span>
+      </button>
+      <button
+        class="p-tab-bar__item"
+        :class="{ 'p-tab-bar__item--active': activeTab === 'map' }"
         @click="activeTab = 'map'; navigateToGymMap()"
-        text="Map"
-        icon-ios="f7:map"
-        icon-aurora="f7:map"
-        icon-md="material:map"
-      ></f7-link>
-      <f7-link
-        tab-link="#tab-2"
-        :tab-link-active="activeTab === 'feed'"
+      >
+        <span class="material-icons p-tab-bar__icon">map</span>
+        <span class="p-tab-bar__label">Map</span>
+      </button>
+      <button
+        class="p-tab-bar__item"
+        :class="{ 'p-tab-bar__item--active': activeTab === 'feed' }"
         @click="activeTab = 'feed'; initFeedTab()"
-        text="Feed"
-        icon-ios="f7:list_dash"
-        icon-aurora="f7:list_dash"
-        icon-md="material:list_dash"
-      ></f7-link>
-    </f7-toolbar>
+      >
+        <span class="material-icons p-tab-bar__icon">dynamic_feed</span>
+        <span class="p-tab-bar__label">Feed</span>
+      </button>
+    </div>
 
-    <f7-tabs>
-      <f7-tab id="tab-1" tab-active>
-        <div v-if="profileLoaded">
-          <PButton class="bg-red-500" @click="reloadPage">Reload app</PButton>
-          <show-tick-help :opened="showTickHelpDialog" />
-          <left-sidepanel />
-          <!-- Page content -->
-          <gym-selector />
-          <TodayHeader :profile="profile" @addtick="onAddTick" />
-          <expiring-problems-alert />
-          <floor-map-block :f7router="props.f7router" />
-          <badge-gym-stats :gym="gym" />
-          <competitions-badge />
-          <ranking />
-          <div class="px-2" v-if="ticksLoaded && alltime.ticks.length == 0">
-            <div class="mt-8 m-4 rounded-md raised shadow-lg p-4 border border-gray-800">
-              <div
-                class="bg-red-600 border border-red-300 p-2 dark:text-black text-white"
-              >
-                It seems that you have no ticks, if you should have, click here for
-                instructions.
-                <p-button
-                  @click="showTickHelpDialog = true"
-                  class="text-sm bg-blue-400 py-1 px-4 border-white"
-                  >Help me</p-button
-                >
-                Othewise this message will disappear after you start ticking problems. You
-                can find this later from Settings-menu.
+    <!-- Tab content via v-show -->
+    <div v-show="activeTab === 'home'">
+      <div v-if="profileLoaded">
+        <show-tick-help :opened="showTickHelpDialog" />
+        <left-sidepanel />
+        <!-- Page content -->
+        <gym-selector />
+        <TodayHeader :profile="profile" @addtick="onAddTick" />
+        <expiring-problems-alert />
+        <floor-map-block :f7router="props.f7router" />
+        <badge-gym-stats :gym="gym" />
+        <competitions-badge />
+        <ranking />
+        <div v-if="ticksLoaded && alltime.ticks.length == 0" class="px-4">
+          <div class="p-banner p-banner--warning">
+            <span class="material-icons p-banner__icon" style="color: #f59e0b;">help_outline</span>
+            <div class="p-banner__content">
+              It seems that you have no ticks. If you should have, click here for instructions.
+              <button
+                @click="showTickHelpDialog = true"
+                class="p-btn p-btn--sm mt-2"
+              >Help me</button>
+              <div class="text-xs mt-1" style="color: var(--p-text-dim);">
+                Otherwise this message will disappear after you start ticking problems.
+                You can find this later from Settings-menu.
               </div>
             </div>
           </div>
-
-          <my-logs :show-selector="true" />
-
-          <!--
-              <div class="m-4 grid grid-cols-2 gap-2" >
-                <badge-groups />
-                <badge-competitions />
-                <badge-ranking />
-              </div>
-              -->
         </div>
-        <div v-else class="text-center">
-          <div v-if="!ready">
-            <div class="p-4">
-              <f7-preloader class="my-2"></f7-preloader>
-              <br />
-              Loading ...
-            </div>
-          </div>
-          <div v-else>
-            <show-login-instructions />
+
+        <my-logs :show-selector="true" />
+
+      </div>
+      <div v-else class="text-center">
+        <div v-if="!ready">
+          <div class="flex flex-col items-center justify-center py-12">
+            <div class="p-spinner" style="width: 36px; height: 36px;"></div>
+            <div class="text-sm mt-3 p-text-muted">Loading ...</div>
           </div>
         </div>
-        <f7-sheet
-          v-model:opened="isOpened"
-          style="height: auto"
-          close-on-escape
-          close-by-outside-click
-          swipe-to-close
-          @sheet:closed="isOpened = false"
-        >
-          <SearchProblemsSheetVue
-            @close="onSearchSheetClosed"
-            @start-navigate="onStartNavigate"
-          />
-        </f7-sheet>
-      </f7-tab>
-      <f7-tab id="tab-2" @tab:show="initFeedTab">
-        <feed-tab />
-      </f7-tab>
-    </f7-tabs>
+        <div v-else>
+          <show-login-instructions />
+        </div>
+      </div>
+      <f7-sheet
+        v-model:opened="isOpened"
+        style="height: auto"
+        close-on-escape
+        close-by-outside-click
+        swipe-to-close
+        @sheet:closed="isOpened = false"
+      >
+        <SearchProblemsSheetVue
+          @close="onSearchSheetClosed"
+          @start-navigate="onStartNavigate"
+        />
+      </f7-sheet>
+    </div>
+
+    <div v-show="activeTab === 'feed'">
+      <feed-tab />
+    </div>
   </f7-page>
 </template>
 <script setup>
@@ -154,9 +144,6 @@ const { t } = useI18n()
 const props = defineProps({
   f7router: Object,
 })
-const reloadPage = () => {
-  location.reload()
-}
 const profileLoaded = computed(() => store.state.profileLoaded)
 const onSearchSheetClosed = () => {
   isOpened.value = false

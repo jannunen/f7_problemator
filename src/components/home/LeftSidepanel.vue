@@ -5,105 +5,85 @@
       <show-tips :opened="showTipsDialog" @close="showTipsDialog=false" />
       <show-changelog :opened="showChangeLogDialog" @close="showChangeLogDialog=false" />
       <f7-page>
-        <f7-block class="flex flex-col items-center">
-          <h1 class="font-bold text-lg"> Problemator </h1>
-          <small>{{ version }}</small>
-          <img width="70" :src="logo" />
-          <span class="font-bold text-sm uppercase">Every problem counts</span>
-        </f7-block>
-        <f7-list v-if="isAuthenticated" menu-list>
-          <f7-list-item link title="Home" :selected="selectedItem === 'home'" @click="() => store.commit('setSelectedLeftPanelItem', 'home')">
-            <template #media>
-              <f7-icon md="material:home" aurora="f7:house_fill" ios="f7:house_fill" />
-            </template>
-          </f7-list-item>
-          <!--
-          <f7-list-item
-            link
-            title="Profile"
-            :selected="selectedItem === 'profile'"
-            @click="() => store.dispatch('setSelectedLeftPanelItem', 'profile')"
-          >
-            <template #media>
-              <f7-icon
-                md="material:person"
-                aurora="f7:person_fill"
-                ios="f7:person_fill"
-              />
-            </template>
-          </f7-list-item>
-          -->
-          <f7-list-item link title="Settings" :selected="selectedItem === 'settings'" @click="openSettings">
-            <template #media>
-              <f7-icon md="material:settings" aurora="f7:gear_alt_fill" ios="f7:gear_alt_fill" />
-            </template>
-          </f7-list-item>
-
-          <f7-list-item link title="Tick archive" :selected="selectedItem === 'archive'" @click="openArchive">
-            <template #media>
-              <f7-icon md="material:calendar_month" aurora="f7:calendar_month" ios="f7:calendar_month" />
-            </template>
-          </f7-list-item>
-          <f7-list-item link title="Import ticks" :selected="selectedItem === 'import_ticks'" @click="showTickHelpDialog=true">
-            <template #media>
-              <f7-icon md="material:arrow_merge" aurora="f7:arrow_merge" ios="f7:arrow_merge" />
-            </template>
-          </f7-list-item>
-          <f7-list-item link title="Tips" :selected="selectedItem === 'tips'" @click="showTipsDialog=true">
-            <template #media>
-              <f7-icon md="material:lightbulb" aurora="f7:lightbulb" ios="f7:lightbulb" />
-            </template>
-          </f7-list-item>
-          <f7-list-item link title="Roadmap &amp; Changes" :selected="selectedItem === 'changelog'" @click="showChangeLogDialog=true">
-            <template #media>
-              <f7-icon md="material:list_dash" aurora="f7:list_dash" ios="f7:list_dash" />
-            </template>
-          </f7-list-item>
-          <f7-list-item>
-            Dark mode
-            <f7-toggle v-model:checked="localDarkMode"></f7-toggle>
-            <template #media>
-              <f7-icon md="material:home" aurora="f7:house_fill" ios="f7:house_fill" />
-            </template>
-          </f7-list-item>
-          <f7-list-item link title="Check for update" :selected="selectedItem === 'checkupdate'" @click="doVersionCheck">
-            <template #media>
-              <f7-icon md="material:refresh" aurora="f7:refresh" ios="f7:refresh" />
-            </template>
-            <template #after>
-              v{{ serverVersion}}
-            </template>
-          </f7-list-item>
-
-          <f7-list-item divider />
-          <f7-list-item link title="Logout" :selected="selectedItem === 'logout'" @click="doLogout">
-            <template #media>
-              <f7-icon md="material:logout" aurora="f7:square_arrow_left" ios="f7:square_arrow_left" />
-            </template>
-          </f7-list-item>
-
-        </f7-list>
-
-        <div v-if="serverVersion != null && serverVersion != version" class="text-center">
-          New version available {{ serverVersion }}.<br />
-          <p-button @click="updateVersion" class="font-bold bg-green-600">Update now</p-button>
+        <!-- Brand header -->
+        <div class="flex flex-col items-center py-6 px-4">
+          <img width="60" :src="logo" style="border-radius: 50%; border: 2px solid rgba(56, 189, 248, 0.2);" />
+          <h1 class="font-bold text-lg mt-2" style="color: var(--p-text);">Problemator</h1>
+          <small class="p-text-muted">{{ version }}</small>
+          <span class="text-xs font-semibold uppercase mt-1" style="color: var(--p-text-dim); letter-spacing: 0.06em;">Every problem counts</span>
         </div>
-        <div class="flex flex-col mx-2 h-full justify-end items-center mt-4">
-          <div class="font-bold text-teal-100 h-full">
+
+        <div v-if="isAuthenticated" class="px-2">
+          <!-- Nav items -->
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'home' }" @click="() => store.commit('setSelectedLeftPanelItem', 'home')">
+            <span class="material-icons p-nav-item__icon">home</span>
+            <span class="p-nav-item__label">Home</span>
+          </button>
+
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'settings' }" @click="openSettings">
+            <span class="material-icons p-nav-item__icon">settings</span>
+            <span class="p-nav-item__label">Settings</span>
+          </button>
+
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'archive' }" @click="openArchive">
+            <span class="material-icons p-nav-item__icon">calendar_month</span>
+            <span class="p-nav-item__label">Tick archive</span>
+          </button>
+
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'import_ticks' }" @click="showTickHelpDialog=true">
+            <span class="material-icons p-nav-item__icon">merge</span>
+            <span class="p-nav-item__label">Import ticks</span>
+          </button>
+
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'tips' }" @click="showTipsDialog=true">
+            <span class="material-icons p-nav-item__icon">lightbulb</span>
+            <span class="p-nav-item__label">Tips</span>
+          </button>
+
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'changelog' }" @click="showChangeLogDialog=true">
+            <span class="material-icons p-nav-item__icon">list</span>
+            <span class="p-nav-item__label">Roadmap &amp; Changes</span>
+          </button>
+
+          <!-- Dark mode toggle -->
+          <div class="p-nav-item" style="cursor: default;">
+            <span class="material-icons p-nav-item__icon">dark_mode</span>
+            <span class="p-nav-item__label">Dark mode</span>
+            <label class="p-toggle">
+              <input type="checkbox" v-model="localDarkMode" />
+              <span class="p-toggle__track"></span>
+            </label>
+          </div>
+
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'checkupdate' }" @click="doVersionCheck">
+            <span class="material-icons p-nav-item__icon">refresh</span>
+            <span class="p-nav-item__label">Check for update</span>
+            <span class="p-nav-item__badge">v{{ serverVersion }}</span>
+          </button>
+
+          <div class="p-nav-item--divider"></div>
+
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'logout' }" @click="doLogout">
+            <span class="material-icons p-nav-item__icon">logout</span>
+            <span class="p-nav-item__label">Logout</span>
+          </button>
+        </div>
+
+        <div v-if="serverVersion != null && serverVersion != version" class="text-center px-4 mt-4">
+          <div class="p-banner p-banner--info">
+            <span class="material-icons p-banner__icon">system_update</span>
+            <div class="p-banner__content">
+              New version available {{ serverVersion }}.
+              <button @click="updateVersion" class="p-btn p-btn--primary p-btn--sm mt-2">Update now</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex flex-col px-4 mt-6 text-center">
+          <div class="text-xs p-text-dim">
             User ID: {{ climber?.id || 'N/A'}}<br />
-            Gym ID: {{ gym?.id || 'N/A'}}<br />
+            Gym ID: {{ gym?.id || 'N/A'}}
           </div>
-
-
-          <!--
-          <div class="my-2">
-            {{ t('sidepanel.join') }}
-            <a class="block" href="https://github.com/jannunen/f7_problemator.git">
-              <i class="fa fa-brands fa-github"></i> Open github repository
-            </a>
-          </div>
-          -->
-
         </div>
       </f7-page>
     </f7-view>
@@ -118,7 +98,6 @@ import { ref, watch, computed } from 'vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
 import ShowTips from '@components/home/ShowTips.vue'
 import ShowChangelog from '@components/home/ShowChangelog.vue'
-import PButton from '@components/PButton.vue'
 import $ from 'dom7'
 import logo from '../../assets/images/logo.png'
 const store = useStore()
@@ -175,7 +154,3 @@ const sidePanelOpen = computed(() => store.state.sidePanelOpen)
 const selectedItem = computed(() => store.state.selectedItem)
 
 </script>
-
-<style>
-
-</style>

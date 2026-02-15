@@ -3,23 +3,23 @@
   <f7-list-item media link="#" swipeout @swipeout:open="swipingout = true" @swipeout:closed="swipingout = false" @click="() => onClick(problem)">
 
     <template #title>
-      <div>{{ getAfter(problem) }}
+      <div class="hit-title">{{ getAfter(problem) }}
       </div>
     </template>
 
     <template #after>
-      <strong class="text-white font-bold  mr-2 " v-if="problem.c_like > 0">
+      <strong class="hit-likes" v-if="problem.c_like > 0">
         {{ problem.c_like }}
-        <f7-icon size="16" color="red" md="material:heart_fill" aurora="f7:heart_fill" ios="f7:heart_fill" />
+        <span class="material-icons" style="font-size: 14px; color: #ef4444; vertical-align: middle;">favorite</span>
       </strong>
     </template>
 
     <template #header>
-      <small> {{ problem.total_ascents }} {{ t('home.ascents') }}</small>
+      <small class="hit-ascents"> {{ problem.total_ascents }} {{ t('home.ascents') }}</small>
     </template>
 
     <template #inner-end>
-       <div class="text-sm">{{ problem.author?.etunimi }}&nbsp;{{ left(problem.author?.sukunimi,1) }}.</div>
+       <div class="hit-author">{{ problem.author?.etunimi }}&nbsp;{{ left(problem.author?.sukunimi,1) }}.</div>
     </template>
 
 
@@ -27,13 +27,13 @@
     <template #content-start>
       <div class="w-8">
         <div v-if="isMyProject(problem.id) && !isMyTick(problem.id)">
-          <span class="m-1 inline-flex items-center justify-center px-1 py-1 text-xs font-bold leading-none text-yellow-100 bg-yellow-600 rounded-full">P</span>
+          <span class="hit-badge hit-badge--project">P</span>
         </div>
         <div v-else-if="isMyTick(problem.id)">
-          <span class="m-1 inline-flex items-center justify-center px-1 py-1 text-xs font-bold leading-none text-green-100 bg-green-600 rounded-full">✓</span>
+          <span class="hit-badge hit-badge--tick">&#10003;</span>
         </div>
         <div v-else>
-          <span class="m-1 inline-flex items-center justify-center px-1 py-1 text-xs font-bold leading-none ">&nbsp;</span>
+          <span class="hit-badge">&nbsp;</span>
         </div>
       </div>
     </template>
@@ -42,22 +42,22 @@
 
       <div class="flex flex-col justify-center items-center">
         <round-badge :width="20" :bgColor="problem.colour?.code"></round-badge>
-        {{ getTagShort(problem.tag) }}
+        <span class="hit-tag">{{ getTagShort(problem.tag) }}</span>
       </div>
-      <h4 style="width: 35px" class="font-bold margin-left no-margin text-2xl">
+      <h4 class="hit-grade">
         {{ getGrade(problem.routetype, problem.grade) }}
       </h4>
 
     </template>
     <f7-swipeout-actions right>
-      <f7-swipeout-button close @click="() => quickTick(problem,1)" color="yellow" class="bg-green-900">Quick send (1 try)</f7-swipeout-button>
-      <f7-swipeout-button close @click="() => quickTick(problem,2)" color="yellow" class="bg-green-800">+ 2 tries</f7-swipeout-button>
-      <f7-swipeout-button close @click="() => quickTick(problem,3)" color="yellow" class="bg-green-700">+ 3 tries</f7-swipeout-button>
+      <f7-swipeout-button close @click="() => quickTick(problem,1)" class="swipeout-green">Quick send (1 try)</f7-swipeout-button>
+      <f7-swipeout-button close @click="() => quickTick(problem,2)" class="swipeout-green-mid">+ 2 tries</f7-swipeout-button>
+      <f7-swipeout-button close @click="() => quickTick(problem,3)" class="swipeout-green-light">+ 3 tries</f7-swipeout-button>
     </f7-swipeout-actions>
     <f7-swipeout-actions left>
-      <f7-swipeout-button close @click="() => quickTick(problem,1,false)" color="orange" >Quick proj. (1 try)</f7-swipeout-button>
-      <f7-swipeout-button close @click="() => quickTick(problem,2,false)" color="orange" >Quick proj. (2 tries)</f7-swipeout-button>
-      <f7-swipeout-button close @click="() => quickTick(problem,3,false)" color="orange" >Quick proj. (3 tries)</f7-swipeout-button>
+      <f7-swipeout-button close @click="() => quickTick(problem,1,false)" class="swipeout-orange">Quick proj. (1 try)</f7-swipeout-button>
+      <f7-swipeout-button close @click="() => quickTick(problem,2,false)" class="swipeout-orange">Quick proj. (2 tries)</f7-swipeout-button>
+      <f7-swipeout-button close @click="() => quickTick(problem,3,false)" class="swipeout-orange">Quick proj. (3 tries)</f7-swipeout-button>
     </f7-swipeout-actions>
   </f7-list-item>
 </template>
@@ -66,7 +66,6 @@
 import { useI18n } from 'vue-i18n'
 import { left, debounce, getTagShort } from '@js/helpers'
 import RoundBadge from '@components/ui/RoundBadge.vue'
-import PBadge from '@components/PBadge.vue'
 import dayjs from 'dayjs'
 import relativeTime from "dayjs/plugin/relativeTime"
 import { toaster, alert } from '@js/helpers/notifications.js'
@@ -102,7 +101,7 @@ export default {
         grade_opinion: null,
       }
       // If NOT projecting, mark as an actual tick
-      if (actualTick) { 
+      if (actualTick) {
         payload['ticktype'] = 'tick'
     }
       store.dispatch('saveTick', payload)
@@ -148,7 +147,7 @@ export default {
 
     const getGrade = (routetype, gradeObj) => {
       if (gradeObj == null) {
-        return 'N/A'  
+        return 'N/A'
       }
       const grade = gradeObj.name
       if (grade == 'project') {
@@ -171,7 +170,6 @@ export default {
       getAfter,
       isMyProject,
       isMyTick,
-      PBadge,
       getTagShort,
       getGrade,
       t,
@@ -183,5 +181,75 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
+.hit-title {
+  color: var(--p-text-secondary);
+  font-size: 0.85rem;
+}
+.hit-likes {
+  color: var(--p-text);
+  font-weight: 700;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+}
+.hit-ascents {
+  color: var(--p-text-muted);
+  font-size: 0.75rem;
+}
+.hit-author {
+  font-size: 0.75rem;
+  color: var(--p-text-dim);
+}
+.hit-tag {
+  font-size: 0.65rem;
+  color: var(--p-text-muted);
+}
+.hit-grade {
+  width: 35px;
+  font-weight: 700;
+  margin-left: 4px;
+  margin-top: 0;
+  margin-bottom: 0;
+  font-size: 1.25rem;
+  color: var(--p-text);
+}
+.hit-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: 700;
+  margin: 2px;
+}
+.hit-badge--project {
+  background: rgba(245, 158, 11, 0.2);
+  color: #fcd34d;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.hit-badge--tick {
+  background: rgba(59, 178, 115, 0.2);
+  color: #6ee7b7;
+  border: 1px solid rgba(59, 178, 115, 0.3);
+}
+.swipeout-green {
+  background: rgba(59, 178, 115, 0.25) !important;
+  color: #6ee7b7 !important;
+}
+.swipeout-green-mid {
+  background: rgba(59, 178, 115, 0.18) !important;
+  color: #6ee7b7 !important;
+}
+.swipeout-green-light {
+  background: rgba(59, 178, 115, 0.12) !important;
+  color: #6ee7b7 !important;
+}
+.swipeout-orange {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #fcd34d !important;
+}
 </style>

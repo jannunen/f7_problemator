@@ -1,9 +1,25 @@
 <template>
-  <div class="flex flex-row h-12 gap-1">
-    <button :class="getStyle('all')" @click="changeValue('all')" >{{ t('ascentstatusfilter.all') }}</button>
-    <button :class="getStyle('projects')" @click="changeValue('projects')" >{{ t('ascentstatusfilter.projects') }}</button>
-    <button :class="getStyle('climbed')" @click="changeValue('climbed')" >{{ t('ascentstatusfilter.climbed') }}</button>
-    <button :class="getStyle('unclimbed')" @click="changeValue('unclimbed')" >{{ t('ascentstatusfilter.unclimbed') }}</button>
+  <div class="p-toggle-group">
+    <button
+      class="p-toggle-group__btn"
+      :class="{ 'p-toggle-group__btn--active': modelValue === 'all' }"
+      @click="changeValue('all')"
+    >{{ t('ascentstatusfilter.all') }}</button>
+    <button
+      class="p-toggle-group__btn"
+      :class="{ 'p-toggle-group__btn--active': modelValue === 'projects' }"
+      @click="changeValue('projects')"
+    >{{ t('ascentstatusfilter.projects') }}</button>
+    <button
+      class="p-toggle-group__btn"
+      :class="{ 'p-toggle-group__btn--active': modelValue === 'climbed' }"
+      @click="changeValue('climbed')"
+    >{{ t('ascentstatusfilter.climbed') }}</button>
+    <button
+      class="p-toggle-group__btn"
+      :class="{ 'p-toggle-group__btn--active': modelValue === 'unclimbed' }"
+      @click="changeValue('unclimbed')"
+    >{{ t('ascentstatusfilter.unclimbed') }}</button>
   </div>
 </template>
 <script setup>
@@ -16,12 +32,6 @@ const props = defineProps({
 })
 
 const { t } = useI18n()
-const getStyle = (field) => {
- if (props.modelValue == field) {
-  return {'bg-red-500' : true}
- }
-  return {'bg-blue-500' : true}
-}
 const emit = defineEmits(['select', 'clear', 'update:modelValue'])
 const changeValue = (evt) => {
   emit('update:modelValue', evt)

@@ -52,15 +52,20 @@ export default {
     // Set up watch BEFORE bootstrapping token so the watcher fires
     watch(access_token, async (newValue, oldValue) => {
       if (newValue != null && newValue != "" && newValue != "null") {
-        if (profile.value.settings == null) {
-          console.log('Loading profile')
-          await store.dispatch('getProfile')
+        try {
+          if (profile.value.settings == null) {
+            console.log('Loading profile')
+            await store.dispatch('getProfile')
+          }
+          if (allTime.value.ticks.length == 0 && allTime.value.tries.length == 0) {
+            console.log('Loading ticks')
+            store.dispatch('loadAllTimeTicks')
+          }
+          store.commit('setReady', true)
+        } catch (err) {
+          console.warn('Session expired or invalid token, redirecting to login', err)
+          store.dispatch('logout')
         }
-        if (allTime.value.ticks.length == 0 && allTime.value.tries.length == 0) {
-          console.log('Loading ticks')
-          store.dispatch('loadAllTimeTicks')
-        }
-        store.commit('setReady', true)
       }
       store.commit('setInitializing', false)
     })

@@ -1,20 +1,19 @@
 <template>
-  <div>
-    <f7-chip
-      outline
-      :color="getColor(style)"
-      @click="(evt) => onClicked(style, evt)"
+  <div class="flex flex-wrap gap-1">
+    <span
       v-for="style in styles"
       :key="style"
-      :text="t(style)"
-    ></f7-chip>
-    <f7-chip v-if="selectedStyles.length > 0" @click="clearStyles" color="red">{{
-      t('stylefilter.reset_filter')
-    }}</f7-chip>
+      class="p-chip"
+      :class="{ 'p-chip--active': selectedStyles.includes(style) }"
+      @click="onClicked(style)"
+    >{{ t(style) }}</span>
+    <span v-if="selectedStyles.length > 0" class="p-chip p-chip--danger" @click="clearStyles">
+      {{ t('stylefilter.reset_filter') }}
+    </span>
   </div>
 </template>
 <script>
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from "vue-i18n";
 
 export default {
@@ -30,8 +29,8 @@ export default {
   },
   emits: ['styles-changed'],
   setup(props, context) {
-    const { t, d, locale } = useI18n();
-    const onClicked = (style, chip) => {
+    const { t } = useI18n();
+    const onClicked = (style) => {
       let newStyles = null
       // Toggle style
       if (props.selectedStyles.includes(style)) {
@@ -46,20 +45,12 @@ export default {
     const clearStyles = () => {
       context.emit('styles-changed', [])
     }
-    const getColor = (style) => {
-      if (props.selectedStyles.includes(style)) {
-        return 'red'
-      }
-      return null
-    }
     return {
       onClicked,
       clearStyles,
-      getColor,
       t,
     }
   },
   components: {},
 }
 </script>
-<style></style>

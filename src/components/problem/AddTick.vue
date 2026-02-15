@@ -76,86 +76,117 @@ const formatDate = (date) => {
 </script>
 
 <template>
-  <div class="flex p-3 mt-2 grid grid-cols-3">
-    <div
-      class="flex flex-col items-center justify-center font-bold"
-      @click="openTickDatePopup"
-    >
-      <i class="icon material-icons color-custom" style="font-size: 42px; "
-        >today</i
-      >
-      {{ formatDate(tick.created) }}
+  <!-- Tick controls -->
+  <div class="grid grid-cols-3 gap-2 my-3">
+    <!-- Date picker -->
+    <button class="tick-control" @click="openTickDatePopup">
+      <span class="material-icons tick-control__icon">today</span>
+      <span class="tick-control__value">{{ formatDate(tick.created) }}</span>
+    </button>
+    <!-- Tries stepper -->
+    <div class="tick-control">
+      <f7-stepper class="my-1" v-model:value="tick.tries" min="1" max="9999" decimal-point="0" large round fill></f7-stepper>
+      <span class="tick-control__label">{{ t('problem.tries', tick.tries) }}</span>
     </div>
-    <div
-      class="flex flex-col items-center justify-center font-bold"
-      @click="openTriesPopup"
-    >
-       <f7-stepper class="my-1" v-model:value="tick.tries" min="1" max="9999" decimal-point="0" large round fill></f7-stepper>
-      {{ t('problem.tries', tick.tries) }}
-    </div>
-    <div
-      class="flex flex-col items-center justify-center font-bold"
-      @click="openGradeOpinionPopup"
-    >
-      <div class="dark:bg-sky-400 dark:text-white rounded-full w-12 h-12 text-center py-3">{{
+    <!-- Grade opinion -->
+    <button class="tick-control" @click="openGradeOpinionPopup">
+      <div class="grade-circle">{{
         getGrade(tick.grade_opinion)
       }}</div>
-      {{ t('problem.grade_opinion') }}
-    </div>
+      <span class="tick-control__label">{{ t('problem.grade_opinion') }}</span>
+    </button>
   </div>
-  <div class="flex flex-row p-3 mt-1 font-bold grid grid-cols-2">
-    <div class="flex justify-center">
-      <label for="ascent">
-        <input
-            :checked="tick.ticktype == 'tick'"
-            name="ticktype"
-            type="radio"
-            id="ascent"
-            value="tick"
-            @change="() => onAscentTypeChange('tick')"
-        />
-        <span class="px-2"> {{ t('problem.send') }} </span>
-      </label>
-    </div>
-    <div>
-      <label for="projecting">
-        <input
-            type="radio"
-            :checked="tick.ticktype == 'pretick'"
-            :disabled="problem.myTicks != null && problem.myTicks.length > 0"
-            id="projecting"
-            name="ticktype"
-            value="pretick"
-            @change="() => onAscentTypeChange('pretick')"
-        />
-        
-        <span class="px-2" v-if="problem.myTicks != null && problem.myTicks.length > 0">{{ t('problem.projecting_not_possible') }}</span>
-        <span v-else class="px-2">{{ t('problem.still_a_project') }}</span>
-      </label>
-    </div>
-  </div>
-      <div class="w-full text-center px-2" v-if="problem.myTicks != null && problem.myTicks.length > 0">{{ t('problem.projecting_not_possible_desc') }}</div>
-  <div class="my-2 mx-4">
-    <f7-button
-      @click="saveTick"
-      class="uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
+
+  <!-- Ascent type selector -->
+  <div class="p-toggle-group my-3">
+    <button
+      class="p-toggle-group__btn"
+      :class="{ 'p-toggle-group__btn--active': tick.ticktype == 'tick' }"
+      @click="onAscentTypeChange('tick')"
     >
-      {{ t('problem.btn_add_tick') }}
+      <span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">check_circle</span>
+      {{ t('problem.send') }}
+    </button>
+    <button
+      class="p-toggle-group__btn"
+      :class="{ 'p-toggle-group__btn--active': tick.ticktype == 'pretick' }"
+      :disabled="problem.myTicks != null && problem.myTicks.length > 0"
+      @click="onAscentTypeChange('pretick')"
+      :style="problem.myTicks != null && problem.myTicks.length > 0 ? 'opacity: 0.4; pointer-events: none;' : ''"
+    >
+      <span class="material-icons" style="font-size: 16px; vertical-align: middle; margin-right: 4px;">pending</span>
+      <span v-if="problem.myTicks != null && problem.myTicks.length > 0">{{ t('problem.projecting_not_possible') }}</span>
+      <span v-else>{{ t('problem.still_a_project') }}</span>
+    </button>
+  </div>
 
-    </f7-button>
+  <div v-if="problem.myTicks != null && problem.myTicks.length > 0" class="text-center text-xs mb-3" style="color: var(--p-text-dim);">
+    {{ t('problem.projecting_not_possible_desc') }}
+  </div>
 
-    <PopupGradeOpinion 
-    :opened="popupGradeOpinionOpen" 
+  <!-- Save button -->
+  <button @click="saveTick" class="p-btn p-btn--primary p-btn--block" style="height: 48px; font-size: 0.95rem;">
+    {{ t('problem.btn_add_tick') }}
+  </button>
+
+  <PopupGradeOpinion
+    :opened="popupGradeOpinionOpen"
     key="popupgradeopinion"
     @select="gradeSelected"
-    @close="popupGradeOpinionOpen=false" 
-    />
-    <popup-tick-date 
+    @close="popupGradeOpinionOpen=false"
+  />
+  <popup-tick-date
     :opened="popupTickDateOpen"
     key="popuptickdate"
     @select="dateSelected"
-    @close="popupTickDateOpen=false" 
-    />
-  </div>
+    @close="popupTickDateOpen=false"
+  />
 </template>
-<style></style>
+
+<style scoped>
+.tick-control {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 0.5rem;
+  border-radius: 12px;
+  background: var(--p-bg-card);
+  border: 1px solid var(--p-border);
+  cursor: pointer;
+  transition: all 0.25s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.tick-control:hover {
+  border-color: var(--p-border-light);
+}
+.tick-control__icon {
+  font-size: 36px;
+  color: var(--p-accent);
+  margin-bottom: 0.25rem;
+}
+.tick-control__value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--p-text);
+}
+.tick-control__label {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--p-text-muted);
+  margin-top: 0.25rem;
+}
+.grade-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(var(--p-accent-rgb), 0.15);
+  border: 1px solid rgba(var(--p-accent-rgb), 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--p-accent);
+}
+</style>

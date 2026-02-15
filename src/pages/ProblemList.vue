@@ -6,91 +6,119 @@
       </f7-nav-left>
       <f7-nav-title> {{ t('problemlist.problemlist') }} </f7-nav-title>
     </f7-navbar>
-    <f7-block>
-      <h1 class="font-bold text-2xl text-center">{{ gym.name }}</h1>
+
+    <div class="px-4 py-2">
+      <h1 class="font-bold text-xl text-center mb-3" style="color: var(--p-text);">{{ gym.name }}</h1>
+
       <div v-if="unfilteredProblemsExist">
-        <div class="my-0 mx-2">
-          <h2 class="uppercase text-xl mt-2 p-0 font-bold">
-            {{ t('problemlist.wallfilter') }}
-          </h2>
+        <!-- Wall filter -->
+        <div class="mb-3">
+          <div class="p-section-title">{{ t('problemlist.wallfilter') }}</div>
           <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
         </div>
-        <p-button class="bg-blue-500 font-bold my-1 uppercase" @click="showFilters=!showFilters">{{ showFilters ? "Hide filters" : "Show more filters"}}</p-button>
-        <div v-if="showFilters" class="my-0 mx-2">
-          <h2 class="uppercase text-xl mt-2 mb-1 font-bold">
-            {{ t('problemlist.routetype') }}
-          </h2>
-          <f7-list class="m-0 p-0" simple-list>
-            <f7-list-item v-for="rt in routeTypes" :key="rt">
-              <span>{{ rt }}</span>
-              <f7-toggle @toggle:change="selectRoutetype(rt)" :checked="filters.routetypes.includes(rt)"></f7-toggle>
-            </f7-list-item>
-          </f7-list>
-          <h2 class="uppercase text-xl my-2 font-bold">
-            {{ t('problemlist.gradefilter') }}
-          </h2>
-          <ul class="my-0">
-            <li :title="t('problemlist.filters')">
-              <grade-filter :min="filters.gradeMin" :max="filters.gradeMax" :grades="grades" @min="minChanged" @max="maxChanged"></grade-filter>
 
-              <h2 class="uppercase text-xl my-2 font-bold">
-                {{ t('problemlist.stylefilter') }}
-              </h2>
-              <style-filter @styles-changed="onStylesChanged" :styles="styles" :selected-styles="filters.styles"></style-filter>
-            </li>
-            <h2 class="uppercase text-xl mt-2 p-0 font-bold">
-              {{ t('problemlist.ascent_status_filter') }}
-            </h2>
-            <ascent-status-filter v-model="ascentTypeFilter" />
-            <f7-list no-hairlines-md>
-              <h2 class="uppercase text-xl my-2 font-bold">
-                {{ t('problemlist.problemnamefilter') }}
-              </h2>
-              <f7-list-input type="text" :placeholder="t('Filter by problem name')" v-model:value="nameFilter" clear-button></f7-list-input>
-            </f7-list>
+        <!-- Show/hide more filters -->
+        <button class="p-btn p-btn--block mb-3 p-collapsible__trigger" @click="showFilters=!showFilters">
+          <span>{{ showFilters ? "Hide filters" : "Show more filters"}}</span>
+          <span class="material-icons p-collapsible__chevron" :class="{ 'p-collapsible__chevron--open': showFilters }">expand_more</span>
+        </button>
 
-          </ul>
-        </div>
-
-        <p-button @click="resetFilters" class=" bg-red-500 text-white my-2">
-          {{ t('problemlist.reset_filters') }}
-        </p-button>
-        <f7-block v-if="gym != null && gym.floormaps != null && gym.floormaps.length > 0" class="my-0">
-
-          <div v-for="floormap in gym.floormaps" :key="floormap.id" class="my-1">
-            <floor-map @area-selected="onAreaSelected" :map="floormap"></floor-map>
-          </div>
-        </f7-block>
-
-        <h2 class="uppercase text-xl my-2 font-bold">
-          {{ t('problemlist.sortby') }}
-        </h2>
-        <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
-
-
-        <div v-if="filteredProblems.length > 0">
-          <div class="font-bold my-1 text-center">
-            {{ filteredProblems?.length }} {{ t('problemlist.visible_out_of') }}
-            {{ Object.keys(problems).length }} {{ t('problemlist.problems') }}
-          </div>
-          <div v-if="!tipShown(tipShowStatus, 'quicktick')" class="p-4 mb-4 text-sm text-blue-700 bg-blue-100 rounded-lg dark:bg-blue-200 dark:text-blue-800" role="alert">
-            <span class="font-medium">Tip!</span> You can tick faster by swiping a problem LEFT. Add a quick try by swiping RIGHT.
-            <a href="#" class="text-red-600 text-md" @click.prevent="tipDismiss('quicktick')">do not show again</a>
-          </div>
-          <div v-if="filters.walls.length > 0" class="bg-blue-50 dark:bg-sky-900 border border-blue-300 dark:border-sky-700 rounded-lg p-3 my-2">
-            <div class="font-bold text-blue-700 dark:text-blue-300 text-sm mb-2">{{ t('problemlist.wall_filter_active') }}:</div>
-            <div class="flex flex-wrap gap-2">
-              <span
-                v-for="selWall in getSelectedWalls"
-                :key="selWall.id"
-                class="inline-flex items-center bg-blue-500 text-white text-sm font-medium px-3 py-1 rounded-full"
-              >
-                {{ selWall.name }}
-                <span class="ml-2 cursor-pointer text-blue-200 hover:text-white font-bold" @click="removeWall(selWall.id)">&times;</span>
-              </span>
+        <!-- Collapsible filter card -->
+        <div v-if="showFilters" class="p-card mb-3">
+          <!-- Route type toggles -->
+          <div class="mb-4">
+            <div class="p-section-title">{{ t('problemlist.routetype') }}</div>
+            <div class="flex flex-col gap-0">
+              <div v-for="rt in routeTypes" :key="rt" class="p-list__item">
+                <span style="color: var(--p-text-secondary);">{{ rt }}</span>
+                <label class="p-toggle">
+                  <input type="checkbox" :checked="filters.routetypes.includes(rt)" @change="selectRoutetype(rt)" />
+                  <span class="p-toggle__track"></span>
+                </label>
+              </div>
             </div>
           </div>
 
+          <!-- Grade filter -->
+          <div class="mb-4">
+            <div class="p-section-title">{{ t('problemlist.gradefilter') }}</div>
+            <grade-filter :min="filters.gradeMin" :max="filters.gradeMax" :grades="grades" @min="minChanged" @max="maxChanged"></grade-filter>
+          </div>
+
+          <!-- Style filter -->
+          <div class="mb-4">
+            <div class="p-section-title">{{ t('problemlist.stylefilter') }}</div>
+            <style-filter @styles-changed="onStylesChanged" :styles="styles" :selected-styles="filters.styles"></style-filter>
+          </div>
+
+          <!-- Ascent status filter -->
+          <div class="mb-4">
+            <div class="p-section-title">{{ t('problemlist.ascent_status_filter') }}</div>
+            <ascent-status-filter v-model="ascentTypeFilter" />
+          </div>
+
+          <!-- Problem name filter -->
+          <div>
+            <div class="p-section-title">{{ t('problemlist.problemnamefilter') }}</div>
+            <input
+              type="text"
+              class="p-input"
+              :placeholder="t('Filter by problem name')"
+              v-model="nameFilter"
+            />
+          </div>
+        </div>
+
+        <button @click="resetFilters" class="p-btn p-btn--danger p-btn--block mb-3">
+          {{ t('problemlist.reset_filters') }}
+        </button>
+
+        <!-- Floormaps -->
+        <div v-if="gym != null && gym.floormaps != null && gym.floormaps.length > 0" class="mb-3">
+          <div v-for="floormap in gym.floormaps" :key="floormap.id" class="my-1">
+            <floor-map @area-selected="onAreaSelected" :map="floormap"></floor-map>
+          </div>
+        </div>
+
+        <!-- Sort by -->
+        <div class="mb-3">
+          <div class="p-section-title">{{ t('problemlist.sortby') }}</div>
+          <sort-by @sort-change="onSortChanged" :sort="filters.sort"></sort-by>
+        </div>
+
+        <div v-if="filteredProblems.length > 0">
+          <div class="text-center text-sm font-semibold mb-2" style="color: var(--p-text-muted);">
+            {{ filteredProblems?.length }} {{ t('problemlist.visible_out_of') }}
+            {{ Object.keys(problems).length }} {{ t('problemlist.problems') }}
+          </div>
+
+          <!-- Quick tick tip -->
+          <div v-if="!tipShown(tipShowStatus, 'quicktick')" class="p-banner p-banner--info mb-3">
+            <span class="material-icons p-banner__icon" style="color: var(--p-accent);">swipe</span>
+            <div class="p-banner__content">
+              <span class="font-semibold">Tip!</span> You can tick faster by swiping a problem LEFT. Add a quick try by swiping RIGHT.
+              <a href="#" class="p-link text-xs block mt-1" @click.prevent="tipDismiss('quicktick')">do not show again</a>
+            </div>
+          </div>
+
+          <!-- Active wall filter indicator -->
+          <div v-if="filters.walls.length > 0" class="p-banner p-banner--info mb-3">
+            <span class="material-icons p-banner__icon">filter_list</span>
+            <div class="p-banner__content">
+              <div class="text-xs font-semibold mb-1">{{ t('problemlist.wall_filter_active') }}:</div>
+              <div class="flex flex-wrap gap-1">
+                <span
+                  v-for="selWall in getSelectedWalls"
+                  :key="selWall.id"
+                  class="p-chip p-chip--active"
+                  style="font-size: 0.75rem; padding: 0.25rem 0.625rem;"
+                >
+                  {{ selWall.name }}
+                  <span class="ml-1 cursor-pointer" style="opacity: 0.7;" @click="removeWall(selWall.id)">&times;</span>
+                </span>
+              </div>
+            </div>
+          </div>
 
           <f7-list media class="my-0" problem-list>
             <div v-for="(problem, idx) in filteredProblems" :key="problem.id">
@@ -113,25 +141,28 @@
             </div>
           </f7-list>
         </div>
-        <div v-else class="m-4 mb-14 bg-yellow-200 p-4 border border-2 rounded-xl border-yellow-600">
-          <div class="flex flex-col justify-center items-center">
-            <h1 class="text-yellow-800 font-bold text-2xl my-1">
-              {{ t('problemlist.snap' + getRandom(1, maxSnap)) }}
-            </h1>
-            <p class="text-black text-center">
-            <h2 class="font-bold text-lg my-1">{{ t('problemlist.no_hits_title') }}</h2>
-            <div class="px-2 text-sm my-2">
-              {{ t('problemlist.no_hits_desc') }}
-              <!--<button @click="resetFilters">{{ t('problemlist.reset_filters') }}</button>-->
-            </div>
-            </p>
-          </div>
+
+        <!-- No results -->
+        <div v-else class="p-card mb-14 text-center">
+          <span class="material-icons mb-2" style="font-size: 40px; color: var(--p-warning);">sentiment_dissatisfied</span>
+          <h2 class="font-bold text-lg mb-1" style="color: var(--p-warning);">
+            {{ t('problemlist.snap' + getRandom(1, maxSnap)) }}
+          </h2>
+          <h3 class="font-bold text-base mb-1" style="color: var(--p-text);">{{ t('problemlist.no_hits_title') }}</h3>
+          <p class="text-sm" style="color: var(--p-text-muted);">
+            {{ t('problemlist.no_hits_desc') }}
+          </p>
         </div>
       </div>
       <div v-else>
-        <h2 class="font-bold text-2xl text-center">Are you sure a gym is selected?</h2>
+        <div class="p-banner p-banner--warning">
+          <span class="material-icons p-banner__icon">help_outline</span>
+          <div class="p-banner__content">
+            <h2 class="font-bold text-lg">Are you sure a gym is selected?</h2>
+          </div>
+        </div>
       </div>
-    </f7-block>
+    </div>
   </f7-page>
 </template>
 <script setup>
@@ -408,6 +439,21 @@ const removeWall = (wallId) => {
   selectedWalls.value = selectedWalls.value.filter(id => id !== wallId)
 }
 </script>
-<style>
-
+<style scoped>
+.list-group-title {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--p-text-muted);
+  background: rgba(255, 255, 255, 0.02);
+  border-bottom: 1px solid var(--p-border);
+}
+.list-group-title h3 {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
 </style>

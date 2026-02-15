@@ -1,7 +1,7 @@
 <template>
-  <div class="col-span-2 px-4 py-1">
+  <div class="col-span-2 px-4 py-2">
       <!-- Details title -->
-      <h2 class="flex flex-row justify-center font-bold text-xl">
+      <h2 class="flex items-center justify-center gap-1 font-bold text-lg mb-3" style="color: var(--p-text);">
         <span v-if="problem.routetype == 'sport'">
           {{ t('problem.route ') }}
         </span>
@@ -9,46 +9,39 @@
           {{ t('problem.problem') }}
         </span>
         &nbsp;{{ getTagShort(problem.tag) }}
-        <small class="mx-2 pt-1 text-sm text-gray-700"
-          ><small>#{{ problem.id }}</small></small
-        >
+        <small class="text-xs" style="color: var(--p-text-dim);">#{{ problem.id }}</small>
       </h2>
 
-    <!-- Show author and addition date -->
-    <!--
-    <div class="text-lg font-bold text-center my-3" v-if="problem.routetype == 'boulder'">{{ t('problem.problem_info') }}</div>
-    <div class="text-lg font-bold text-center my-3" v-if="problem.routetype == 'sport'">{{ t('problem.route_info') }}</div>
-      <div class="my-2 text-sm text-center font-bold"> {{ t('problem.attributes') }} </div>
-    -->
-      <list-styles class="my-2" :styles="problem.styles"></list-styles>
-    <div class="my-2 flex flex-row justify-between">
-      <strong class="">{{ t('problem.start') }} / {{ t('problem.end') }}</strong>
-      <span class="">
-        {{ problem.startdefinition }}</span>
-      <span class="">
-        {{ problem.enddefinition }}</span>
+      <list-styles class="mb-3" :styles="problem.styles"></list-styles>
+
+    <!-- Detail rows -->
+    <div class="detail-row">
+      <span class="detail-label">{{ t('problem.start') }} / {{ t('problem.end') }}</span>
+      <span class="detail-value">{{ problem.startdefinition }} / {{ problem.enddefinition }}</span>
     </div>
-    <div class="my-2 flex flex-row justify-between">
-      <strong class="">{{ t('problem.wall') }}</strong>
-      <span class="">
-        <span class="font-bold">{{ problem.wall?.wallchar }}</span>,
-        {{ problem.wall?.walldesc }}</span>
+    <div class="detail-row">
+      <span class="detail-label">{{ t('problem.wall') }}</span>
+      <span class="detail-value">
+        <span class="font-bold">{{ problem.wall?.wallchar }}</span>
+        {{ problem.wall?.walldesc }}
+      </span>
     </div>
-    <div class="my-2 flex flex-row justify-between">
-      <strong class="">{{ t('problem.routesetter') }}</strong>
-      <span class="">
-        {{ problem.author?.etunimi }} {{ left(problem.author?.sukunimi,1) }}.<br />
-        {{ fromNow(problem.added) }}</span>
+    <div class="detail-row">
+      <span class="detail-label">{{ t('problem.routesetter') }}</span>
+      <span class="detail-value">
+        {{ problem.author?.etunimi }} {{ left(problem.author?.sukunimi,1) }}.
+        <br />
+        <span style="color: var(--p-text-dim); font-size: 0.75rem;">{{ fromNow(problem.added) }}</span>
+      </span>
     </div>
-    <!-- Show additional details -->
-    <div class="my-2 flex flex-row justify-between">
-      <span class="font-bold">{{ t('problem.notes') }}</span>
-      <span class="" v-html="problem.addt || 'N/A'"></span>
+    <div class="detail-row">
+      <span class="detail-label">{{ t('problem.notes') }}</span>
+      <span class="detail-value" v-html="problem.addt || 'N/A'"></span>
     </div>
 
-    <!-- Show grade opinions -->
-    <div class="my-2">
-      <div class="font-bold">{{ t('problem.grade_opinions') }}</div>
+    <!-- Grade opinions -->
+    <div class="mt-4">
+      <div class="p-section-title">{{ t('problem.grade_opinions') }}</div>
       <grade-opinions
         :grades="cutGrades(grades, problem.grade.id, leaveOnBothSides)"
         :opinions="
@@ -56,15 +49,14 @@
         "
       ></grade-opinions>
     </div>
-    
-    
+
+
   </div>
 </template>
 
 <script setup>
 import { useI18n } from 'vue-i18n'
 import store from '@js/store.js'
-import { useStore } from "framework7-vue";
 import { left, getTagShort } from '@js/helpers'
 import { ref, onMounted, computed } from "vue";
 import GradeOpinions from "@components/ui/problem/GradeOpinions.vue";
@@ -100,4 +92,26 @@ const cutGrades = (grades, cutAt, leave) => {
 }
 </script>
 
-<style></style>
+<style scoped>
+.detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid var(--p-border);
+  font-size: 0.85rem;
+}
+.detail-row:last-of-type {
+  border-bottom: none;
+}
+.detail-label {
+  font-weight: 600;
+  color: var(--p-text-muted);
+  flex-shrink: 0;
+  margin-right: 0.75rem;
+}
+.detail-value {
+  text-align: right;
+  color: var(--p-text-secondary);
+}
+</style>

@@ -1,9 +1,9 @@
 <template>
-  <div>
+  <div class="gym-selector">
     <f7-list class="m-0">
       <f7-list-item v-if="gyms.length == 0" title="Loading gyms...">
         <template #media>
-          <i class="f7-icons">building_2_crop_circle</i>
+          <span class="material-icons" style="color: var(--p-text-dim);">apartment</span>
         </template>
       </f7-list-item>
       <f7-list-item
@@ -18,10 +18,9 @@
         }"
       >
         <template #media>
-          <i class="text-yellow-500  f7-icons">building_2_crop_circle</i>
+          <span class="material-icons" style="color: var(--p-accent);">apartment</span>
         </template>
         <select @change="selectGym" name="active_gym">
-          <!--<optgroup label="American">-->
           <option value="">No gym selected</option>
           <option
             :value="agym.id"
@@ -31,7 +30,6 @@
           >
             {{ agym.name }}
           </option>
-          <!--</optgroup>-->
         </select>
       </f7-list-item>
     </f7-list>
@@ -56,3 +54,20 @@ const selectGym = ({ target }) => {
   emit('select',selectedGym)
 }
 </script>
+<style scoped>
+.gym-selector :deep(.list) {
+  --f7-list-bg-color: rgba(255, 255, 255, 0.04);
+  --f7-list-item-border-color: rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  margin: 0.5rem 1rem;
+  overflow: hidden;
+}
+.gym-selector :deep(.item-title) {
+  font-size: 0.85rem;
+  color: var(--p-text-muted);
+}
+.gym-selector :deep(.item-after) {
+  color: var(--p-text);
+  font-weight: 600;
+}
+</style>

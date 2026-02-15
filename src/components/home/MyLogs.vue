@@ -1,97 +1,78 @@
 <template>
-  <div class="mt-8 m-4 rounded-md raised shadow-lg p-4 border border-gray-800">
+  <div class="p-card">
 
-    <div class="font-bold text-lg" style="color: #3bb273">{{ t('mylogs.my_logs') }} <a class="text-blue-500 text-sm" href="/archive">{{ t('mylogs.open_archive') }}</a></div>
-
-    <div class="grid grid-cols-4">
-      <div>&nbsp;</div>
-      <div class="col-span-4">
-          <span class="font-bold">Hardest top10 climb scores per week</span>
-          <br />
-          <small>4000pts = 6a, 5000pts = 6b,  7000pts = 7a, 8000pts = 7b, 9000pts = 7c.  </small>
-          <Line
-            :chart-data="progressData" chart-id="c_progress" :width="300" :height="150" />
-        </div>
+    <div class="flex items-center justify-between mb-2">
+      <div class="p-card__title mb-0">{{ t('mylogs.my_logs') }}</div>
+      <a class="p-link text-sm" href="/archive">{{ t('mylogs.open_archive') }}</a>
     </div>
 
-    <div class="grid grid-cols-3">
-      <div class="flex flex-col items-end mr-3 gap-1">
-        <div class="text-4xl">{{ getLatestSessionCount }}</div>
-        <div>{{ t('mylogs.sessions') }}</div>
-        <div class="text-4xl">{{ getLatestProblemCount }}</div>
-        <div >{{ t('mylogs.ascents') }}</div>
+    <div class="mb-4">
+      <div class="text-sm font-semibold mb-1" style="color: var(--p-text-secondary);">Hardest top10 climb scores per week</div>
+      <div class="text-xs mb-2 p-text-muted">4000pts = 6a, 5000pts = 6b, 7000pts = 7a, 8000pts = 7b, 9000pts = 7c.</div>
+      <Line
+        :chart-data="progressData" chart-id="c_progress" :width="300" :height="150" />
+    </div>
+
+    <div class="flex items-start gap-4">
+      <div class="flex flex-col items-center gap-3 flex-shrink-0">
+        <div class="p-stat">
+          <div class="p-stat__value">{{ getLatestSessionCount }}</div>
+          <div class="p-stat__label">{{ t('mylogs.sessions') }}</div>
+        </div>
+        <div class="p-stat">
+          <div class="p-stat__value">{{ getLatestProblemCount }}</div>
+          <div class="p-stat__label">{{ t('mylogs.ascents') }}</div>
+        </div>
       </div>
-      <div class="flex flex-col justify-between col-span-2">
+      <div class="flex-1 min-w-0">
         <div>
-          <Bar 
+          <Bar
             v-if="ascentsFound"
             ref="lastAscents"
             :chart-options="{plugins : { legend: { display: false } }}"
             :chart-data="data" chart-id="c1" :width="400" :height="200" />
-          
-          <div v-else class="text-2xl font-bold text-center text-orange-400">No ascents to list</div>
+
+          <div v-else class="text-center py-4">
+            <span class="material-icons mb-1" style="font-size: 32px; color: var(--p-warning);">trending_flat</span>
+            <div class="text-sm font-semibold" style="color: var(--p-warning);">No ascents to list</div>
+          </div>
         </div>
 
-        <div class="flex flex-row gap-2 justify-center">
+        <!-- Last N days selector -->
+        <div class="flex items-center justify-center gap-1 mt-2 text-sm" style="color: var(--p-text-muted);">
           Last
-          <f7-link popover-open=".popover-lastdays">{{ lastDays }}</f7-link>
+          <div class="p-dropdown">
+            <span class="p-dropdown__trigger" @click="showDaysDropdown = !showDaysDropdown">{{ lastDays }}</span>
+            <div v-if="showDaysDropdown" class="p-dropdown__menu">
+              <button v-for="opt in dayOptions" :key="opt.value" class="p-dropdown__item" @click="lastDays = opt.value; showDaysDropdown = false">{{ opt.label }}</button>
+            </div>
+          </div>
           days
-        </div>
-        <small class="text-center">Click day amount to change</small>
-      </div>
-      <div v-if="showSelector" class="flex flex-col col-span-3 my-2 items-center">
-        <div class="flex flex-row justify-around my-1">
-          <div>
-            <f7-radio
-              class="mx-1"
-              :checked="showOfType == 'boulder'"
-              name="showOfType"
-              value="boulder"
-              @change="() => changeOfType('boulder')"
-            ></f7-radio>
-            {{ t('mylogs.boulder') }}
-          </div>
-          <div>
-            <f7-radio
-              class="mx-1"
-              :checked="showOfType == 'sport'"
-              name="showOfType"
-              value="sport"
-              @change="() => changeOfType('sport')"
-            ></f7-radio
-            >{{ t('mylogs.sport') }}
-          </div>
-          <div>
-            <f7-radio
-              class="mx-1"
-              :checked="showOfType == 'all'"
-              name="showOfType"
-              value="all"
-              @change="() => changeOfType('all')"
-            ></f7-radio
-            >{{ t('mylogs.all') }}
-          </div>
         </div>
       </div>
     </div>
-    <f7-popover class="popover-lastdays">
-      <f7-list>
-        <f7-list-item @click="lastDays=1" link="#" popover-close title="today"></f7-list-item>
-        <f7-list-item @click="lastDays=7" link="#" popover-close title="week"></f7-list-item>
-        <f7-list-item @click="lastDays=14" link="#" popover-close title="two weeks"></f7-list-item>
-        <f7-list-item @click="lastDays=30" link="#" popover-close title="30 days"></f7-list-item>
-        <f7-list-item @click="lastDays=60" link="#" popover-close title="60 days"></f7-list-item>
-        <f7-list-item @click="lastDays=90" link="#" popover-close title="90 days"></f7-list-item>
-        <f7-list-item @click="lastDays=180" link="#" popover-close title="half a year"></f7-list-item>
-        <f7-list-item @click="lastDays=360" link="#" popover-close title="year"></f7-list-item>
-        <f7-list-input 
-        type="text" 
-        outline 
-        label="Custom days"
-        clear-button
-        v-model:value="lastDays"></f7-list-input>
-      </f7-list>
-    </f7-popover>
+
+    <!-- Boulder / Sport / All toggle -->
+    <div v-if="showSelector" class="mt-4">
+      <div class="p-toggle-group">
+        <button
+          class="p-toggle-group__btn"
+          :class="{ 'p-toggle-group__btn--active': showOfType == 'boulder' }"
+          @click="changeOfType('boulder')"
+        >{{ t('mylogs.boulder') }}</button>
+        <button
+          class="p-toggle-group__btn"
+          :class="{ 'p-toggle-group__btn--active': showOfType == 'sport' }"
+          @click="changeOfType('sport')"
+        >{{ t('mylogs.sport') }}</button>
+        <button
+          class="p-toggle-group__btn"
+          :class="{ 'p-toggle-group__btn--active': showOfType == 'all' }"
+          @click="changeOfType('all')"
+        >{{ t('mylogs.all') }}</button>
+      </div>
+    </div>
+
   </div>
 </template>
 
@@ -125,6 +106,18 @@ const ticks = computed(() => store.state.alltime.ticks)
 const tries = computed(() => store.state.alltime.tries)
 const lastDays = ref(30)
 const showOfType = ref('boulder')
+const showDaysDropdown = ref(false)
+const dayOptions = [
+  { value: 1, label: 'today' },
+  { value: 7, label: 'week' },
+  { value: 14, label: 'two weeks' },
+  { value: 30, label: '30 days' },
+  { value: 60, label: '60 days' },
+  { value: 90, label: '90 days' },
+  { value: 180, label: 'half a year' },
+  { value: 360, label: 'year' },
+]
+
 const ascentsByGrade = computed(() => getAscentsByGrade(grades.value, ticks.value,lastDays.value,showOfType.value))
 const ascentsFound = computed(() => ascentsByGrade.value.size > 0)
 const labels = computed(() => Array.from(ascentsByGrade.value.keys()).map(
@@ -137,7 +130,10 @@ const data = computed(() => ({
     {
       data: ascents.value,
       label: t("amount"),
-      backgroundColor: ["#97B0C4"],
+      backgroundColor: ["rgba(56, 189, 248, 0.4)"],
+      borderColor: ["rgba(56, 189, 248, 0.6)"],
+      borderWidth: 1,
+      borderRadius: 4,
     },
   ],
 }));
@@ -160,7 +156,7 @@ const progress = computed(() => {
 
   // Then calculate top10 from each week and find points
   const top10s = Object.keys(ticksByTimeGroup).reduce((acc,yearWeek) => {
-    
+
     const ticks = ticksByTimeGroup[yearWeek]
     // Sort by hardes to easiest and take top10
     const top10 = ticks.sort((b,a) => a.gradeid - b.gradeid).slice(0,10)
@@ -188,11 +184,12 @@ const progressData = computed(() => ({
     {
       data: progressValues.value,
       label: t("Score"),
-      borderColor: "#3b82f6",
-      backgroundColor: "rgba(59,130,246,0.1)",
+      borderColor: "#38bdf8",
+      backgroundColor: "rgba(56, 189, 248, 0.08)",
       fill: true,
       tension: 0.3,
       pointRadius: 2,
+      pointBackgroundColor: "#38bdf8",
     },
   ],
 }));

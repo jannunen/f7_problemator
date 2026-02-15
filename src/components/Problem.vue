@@ -37,7 +37,7 @@ if (props.id != null) {
     loading.value = false
     error.value = true
   })
-  
+
 }
 const problems = computed(() => store.state.problems)
 const isAuthenticated = computed(() => store.state.isAuthenticated)
@@ -58,41 +58,50 @@ const openAddTick = () => {
 }
 </script>
 <template>
-  <div> 
+  <div>
+  <!-- Error state -->
   <div v-if="error" class="p-6 text-center">
-    <div class="text-6xl mb-4">🤔</div>
-    <h1 class="text-2xl font-bold mb-3">{{ t('problem.not_found_title', 'Oops! Route not found') }}</h1>
-    <p class="text-gray-600 dark:text-gray-400 mb-4">
+    <span class="material-icons" style="font-size: 56px; color: var(--p-warning); display: block; margin-bottom: 1rem;">help_outline</span>
+    <h1 class="text-xl font-bold mb-2" style="color: var(--p-text);">{{ t('problem.not_found_title', 'Oops! Route not found') }}</h1>
+    <p class="text-sm mb-3" style="color: var(--p-text-muted); line-height: 1.5;">
       {{ t('problem.not_found_message', "It's not you, it's us. We couldn't find this route.") }}
     </p>
-    <p class="text-sm text-gray-500 dark:text-gray-500">
+    <p class="text-xs" style="color: var(--p-text-dim); line-height: 1.5;">
       {{ t('problem.not_found_reasons', 'This could happen if the route has been removed or if you have a different gym selected.') }}
     </p>
   </div>
+
+  <!-- Loading state -->
+  <div v-else-if="loading" class="flex flex-col items-center justify-center py-12">
+    <div class="p-spinner" style="width: 36px; height: 36px;"></div>
+    <div class="text-sm mt-3 p-text-muted">Loading...</div>
+  </div>
+
+  <!-- Problem loaded -->
   <div v-else-if="problem != null && problem.id != null">
 
-  
   <show-comments v-if="showCommentsDialog" :problem="problem" :opened="showCommentsDialog" @close="showCommentsDialog=false"> </show-comments>
   <show-public-ascents v-if="showPublicAscentsDialog" :problem="problem" :opened="showPublicAscentsDialog" @close="showPublicAscentsDialog=false"> </show-public-ascents>
-    <div class="m-0 p-0">
 
-      <!-- problem details -->
-      <div class="grid grid-cols-3 gap-4 my-3">
-        <left-details :problem="problem" @show-comments="onShowComments" @show-public-ascents="onShowPublicAscents"></left-details>
-        <right-details :problem="problem"></right-details>
-      </div>
-
-      <!-- top part ends -->
+    <!-- Problem details -->
+    <div class="grid grid-cols-3 gap-0 my-2">
+      <left-details :problem="problem" @show-comments="onShowComments" @show-public-ascents="onShowPublicAscents"></left-details>
+      <right-details :problem="problem"></right-details>
     </div>
-    <div class="m-2" v-if="isAuthenticated">
-      <h1 class="text-xl font-bold my-2 text-center">{{ t('problem.add_new_tick') }}</h1>
+
+    <!-- Add tick section -->
+    <div v-if="isAuthenticated" class="px-4 py-2">
+      <div class="p-section-title text-center" style="font-size: 0.85rem;">{{ t('problem.add_new_tick') }}</div>
       <AddTick :problem="problem" />
     </div>
-    <div v-else class="text-center my-2 font-bold" v-cloak>
-      {{ t('You are not logged in, login to be able to tick the problem')}}
-      <f7-button
-      class="my-2 mx-2 uppercase block text-center button py-2 h-12 px-4 dark:bg-sky-500 bg-green-500 text-white"
-       @click="onLoginClick">{{ t('Login') }}</f7-button>
+    <div v-else class="px-4 py-4">
+      <div class="p-banner p-banner--warning">
+        <span class="material-icons p-banner__icon">lock</span>
+        <div class="p-banner__content">
+          {{ t('You are not logged in, login to be able to tick the problem')}}
+          <button @click="onLoginClick" class="p-btn p-btn--primary p-btn--block mt-3">{{ t('Login') }}</button>
+        </div>
+      </div>
     </div>
   </div>
   </div>
