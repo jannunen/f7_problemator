@@ -9,7 +9,7 @@
           <span class="font-bold">Hardest top10 climb scores per week</span>
           <br />
           <small>4000pts = 6a, 5000pts = 6b,  7000pts = 7a, 8000pts = 7b, 9000pts = 7c.  </small>
-          <Bar 
+          <Line
             :chart-data="progressData" chart-id="c_progress" :width="300" :height="150" />
         </div>
     </div>
@@ -100,7 +100,9 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import { getAscentsByGrade } from '@helpers/component.helpers.js'
-import { Bar } from 'vue-chartjs'
+import { Bar, Line } from 'vue-chartjs'
+import { Chart, registerables } from 'chart.js'
+Chart.register(...registerables)
 import dayjs from 'dayjs'
 import { calculatePoints } from '@/js/helpers'
 import advancedFormat from  'dayjs/plugin/advancedFormat'
@@ -164,9 +166,9 @@ const progress = computed(() => {
     const top10 = ticks.sort((b,a) => a.gradeid - b.gradeid).slice(0,10)
     // Calculate top 10.
     const points = top10.reduce((acc,item) => {
-       const grade = grades.value.find(x=>x.id ==item.gradeid) 
+       const grade = grades.value.find(x=>x.id ==item.gradeid)
        if (grade != null && grade.score != null) {
-         acc += calculatePoints(item.routetype, parseInt(item.tries))
+         acc += grade.score + calculatePoints(item.routetype, parseInt(item.tries))
        }
        return acc
     },0)
@@ -186,7 +188,11 @@ const progressData = computed(() => ({
     {
       data: progressValues.value,
       label: t("Score"),
-      backgroundColor: ["#97B0C4"],
+      borderColor: "#3b82f6",
+      backgroundColor: "rgba(59,130,246,0.1)",
+      fill: true,
+      tension: 0.3,
+      pointRadius: 2,
     },
   ],
 }));
