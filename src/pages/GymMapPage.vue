@@ -3,6 +3,7 @@
     <div
       ref="containerRef"
       class="gym-map-fullscreen"
+      :class="{ 'gym-map-dark': isDark }"
       @wheel.prevent="onWheel"
       @mousedown="onMouseDown"
       @mousemove="onMouseMove"
@@ -38,8 +39,8 @@
         <g v-for="wall in mappedWalls" :key="'w-' + wall.id">
           <polygon
             :points="wallPoints(wall)"
-            fill="rgba(100,116,139,0.15)"
-            stroke="#64748b"
+            :fill="isDark ? 'rgba(148,163,184,0.2)' : 'rgba(100,116,139,0.15)'"
+            :stroke="isDark ? '#94a3b8' : '#64748b'"
             :stroke-width="0.003 * scale"
             stroke-linejoin="round"
           />
@@ -48,7 +49,7 @@
             :x="wallCenter(wall).x"
             :y="wallCenter(wall).y"
             :font-size="0.018 * scale"
-            fill="#1e293b"
+            :fill="isDark ? '#e2e8f0' : '#1e293b'"
             text-anchor="middle"
             dominant-baseline="central"
             style="pointer-events: none; user-select: none; font-weight: 600"
@@ -61,7 +62,7 @@
               :cy="p.cy"
               r="0.008"
               :fill="p.color"
-              stroke="#fff"
+              :stroke="isDark ? '#1e293b' : '#fff'"
               stroke-width="0.0024"
               @click.stop="onProblemTap(p)"
             />
@@ -79,7 +80,7 @@
               :x="p.cx"
               :y="p.cy + 0.012"
               font-size="0.0036"
-              fill="#64748b"
+              :fill="isDark ? '#94a3b8' : '#64748b'"
               text-anchor="middle"
               dominant-baseline="hanging"
               style="pointer-events: none; user-select: none; font-weight: 500"
@@ -105,16 +106,16 @@
 
       <!-- Empty state -->
       <div v-if="mappedWalls.length === 0" class="gym-map-empty">
-        <i class="icon f7-icons" style="font-size: 48px; color: #94a3b8;">map</i>
-        <p style="margin-top: 12px; color: #64748b; font-size: 15px;">No wall shapes drawn yet</p>
-        <p style="color: #94a3b8; font-size: 13px;">Wall shapes are drawn in the routesetter dashboard.</p>
+        <i class="icon f7-icons" :style="{ fontSize: '48px', color: isDark ? '#64748b' : '#94a3b8' }">map</i>
+        <p :style="{ marginTop: '12px', fontSize: '15px', color: isDark ? '#94a3b8' : '#64748b' }">No wall shapes drawn yet</p>
+        <p :style="{ fontSize: '13px', color: isDark ? '#64748b' : '#94a3b8' }">Wall shapes are drawn in the routesetter dashboard.</p>
       </div>
     </div>
   </f7-page>
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { f7 } from 'framework7-vue'
 import { useStore } from 'vuex'
 
@@ -125,6 +126,18 @@ const props = defineProps({
 const store = useStore()
 const svgRef = ref(null)
 const containerRef = ref(null)
+
+// Dark mode detection
+const isDark = ref(false)
+let darkObserver = null
+onMounted(() => {
+  isDark.value = document.documentElement.classList.contains('theme-dark')
+  darkObserver = new MutationObserver(() => {
+    isDark.value = document.documentElement.classList.contains('theme-dark')
+  })
+  darkObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+})
+onUnmounted(() => { darkObserver?.disconnect() })
 
 // View state (local, not in vuex — this is read-only viewer)
 const viewBox = ref({ x: 0, y: 0, w: 1, h: 1 })
@@ -384,6 +397,10 @@ function onTouchEnd(event) {
   background: #f1f5f9;
   touch-action: none;
   overflow: hidden;
+}
+
+.gym-map-fullscreen.gym-map-dark {
+  background: #0f1526;
 }
 
 .gym-map-btn {
