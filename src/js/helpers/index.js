@@ -1,4 +1,4 @@
-import { jwtInterceptor } from './jwt.interceptor.js'
+import { jwtInterceptor, setLogoutHandler } from './jwt.interceptor.js'
 import  routes  from '@js/routes'
 import { debounce, getTagShort, getRandom ,left, right, tipShown} from './utils.js'
 import { calculatePoints } from './problemator.js'
@@ -9,6 +9,7 @@ export {
     //errorInterceptor,
     //initFacebookSdk,
     jwtInterceptor,
+    setLogoutHandler,
     routes,
     left,
     right,

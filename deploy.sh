@@ -8,3 +8,6 @@ sed -i "6s/.*/APP_VERSION=$newver/" ../backend/.env
 npm run build
 #npm run deploy
 
+rsync -avzh  --delete  www/ api3.problemator.fi:mobile/www
+
+

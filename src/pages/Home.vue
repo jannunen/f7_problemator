@@ -48,6 +48,7 @@
           <gym-selector />
           <TodayHeader :profile="profile" @addtick="onAddTick" />
           <expiring-problems-alert />
+          <floor-map-block :f7router="props.f7router" />
           <badge-gym-stats :gym="gym" />
           <competitions-badge />
           <ranking />
@@ -122,6 +123,7 @@ import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import ExpiringProblemsAlert from '@components/ExpiringProblemsAlert.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import Ranking from '@components/home/Ranking.vue'
+import FloorMapBlock from '@components/ui/FloorMapBlock.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
 import PButton from '@components/PButton.vue'
