@@ -12,13 +12,11 @@ import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 
 import { useStore } from 'vuex'
 import { f7, f7ready } from 'framework7-vue'
-import { useAuth0 } from '@auth0/auth0-vue';
 const store = useStore()
 const showPublicAscentsDialog = ref(false)
 const showCommentsDialog = ref(false)
 const loading = ref(true)
 const error = ref(false)
-const { idTokenClaims, getAccessTokenSilently, loginWithRedirect, logout, user } = useAuth0();
 dayjs.extend(LocalizedFormat)
 dayjs.extend(relativeTime)
 const { t } = useI18n()

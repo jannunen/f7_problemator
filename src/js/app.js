@@ -3,8 +3,6 @@ import '../css/icons.css';
 import '../css/app.less';
 import '../css/tailwind.css';
 import 'v-calendar/dist/style.css';
-import { createAuth0 , } from '@auth0/auth0-vue';
-
 import { createApp } from 'vue'
 
 // Import F7 Bundle
@@ -44,14 +42,5 @@ const i18n = createI18n({
 })
 app.use(i18n);
 
-  const params = {
-    domain: import.meta.env.VITE_AUTH0_DOMAIN ,
-    client_id: import.meta.env.VITE_AUTH0_CLIENT_ID,
-    audience : import.meta.env.VITE_AUTH0_AUDIENCE,
-    redirect_uri: import.meta.env.VITE_REDIRECT_URI,
-  }
-  console.log('redirect url',import.meta.env.VITE_REDIRECT_URI)
-app.use( createAuth0(params));
-
-// Mounte Vue App
+// Mount Vue App
 app.mount('#app');

@@ -16,4 +16,18 @@ export async function jwtInterceptor() {
         console.log("Doing api call",request.url)
         return request;
     });
+
+    axios.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            if (error.response && error.response.status === 401) {
+                const token = localStorage.getItem('token')
+                if (token && token !== 'null') {
+                    localStorage.removeItem('token')
+                    window.location.reload()
+                }
+            }
+            return Promise.reject(error);
+        }
+    );
 }

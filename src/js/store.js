@@ -69,6 +69,10 @@ export default createStore({
     climber : null,
     pointEntryKey : null,
     access_token : null,
+    authStep: 'idle', // idle, otp_sent, verifying
+    authEmail: '',
+    authType: 'signin',
+    authError: null,
     filters : {...filtersInitial},
     gyms : [],
     problems : [],
@@ -241,6 +245,18 @@ export default createStore({
     setIsAuthenticated (state, payload) {
       state.isAuthenticated = payload
     },
+    setAuthStep(state, payload) {
+      state.authStep = payload
+    },
+    setAuthEmail(state, payload) {
+      state.authEmail = payload
+    },
+    setAuthType(state, payload) {
+      state.authType = payload
+    },
+    setAuthError(state, payload) {
+      state.authError = payload
+    },
     isAbsolute (state, payload) {
       state.isAbsolute = payload
     },
@@ -368,15 +384,9 @@ export default createStore({
     },
     async getProfile({ commit, state } , payload) {
       commit('profileLoaded', false)
-      const user = state.user
-      if (user == null) {
-        // Don't load, no user
-        console.log("User is null, argh, fail. exit.")
-        return null
-      }
       const gymid = localStorage.gymid
       commit('gymid',gymid)
-      const ret = await api.getProfile(gymid, user.email, user.sub)
+      const ret = await api.getProfile(gymid)
       if (ret!=null && ret.profile != null) {
         commit('profile', ret.profile)
         commit('gym', ret.gym)
@@ -469,6 +479,46 @@ export default createStore({
       // Update problem comments
       const problem = state.problems[pid]
       commit('problems' , { ...state.problems, [pid]: {...problem, ['messages'] : ret.messages, ['messageCount'] : ret.messages.length } })
+    },
+    async requestOtp({ commit }, payload) {
+      commit('setAuthError', null)
+      commit('setAuthEmail', payload.email)
+      commit('setAuthType', payload.type)
+      try {
+        await api.requestOtp(payload)
+        commit('setAuthStep', 'otp_sent')
+      } catch (err) {
+        commit('setAuthError', err.response?.data?.error || 'Failed to send code.')
+      }
+    },
+    async verifyOtp({ commit }, payload) {
+      commit('setAuthError', null)
+      commit('setAuthStep', 'verifying')
+      try {
+        const ret = await api.verifyOtp(payload)
+        commit('setToken', ret.access_token)
+        commit('user', ret.user)
+        commit('setIsAuthenticated', true)
+        commit('setAuthStep', 'idle')
+        return ret
+      } catch (err) {
+        commit('setAuthStep', 'otp_sent')
+        commit('setAuthError', err.response?.data?.error || 'Verification failed.')
+      }
+    },
+    logout({ commit }) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('gymid')
+      commit('setToken', null)
+      commit('user', null)
+      commit('climber', null)
+      commit('setIsAuthenticated', false)
+      commit('profile', { settings: null })
+      commit('profileLoaded', false)
+      commit('setAuthStep', 'idle')
+      commit('setAuthEmail', '')
+      commit('setAuthError', null)
+      commit('setReady', true)
     },
     setUser({  commit}, payload) {
       commit('user' , payload)

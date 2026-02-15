@@ -15,7 +15,6 @@
 <script>
 import routes from './js/routes.js'
 import { useI18n } from 'vue-i18n'
-import { useAuth0 } from '@auth0/auth0-vue'
 import {  watch, computed } from 'vue'
 import { useStore } from 'vuex'
 import $ from 'dom7'
@@ -30,42 +29,18 @@ export default {
     const allTime = computed(() => store.state.alltime)
     const profile = computed(() => store.state.profile)
     const historyRoot = import.meta.env.VITE_REDIRECT_URI
-    const {
-      getInstance,
-      getAccessTokenSilently,
-      loginWithRedirect,
-      user,
-      isAuthenticated,
-      isLoading,
-    } = useAuth0()
-
-    // Watch Auth0 loading state - when it finishes loading and user is not authenticated, set ready
-    watch(isLoading, (loading) => {
-      if (!loading && !isAuthenticated.value) {
-        store.commit('setReady', true)
-      }
-    }, { immediate: true })
+    const isAuthenticated = computed(() => store.state.isAuthenticated)
 
     store.dispatch('version')
-    // Save tip showing status in locaStorage.
+    // Save tip showing status in localStorage.
     const tipShowStatus = JSON.parse(localStorage.getItem('tipShowStatus'))
     const access_token = computed(() => store.state.access_token)
     store.dispatch('tipShowStatus', tipShowStatus)
     store.commit('setInitializing', false)
-    
 
     // Get app local version
     const version = import.meta.env.PACKAGE_VERSION
     store.commit('setVersion', version)
-    getAccessTokenSilently()
-      .then((token) => {
-        store.commit('user', user.value)
-        store.commit('setToken', token)
-      })
-      .catch((err) => {
-        store.commit('setReady',true)
-        console.log("err in auth0",err)
-      })
 
     const isDark = localStorage.getItem('dark')
     if (isDark != 'false') {
@@ -74,8 +49,9 @@ export default {
       $html.addClass(`theme-dark`)
     }
 
+    // Set up watch BEFORE bootstrapping token so the watcher fires
     watch(access_token, async (newValue, oldValue) => {
-      if (newValue != null && newValue != "") {
+      if (newValue != null && newValue != "" && newValue != "null") {
         if (profile.value.settings == null) {
           console.log('Loading profile')
           await store.dispatch('getProfile')
@@ -88,6 +64,14 @@ export default {
       }
       store.commit('setInitializing', false)
     })
+
+    // Bootstrap from localStorage token (after watch is registered)
+    const existingToken = localStorage.getItem('token')
+    if (existingToken && existingToken !== 'null') {
+      store.commit('setToken', existingToken)
+    } else {
+      store.commit('setReady', true)
+    }
 
     return {
       t,

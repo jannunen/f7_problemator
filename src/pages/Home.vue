@@ -19,6 +19,13 @@
         icon-md="material:house"
       ></f7-link>
       <f7-link
+        @click="navigateToGymMap"
+        text="Map"
+        icon-ios="f7:map"
+        icon-aurora="f7:map"
+        icon-md="material:map"
+      ></f7-link>
+      <f7-link
         @click="initFeedTab"
         tab-link="#tab-2"
         text="Feed"
@@ -117,10 +124,10 @@ import Ranking from '@components/home/Ranking.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
 import PButton from '@components/PButton.vue'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { ref } from 'vue'
 import { useStore } from 'vuex'
+import { f7 } from 'framework7-vue'
 const store = useStore()
 const showTickHelpDialog = ref(false)
 const ready = computed(() => store.state.ready)
@@ -130,6 +137,10 @@ const alltime = computed(() => store.state.alltime)
 const ticksLoaded = computed(() => store.state.ticksLoaded)
 const isOpened = ref(false)
 const gymid = computed(() => store.state.gymid)
+const navigateToGymMap = () => {
+  f7.views.main.router.navigate('/gym-map')
+}
+
 const initFeedTab = () => {
   store.dispatch('getFeed')
   store.dispatch('newProblems', gym.value.id)

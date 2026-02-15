@@ -94,16 +94,8 @@ import { confirm } from '@js/helpers/notifications.js'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 import PopupListTicks from '@components/ui/problem/TickList.vue'
 import { getSessionCount } from '@helpers/component.helpers.js'
-import { useAuth0 } from '@auth0/auth0-vue'
 const store = useStore()
-const {
-  idTokenClaims,
-  getAccessTokenSilently,
-  loginWithRedirect,
-  logout,
-  user,
-  isAuthenticated,
-} = useAuth0()
+const isAuthenticated = computed(() => store.state.isAuthenticated)
 
 const { t } = useI18n()
 const props = defineProps({

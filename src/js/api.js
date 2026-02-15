@@ -15,6 +15,18 @@ const formatDate = (date) => {
 
 const api = {
   climber,
+  async requestOtp(payload) {
+    const ret = await axios.post(endpoint + '/auth/otp/request', payload)
+    return ret.data
+  },
+  async verifyOtp(payload) {
+    const ret = await axios.post(endpoint + '/auth/otp/verify', payload)
+    return ret.data
+  },
+  async refreshToken() {
+    const ret = await axios.post(endpoint + '/auth/otp/refresh')
+    return ret.data
+  },
   async newProblems(payload) {
     const ret = await axios.get(endpoint+"/gym/"+payload+"/problems/new")
     return ret.data
@@ -150,11 +162,8 @@ const api = {
    const ret = await   axios .get(endpoint + '/my/ticks')
    return ret.data
   },
-  async getProfile(gymid,email,sub) {
-    // Email is sent because this is the first call (usually?) and
-    // when we get the auth0 in the backend, we can couple the 
-    // user (email) and the auth0 user id for future use
-    const url = endpoint + `/profile?gymid=${gymid}&email=${email}&sub=${sub}`
+  async getProfile(gymid) {
+    const url = endpoint + `/profile?gymid=${gymid}`
     const ret = await axios.get(url)
     return ret.data
   },

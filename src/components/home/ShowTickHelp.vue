@@ -45,20 +45,11 @@
 </template>
 <script setup>
 import PButton from '@components/PButton.vue'
-import { useAuth0 } from '@auth0/auth0-vue'
 import { useI18n } from 'vue-i18n'
 import { tipShown } from '@js/helpers'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { f7  } from 'framework7-vue'
-
-const {
-  idTokenClaims,
-  getAccessTokenSilently,
-  loginWithRedirect,
-  logout,
-  user,
-} = useAuth0()
 
 const store = useStore()
 const climber = computed(() => store.state.climber)
@@ -76,11 +67,7 @@ const startSync = (which) => {
     ret.value = resp
     requestDone.value = true
     setTimeout(() => {
-      logout()
-      localStorage.setItem('token', null)
-      store.commit('setSidePanel', false)
-      store.commit('setSelectedLeftPanelItem', 'logout')
-      store.commit('isAuthenticated', false)
+      store.dispatch('logout')
       f7.views.main.router.navigate("/")
     },15000)
   })

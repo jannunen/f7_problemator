@@ -112,7 +112,6 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { useAuth0 } from '@auth0/auth0-vue'
 import { useStore } from 'vuex'
 import { f7 } from 'framework7-vue'
 import { ref, watch, computed } from 'vue'
@@ -134,13 +133,6 @@ const isAuthenticated = computed(() => store.state.isAuthenticated)
 const serverVersion = computed(() => store.state.server_version)
 
 const { t } = useI18n()
-const {
-  idTokenClaims,
-  getAccessTokenSilently,
-  loginWithRedirect,
-  logout,
-  user,
-} = useAuth0()
 const darkMode = localStorage.getItem('dark') === 'true'
 const localDarkMode = ref(darkMode)
 
@@ -176,11 +168,8 @@ const doVersionCheck = () => {
   store.dispatch('version')
 }
 const doLogout = () => {
-  localStorage.setItem('token', null)
   store.commit('setSidePanel', false)
-  store.commit('setSelectedLeftPanelItem', 'logout')
-  store.commit('isAuthenticated', false)
-  logout({returnTo : import.meta.env.VITE_REDIRECT_URI})
+  store.dispatch('logout')
 }
 const sidePanelOpen = computed(() => store.state.sidePanelOpen)
 const selectedItem = computed(() => store.state.selectedItem)
