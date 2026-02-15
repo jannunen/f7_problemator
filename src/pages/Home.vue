@@ -12,22 +12,25 @@
     <f7-toolbar tabbar labels position="bottom">
       <f7-link
         tab-link="#tab-1"
-        tab-link-active
+        :tab-link-active="activeTab === 'home'"
+        @click="activeTab = 'home'"
         text="Home"
         icon-ios="f7:house"
         icon-aurora="f7:house"
         icon-md="material:house"
       ></f7-link>
       <f7-link
-        @click="navigateToGymMap"
+        :tab-link-active="activeTab === 'map'"
+        @click="activeTab = 'map'; navigateToGymMap()"
         text="Map"
         icon-ios="f7:map"
         icon-aurora="f7:map"
         icon-md="material:map"
       ></f7-link>
       <f7-link
-        @click="initFeedTab"
         tab-link="#tab-2"
+        :tab-link-active="activeTab === 'feed'"
+        @click="activeTab = 'feed'; initFeedTab()"
         text="Feed"
         icon-ios="f7:list_dash"
         icon-aurora="f7:list_dash"
@@ -44,7 +47,6 @@
           <!-- Page content -->
           <gym-selector />
           <TodayHeader :profile="profile" @addtick="onAddTick" />
-          <floor-map-block />
           <expiring-problems-alert />
           <badge-gym-stats :gym="gym" />
           <competitions-badge />
@@ -113,7 +115,6 @@
 import TodayHeader from '@components/home/TodayHeader.vue'
 import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.vue'
 import FeedTab from '@components/feed/FeedTab.vue'
-import FloorMapBlock from '@components/home/FloorMapBlock.vue'
 import GymSelector from '@components/GymSelector.vue'
 import MyLogs from '@components/home/MyLogs.vue'
 import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
@@ -135,10 +136,11 @@ const profile = computed(() => store.state.profile)
 const gym = computed(() => store.state.gym)
 const alltime = computed(() => store.state.alltime)
 const ticksLoaded = computed(() => store.state.ticksLoaded)
+const activeTab = ref('home')
 const isOpened = ref(false)
 const gymid = computed(() => store.state.gymid)
 const navigateToGymMap = () => {
-  f7.views.main.router.navigate('/gym-map')
+  f7.views.main.router.navigate('/gym-map', { ignoreCache: true, force: true })
 }
 
 const initFeedTab = () => {

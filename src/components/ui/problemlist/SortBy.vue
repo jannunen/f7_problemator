@@ -1,5 +1,5 @@
 <template>
-  <div class="flex flex-start overflow-x-scroll	h-10">
+  <div class="flex flex-start overflow-x-scroll flex-wrap gap-1 py-1">
     <chip
       :togglable="false"
       v-for="sort in sorts"

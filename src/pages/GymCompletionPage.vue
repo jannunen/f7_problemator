@@ -8,11 +8,7 @@
     </f7-navbar>
   <f7-block>
     <div v-if="getActiveProblemsByGrade != null" >
-    <completion-bar-chart :width="400" :height="600" :data="getActiveProblemsByGrade" />
-    <br />
-    Red means ticked problems, blue means all problems.
-    <br /><br />
-    This page is currently under development, check back later.
+    <completion-bar-chart :data="getActiveProblemsByGrade" />
     </div>
     <div v-else>
       No data

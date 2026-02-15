@@ -9,7 +9,13 @@
     <f7-block>
       <h1 class="font-bold text-2xl text-center">{{ gym.name }}</h1>
       <div v-if="unfilteredProblemsExist">
-        <p-button class="bg-blue-500 font-bold my-1 uppercase" @click="showFilters=!showFilters">{{ showFilters ? "Hide filters" : "Show  filters"}}</p-button>
+        <div class="my-0 mx-2">
+          <h2 class="uppercase text-xl mt-2 p-0 font-bold">
+            {{ t('problemlist.wallfilter') }}
+          </h2>
+          <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
+        </div>
+        <p-button class="bg-blue-500 font-bold my-1 uppercase" @click="showFilters=!showFilters">{{ showFilters ? "Hide filters" : "Show more filters"}}</p-button>
         <div v-if="showFilters" class="my-0 mx-2">
           <h2 class="uppercase text-xl mt-2 mb-1 font-bold">
             {{ t('problemlist.routetype') }}
@@ -31,12 +37,6 @@
                 {{ t('problemlist.stylefilter') }}
               </h2>
               <style-filter @styles-changed="onStylesChanged" :styles="styles" :selected-styles="filters.styles"></style-filter>
-            </li>
-            <li>
-              <h2 class="uppercase text-xl mt-2 p-0 font-bold">
-                {{ t('problemlist.wallfilter') }}
-              </h2>
-              <wall-selector v-model="selectedWalls" @clear="onClearWalls" />
             </li>
             <h2 class="uppercase text-xl mt-2 p-0 font-bold">
               {{ t('problemlist.ascent_status_filter') }}
@@ -77,9 +77,18 @@
             <span class="font-medium">Tip!</span> You can tick faster by swiping a problem LEFT. Add a quick try by swiping RIGHT.
             <a href="#" class="text-red-600 text-md" @click.prevent="tipDismiss('quicktick')">do not show again</a>
           </div>
-          <div v-if="filters.walls.length > 0">
-            <div class="font-bold">{{ t('problemlist.wall_filter_active') }}:</div>
-            <span v-for="selWall in getSelectedWallNames" :key="selWall">{{ selWall }}</span>
+          <div v-if="filters.walls.length > 0" class="bg-blue-50 dark:bg-sky-900 border border-blue-300 dark:border-sky-700 rounded-lg p-3 my-2">
+            <div class="font-bold text-blue-700 dark:text-blue-300 text-sm mb-2">{{ t('problemlist.wall_filter_active') }}:</div>
+            <div class="flex flex-wrap gap-2">
+              <span
+                v-for="selWall in getSelectedWalls"
+                :key="selWall.id"
+                class="inline-flex items-center bg-blue-500 text-white text-sm font-medium px-3 py-1 rounded-full"
+              >
+                {{ selWall.name }}
+                <span class="ml-2 cursor-pointer text-blue-200 hover:text-white font-bold" @click="removeWall(selWall.id)">&times;</span>
+              </span>
+            </div>
           </div>
 
 
@@ -389,11 +398,15 @@ watch(selectedWalls, (newValue) => {
  // propagate to store
   store.commit('setFilterWalls', newValue)
 })
-const getSelectedWallNames = computed(() => {
+const getSelectedWalls = computed(() => {
   return filters.value.walls.map((wallid) => {
-    return walls.value.find((wall) => wall.id == wallid).walldesc
+    const wall = walls.value.find((w) => w.id == wallid)
+    return { id: wallid, name: wall ? (wall.wallchar + ' ' + wall.walldesc).trim() : wallid }
   })
 })
+const removeWall = (wallId) => {
+  selectedWalls.value = selectedWalls.value.filter(id => id !== wallId)
+}
 </script>
 <style>
 

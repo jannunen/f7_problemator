@@ -145,7 +145,8 @@ const messages = {
             'snap7': 'Nothing to show!',
             'snap8': 'Look for something else?',
             no_hits_title: 'No problems found',
-            no_hits_desc: 'The filters were probably too restrictive, try to ease them up a little or reset them totally'
+            no_hits_desc: 'The filters were probably too restrictive, try to ease them up a little or reset them totally',
+            wall_filter_active: 'Filtering by walls',
         },
         sortby: {
             routesetter_asc: 'Routesetter asc.',
@@ -326,6 +327,8 @@ const messages = {
         },
         problems: {
             'page_title': 'Reitit',
+        },
+        problemlist: {
             'wall_filter_active': 'Seinäsuodatin käytössä',
         },
         sortby: {

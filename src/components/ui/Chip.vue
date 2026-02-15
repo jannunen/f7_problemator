@@ -1,5 +1,5 @@
 <template>
-    <div @click="toggle" :class="[...getExtraStyles,'flex', 'border','justify-center','items-center','rounded-lg', 'm-1','px-2','text-center','text-sm','break-keep']">
+    <div @click="toggle" :class="[...getExtraStyles,'flex', 'border','justify-center','items-center','rounded-lg', 'm-1','px-3','py-2','text-center','text-base','break-keep']">
         {{ text.replaceAll(" ","&nbsp;") }}
     </div>
 </template>
