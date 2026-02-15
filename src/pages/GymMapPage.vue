@@ -73,28 +73,17 @@
               text-anchor="middle"
               dominant-baseline="central"
               style="pointer-events: none; user-select: none; font-weight: 600"
+            >{{ p.gradeName }}</text>
+            <!-- Short tag below when zoomed in -->
+            <text v-if="showDetails"
+              :x="p.cx"
+              :y="p.cy + 0.012"
+              font-size="0.0036"
+              fill="#64748b"
+              text-anchor="middle"
+              dominant-baseline="hanging"
+              style="pointer-events: none; user-select: none; font-weight: 500"
             >{{ shortTag(p.tag) }}</text>
-            <!-- Grade + tag below when zoomed in -->
-            <template v-if="showDetails">
-              <text
-                :x="p.cx"
-                :y="p.cy + 0.012"
-                font-size="0.0044"
-                fill="#1e293b"
-                text-anchor="middle"
-                dominant-baseline="hanging"
-                style="pointer-events: none; user-select: none; font-weight: 700"
-              >{{ p.gradeName }}</text>
-              <text
-                :x="p.cx"
-                :y="p.cy + 0.02"
-                font-size="0.0036"
-                fill="#64748b"
-                text-anchor="middle"
-                dominant-baseline="hanging"
-                style="pointer-events: none; user-select: none; font-weight: 500"
-              >{{ shortTag(p.tag) }}</text>
-            </template>
           </template>
         </g>
       </svg>
