@@ -14,19 +14,19 @@
     <div class="p-tab-bar">
       <button
         class="p-tab-bar__item"
-        :class="{ 'p-tab-bar__item--active': activeTab === 'home' }"
-        @click="activeTab = 'home'"
-      >
-        <span class="material-icons p-tab-bar__icon">home</span>
-        <span class="p-tab-bar__label">Home</span>
-      </button>
-      <button
-        class="p-tab-bar__item"
         :class="{ 'p-tab-bar__item--active': activeTab === 'map' }"
         @click="activeTab = 'map'; navigateToGymMap()"
       >
         <span class="material-icons p-tab-bar__icon">map</span>
         <span class="p-tab-bar__label">Map</span>
+      </button>
+      <button
+        class="p-tab-bar__item"
+        :class="{ 'p-tab-bar__item--active': activeTab === 'dashboard' }"
+        @click="activeTab = 'dashboard'"
+      >
+        <span class="material-icons p-tab-bar__icon">dashboard</span>
+        <span class="p-tab-bar__label">Dashboard</span>
       </button>
       <button
         class="p-tab-bar__item"
@@ -39,11 +39,22 @@
     </div>
 
     <!-- Tab content via v-show -->
-    <div v-show="activeTab === 'home'">
+    <div v-show="activeTab === 'dashboard'">
       <div v-if="profileLoaded">
         <complete-profile-popup />
         <show-tick-help :opened="showTickHelpDialog" />
         <left-sidepanel />
+
+        <!-- Version update banner -->
+        <div v-if="serverVersion != null && serverVersion != version" class="px-4 mt-2">
+          <div class="p-banner p-banner--info">
+            <span class="material-icons p-banner__icon">system_update</span>
+            <div class="p-banner__content">
+              New version available ({{ serverVersion }}).
+              <button @click="updateVersion" class="p-btn p-btn--primary p-btn--sm mt-2">Update now</button>
+            </div>
+          </div>
+        </div>
 
         <!-- Section: Your session -->
         <div class="home-section">
@@ -82,6 +93,7 @@
 
         <!-- Section: Progress -->
         <div class="home-section">
+          <grade-pyramid />
           <my-logs :show-selector="true" />
         </div>
 
@@ -154,6 +166,7 @@ import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import ExpiringProblemsAlert from '@components/ExpiringProblemsAlert.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import Ranking from '@components/home/Ranking.vue'
+import GradePyramid from '@components/home/GradePyramid.vue'
 import FloorMapBlock from '@components/ui/FloorMapBlock.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
@@ -170,7 +183,12 @@ const profile = computed(() => store.state.profile)
 const gym = computed(() => store.state.gym)
 const alltime = computed(() => store.state.alltime)
 const ticksLoaded = computed(() => store.state.ticksLoaded)
-const activeTab = ref('home')
+const version = computed(() => store.state.version)
+const serverVersion = computed(() => store.state.server_version)
+const updateVersion = () => {
+  window.location.reload(true)
+}
+const activeTab = ref('dashboard')
 const isOpened = ref(false)
 const gymid = computed(() => store.state.gymid)
 const navigateToGymMap = () => {

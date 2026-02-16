@@ -67,6 +67,18 @@
           <line v-for="i in 9" :key="'gh'+i" x1="0" :y1="i*0.1" x2="1" :y2="i*0.1" stroke="#94a3b8" stroke-width="0.001" />
         </g>
 
+        <!-- Decorative layers (rendered below walls) -->
+        <g v-for="layer in visibleLayers" :key="'layer-' + layer.id">
+          <polygon
+            v-for="(shape, si) in layer.shapes"
+            :key="si"
+            :points="shapeToPoints(shape)"
+            :fill="layer.color"
+            :opacity="layer.opacity ?? 1"
+            stroke="none"
+          />
+        </g>
+
         <!-- Walls with problems -->
         <g v-for="wall in mappedWalls" :key="'w-' + wall.id">
           <polygon
@@ -156,9 +168,10 @@
       <!-- Problem info popup -->
       <div
         v-if="selectedProblem && popupPos"
+        ref="popupRef"
         class="gym-map-popup"
         :class="{ 'gym-map-popup-dark': isDark }"
-        :style="{ left: popupPos.x + 'px', top: popupPos.y + 'px' }"
+        :style="popupStyle"
         @click.stop
         @mousedown.stop
         @touchstart.stop
@@ -248,6 +261,38 @@
           <span v-if="activeFilterCount > 0" class="gym-map-filter-clear" @click="clearFilters">Clear all</span>
         </div>
 
+        <!-- Quick toggles -->
+        <div class="gym-map-filter-section">
+          <div class="gym-map-filter-label">Quick filters</div>
+          <div class="gym-map-filter-chips">
+            <span
+              class="gym-map-chip gym-map-chip-toggle"
+              :class="{ 'gym-map-chip-active': filterNew, 'gym-map-chip-dark': isDark }"
+              @click="filterNew = !filterNew"
+            >New</span>
+            <span
+              class="gym-map-chip gym-map-chip-toggle"
+              :class="{ 'gym-map-chip-active': filterExpiring, 'gym-map-chip-dark': isDark }"
+              @click="filterExpiring = !filterExpiring"
+            >Expiring</span>
+            <span
+              class="gym-map-chip gym-map-chip-toggle"
+              :class="{ 'gym-map-chip-active': filterTicked, 'gym-map-chip-dark': isDark }"
+              @click="filterTicked = !filterTicked"
+            >Ticked</span>
+            <span
+              class="gym-map-chip gym-map-chip-toggle"
+              :class="{ 'gym-map-chip-active': filterProject, 'gym-map-chip-dark': isDark }"
+              @click="filterProject = !filterProject"
+            >Projects</span>
+            <span
+              class="gym-map-chip gym-map-chip-toggle"
+              :class="{ 'gym-map-chip-active': filterTodo, 'gym-map-chip-dark': isDark }"
+              @click="filterTodo = !filterTodo"
+            >Not ticked</span>
+          </div>
+        </div>
+
         <div class="gym-map-filter-section">
           <div class="gym-map-filter-label">Grade</div>
           <div class="gym-map-filter-chips">
@@ -260,15 +305,39 @@
           </div>
         </div>
 
-        <div class="gym-map-filter-section">
-          <div class="gym-map-filter-label">Setter</div>
+        <div v-if="availableColors.length > 0" class="gym-map-filter-section">
+          <div class="gym-map-filter-label">Colour</div>
           <div class="gym-map-filter-chips">
             <span
-              v-for="s in availableSetters" :key="'fs-' + s"
+              v-for="c in availableColors" :key="'fc-' + c.name"
+              class="gym-map-chip gym-map-chip-color"
+              :class="{ 'gym-map-chip-active': filterColors.has(c.name), 'gym-map-chip-dark': isDark }"
+              @click="toggleFilter('colors', c.name)"
+            ><span class="gym-map-color-dot" :style="{ background: c.code }"></span>{{ c.name }}</span>
+          </div>
+        </div>
+
+        <div v-if="availableAttributes.length > 0" class="gym-map-filter-section">
+          <div class="gym-map-filter-label">Attributes</div>
+          <div class="gym-map-filter-chips">
+            <span
+              v-for="a in availableAttributes" :key="'fa-' + a"
               class="gym-map-chip"
-              :class="{ 'gym-map-chip-active': filterSetters.has(s), 'gym-map-chip-dark': isDark }"
-              @click="toggleFilter('setters', s)"
-            >{{ s }}</span>
+              :class="{ 'gym-map-chip-active': filterAttributes.has(a), 'gym-map-chip-dark': isDark }"
+              @click="toggleFilter('attributes', a)"
+            >{{ a }}</span>
+          </div>
+        </div>
+
+        <div v-if="availableCircuits.length > 0" class="gym-map-filter-section">
+          <div class="gym-map-filter-label">Circuit</div>
+          <div class="gym-map-filter-chips">
+            <span
+              v-for="c in availableCircuits" :key="'fci-' + c.id"
+              class="gym-map-chip gym-map-chip-color"
+              :class="{ 'gym-map-chip-active': filterCircuits.has(c.id), 'gym-map-chip-dark': isDark }"
+              @click="toggleFilter('circuits', c.id)"
+            ><span class="gym-map-color-dot" :style="{ background: c.color }"></span>{{ c.name }}</span>
           </div>
         </div>
 
@@ -281,6 +350,18 @@
               :class="{ 'gym-map-chip-active': filterWalls.has(w), 'gym-map-chip-dark': isDark }"
               @click="toggleFilter('walls', w)"
             >{{ w }}</span>
+          </div>
+        </div>
+
+        <div class="gym-map-filter-section">
+          <div class="gym-map-filter-label">Setter</div>
+          <div class="gym-map-filter-chips">
+            <span
+              v-for="s in availableSetters" :key="'fs-' + s"
+              class="gym-map-chip"
+              :class="{ 'gym-map-chip-active': filterSetters.has(s), 'gym-map-chip-dark': isDark }"
+              @click="toggleFilter('setters', s)"
+            >{{ s }}</span>
           </div>
         </div>
       </div>
@@ -351,6 +432,18 @@ const gym = computed(() => store.state.gym)
 const backgroundUrl = computed(() => gym.value?.gym_map_config?.background_url || null)
 const backgroundOpacity = computed(() => gym.value?.gym_map_config?.opacity ?? 0.3)
 
+const visibleLayers = computed(() => {
+  const layers = gym.value?.gym_map_config?.layers || []
+  return layers
+    .filter(l => l.visible !== false && l.shapes?.length > 0)
+    .sort((a, b) => (a.order || 0) - (b.order || 0))
+})
+
+function shapeToPoints(shape) {
+  if (!shape) return ''
+  return shape.map(v => `${v[0]},${v[1]}`).join(' ')
+}
+
 const mappedWalls = computed(() =>
   walls.value.filter(w => w.shape_data && w.shape_data.length > 0)
 )
@@ -360,8 +453,27 @@ const showFilters = ref(false)
 const filterGrades = ref(new Set())
 const filterSetters = ref(new Set())
 const filterWalls = ref(new Set())
+const filterColors = ref(new Set())
+const filterAttributes = ref(new Set())
+const filterCircuits = ref(new Set())
+const filterNew = ref(false)
+const filterExpiring = ref(false)
+const filterTicked = ref(false)
+const filterProject = ref(false)
+const filterTodo = ref(false)
 
 const allProblems = computed(() => Object.values(problems.value))
+const styles = computed(() => store.state.styles || [])
+const allTimeTicks = computed(() => store.state.alltime?.ticks || [])
+const allTimeTries = computed(() => store.state.alltime?.tries || [])
+
+const tickedProblemIds = computed(() => new Set(allTimeTicks.value.map(t => String(t.problemid))))
+const projectProblemIds = computed(() => {
+  const tried = new Set(allTimeTries.value.map(t => String(t.problemid)))
+  // Projects = tried but not ticked
+  tickedProblemIds.value.forEach(id => tried.delete(id))
+  return tried
+})
 
 const availableGrades = computed(() => {
   const grades = new Set()
@@ -392,13 +504,47 @@ const availableWallNames = computed(() => {
   return [...names].sort()
 })
 
-const activeFilterCount = computed(() =>
-  filterGrades.value.size + filterSetters.value.size + filterWalls.value.size
-)
+const availableColors = computed(() => {
+  const map = new Map()
+  allProblems.value.forEach(p => {
+    if (p.colour?.name) {
+      map.set(p.colour.name, p.colour.code || '#888')
+    }
+  })
+  return [...map.entries()].map(([name, code]) => ({ name, code })).sort((a, b) => a.name.localeCompare(b.name))
+})
 
-const filterRefs = { grades: filterGrades, setters: filterSetters, walls: filterWalls }
+const availableAttributes = computed(() => {
+  // Only show attributes that at least one problem has
+  return styles.value.filter(attr => allProblems.value.some(p => p['attr_' + attr] == 1))
+})
+
+const availableCircuits = computed(() => {
+  const map = new Map()
+  allProblems.value.forEach(p => {
+    (p.circuits || []).forEach(c => {
+      if (!map.has(c.id)) {
+        map.set(c.id, { id: c.id, name: c.circuitshortname || c.circuitname || `#${c.id}`, color: c.color?.code || '#888' })
+      }
+    })
+  })
+  return [...map.values()].sort((a, b) => a.name.localeCompare(b.name))
+})
+
+const activeFilterCount = computed(() => {
+  let count = filterGrades.value.size + filterSetters.value.size + filterWalls.value.size
+    + filterColors.value.size + filterAttributes.value.size + filterCircuits.value.size
+  if (filterNew.value) count++
+  if (filterExpiring.value) count++
+  if (filterTicked.value) count++
+  if (filterProject.value) count++
+  if (filterTodo.value) count++
+  return count
+})
+
+const setFilterRefs = { grades: filterGrades, setters: filterSetters, walls: filterWalls, colors: filterColors, attributes: filterAttributes, circuits: filterCircuits }
 function toggleFilter(filterName, value) {
-  const filterRef = filterRefs[filterName]
+  const filterRef = setFilterRefs[filterName]
   const next = new Set(filterRef.value)
   if (next.has(value)) next.delete(value)
   else next.add(value)
@@ -409,23 +555,70 @@ function clearFilters() {
   filterGrades.value = new Set()
   filterSetters.value = new Set()
   filterWalls.value = new Set()
+  filterColors.value = new Set()
+  filterAttributes.value = new Set()
+  filterCircuits.value = new Set()
+  filterNew.value = false
+  filterExpiring.value = false
+  filterTicked.value = false
+  filterProject.value = false
+  filterTodo.value = false
 }
 
 function problemMatchesFilters(p) {
+  const pid = String(p.id)
+
+  // Grade
   if (filterGrades.value.size > 0) {
     const name = p.grade?.name || p.gradeName || ''
     const display = p.routetype === 'boulder' ? name.toUpperCase() : name
     if (!filterGrades.value.has(display)) return false
   }
+  // Setter
   if (filterSetters.value.size > 0) {
     const name = p.author
       ? (p.author.nick || `${p.author.etunimi || ''} ${p.author.sukunimi || ''}`.trim())
       : ''
     if (!filterSetters.value.has(name)) return false
   }
-  if (filterWalls.value.size > 0) {
-    // Wall filter checked at wall level in getWallProblems
+  // Colour
+  if (filterColors.value.size > 0) {
+    if (!p.colour?.name || !filterColors.value.has(p.colour.name)) return false
   }
+  // Attributes
+  if (filterAttributes.value.size > 0) {
+    for (const attr of filterAttributes.value) {
+      if (p['attr_' + attr] != 1) return false
+    }
+  }
+  // Circuits
+  if (filterCircuits.value.size > 0) {
+    const pCircuitIds = (p.circuits || []).map(c => c.id)
+    if (!pCircuitIds.some(id => filterCircuits.value.has(id))) return false
+  }
+  // New (added in last 14 days)
+  if (filterNew.value) {
+    if (!p.added) return false
+    const cutoff = Date.now() - 14 * 24 * 60 * 60 * 1000
+    if (new Date(p.added).getTime() < cutoff) return false
+  }
+  // Expiring
+  if (filterExpiring.value) {
+    if (p.soontoberemoved != 1) return false
+  }
+  // Ticked
+  if (filterTicked.value) {
+    if (!tickedProblemIds.value.has(pid)) return false
+  }
+  // Project (tried but not ticked)
+  if (filterProject.value) {
+    if (!projectProblemIds.value.has(pid)) return false
+  }
+  // Todo (not ticked)
+  if (filterTodo.value) {
+    if (tickedProblemIds.value.has(pid)) return false
+  }
+  // Wall filter checked at wall level in getWallProblems
   return true
 }
 
@@ -536,6 +729,40 @@ const didPan = ref(false)
 // Selected problem state
 const selectedProblem = ref(null)
 const popupPos = ref(null)
+const popupRef = ref(null)
+
+const popupStyle = computed(() => {
+  if (!popupPos.value) return {}
+  const pos = popupPos.value
+  const container = containerRef.value
+  const popup = popupRef.value
+  if (!container || !popup) {
+    // First render: position centered above, let nextTick recalc
+    return { left: pos.x + 'px', top: pos.y + 'px', transform: 'translate(-50%, -100%)' }
+  }
+  const cRect = container.getBoundingClientRect()
+  const pw = popup.offsetWidth
+  const ph = popup.offsetHeight
+  const pad = 8
+
+  // Default: centered above the dot
+  let x = pos.x - pw / 2
+  let y = pos.y - ph - 12
+
+  // If popup would go above container, show below the dot instead
+  if (y < pad) {
+    y = pos.y + 20
+  }
+
+  // Clamp horizontally
+  if (x < pad) x = pad
+  if (x + pw > cRect.width - pad) x = cRect.width - pad - pw
+
+  // Clamp bottom
+  if (y + ph > cRect.height - pad) y = cRect.height - pad - ph
+
+  return { left: x + 'px', top: y + 'px' }
+})
 
 function svgToScreen(svgX, svgY) {
   const svg = svgRef.value
@@ -560,10 +787,15 @@ function updatePopupPos() {
   const container = containerRef.value
   if (!container) return
   const rect = container.getBoundingClientRect()
+  // Set raw anchor point (the dot position relative to container)
   popupPos.value = {
     x: screen.x - rect.left,
-    y: screen.y - rect.top - 20, // above the dot
+    y: screen.y - rect.top,
   }
+  // After DOM updates, trigger re-compute so popupStyle can measure the popup element
+  nextTick(() => {
+    popupPos.value = { ...popupPos.value }
+  })
 }
 
 function onProblemTap(p) {
@@ -861,7 +1093,6 @@ function onTouchEnd(event) {
 
 .gym-map-popup {
   position: absolute;
-  transform: translate(-50%, -100%);
   background: #fff;
   border-radius: 12px;
   padding: 10px 12px;
@@ -1065,5 +1296,28 @@ function onTouchEnd(event) {
 .gym-map-chip.gym-map-chip-active.gym-map-chip-dark {
   background: #3b82f6;
   color: #fff;
+}
+
+.gym-map-chip-color {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.gym-map-color-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+}
+
+.gym-map-filter-panel-dark .gym-map-color-dot {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.gym-map-chip-active .gym-map-color-dot {
+  border-color: rgba(255, 255, 255, 0.4);
 }
 </style>
