@@ -295,6 +295,25 @@
 
         <div class="gym-map-filter-section">
           <div class="gym-map-filter-label">Grade</div>
+          <div v-if="availableGrades.length > 2" class="gym-map-grade-range">
+            <div class="gym-map-grade-range-labels">
+              <span :class="{ 'gym-map-grade-range-label-active': filterGrades.size > 0 }">{{ filterGrades.size > 0 ? availableGrades[gradeSliderMin] : availableGrades[0] }}</span>
+              <span :class="{ 'gym-map-grade-range-label-active': filterGrades.size > 0 }">{{ filterGrades.size > 0 ? availableGrades[gradeSliderMax] : availableGrades[availableGrades.length - 1] }}</span>
+            </div>
+            <div class="gym-map-range-track">
+              <div class="gym-map-range-fill" :style="gradeRangeFillStyle"></div>
+              <input type="range" class="gym-map-range-input"
+                :min="0" :max="availableGrades.length - 1" step="1"
+                :value="gradeSliderMin"
+                @input="onGradeRangeMin($event)"
+              />
+              <input type="range" class="gym-map-range-input"
+                :min="0" :max="availableGrades.length - 1" step="1"
+                :value="gradeSliderMax"
+                @input="onGradeRangeMax($event)"
+              />
+            </div>
+          </div>
           <div class="gym-map-filter-chips">
             <span
               v-for="g in availableGrades" :key="'fg-' + g"
@@ -479,7 +498,7 @@ const availableGrades = computed(() => {
   const grades = new Set()
   allProblems.value.forEach(p => {
     const name = p.grade?.name || p.gradeName || ''
-    if (name) grades.add(p.routetype === 'boulder' ? name.toUpperCase() : name)
+    if (name) grades.add(name.toUpperCase())
   })
   return [...grades].sort()
 })
@@ -542,6 +561,59 @@ const activeFilterCount = computed(() => {
   return count
 })
 
+// Grade range slider
+const gradeSliderMin = computed(() => {
+  if (filterGrades.value.size === 0) return 0
+  const grades = availableGrades.value
+  for (let i = 0; i < grades.length; i++) {
+    if (filterGrades.value.has(grades[i])) return i
+  }
+  return 0
+})
+
+const gradeSliderMax = computed(() => {
+  const grades = availableGrades.value
+  if (filterGrades.value.size === 0 || grades.length === 0) return Math.max(grades.length - 1, 0)
+  for (let i = grades.length - 1; i >= 0; i--) {
+    if (filterGrades.value.has(grades[i])) return i
+  }
+  return Math.max(grades.length - 1, 0)
+})
+
+const gradeRangeFillStyle = computed(() => {
+  const total = Math.max(availableGrades.value.length - 1, 1)
+  const min = filterGrades.value.size > 0 ? gradeSliderMin.value : 0
+  const max = filterGrades.value.size > 0 ? gradeSliderMax.value : total
+  const left = (min / total) * 100
+  const right = (max / total) * 100
+  return { left: left + '%', width: (right - left) + '%' }
+})
+
+function selectGradeRange(min, max) {
+  const grades = availableGrades.value
+  const selected = new Set()
+  for (let i = min; i <= max; i++) {
+    selected.add(grades[i])
+  }
+  filterGrades.value = selected
+}
+
+function onGradeRangeMin(e) {
+  let min = parseInt(e.target.value)
+  let max = gradeSliderMax.value
+  if (filterGrades.value.size === 0) max = availableGrades.value.length - 1
+  if (min > max) max = min
+  selectGradeRange(min, max)
+}
+
+function onGradeRangeMax(e) {
+  let max = parseInt(e.target.value)
+  let min = gradeSliderMin.value
+  if (filterGrades.value.size === 0) min = 0
+  if (max < min) min = max
+  selectGradeRange(min, max)
+}
+
 const setFilterRefs = { grades: filterGrades, setters: filterSetters, walls: filterWalls, colors: filterColors, attributes: filterAttributes, circuits: filterCircuits }
 function toggleFilter(filterName, value) {
   const filterRef = setFilterRefs[filterName]
@@ -568,11 +640,10 @@ function clearFilters() {
 function problemMatchesFilters(p) {
   const pid = String(p.id)
 
-  // Grade
+  // Grade (case-insensitive)
   if (filterGrades.value.size > 0) {
-    const name = p.grade?.name || p.gradeName || ''
-    const display = p.routetype === 'boulder' ? name.toUpperCase() : name
-    if (!filterGrades.value.has(display)) return false
+    const name = (p.grade?.name || p.gradeName || '').toUpperCase()
+    if (!filterGrades.value.has(name)) return false
   }
   // Setter
   if (filterSetters.value.size > 0) {
@@ -1296,6 +1367,115 @@ function onTouchEnd(event) {
 .gym-map-chip.gym-map-chip-active.gym-map-chip-dark {
   background: #3b82f6;
   color: #fff;
+}
+
+/* Grade range slider */
+.gym-map-grade-range {
+  margin-bottom: 8px;
+}
+
+.gym-map-grade-range-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 2px;
+}
+
+.gym-map-grade-range-label-active {
+  color: #3b82f6;
+}
+
+.gym-map-range-track {
+  position: relative;
+  height: 28px;
+}
+
+.gym-map-range-track::before {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 2px;
+}
+
+.gym-map-filter-panel-dark .gym-map-range-track::before {
+  background: rgba(148, 163, 184, 0.15);
+}
+
+.gym-map-range-fill {
+  position: absolute;
+  top: 12px;
+  height: 4px;
+  background: #3b82f6;
+  border-radius: 2px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gym-map-range-input {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 28px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  pointer-events: none;
+  z-index: 2;
+  margin: 0;
+  padding: 0;
+  outline: none;
+}
+
+.gym-map-range-input::-webkit-slider-runnable-track {
+  height: 4px;
+  background: transparent;
+  border: none;
+}
+
+.gym-map-range-input::-moz-range-track {
+  height: 4px;
+  background: transparent;
+  border: none;
+}
+
+.gym-map-range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  pointer-events: auto;
+  cursor: pointer;
+  margin-top: -9px;
+  position: relative;
+  z-index: 3;
+}
+
+.gym-map-range-input::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  pointer-events: auto;
+  cursor: pointer;
+  border: none;
+}
+
+.gym-map-filter-panel-dark .gym-map-range-input::-webkit-slider-thumb {
+  background: #e2e8f0;
+}
+
+.gym-map-filter-panel-dark .gym-map-range-input::-moz-range-thumb {
+  background: #e2e8f0;
 }
 
 .gym-map-chip-color {
