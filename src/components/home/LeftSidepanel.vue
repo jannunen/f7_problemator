@@ -7,10 +7,10 @@
       <f7-page>
         <!-- Brand header -->
         <div class="flex flex-col items-center py-6 px-4">
-          <img width="60" :src="logo" style="border-radius: 50%; border: 2px solid rgba(56, 189, 248, 0.2);" />
-          <h1 class="font-bold text-lg mt-2" style="color: var(--p-text);">Problemator</h1>
+          <img width="60" :src="logo" class="sidepanel-logo" />
+          <h1 class="font-bold text-lg mt-2">Problemator</h1>
           <small class="p-text-muted">{{ version }}</small>
-          <span class="text-xs font-semibold uppercase mt-1" style="color: var(--p-text-dim); letter-spacing: 0.06em;">Every problem counts</span>
+          <span class="text-xs font-semibold uppercase mt-1 p-text-dim sidepanel-tagline">Every problem counts</span>
         </div>
 
         <div v-if="isAuthenticated" class="px-2">
@@ -154,3 +154,12 @@ const sidePanelOpen = computed(() => store.state.sidePanelOpen)
 const selectedItem = computed(() => store.state.selectedItem)
 
 </script>
+<style scoped>
+.sidepanel-logo {
+  border-radius: 50%;
+  border: 2px solid rgba(var(--p-accent-rgb), 0.2);
+}
+.sidepanel-tagline {
+  letter-spacing: 0.06em;
+}
+</style>

@@ -14,7 +14,7 @@
                 <br />
                 <div class="p-card mt-3">
                 <table class="w-full text-sm">
-                <tr><th class="text-left py-1" style="color: var(--p-accent);" colspan="100">
+                <tr><th class="text-left py-1 p-text-accent" colspan="100">
                 <strong>Boulder:</strong>
                 </th></tr>
                 <tr class="ranking-rule-row"><td>Flash (= 1st try)</td><td class="text-right font-semibold p-text-accent">+93</td></tr>
@@ -22,7 +22,7 @@
                 <tr class="ranking-rule-row"><td>3rd-10th</td><td class="text-right font-semibold p-text-accent">+3</td></tr>
                 <tr class="ranking-rule-row"><td>more than 10</td><td class="text-right font-semibold p-text-danger">-1</td></tr>
 
-                <tr><th class="text-left py-1 pt-3" style="color: var(--p-accent);" colspan="100">
+                <tr><th class="text-left py-1 pt-3 p-text-accent" colspan="100">
                 <strong>Sport:</strong>
                 </th></tr>
                 <tr class="ranking-rule-row"><td>Onsight (no prior knowledge)</td><td class="text-right font-semibold p-text-accent">+143</td></tr>
@@ -41,11 +41,11 @@
             <div class="p-card__title mb-0">{{ t('ranking.ranking_title') }}</div>
             <a class="p-link text-sm" @click.prevent="refresh">refresh</a>
         </div>
-        <p class="text-sm mb-2" style="color: var(--p-text-muted); line-height: 1.5;">
+        <p class="text-sm mb-2 p-text-muted leading-normal">
             Ranking is based on top10 hardest problems. Flashes give more points, tries deduce.
-            <span class="material-icons p-link" style="font-size: 16px; vertical-align: middle; cursor: pointer;" @click.prevent="showRankingSheet = true">info</span>
+            <span class="material-icons p-link ranking-info-icon" @click.prevent="showRankingSheet = true">info</span>
         </p>
-        <p class="text-xs mb-3" style="color: var(--p-accent); line-height: 1.4;">
+        <p class="text-xs mb-3 p-text-accent leading-snug">
             If you don't see your ranking in your country's list, go to the settings page, set the country and climb some problems.
         </p>
 
@@ -114,6 +114,11 @@ refresh()
 <style scoped>
 .ranking-rule-row td {
   padding: 0.25rem 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--p-border);
+}
+.ranking-info-icon {
+  font-size: 16px;
+  vertical-align: middle;
+  cursor: pointer;
 }
 </style>

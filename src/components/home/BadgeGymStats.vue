@@ -3,11 +3,11 @@
     <div class="p-card__title">Problem/Route completion status</div>
     <div class="grid grid-cols-2 gap-4 my-3">
       <div class="p-stat">
-        <div class="p-stat__value">{{ percentageBoulders }}<span style="font-size: 1rem;">%</span></div>
+        <div class="p-stat__value">{{ percentageBoulders }}<span class="p-stat__unit">%</span></div>
         <div class="p-stat__label">of {{ totalBoulders }} Boulders</div>
       </div>
       <div class="p-stat">
-        <div class="p-stat__value">{{ percentageRoutes }}<span style="font-size: 1rem;">%</span></div>
+        <div class="p-stat__value">{{ percentageRoutes }}<span class="p-stat__unit">%</span></div>
         <div class="p-stat__label">of {{ totalRoutes }} Routes</div>
       </div>
     </div>

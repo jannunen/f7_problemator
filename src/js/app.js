@@ -22,13 +22,16 @@ Framework7.use(Framework7Vue);
 import App from '../app.vue';
 import messages from './i18n/messages'
 import { createI18n } from 'vue-i18n'
-import { jwtInterceptor, setLogoutHandler } from '@js/helpers';
+import { jwtInterceptor, setLogoutHandler, setTokenRefreshHandler } from '@js/helpers';
 
 // enable interceptors for http requests
 jwtInterceptor();
 
 // Wire up the 401 handler to use the store's logout action
 setLogoutHandler(() => store.dispatch('logout'));
+
+// Keep Vuex state in sync when the interceptor refreshes the token
+setTokenRefreshHandler((token) => store.commit('setToken', token));
 //errorInterceptor();
 
 // Init App

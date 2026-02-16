@@ -1,17 +1,23 @@
 <template>
-    <a href="#" @click.prevent="navigateToArchive">
-        <div class="flex flex-col mx-4 text-center">
-            <div class="text-5xl font-bold leading-8">{{ scoreToday }}<br /></div>
-            <small class="mt-1 mb-2">{{ t('home.score_today') }}</small>
-            <div class="text-xl text-center leading-3">{{ hardestClimb }}</div>
-            <small>{{ t('home.hardest_climb') }}</small>
+    <a href="#" @click.prevent="navigateToArchive" class="score-today__block">
+        <div class="p-stat">
+            <div class="p-stat__value">{{ scoreToday }}</div>
+            <div class="p-stat__label">{{ t('home.score_today') }}</div>
+        </div>
+        <div class="score-today__sub">
+            <span class="score-today__sub-value">{{ hardestClimb || '—' }}</span>
+            <span class="p-stat__label">{{ t('home.hardest_climb') }}</span>
         </div>
     </a>
-    <div class="flex flex-col mx-4 text-center">
-        <div class="text-5xl font-bold leading-8">{{ ticksTodayLength }}<br /></div>
-        <small class="mt-1 mb-2">{{ t('home.ascents') }}</small>
-        <div class="text-sm text-center leading-3">{{ triesTodayLength }}</div>
-        <small>{{ t('home.tries') }}</small>
+    <div class="score-today__block">
+        <div class="p-stat">
+            <div class="p-stat__value">{{ ticksTodayLength }}</div>
+            <div class="p-stat__label">{{ t('home.ascents') }}</div>
+        </div>
+        <div class="score-today__sub">
+            <span class="score-today__sub-value">{{ triesTodayLength }}</span>
+            <span class="p-stat__label">{{ t('home.tries') }}</span>
+        </div>
     </div>
 </template>
 <script setup>
@@ -70,3 +76,33 @@ const navigateToArchive = () => {
 }
 
 </script>
+<style scoped>
+.score-today__block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 5rem;
+  padding: 0 1rem;
+  text-decoration: none;
+  color: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+a.score-today__block {
+  transition: opacity var(--p-duration) ease;
+}
+a.score-today__block:active {
+  opacity: 0.7;
+}
+.score-today__sub {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.score-today__sub-value {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--p-accent);
+  line-height: 1.2;
+}
+</style>

@@ -173,7 +173,10 @@ const api = {
     return ret.data
   },
   async deleteTickByProblem(payload,prefix='') {
-    const url = endpoint + prefix + "/tick/byproblem/"+payload.problemid+"?key="+payload.point_entry_key
+    let url = endpoint + prefix + "/tick/byproblem/"+payload.problemid
+    if (payload.point_entry_key) {
+      url += "?key=" + payload.point_entry_key
+    }
     const ret = await   axios.delete(url, payload)
     return ret.data
 
@@ -184,7 +187,10 @@ const api = {
     return ret.data
   },
   async saveTick(payload,prefix='') {
-    let url = endpoint + prefix + "/tick/?key="+payload.point_entry_key
+    let url = endpoint + prefix + "/tick/"
+    if (payload.point_entry_key) {
+      url += "?key=" + payload.point_entry_key
+    }
     const ret = await  axios.post(url, payload)
     return ret.data
   },

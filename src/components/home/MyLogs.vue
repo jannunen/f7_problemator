@@ -7,10 +7,12 @@
     </div>
 
     <div class="mb-4">
-      <div class="text-sm font-semibold mb-1" style="color: var(--p-text-secondary);">Hardest top10 climb scores per week</div>
+      <div class="text-sm font-semibold mb-1 p-text-secondary">Hardest top10 climb scores per week</div>
       <div class="text-xs mb-2 p-text-muted">4000pts = 6a, 5000pts = 6b, 7000pts = 7a, 8000pts = 7b, 9000pts = 7c.</div>
       <Line
-        :chart-data="progressData" chart-id="c_progress" :width="300" :height="150" />
+        :chart-data="progressData"
+        :chart-options="{ plugins: { legend: { display: false } } }"
+        chart-id="c_progress" :width="300" :height="150" />
     </div>
 
     <div class="flex items-start gap-4">
@@ -33,13 +35,13 @@
             :chart-data="data" chart-id="c1" :width="400" :height="200" />
 
           <div v-else class="text-center py-4">
-            <span class="material-icons mb-1" style="font-size: 32px; color: var(--p-warning);">trending_flat</span>
-            <div class="text-sm font-semibold" style="color: var(--p-warning);">No ascents to list</div>
+            <span class="material-icons mb-1 p-text-warning" style="font-size: 32px">trending_flat</span>
+            <div class="text-sm font-semibold p-text-warning">No ascents to list</div>
           </div>
         </div>
 
         <!-- Last N days selector -->
-        <div class="flex items-center justify-center gap-1 mt-2 text-sm" style="color: var(--p-text-muted);">
+        <div class="flex items-center justify-center gap-1 mt-2 text-sm p-text-muted">
           Last
           <div class="p-dropdown">
             <span class="p-dropdown__trigger" @click="showDaysDropdown = !showDaysDropdown">{{ lastDays }}</span>
@@ -84,6 +86,23 @@ import { getAscentsByGrade } from '@helpers/component.helpers.js'
 import { Bar, Line } from 'vue-chartjs'
 import { Chart, registerables } from 'chart.js'
 Chart.register(...registerables)
+
+// Theme Chart.js to match the design system
+Chart.defaults.color = '#94a3b8'              // --p-text-muted
+Chart.defaults.borderColor = 'rgba(255, 255, 255, 0.06)' // --p-border
+Chart.defaults.font.family = 'inherit'
+Chart.defaults.font.size = 11
+Chart.defaults.plugins.legend.labels.boxWidth = 12
+Chart.defaults.plugins.legend.labels.padding = 12
+Chart.defaults.plugins.tooltip.backgroundColor = 'rgba(22, 32, 50, 0.96)'
+Chart.defaults.plugins.tooltip.titleColor = '#f1f5f9'       // --p-text
+Chart.defaults.plugins.tooltip.bodyColor = '#e2e8f0'         // --p-text-secondary
+Chart.defaults.plugins.tooltip.borderColor = 'rgba(255, 255, 255, 0.08)'
+Chart.defaults.plugins.tooltip.borderWidth = 1
+Chart.defaults.plugins.tooltip.cornerRadius = 8
+Chart.defaults.plugins.tooltip.padding = 10
+Chart.defaults.scale.grid.color = 'rgba(255, 255, 255, 0.04)'
+Chart.defaults.scale.ticks.color = '#64748b'  // --p-text-dim
 import dayjs from 'dayjs'
 import { calculatePoints } from '@/js/helpers'
 import advancedFormat from  'dayjs/plugin/advancedFormat'

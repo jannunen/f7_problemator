@@ -573,15 +573,21 @@
   color: var(--p-text-muted);
   margin-top: 0.25rem;
 }
+.p-stat__unit {
+  font-size: 1rem;
+  font-weight: 600;
+}
 
 /* ==========================================================
    Utility helpers
    ========================================================== */
-.p-text-accent { color: var(--p-accent); }
-.p-text-muted  { color: var(--p-text-muted); }
-.p-text-dim    { color: var(--p-text-dim); }
-.p-text-success{ color: var(--p-success); }
-.p-text-danger { color: var(--p-danger); }
+.p-text-accent    { color: var(--p-accent); }
+.p-text-secondary { color: var(--p-text-secondary); }
+.p-text-muted     { color: var(--p-text-muted); }
+.p-text-dim       { color: var(--p-text-dim); }
+.p-text-success { color: var(--p-success); }
+.p-text-danger  { color: var(--p-danger); }
+.p-text-warning { color: var(--p-warning); }
 
 .p-link {
   color: var(--p-accent);
@@ -591,6 +597,66 @@
 }
 .p-link:hover {
   opacity: 0.8;
+}
+
+/* ==========================================================
+   .p-skeleton — shimmer loading placeholders
+   ========================================================== */
+.p-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03) 25%,
+    rgba(255, 255, 255, 0.06) 50%,
+    rgba(255, 255, 255, 0.03) 75%
+  );
+  background-size: 200% 100%;
+  animation: p-shimmer 1.5s ease infinite;
+  border-radius: var(--p-radius-sm);
+}
+.p-skeleton--text {
+  height: 0.875rem;
+  width: 60%;
+  border-radius: 4px;
+}
+.p-skeleton--text-sm {
+  height: 0.625rem;
+  width: 40%;
+  border-radius: 4px;
+}
+.p-skeleton--circle {
+  border-radius: 50%;
+}
+.p-skeleton--card {
+  height: 7rem;
+  border-radius: var(--p-radius-lg);
+  border: 1px solid var(--p-border);
+}
+.p-skeleton--stat {
+  height: 2.5rem;
+  width: 4rem;
+  border-radius: var(--p-radius-sm);
+}
+.p-skeleton--chart {
+  height: 9rem;
+  border-radius: var(--p-radius);
+  border: 1px solid var(--p-border);
+}
+@keyframes p-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ==========================================================
+   .home-section — visual grouping for dashboard sections
+   ========================================================== */
+.home-section {
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--p-border);
+}
+.home-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
 }
 
 /* Ensure page has room for bottom tab bar */

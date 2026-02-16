@@ -158,12 +158,16 @@ export default createStore({
       state.alltime.ticks = [...state.alltime.ticks,payload]
     },
     addTickToCompetition(state, payload) {
-      state.competition.userticks = {...state.competition.userticks, [payload.problemid] : payload}
+      if (state.competition && state.competition.userticks) {
+        state.competition.userticks = {...state.competition.userticks, [payload.problemid] : payload}
+      }
     },
     removeTickFromCompetition(state, payload) {
-      const newTicks = {...state.competition.userticks}
-      delete newTicks[payload]
-      state.competition.userticks = newTicks
+      if (state.competition && state.competition.userticks) {
+        const newTicks = {...state.competition.userticks}
+        delete newTicks[payload]
+        state.competition.userticks = newTicks
+      }
     },
     removeTick(state, pid) {
       state.alltime.ticks = state.alltime.ticks.filter(x => x.problemid != pid)

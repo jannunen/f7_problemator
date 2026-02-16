@@ -5,7 +5,7 @@
       <f7-nav-title>Problemator </f7-nav-title>
       <f7-nav-right>
         <f7-link @click.prevent="store.commit('setSidePanel', true)">
-          <span class="material-icons" style="font-size: 24px;">menu</span>
+          <span class="material-icons p-tab-bar__icon">menu</span>
         </f7-link>
       </f7-nav-right>
     </f7-navbar>
@@ -41,41 +41,82 @@
     <!-- Tab content via v-show -->
     <div v-show="activeTab === 'home'">
       <div v-if="profileLoaded">
+        <complete-profile-popup />
         <show-tick-help :opened="showTickHelpDialog" />
         <left-sidepanel />
-        <!-- Page content -->
-        <gym-selector />
-        <TodayHeader :profile="profile" @addtick="onAddTick" />
-        <expiring-problems-alert />
-        <floor-map-block :f7router="props.f7router" />
-        <badge-gym-stats :gym="gym" />
-        <competitions-badge />
-        <ranking />
-        <div v-if="ticksLoaded && alltime.ticks.length == 0" class="px-4">
-          <div class="p-banner p-banner--warning">
-            <span class="material-icons p-banner__icon" style="color: #f59e0b;">help_outline</span>
-            <div class="p-banner__content">
-              It seems that you have no ticks. If you should have, click here for instructions.
-              <button
-                @click="showTickHelpDialog = true"
-                class="p-btn p-btn--sm mt-2"
-              >Help me</button>
-              <div class="text-xs mt-1" style="color: var(--p-text-dim);">
-                Otherwise this message will disappear after you start ticking problems.
-                You can find this later from Settings-menu.
+
+        <!-- Section: Your session -->
+        <div class="home-section">
+          <gym-selector />
+          <TodayHeader :profile="profile" @addtick="onAddTick" />
+          <div v-if="ticksLoaded && alltime.ticks.length == 0" class="px-4 mt-2">
+            <div class="p-banner p-banner--warning">
+              <span class="material-icons p-banner__icon p-text-warning">help_outline</span>
+              <div class="p-banner__content">
+                It seems that you have no ticks. If you should have, click here for instructions.
+                <button
+                  @click="showTickHelpDialog = true"
+                  class="p-btn p-btn--sm mt-2"
+                >Help me</button>
+                <div class="text-xs mt-1 p-text-dim">
+                  Otherwise this message will disappear after you start ticking problems.
+                  You can find this later from Settings-menu.
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <my-logs :show-selector="true" />
+        <!-- Section: Gym overview -->
+        <div class="home-section">
+          <expiring-problems-alert />
+          <floor-map-block :f7router="props.f7router" />
+          <badge-gym-stats :gym="gym" />
+        </div>
+
+        <!-- Section: Community -->
+        <div class="home-section">
+          <competitions-badge />
+          <ranking />
+        </div>
+
+        <!-- Section: Progress -->
+        <div class="home-section">
+          <my-logs :show-selector="true" />
+        </div>
 
       </div>
-      <div v-else class="text-center">
-        <div v-if="!ready">
-          <div class="flex flex-col items-center justify-center py-12">
-            <div class="p-spinner" style="width: 36px; height: 36px;"></div>
-            <div class="text-sm mt-3 p-text-muted">Loading ...</div>
+      <div v-else>
+        <div v-if="!ready" class="home-skeleton">
+          <!-- Skeleton: gym selector -->
+          <div class="home-skeleton__row mx-4 mt-3">
+            <div class="p-skeleton" style="height: 2.75rem; border-radius: var(--p-radius);"></div>
+          </div>
+          <!-- Skeleton: today stats -->
+          <div class="flex justify-center gap-6 mt-5 mb-4">
+            <div class="flex flex-col items-center gap-2">
+              <div class="p-skeleton p-skeleton--stat"></div>
+              <div class="p-skeleton p-skeleton--text-sm" style="width: 3rem;"></div>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+              <div class="p-skeleton p-skeleton--stat"></div>
+              <div class="p-skeleton p-skeleton--text-sm" style="width: 3rem;"></div>
+            </div>
+            <div class="flex flex-col items-center gap-2">
+              <div class="p-skeleton p-skeleton--circle" style="width: 48px; height: 48px;"></div>
+            </div>
+          </div>
+          <!-- Skeleton: map card -->
+          <div class="mx-4 mb-3">
+            <div class="p-skeleton p-skeleton--card"></div>
+          </div>
+          <!-- Skeleton: stats card -->
+          <div class="mx-4 mb-3">
+            <div class="p-skeleton p-skeleton--card" style="height: 5rem;"></div>
+          </div>
+          <!-- Skeleton: ranking card -->
+          <div class="mx-4 mb-3">
+            <div class="p-skeleton p-skeleton--chart"></div>
           </div>
         </div>
         <div v-else>
@@ -116,6 +157,7 @@ import Ranking from '@components/home/Ranking.vue'
 import FloorMapBlock from '@components/ui/FloorMapBlock.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
+import CompleteProfilePopup from '@components/home/CompleteProfilePopup.vue'
 import PButton from '@components/PButton.vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
