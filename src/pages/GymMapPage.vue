@@ -71,7 +71,7 @@
             <template v-for="p in getWallProblems(wall)" :key="'p-' + p.id">
               <g v-if="!selectedProblem || selectedProblem.id !== p.id">
                 <!-- New problem glow -->
-                <path v-if="p.isNew"
+                <path v-if="p.isNew && !p.isTicked"
                         :d="circlePath(p.cx, p.cy, 0.012)"
                         fill="none"
                         stroke="#facc15"
@@ -256,6 +256,26 @@
             <span v-for="s in availableSetters" :key="'fs-' + s" class="gym-map-chip" :class="{ 'gym-map-chip-active': filterSetters.has(s), 'gym-map-chip-dark': isDark }" @click="toggleFilter('setters', s)">{{ s }}</span>
           </div>
         </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="gym-map-legend" :class="{ 'gym-map-legend-dark': isDark }">
+        <span class="gym-map-legend-item">
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="#888" stroke="#fff" stroke-width="1.5"/></svg>
+          Problem
+        </span>
+        <span class="gym-map-legend-item">
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="#facc15" stroke-width="1.2" opacity="0.8"/><circle cx="7" cy="7" r="4.5" fill="#888" stroke="#fff" stroke-width="1"/></svg>
+          New
+        </span>
+        <span class="gym-map-legend-item">
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#22c55e" stroke-width="1.2"/><circle cx="7" cy="7" r="4" fill="#888" stroke="#fff" stroke-width="1"/></svg>
+          Ticked
+        </span>
+        <span class="gym-map-legend-item">
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#f59e0b" stroke-width="1.2"/><circle cx="7" cy="7" r="4" fill="#888" stroke="#fff" stroke-width="1"/></svg>
+          Project
+        </span>
       </div>
 
       <!-- Empty state -->
@@ -1413,5 +1433,37 @@ function onTouchEnd(event) {
 
 .gym-map-chip-active .gym-map-color-dot {
   border-color: rgba(255, 255, 255, 0.4);
+}
+
+.gym-map-legend {
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 6px 12px;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.gym-map-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #475569;
+  background: rgba(255, 255, 255, 0.75);
+  padding: 3px 8px;
+  border-radius: 10px;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.gym-map-legend-dark .gym-map-legend-item {
+  color: #cbd5e1;
+  background: rgba(15, 23, 42, 0.7);
 }
 </style>
