@@ -1,6 +1,6 @@
 <template>
 
-  <f7-list-item media link="#" swipeout @swipeout:open="swipingout = true" @swipeout:closed="swipingout = false" @click="() => onClick(problem)">
+  <f7-list-item media link="#" swipeout @swipeout:open="swipingout = true" @swipeout:closed="swipingout = false" @click="() => onClick(problem)" :class="{ 'hit-expiring': problem.soontoberemoved == 1 }">
 
     <template #title>
       <div class="hit-title">{{ getAfter(problem) }}
@@ -180,9 +180,7 @@ export default {
       t,
     }
   },
-  components: {
-    RoundBadge,
-  },
+  components: { RoundBadge },
 }
 </script>
 
@@ -252,6 +250,10 @@ export default {
 .swipeout-green-light {
   background: rgba(59, 178, 115, 0.12) !important;
   color: #6ee7b7 !important;
+}
+.hit-expiring :deep(.item-inner),
+.hit-expiring :deep(.item-content) {
+  background: rgba(239, 68, 68, 0.12);
 }
 .swipeout-orange {
   background: rgba(245, 158, 11, 0.2) !important;

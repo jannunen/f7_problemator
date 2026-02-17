@@ -97,6 +97,12 @@
                       :fill="isDark ? '#e2e8f0' : '#1e293b'"
                       text-anchor="middle"
                       style="pointer-events: none; user-select: none; font-weight: 600">{{ shortTag(p.tag) }}</text>
+                <!-- Expiring overlay -->
+                <rect v-if="p.soontoberemoved == 1"
+                      :x="p.cx - 0.009" :y="p.cy - 0.009"
+                      width="0.018" height="0.018" rx="0.003"
+                      fill="#ef4444" opacity="0.6"
+                      style="pointer-events: none;" />
               </g>
             </template>
           </g>
@@ -107,6 +113,12 @@
             <path :d="circlePath(selectedProblem.cx, selectedProblem.cy, 0.012)" fill="none" stroke="#fff" stroke-width="0.002" opacity="0.6" />
             <path :d="circlePath(selectedProblem.cx, selectedProblem.cy, 0.008)" :fill="getColor(selectedProblem)" stroke="#fff" stroke-width="0.003" @click.stop="onProblemTap(selectedProblem)" />
             <text :x="selectedProblem.cx" :y="selectedProblem.cy" font-size="0.0056" fill="#fff" text-anchor="middle" dominant-baseline="central" style="pointer-events: none; user-select: none; font-weight: 600">{{ displayGrade(selectedProblem) }}</text>
+            <!-- Expiring overlay -->
+            <rect v-if="selectedProblem.soontoberemoved == 1"
+                  :x="selectedProblem.cx - 0.009" :y="selectedProblem.cy - 0.009"
+                  width="0.018" height="0.018" rx="0.003"
+                  fill="#ef4444" opacity="0.6"
+                  style="pointer-events: none;" />
           </g>
         </g>
       </svg>

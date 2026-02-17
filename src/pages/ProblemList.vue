@@ -57,6 +57,17 @@
             <ascent-status-filter v-model="ascentTypeFilter" />
           </div>
 
+          <!-- Soon to be removed filter -->
+          <div class="mb-4">
+            <div class="p-list__item">
+              <span style="color: var(--p-text-secondary);">Soon to be removed</span>
+              <label class="p-toggle">
+                <input type="checkbox" v-model="soonToBeRemovedFilter" />
+                <span class="p-toggle__track"></span>
+              </label>
+            </div>
+          </div>
+
           <!-- Problem name filter -->
           <div>
             <div class="p-section-title">{{ t('problemlist.problemnamefilter') }}</div>
@@ -266,6 +277,7 @@ const nameFilter = ref('')
 const styles = computed(() => store.state.styles)
 const storeNameFilter = computed(() => store.state.filters.nameFilter)
 const ascentTypeFilter = ref('all')
+const soonToBeRemovedFilter = ref(false)
 const unfilteredProblemsExist = computed(() => {
   if (problems.value == null) {
     return 0
@@ -363,6 +375,11 @@ const filteredProblems = computed(() => {
     })
   }
 
+  // Filter by soon to be removed
+  if (soonToBeRemovedFilter.value) {
+    probs = probs.filter((item) => item.soontoberemoved == 1)
+  }
+
   // Filter by walls
   if (filters.value.walls != null && filters.value.walls.length > 0) {
     probs = probs.filter((item) => {
@@ -419,6 +436,7 @@ const gradesDiffer = (idx) => {
 const resetFilters = () => {
   nameFilter.value = ''
   selectedWalls.value = []
+  soonToBeRemovedFilter.value = false
   store.commit('resetFilters')
 }
 watch(nameFilter, (newValue) => {
