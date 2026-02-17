@@ -186,6 +186,10 @@ const api = {
     const ret = await axios.delete(url, payload)
     return ret.data
   },
+  async getBadges() {
+    const ret = await axios.get(endpoint + "/my/badges")
+    return ret.data
+  },
   async saveTick(payload,prefix='') {
     let url = endpoint + prefix + "/tick/"
     if (payload.point_entry_key) {

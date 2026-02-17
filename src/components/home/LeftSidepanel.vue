@@ -20,6 +20,16 @@
             <span class="p-nav-item__label">Home</span>
           </button>
 
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'feed' }" @click="openFeed">
+            <span class="material-icons p-nav-item__icon">dynamic_feed</span>
+            <span class="p-nav-item__label">Feed</span>
+          </button>
+
+          <button v-if="hasGymMap" class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'gymmap' }" @click="openGymMap">
+            <span class="material-icons p-nav-item__icon">map</span>
+            <span class="p-nav-item__label">Open map</span>
+          </button>
+
           <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'settings' }" @click="openSettings">
             <span class="material-icons p-nav-item__icon">settings</span>
             <span class="p-nav-item__label">Settings</span>
@@ -59,6 +69,11 @@
             <span class="material-icons p-nav-item__icon">refresh</span>
             <span class="p-nav-item__label">Check for update</span>
             <span class="p-nav-item__badge">v{{ serverVersion }}</span>
+          </button>
+
+          <button class="p-nav-item" @click="doReloadApp">
+            <span class="material-icons p-nav-item__icon">cleaning_services</span>
+            <span class="p-nav-item__label">Reload &amp; clear cache</span>
           </button>
 
           <div class="p-nav-item--divider"></div>
@@ -115,6 +130,19 @@ const { t } = useI18n()
 const darkMode = localStorage.getItem('dark') === 'true'
 const localDarkMode = ref(darkMode)
 
+const walls = computed(() => store.state.walls || [])
+const hasGymMap = computed(() => walls.value.some(w => w.shape_data && w.shape_data.length > 0))
+
+const openFeed = () => {
+  store.commit('setSelectedLeftPanelItem', 'feed')
+  store.commit('setSidePanel', false)
+  f7.views.main.router.navigate("/feed")
+}
+const openGymMap = () => {
+  store.commit('setSelectedLeftPanelItem', 'gymmap')
+  store.commit('setSidePanel', false)
+  f7.views.main.router.navigate("/gym-map", { ignoreCache: true, force: true })
+}
 const openSettings = () => {
   store.commit('setSelectedLeftPanelItem', 'settings')
   store.commit('setSidePanel', false)
@@ -145,6 +173,25 @@ watch(localDarkMode, (isDarkTheme, oldValue) => {
 
 const doVersionCheck = () => {
   store.dispatch('version')
+}
+const doReloadApp = async () => {
+  store.commit('setSidePanel', false)
+  // Unregister all service workers
+  if ('serviceWorker' in navigator) {
+    const registrations = await navigator.serviceWorker.getRegistrations()
+    for (const reg of registrations) {
+      await reg.unregister()
+    }
+  }
+  // Clear all caches
+  if ('caches' in window) {
+    const keys = await caches.keys()
+    for (const key of keys) {
+      await caches.delete(key)
+    }
+  }
+  // Hard reload
+  window.location.reload(true)
 }
 const doLogout = () => {
   store.commit('setSidePanel', false)

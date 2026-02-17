@@ -89,6 +89,8 @@ export default createStore({
     },
     version : "",
     server_version : "",
+    badges: [],
+    earnedBadges: [],
   },
 
   mutations: {
@@ -103,6 +105,15 @@ export default createStore({
       */
 
       state.public_ascents = {...state.public_ascents, [payload.problemid] : payload.ascents}
+    },
+    badges(state, payload) {
+      state.badges = payload
+    },
+    earnedBadges(state, payload) {
+      state.earnedBadges = payload
+    },
+    addEarnedBadge(state, payload) {
+      state.earnedBadges = [payload, ...state.earnedBadges]
     },
     rankingtop10(state, payload) {
       state.rankingtop10= payload
@@ -447,18 +458,37 @@ export default createStore({
 
       return ret
     },
+    async loadBadges({ commit }) {
+      const ret = await api.getBadges()
+      commit('badges', ret.definitions || [])
+      commit('earnedBadges', ret.earned || [])
+      return ret
+    },
     async saveTick({ state, commit, dispatch}, payload) {
       if (state.climber != null && state.climber.point_entry_key != null) {
-        payload.point_entry_key = state.climber.point_entry_key  
+        payload.point_entry_key = state.climber.point_entry_key
       }
       const ret = await api.saveTick(payload)
       commit('updateProblem', ret.problem)
       // Update also tries in profile
       if (payload.ticktype=='tick') {
-        commit('addTicksAllTime',ret.tick) 
+        commit('addTicksAllTime',ret.tick)
         commit('addTickToCompetition',ret.tick)
       } else {
-        commit('addTriesAllTime',ret.tick) 
+        commit('addTriesAllTime',ret.tick)
+      }
+      // Handle newly earned badges
+      if (ret.new_badges && ret.new_badges.length > 0) {
+        ret.new_badges.forEach(badge => {
+          commit('addEarnedBadge', {
+            badge_id: badge.id,
+            name: badge.name,
+            icon: badge.icon,
+            color: badge.color,
+            tier: badge.tier,
+            earned_at: new Date().toISOString(),
+          })
+        })
       }
       dispatch('rankings', { country: state.rankingTarget })
       return ret

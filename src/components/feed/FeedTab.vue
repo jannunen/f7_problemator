@@ -1,5 +1,9 @@
 <template>
   <f7-page>
+    <f7-navbar>
+      <f7-nav-left back-link="Back"></f7-nav-left>
+      <f7-nav-title>Feed</f7-nav-title>
+    </f7-navbar>
     <!-- Custom tab switcher -->
     <div class="p-toggle-group mx-4 mt-3 mb-2">
       <button
@@ -54,6 +58,12 @@ const store = useStore()
 const activeTab = ref('follow')
 const feed = computed(() => store.state.feed)
 const feedLoading = computed(() => store.state.feedLoading)
+const gym = computed(() => store.state.gym)
+
+onMounted(() => {
+  store.dispatch('getFeed')
+  if (gym.value?.id) store.dispatch('newProblems', gym.value.id)
+})
 // Set feed reloading every 10 mins.
 setInterval(() => {
   store.dispatch('getFeed')

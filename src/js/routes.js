@@ -7,6 +7,7 @@ import ClimberProfilePage from '../pages/ClimberProfilePage.vue';
 import ProblemPopup from '../pages/ProblemPopup.vue';
 import GymCompletionPage from '../pages/GymCompletionPage.vue';
 import GymMapPage from '../pages/GymMapPage.vue';
+import FeedPage from '../components/feed/FeedTab.vue';
 import ProblemList from '../pages/ProblemList.vue';
 import UpcomingCompetitionsPage from '../pages/UpcomingCompetitionsPage.vue';
 import ShowRankingTop10Page from '../pages/ShowRankingTop10Page.vue';
@@ -61,6 +62,10 @@ const routes = [
     path: '/archive',
     component: ArchivePage,
     //beforeEnter: authGuard,
+  },
+  {
+    path: '/feed',
+    component: FeedPage,
   },
   {
     path: '/gym-map',

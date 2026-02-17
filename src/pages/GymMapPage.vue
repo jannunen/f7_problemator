@@ -1,181 +1,125 @@
 <template>
   <f7-page name="gym-map" :page-content="false">
     <f7-navbar>
-      <f7-nav-left></f7-nav-left>
-      <f7-nav-title>Problemator</f7-nav-title>
+      <f7-nav-left back-link="Back"></f7-nav-left>
+      <f7-nav-title>Gym Map</f7-nav-title>
       <f7-nav-right></f7-nav-right>
     </f7-navbar>
-    <f7-toolbar tabbar labels position="bottom">
-      <f7-link
-        tab-link
-        @click="navigateHome"
-        text="Home"
-        icon-ios="f7:house"
-        icon-aurora="f7:house"
-        icon-md="material:house"
-      ></f7-link>
-      <f7-link
-        tab-link
-        tab-link-active
-        text="Map"
-        icon-ios="f7:map"
-        icon-aurora="f7:map"
-        icon-md="material:map"
-      ></f7-link>
-      <f7-link
-        tab-link
-        @click="navigateHome"
-        text="Feed"
-        icon-ios="f7:list_dash"
-        icon-aurora="f7:list_dash"
-        icon-md="material:list_dash"
-      ></f7-link>
-    </f7-toolbar>
     <div
-      ref="containerRef"
-      class="gym-map-container"
-      :class="{ 'gym-map-dark': isDark }"
-      @wheel.prevent="onWheel"
-      @mousedown="onMouseDown"
-      @mousemove="onMouseMove"
-      @mouseup="onMouseUp"
-      @mouseleave="onMouseUp"
-      @touchstart="onTouchStart"
-      @touchmove.prevent="onTouchMove"
-      @touchend="onTouchEnd"
-      @contextmenu.prevent
-    >
+         ref="containerRef"
+         class="gym-map-container"
+         :class="{ 'gym-map-dark': isDark }"
+         @wheel.prevent="onWheel"
+         @mousedown="onMouseDown"
+         @mousemove="onMouseMove"
+         @mouseup="onMouseUp"
+         @mouseleave="onMouseUp"
+         @touchstart="onTouchStart"
+         @touchmove.prevent="onTouchMove"
+         @touchend="onTouchEnd"
+         @contextmenu.prevent>
       <svg
-        ref="svgRef"
-        :viewBox="viewBoxString"
-        preserveAspectRatio="xMidYMid meet"
-        style="width: 100%; height: 100%; display: block;"
-      >
+           ref="svgRef"
+           :viewBox="viewBoxString"
+           preserveAspectRatio="xMidYMid meet"
+           style="width: 100%; height: 100%; display: block;">
         <g :transform="rotationTransform">
-        <!-- Background image -->
-        <image
-          v-if="backgroundUrl"
-          :href="backgroundUrl"
-          x="0" y="0" width="1" height="1"
-          :opacity="backgroundOpacity"
-          preserveAspectRatio="xMidYMid meet"
-        />
+          <!-- Background image -->
+          <image
+                 v-if="backgroundUrl"
+                 :href="backgroundUrl"
+                 x="0" y="0" width="1" height="1"
+                 :opacity="backgroundOpacity"
+                 preserveAspectRatio="xMidYMid meet" />
 
-        <!-- Subtle grid -->
-        <g opacity="0.06">
-          <line v-for="i in 9" :key="'gv'+i" :x1="i*0.1" y1="0" :x2="i*0.1" y2="1" stroke="#94a3b8" stroke-width="0.001" />
-          <line v-for="i in 9" :key="'gh'+i" x1="0" :y1="i*0.1" x2="1" :y2="i*0.1" stroke="#94a3b8" stroke-width="0.001" />
-        </g>
+          <!-- Subtle grid -->
+          <g opacity="0.06">
+            <line v-for="i in 9" :key="'gv' + i" :x1="i * 0.1" y1="0" :x2="i * 0.1" y2="1" stroke="#94a3b8" stroke-width="0.001" />
+            <line v-for="i in 9" :key="'gh' + i" x1="0" :y1="i * 0.1" x2="1" :y2="i * 0.1" stroke="#94a3b8" stroke-width="0.001" />
+          </g>
 
-        <!-- Decorative layers (rendered below walls) -->
-        <g v-for="layer in visibleLayers" :key="'layer-' + layer.id">
-          <polygon
-            v-for="(shape, si) in layer.shapes"
-            :key="si"
-            :points="shapeToPoints(shape)"
-            :fill="layer.color"
-            :opacity="layer.opacity ?? 1"
-            stroke="none"
-          />
-        </g>
+          <!-- Decorative layers (rendered below walls) -->
+          <g v-for="layer in visibleLayers" :key="'layer-' + layer.id">
+            <polygon
+                     v-for="(shape, si) in layer.shapes"
+                     :key="si"
+                     :points="shapeToPoints(shape)"
+                     :fill="layer.color"
+                     :opacity="layer.opacity ?? 1"
+                     stroke="none" />
+          </g>
 
-        <!-- Walls with problems -->
-        <g v-for="wall in mappedWalls" :key="'w-' + wall.id">
-          <polygon
-            :points="wallPoints(wall)"
-            :fill="isDark ? 'rgba(148,163,184,0.2)' : 'rgba(100,116,139,0.15)'"
-            :stroke="isDark ? '#94a3b8' : '#64748b'"
-            :stroke-width="0.003 * scale"
-            stroke-linejoin="round"
-          />
-          <!-- Wall label -->
-          <text
-            :x="wallCenter(wall).x"
-            :y="wallCenter(wall).y"
-            :font-size="0.018 * scale"
-            :fill="isDark ? '#e2e8f0' : '#1e293b'"
-            text-anchor="middle"
-            dominant-baseline="central"
-            style="pointer-events: none; user-select: none; font-weight: 600"
-          >{{ wall.wallchar || wall.walldesc }}</text>
+          <!-- Walls with problems -->
+          <g v-for="wall in mappedWalls" :key="'w-' + wall.id">
+            <polygon
+                     :points="wallPoints(wall)"
+                     :fill="isDark ? 'rgba(148,163,184,0.2)' : 'rgba(100,116,139,0.15)'"
+                     :stroke="isDark ? '#94a3b8' : '#64748b'"
+                     :stroke-width="0.003 * scale"
+                     stroke-linejoin="round" />
+            <!-- Wall label -->
+            <text
+                  :x="wallCenter(wall).x"
+                  :y="wallCenter(wall).y"
+                  :font-size="0.018 * scale"
+                  :fill="isDark ? '#e2e8f0' : '#1e293b'"
+                  text-anchor="middle"
+                  dominant-baseline="central"
+                  style="pointer-events: none; user-select: none; font-weight: 600">{{ wall.wallchar || wall.walldesc }}</text>
 
-          <!-- Problem dots (skip selected so it renders on top) -->
-          <template v-for="p in getWallProblems(wall)" :key="'p-' + p.id">
-            <g v-if="!selectedProblem || selectedProblem.id !== p.id">
-              <circle
-                :cx="p.cx"
-                :cy="p.cy"
-                r="0.008"
-                :fill="p.color"
-                :stroke="isDark ? '#1e293b' : '#fff'"
-                stroke-width="0.0024"
-                @click.stop="onProblemTap(p)"
-              />
-              <text v-if="showLabel"
-                :x="p.cx" :y="p.cy"
-                font-size="0.0056"
-                fill="#fff"
-                text-anchor="middle"
-                dominant-baseline="central"
-                style="pointer-events: none; user-select: none; font-weight: 600"
-              >{{ displayGrade(p) }}</text>
-              <text v-if="showDetails"
-                :x="p.cx"
-                :y="p.cy + 0.012"
-                font-size="0.0036"
-                :fill="isDark ? '#94a3b8' : '#64748b'"
-                text-anchor="middle"
-                dominant-baseline="hanging"
-                style="pointer-events: none; user-select: none; font-weight: 500"
-              >{{ shortTag(p.tag) }}</text>
-            </g>
-          </template>
-        </g>
+            <!-- Problem dots (skip selected so it renders on top) -->
+            <template v-for="p in getWallProblems(wall)" :key="'p-' + p.id">
+              <g v-if="!selectedProblem || selectedProblem.id !== p.id">
+                <!-- New problem glow -->
+                <path v-if="p.isNew"
+                        :d="circlePath(p.cx, p.cy, 0.012)"
+                        fill="none"
+                        stroke="#facc15"
+                        stroke-width="0.002"
+                        opacity="0.7" />
+                <!-- Ticked / project ring -->
+                <path v-if="p.isTicked || p.isProject"
+                        :d="circlePath(p.cx, p.cy, 0.0105)"
+                        fill="none"
+                        :stroke="p.isTicked ? '#22c55e' : '#f59e0b'"
+                        stroke-width="0.0018" />
+                <path
+                        :d="circlePath(p.cx, p.cy, 0.008)"
+                        :fill="getColor(p)"
+                        :stroke="isDark ? '#1e293b' : '#fff'"
+                        stroke-width="0.0024"
+                        @click.stop="onProblemTap(p)" />
+                <text v-if="showLabel"
+                      :x="p.cx" :y="p.cy"
+                      font-size="0.0056"
+                      fill="#fff"
+                      text-anchor="middle"
+                      dominant-baseline="central"
+                      style="pointer-events: none; user-select: none; font-weight: 600">{{ displayGrade(p) }}</text>
+                <text v-if="showDetails"
+                      :x="p.cx"
+                      :y="p.cy + 0.013"
+                      dy="0.002"
+                      font-size="0.005"
+                      :fill="isDark ? '#e2e8f0' : '#1e293b'"
+                      text-anchor="middle"
+                      style="pointer-events: none; user-select: none; font-weight: 600">{{ shortTag(p.tag) }}</text>
+              </g>
+            </template>
+          </g>
 
-        <!-- Selected problem rendered last = topmost -->
-        <g v-if="selectedProblem">
-          <!-- Pulse ring -->
-          <circle
-            :cx="selectedProblem.cx"
-            :cy="selectedProblem.cy"
-            r="0.012"
-            fill="none"
-            stroke="#fff"
-            stroke-width="0.002"
-            opacity="0.6"
-          />
-          <circle
-            :cx="selectedProblem.cx"
-            :cy="selectedProblem.cy"
-            r="0.008"
-            :fill="selectedProblem.color"
-            stroke="#fff"
-            stroke-width="0.003"
-            @click.stop="onProblemTap(selectedProblem)"
-          />
-          <text
-            :x="selectedProblem.cx" :y="selectedProblem.cy"
-            font-size="0.0056"
-            fill="#fff"
-            text-anchor="middle"
-            dominant-baseline="central"
-            style="pointer-events: none; user-select: none; font-weight: 600"
-          >{{ displayGrade(selectedProblem) }}</text>
-        </g>
+          <!-- Selected problem rendered last = topmost -->
+          <g v-if="selectedProblem">
+            <!-- Pulse ring -->
+            <path :d="circlePath(selectedProblem.cx, selectedProblem.cy, 0.012)" fill="none" stroke="#fff" stroke-width="0.002" opacity="0.6" />
+            <path :d="circlePath(selectedProblem.cx, selectedProblem.cy, 0.008)" :fill="getColor(selectedProblem)" stroke="#fff" stroke-width="0.003" @click.stop="onProblemTap(selectedProblem)" />
+            <text :x="selectedProblem.cx" :y="selectedProblem.cy" font-size="0.0056" fill="#fff" text-anchor="middle" dominant-baseline="central" style="pointer-events: none; user-select: none; font-weight: 600">{{ displayGrade(selectedProblem) }}</text>
+          </g>
         </g>
       </svg>
 
       <!-- Problem info popup -->
-      <div
-        v-if="selectedProblem && popupPos"
-        ref="popupRef"
-        class="gym-map-popup"
-        :class="{ 'gym-map-popup-dark': isDark }"
-        :style="popupStyle"
-        @click.stop
-        @mousedown.stop
-        @touchstart.stop
-      >
+      <div v-if="selectedProblem && popupPos" ref="popupRef" class="gym-map-popup" :class="{ 'gym-map-popup-dark': isDark }" :style="popupStyle" @click.stop @mousedown.stop @touchstart.stop>
         <table class="gym-map-popup-table">
           <tr>
             <td class="gym-map-popup-label">Grade</td>
@@ -237,25 +181,12 @@
 
       <!-- Zoom slider + badge -->
       <div class="gym-map-zoom-row" @mousedown.stop @touchstart.stop>
-        <input
-          type="range"
-          class="gym-map-zoom-slider"
-          min="5" max="500" step="1"
-          :value="zoomPercent"
-          @input="onZoomSlider($event)"
-        />
+        <input type="range" class="gym-map-zoom-slider" min="5" max="500" step="1" :value="zoomPercent" @input="onZoomSlider($event)" />
         <span class="gym-map-badge">{{ zoomPercent }}%</span>
       </div>
 
       <!-- Filter panel -->
-      <div
-        v-if="showFilters"
-        class="gym-map-filter-panel"
-        :class="{ 'gym-map-filter-panel-dark': isDark }"
-        @click.stop
-        @mousedown.stop
-        @touchstart.stop
-      >
+      <div v-if="showFilters" class="gym-map-filter-panel" :class="{ 'gym-map-filter-panel-dark': isDark }" @click.stop @mousedown.stop @touchstart.stop>
         <div class="gym-map-filter-header">
           <span class="gym-map-filter-title">Filters</span>
           <span v-if="activeFilterCount > 0" class="gym-map-filter-clear" @click="clearFilters">Clear all</span>
@@ -265,31 +196,11 @@
         <div class="gym-map-filter-section">
           <div class="gym-map-filter-label">Quick filters</div>
           <div class="gym-map-filter-chips">
-            <span
-              class="gym-map-chip gym-map-chip-toggle"
-              :class="{ 'gym-map-chip-active': filterNew, 'gym-map-chip-dark': isDark }"
-              @click="filterNew = !filterNew"
-            >New</span>
-            <span
-              class="gym-map-chip gym-map-chip-toggle"
-              :class="{ 'gym-map-chip-active': filterExpiring, 'gym-map-chip-dark': isDark }"
-              @click="filterExpiring = !filterExpiring"
-            >Expiring</span>
-            <span
-              class="gym-map-chip gym-map-chip-toggle"
-              :class="{ 'gym-map-chip-active': filterTicked, 'gym-map-chip-dark': isDark }"
-              @click="filterTicked = !filterTicked"
-            >Ticked</span>
-            <span
-              class="gym-map-chip gym-map-chip-toggle"
-              :class="{ 'gym-map-chip-active': filterProject, 'gym-map-chip-dark': isDark }"
-              @click="filterProject = !filterProject"
-            >Projects</span>
-            <span
-              class="gym-map-chip gym-map-chip-toggle"
-              :class="{ 'gym-map-chip-active': filterTodo, 'gym-map-chip-dark': isDark }"
-              @click="filterTodo = !filterTodo"
-            >Not ticked</span>
+            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterNew, 'gym-map-chip-dark': isDark }" @click="filterNew = !filterNew">New</span>
+            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterExpiring, 'gym-map-chip-dark': isDark }" @click="filterExpiring = !filterExpiring">Expiring</span>
+            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterTicked, 'gym-map-chip-dark': isDark }" @click="filterTicked = !filterTicked">Ticked</span>
+            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterProject, 'gym-map-chip-dark': isDark }" @click="filterProject = !filterProject">Projects</span>
+            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterTodo, 'gym-map-chip-dark': isDark }" @click="filterTodo = !filterTodo">Not ticked</span>
           </div>
         </div>
 
@@ -302,85 +213,47 @@
             </div>
             <div class="gym-map-range-track">
               <div class="gym-map-range-fill" :style="gradeRangeFillStyle"></div>
-              <input type="range" class="gym-map-range-input"
-                :min="0" :max="availableGrades.length - 1" step="1"
-                :value="gradeSliderMin"
-                @input="onGradeRangeMin($event)"
-              />
-              <input type="range" class="gym-map-range-input"
-                :min="0" :max="availableGrades.length - 1" step="1"
-                :value="gradeSliderMax"
-                @input="onGradeRangeMax($event)"
-              />
+              <input type="range" class="gym-map-range-input" :min="0" :max="availableGrades.length - 1" step="1" :value="gradeSliderMin" @input="onGradeRangeMin($event)" />
+              <input type="range" class="gym-map-range-input" :min="0" :max="availableGrades.length - 1" step="1" :value="gradeSliderMax" @input="onGradeRangeMax($event)" />
             </div>
           </div>
           <div class="gym-map-filter-chips">
-            <span
-              v-for="g in availableGrades" :key="'fg-' + g"
-              class="gym-map-chip"
-              :class="{ 'gym-map-chip-active': filterGrades.has(g), 'gym-map-chip-dark': isDark }"
-              @click="toggleFilter('grades', g)"
-            >{{ g }}</span>
+            <span v-for="g in availableGrades" :key="'fg-' + g" class="gym-map-chip" :class="{ 'gym-map-chip-active': filterGrades.has(g), 'gym-map-chip-dark': isDark }" @click="toggleFilter('grades', g)">{{ g }}</span>
           </div>
         </div>
 
         <div v-if="availableColors.length > 0" class="gym-map-filter-section">
           <div class="gym-map-filter-label">Colour</div>
           <div class="gym-map-filter-chips">
-            <span
-              v-for="c in availableColors" :key="'fc-' + c.name"
-              class="gym-map-chip gym-map-chip-color"
-              :class="{ 'gym-map-chip-active': filterColors.has(c.name), 'gym-map-chip-dark': isDark }"
-              @click="toggleFilter('colors', c.name)"
-            ><span class="gym-map-color-dot" :style="{ background: c.code }"></span>{{ c.name }}</span>
+            <span v-for="c in availableColors" :key="'fc-' + c.name" class="gym-map-chip gym-map-chip-color" :class="{ 'gym-map-chip-active': filterColors.has(c.name), 'gym-map-chip-dark': isDark }" @click="toggleFilter('colors', c.name)"><span class="gym-map-color-dot" :style="{ background: c.code }"></span>{{ c.name }}</span>
           </div>
         </div>
 
         <div v-if="availableAttributes.length > 0" class="gym-map-filter-section">
           <div class="gym-map-filter-label">Attributes</div>
           <div class="gym-map-filter-chips">
-            <span
-              v-for="a in availableAttributes" :key="'fa-' + a"
-              class="gym-map-chip"
-              :class="{ 'gym-map-chip-active': filterAttributes.has(a), 'gym-map-chip-dark': isDark }"
-              @click="toggleFilter('attributes', a)"
-            >{{ a }}</span>
+            <span v-for="a in availableAttributes" :key="'fa-' + a" class="gym-map-chip" :class="{ 'gym-map-chip-active': filterAttributes.has(a), 'gym-map-chip-dark': isDark }" @click="toggleFilter('attributes', a)">{{ a }}</span>
           </div>
         </div>
 
         <div v-if="availableCircuits.length > 0" class="gym-map-filter-section">
           <div class="gym-map-filter-label">Circuit</div>
           <div class="gym-map-filter-chips">
-            <span
-              v-for="c in availableCircuits" :key="'fci-' + c.id"
-              class="gym-map-chip gym-map-chip-color"
-              :class="{ 'gym-map-chip-active': filterCircuits.has(c.id), 'gym-map-chip-dark': isDark }"
-              @click="toggleFilter('circuits', c.id)"
-            ><span class="gym-map-color-dot" :style="{ background: c.color }"></span>{{ c.name }}</span>
+            <span v-for="c in availableCircuits" :key="'fci-' + c.id" class="gym-map-chip gym-map-chip-color" :class="{ 'gym-map-chip-active': filterCircuits.has(c.id), 'gym-map-chip-dark': isDark }" @click="toggleFilter('circuits', c.id)"><span class="gym-map-color-dot" :style="{ background: c.color }"></span>{{ c.name }}</span>
           </div>
         </div>
 
         <div class="gym-map-filter-section">
           <div class="gym-map-filter-label">Wall</div>
           <div class="gym-map-filter-chips">
-            <span
-              v-for="w in availableWallNames" :key="'fw-' + w"
-              class="gym-map-chip"
-              :class="{ 'gym-map-chip-active': filterWalls.has(w), 'gym-map-chip-dark': isDark }"
-              @click="toggleFilter('walls', w)"
-            >{{ w }}</span>
+            <span v-for="w in availableWallNames" :key="'fw-' + w" class="gym-map-chip" :class="{ 'gym-map-chip-active': filterWalls.has(w), 'gym-map-chip-dark': isDark }" @click="toggleFilter('walls', w)">{{ w }}</span>
           </div>
         </div>
 
         <div class="gym-map-filter-section">
           <div class="gym-map-filter-label">Setter</div>
           <div class="gym-map-filter-chips">
-            <span
-              v-for="s in availableSetters" :key="'fs-' + s"
-              class="gym-map-chip"
-              :class="{ 'gym-map-chip-active': filterSetters.has(s), 'gym-map-chip-dark': isDark }"
-              @click="toggleFilter('setters', s)"
-            >{{ s }}</span>
+            <span v-for="s in availableSetters" :key="'fs-' + s" class="gym-map-chip" :class="{ 'gym-map-chip-active': filterSetters.has(s), 'gym-map-chip-dark': isDark }" @click="toggleFilter('setters', s)">{{ s }}</span>
           </div>
         </div>
       </div>
@@ -399,7 +272,6 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { f7 } from 'framework7-vue'
 import { useStore } from 'vuex'
-
 const props = defineProps({
   f7router: Object,
 })
@@ -417,10 +289,29 @@ onMounted(() => {
     isDark.value = document.documentElement.classList.contains('theme-dark')
   })
   darkObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+
+  // Apply content bounds or default view
+  const cb = gym.value?.gym_map_config?.content_bounds
+  if (cb) {
+    // Use bounds width (+10% padding) to fill phone width;
+    // vertical centering happens via preserveAspectRatio on the taller screen
+    const side = cb.w * 1.1
+    const cx = cb.x + cb.w / 2
+    const cy = cb.y + cb.h / 2
+    viewBox.value = { x: cx - side / 2, y: cy - side / 2, w: side, h: side }
+    rotation.value = gym.value?.gym_map_config?.rotation || 0
+  } else {
+    const dv = defaultView.value
+    if (dv) {
+      viewBox.value = { x: dv.x, y: dv.y, w: dv.w, h: dv.h }
+      rotation.value = dv.rotation || 0
+    }
+  }
 })
 onUnmounted(() => { darkObserver?.disconnect() })
 
 // View state (local, not in vuex — this is read-only viewer)
+const defaultView = computed(() => gym.value?.gym_map_config?.default_view || null)
 const viewBox = ref({ x: 0, y: 0, w: 1, h: 1 })
 const scale = computed(() => viewBox.value.w)
 const viewBoxString = computed(() => {
@@ -733,6 +624,7 @@ function getWallProblems(wall) {
       cy = center.y + Math.sin(angle) * radius
     }
     const wallObj = wall
+    const pid = String(p.id)
     return {
       ...p,
       cx,
@@ -740,6 +632,9 @@ function getWallProblems(wall) {
       color: getColor(p),
       gradeName: p.grade?.name || p.gradeName || '',
       wallName: wallObj.wallchar || wallObj.walldesc || '',
+      isTicked: tickedProblemIds.value.has(pid),
+      isProject: projectProblemIds.value.has(pid),
+      isNew: !!p.added && (Date.now() - new Date(p.added).getTime()) < 7 * 24 * 60 * 60 * 1000,
     }
   })
 }
@@ -788,6 +683,10 @@ function getColor(problem) {
   return '#888'
 }
 
+function circlePath(cx, cy, r) {
+  return `M${cx - r},${cy}a${r},${r} 0 1,0 ${r * 2},0a${r},${r} 0 1,0 -${r * 2},0Z`
+}
+
 // Navigation
 function navigateHome() {
   const router = props.f7router || f7.views.main.router
@@ -808,8 +707,8 @@ const popupStyle = computed(() => {
   const container = containerRef.value
   const popup = popupRef.value
   if (!container || !popup) {
-    // First render: position centered above, let nextTick recalc
-    return { left: pos.x + 'px', top: pos.y + 'px', transform: 'translate(-50%, -100%)' }
+    // First render: hide while measuring, nextTick will recalc with final position
+    return { left: pos.x + 'px', top: pos.y + 'px', transform: 'translate(-50%, -100%)', opacity: '0' }
   }
   const cRect = container.getBoundingClientRect()
   const pw = popup.offsetWidth
@@ -902,8 +801,23 @@ function dismissPopup() {
 watch([viewBox, rotation], () => { updatePopupPos() })
 
 function resetView() {
-  viewBox.value = { x: 0, y: 0, w: 1, h: 1 }
-  rotation.value = 0
+  const cb = gym.value?.gym_map_config?.content_bounds
+  if (cb) {
+    const side = cb.w * 1.1
+    const cx = cb.x + cb.w / 2
+    const cy = cb.y + cb.h / 2
+    viewBox.value = { x: cx - side / 2, y: cy - side / 2, w: side, h: side }
+    rotation.value = gym.value?.gym_map_config?.rotation || 0
+  } else {
+    const dv = defaultView.value
+    if (dv) {
+      viewBox.value = { x: dv.x, y: dv.y, w: dv.w, h: dv.h }
+      rotation.value = dv.rotation || 0
+    } else {
+      viewBox.value = { x: 0, y: 0, w: 1, h: 1 }
+      rotation.value = 0
+    }
+  }
 }
 
 function onZoomSlider(event) {
@@ -1068,7 +982,7 @@ function onTouchEnd(event) {
   top: calc(var(--f7-navbar-height) + var(--f7-safe-area-top));
   left: 0;
   right: 0;
-  bottom: calc(var(--f7-toolbar-height) + var(--f7-safe-area-bottom));
+  bottom: env(safe-area-inset-bottom, 0);
   background: #f1f5f9;
   touch-action: none;
   overflow: hidden;

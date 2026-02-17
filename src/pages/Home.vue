@@ -1,45 +1,16 @@
 <template>
-  <f7-page name="home" class="p-page-with-tabbar">
+  <f7-page name="home">
     <f7-navbar>
       <f7-nav-left> </f7-nav-left>
       <f7-nav-title>Problemator </f7-nav-title>
       <f7-nav-right>
         <f7-link @click.prevent="store.commit('setSidePanel', true)">
-          <span class="material-icons p-tab-bar__icon">menu</span>
+          <span class="material-icons" style="font-size: 22px; line-height: 1;">menu</span>
         </f7-link>
       </f7-nav-right>
     </f7-navbar>
 
-    <!-- Custom bottom tab bar -->
-    <div class="p-tab-bar">
-      <button
-        class="p-tab-bar__item"
-        :class="{ 'p-tab-bar__item--active': activeTab === 'map' }"
-        @click="activeTab = 'map'; navigateToGymMap()"
-      >
-        <span class="material-icons p-tab-bar__icon">map</span>
-        <span class="p-tab-bar__label">Map</span>
-      </button>
-      <button
-        class="p-tab-bar__item"
-        :class="{ 'p-tab-bar__item--active': activeTab === 'dashboard' }"
-        @click="activeTab = 'dashboard'"
-      >
-        <span class="material-icons p-tab-bar__icon">dashboard</span>
-        <span class="p-tab-bar__label">Dashboard</span>
-      </button>
-      <button
-        class="p-tab-bar__item"
-        :class="{ 'p-tab-bar__item--active': activeTab === 'feed' }"
-        @click="activeTab = 'feed'; initFeedTab()"
-      >
-        <span class="material-icons p-tab-bar__icon">dynamic_feed</span>
-        <span class="p-tab-bar__label">Feed</span>
-      </button>
-    </div>
-
-    <!-- Tab content via v-show -->
-    <div v-show="activeTab === 'dashboard'">
+    <div>
       <div v-if="profileLoaded">
         <complete-profile-popup />
         <show-tick-help :opened="showTickHelpDialog" />
@@ -56,46 +27,61 @@
           </div>
         </div>
 
-        <!-- Section: Your session -->
+        <!-- Gym selector always visible -->
         <div class="home-section">
           <gym-selector />
-          <TodayHeader :profile="profile" @addtick="onAddTick" />
-          <div v-if="ticksLoaded && alltime.ticks.length == 0" class="px-4 mt-2">
-            <div class="p-banner p-banner--warning">
-              <span class="material-icons p-banner__icon p-text-warning">help_outline</span>
-              <div class="p-banner__content">
-                It seems that you have no ticks. If you should have, click here for instructions.
-                <button
-                  @click="showTickHelpDialog = true"
-                  class="p-btn p-btn--sm mt-2"
-                >Help me</button>
-                <div class="text-xs mt-1 p-text-dim">
-                  Otherwise this message will disappear after you start ticking problems.
-                  You can find this later from Settings-menu.
+        </div>
+
+        <!-- Empty state when no gym selected -->
+        <div v-if="!gymid" class="px-4 mt-6 text-center">
+          <span class="material-icons p-text-dim" style="font-size: 48px;">location_city</span>
+          <h2 class="text-lg font-bold mt-2">No gym selected</h2>
+          <p class="p-text-dim text-sm mt-1">Select a gym above to see your dashboard, problems, and stats.</p>
+        </div>
+
+        <!-- All gym-dependent sections -->
+        <template v-else>
+          <!-- Section: Your session -->
+          <div class="home-section">
+            <TodayHeader :profile="profile" @addtick="onAddTick" />
+            <div v-if="ticksLoaded && alltime.ticks.length == 0" class="px-4 mt-2">
+              <div class="p-banner p-banner--warning">
+                <span class="material-icons p-banner__icon p-text-warning">help_outline</span>
+                <div class="p-banner__content">
+                  It seems that you have no ticks. If you should have, click here for instructions.
+                  <button
+                    @click="showTickHelpDialog = true"
+                    class="p-btn p-btn--sm mt-2"
+                  >Help me</button>
+                  <div class="text-xs mt-1 p-text-dim">
+                    Otherwise this message will disappear after you start ticking problems.
+                    You can find this later from Settings-menu.
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- Section: Gym overview -->
-        <div class="home-section">
-          <expiring-problems-alert />
-          <floor-map-block :f7router="props.f7router" />
-          <badge-gym-stats :gym="gym" />
-        </div>
+          <!-- Section: Gym overview -->
+          <div class="home-section">
+            <expiring-problems-alert />
+            <floor-map-block :f7router="props.f7router" />
+            <badge-gym-stats :gym="gym" />
+          </div>
 
-        <!-- Section: Community -->
-        <div class="home-section">
-          <competitions-badge />
-          <ranking />
-        </div>
+          <!-- Section: Community -->
+          <div class="home-section">
+            <competitions-badge />
+            <ranking />
+          </div>
 
-        <!-- Section: Progress -->
-        <div class="home-section">
-          <grade-pyramid />
-          <my-logs :show-selector="true" />
-        </div>
+          <!-- Section: Progress -->
+          <div class="home-section">
+            <my-badges />
+            <grade-pyramid />
+            <my-logs :show-selector="true" />
+          </div>
+        </template>
 
       </div>
       <div v-else>
@@ -149,16 +135,11 @@
         />
       </f7-sheet>
     </div>
-
-    <div v-show="activeTab === 'feed'">
-      <feed-tab />
-    </div>
   </f7-page>
 </template>
 <script setup>
 import TodayHeader from '@components/home/TodayHeader.vue'
 import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.vue'
-import FeedTab from '@components/feed/FeedTab.vue'
 import GymSelector from '@components/GymSelector.vue'
 import MyLogs from '@components/home/MyLogs.vue'
 import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
@@ -170,17 +151,18 @@ import GradePyramid from '@components/home/GradePyramid.vue'
 import FloorMapBlock from '@components/ui/FloorMapBlock.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
+import MyBadges from '@components/home/MyBadges.vue'
 import CompleteProfilePopup from '@components/home/CompleteProfilePopup.vue'
 import PButton from '@components/PButton.vue'
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { f7 } from 'framework7-vue'
 const store = useStore()
 const showTickHelpDialog = ref(false)
 const ready = computed(() => store.state.ready)
 const profile = computed(() => store.state.profile)
 const gym = computed(() => store.state.gym)
+const gymid = computed(() => store.state.gymid)
 const alltime = computed(() => store.state.alltime)
 const ticksLoaded = computed(() => store.state.ticksLoaded)
 const version = computed(() => store.state.version)
@@ -188,17 +170,7 @@ const serverVersion = computed(() => store.state.server_version)
 const updateVersion = () => {
   window.location.reload(true)
 }
-const activeTab = ref('dashboard')
 const isOpened = ref(false)
-const gymid = computed(() => store.state.gymid)
-const navigateToGymMap = () => {
-  f7.views.main.router.navigate('/gym-map', { ignoreCache: true, force: true })
-}
-
-const initFeedTab = () => {
-  store.dispatch('getFeed')
-  store.dispatch('newProblems', gym.value.id)
-}
 
 const { t } = useI18n()
 const props = defineProps({
