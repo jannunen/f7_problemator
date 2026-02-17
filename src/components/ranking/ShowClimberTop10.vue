@@ -1,5 +1,5 @@
 <template>
-  <f7-popup v-model:opened="opened">
+  <f7-popup :opened="opened" @popup:closed="emit('update:opened', false)">
     <f7-page>
       <f7-navbar title="Top10 ascents for ranking">
         <f7-nav-right>
@@ -87,10 +87,12 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { watch, ref, computed, onMounted } from 'vue'
+import { computed } from 'vue'
 import { right } from '@js/helpers'
 import { useStore } from 'vuex'
+import { useQuery } from '@tanstack/vue-query'
 import { estimateGrade, toLocalTime, calculatePoints } from '@/js/helpers'
+import api from '@js/api'
 const { t } = useI18n()
 const props = defineProps({
   opened: Boolean,
@@ -101,23 +103,18 @@ const props = defineProps({
   last : String,
 })
 
-const emit = defineEmits(['close'])
-const loading = ref(true)
-onMounted(() => {
+const emit = defineEmits(['close', 'update:opened'])
+const store = useStore()
 
-  loading.value = true
-  // Find the top10
-  const payload = {
+const { data: ranking, isLoading: loading } = useQuery({
+  queryKey: ['rankingTop10', props.climber_id, props.ranking_id, props.country],
+  queryFn: () => api.rankingtop10({
     climber_id: props.climber_id,
     country: props.country,
     ranking_id: props.ranking_id,
-  }
-  store.dispatch('getRankingTop10', payload).then(() => {
-    loading.value = false
-    })
+  }),
 })
-const ranking = computed(() => store.state.rankingtop10)
-const store = useStore()
+
 const grades = computed(() => store.state.grades)
 const getFirstTickTimestamp = (problem) => {
   return toLocalTime(problem.ascent_tstamp, 'YYYY-MM-DD')

@@ -380,6 +380,11 @@ const doTick = (id) => {
     .then((ret) => {
       tries.value[id] = { ...tries.value[id], ticked: true }
       toaster(t('comps.tick_saved'))
+      if (ret.new_badges && ret.new_badges.length > 0) {
+        ret.new_badges.forEach(badge => {
+          setTimeout(() => toaster('You earned: ' + badge.name, 'Badge Unlocked!'), 500)
+        })
+      }
     })
     .catch((err) => { })
 }

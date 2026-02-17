@@ -26,7 +26,7 @@
             <div class="text-sm mt-2 p-text-muted">Loading feed...</div>
           </div>
           <div v-else>
-            <f7-list v-if="feed.length > 0" media class="p-2 my-0" problem-list>
+            <f7-list v-if="feed?.length > 0" media class="p-2 my-0" problem-list>
               <feed-item
                 v-for="item in feed"
                 :key="item.id"
@@ -47,27 +47,22 @@
   </f7-page>
 </template>
 <script setup>
-import { useI18n } from 'vue-i18n'
 import { f7 } from 'framework7-vue'
-import { onMounted, ref, computed } from 'vue'
+import { ref } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
 import FeedItem from '@components/feed/FeedItem.vue'
 import NewProblems from '@components/feed/NewProblems.vue'
-import { useStore } from 'vuex'
+import api from '@js/api'
 
-const store = useStore()
 const activeTab = ref('follow')
-const feed = computed(() => store.state.feed)
-const feedLoading = computed(() => store.state.feedLoading)
-const gym = computed(() => store.state.gym)
 
-onMounted(() => {
-  store.dispatch('getFeed')
-  if (gym.value?.id) store.dispatch('newProblems', gym.value.id)
+const { data: feed, isLoading: feedLoading } = useQuery({
+  queryKey: ['feed'],
+  queryFn: () => api.getFeed(),
+  refetchInterval: 600000,
+  select: (data) => data.feed,
 })
-// Set feed reloading every 10 mins.
-setInterval(() => {
-  store.dispatch('getFeed')
-}, 600000)
+
 const onStartNavigate = (item) => {
   f7.views.main.router.navigate('/problem/' + item.problem.id + '/popup', {
     props: { problem : item.problem },

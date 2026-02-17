@@ -8,7 +8,7 @@
             </div>
         </f7-toolbar>
         <f7-page-content class="m-0 p-0">
-            <f7-block v-if="ascents != null && ascents.length > 0">
+            <f7-block v-if="ascents?.length > 0">
                 <div class="my-1">{{ ascents.length }} {{ t('publicascents.ascents') }}</div>
                 <br /> {{ t('publicascents.not_all_ascents_are_public') }}
                 <f7-list media-list>
@@ -43,12 +43,21 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { showAgo, toLocalTime } from '@helpers'
-import { computed, ref, onMounted } from 'vue'
-import { useStore } from 'vuex'
-const store = useStore()
+import { computed } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
+import api from '@js/api'
 const { t } = useI18n()
 
-const ascents = ref([])
+const props = defineProps({
+    problem : Object,
+    opened: Boolean,
+})
+
+const { data: ascents } = useQuery({
+  queryKey: ['publicAscents', props.problem.id],
+  queryFn: () => api.getPublicAscents(props.problem.id),
+  select: (data) => data.ascents,
+})
 
 const showTryText = (tries) => {
     const flashText = (props.problem.routetype == 'boulder')  ? 'Flash' : 'Onsight'
@@ -57,16 +66,6 @@ const showTryText = (tries) => {
     }
     return tries +  " tries"
 }
-const props = defineProps({
-    problem : Object,
-    opened: Boolean,
-})
-onMounted(() => {
-    store.dispatch("getPublicAscents", props.problem.id)
-        .then((a) => {
-            ascents.value = a.ascents
-        })
-})
 
 const emits = defineEmits(['close'])
 const onSheetClose = () => {

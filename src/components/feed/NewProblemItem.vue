@@ -108,6 +108,11 @@
         store.dispatch('saveTick', payload)
           .then((resp) => {
             toaster(resp.message)
+            if (resp.new_badges && resp.new_badges.length > 0) {
+              resp.new_badges.forEach(badge => {
+                setTimeout(() => toaster('You earned: ' + badge.name, 'Badge Unlocked!'), 500)
+              })
+            }
           })
           .catch((err) => {
             alert(err)

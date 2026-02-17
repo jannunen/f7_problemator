@@ -29,23 +29,12 @@ export default createStore({
     routetypes : ['boulder','sport'],
     rankings : null,
     rankingTarget : 'global',
-    rankingtop10 : null, // This holds ranking top 10 per selected climber
-    feed : [],
-    feedLoading : true,
-    newProblems : [],
     settings : {
       darkMode : true,
     },
     competition : null,
     compResults : null,
-    upcomingcomps : {
-      loaded : false,
-      upcoming : [],
-      ongoing : [],
-      past : [],
-    },
     tipShowStatus : {},
-    public_ascents : {},
     searchQuery: '',
     searchState: 'idle',
     initializing : true,
@@ -74,7 +63,6 @@ export default createStore({
     authType: 'signin',
     authError: null,
     filters : {...filtersInitial},
-    gyms : [],
     problems : [],
     gym : { 
       problems :[],
@@ -89,35 +77,9 @@ export default createStore({
     },
     version : "",
     server_version : "",
-    badges: [],
-    earnedBadges: [],
   },
 
   mutations: {
-    set_public_ascents(state, payload) {
-      /*
-      state.public_ascents = state.public_ascents.map(asc => {
-        if (asc.id == payload.id) {
-          return {...asc,payload}
-        }
-        return asc
-      })
-      */
-
-      state.public_ascents = {...state.public_ascents, [payload.problemid] : payload.ascents}
-    },
-    badges(state, payload) {
-      state.badges = payload
-    },
-    earnedBadges(state, payload) {
-      state.earnedBadges = payload
-    },
-    addEarnedBadge(state, payload) {
-      state.earnedBadges = [payload, ...state.earnedBadges]
-    },
-    rankingtop10(state, payload) {
-      state.rankingtop10= payload
-    },
     rankingTarget(state, payload) {
       state.rankingTarget = payload
     },
@@ -195,9 +157,6 @@ export default createStore({
     competition(state, payload) {
       state.competition = payload
     },
-    upcomingcomps(state, payload) {
-      state.upcomingcomps = payload
-    },
     archive(state, payload) {
       state.archive = payload
     },
@@ -206,9 +165,6 @@ export default createStore({
     },
     gymid(state, payload) {
       state.gymid = payload
-    },
-    gyms(state, payload) {
-      state.gyms = payload
     },
     gym(state, payload) {
       state.gym = payload
@@ -296,15 +252,6 @@ export default createStore({
     pointEntryKey(state, payload) {
       state.pointEntryKey = payload
     },
-    feed(state, payload) {
-      state.feed = payload
-    },
-    feedLoading(state, payload) {
-      state.feedLoading = payload
-    },
-    newProblems(state, payload) {
-      state.newProblems = payload
-    },
   },
   actions: {
     // These actions use the public comp key
@@ -354,29 +301,6 @@ export default createStore({
       return ret
     },
     // These actions use the normal oauth
-    async newProblems({ commit }, payload) {
-      const ret = await api.newProblems(payload)
-      commit('newProblems', ret)
-      return ret
-    },
-    async getFeed({ commit }, payload) {
-      commit('feedLoading',true)
-      const ret = await api.getFeed(payload)
-      commit('feed', ret.feed)
-      commit('feedLoading',false)
-      return ret
-    },
-    async getPublicAscents({ commit }, payload) {
-      const ret = await api.getPublicAscents(payload)
-      //commit('set_public_ascents', { problemid: payload, ascents: ret.ascents })
-      return ret
-    },
-    async getRankingTop10({commit},payload) {
-      const ret = await api.rankingtop10(payload)
-      commit('rankingtop10',ret)
-      return ret
-
-    },
     async rankings({commit},payload) {
       const ret = await api.ranking(payload)
       commit('rankings',ret)
@@ -458,12 +382,6 @@ export default createStore({
 
       return ret
     },
-    async loadBadges({ commit }) {
-      const ret = await api.getBadges()
-      commit('badges', ret.definitions || [])
-      commit('earnedBadges', ret.earned || [])
-      return ret
-    },
     async saveTick({ state, commit, dispatch}, payload) {
       if (state.climber != null && state.climber.point_entry_key != null) {
         payload.point_entry_key = state.climber.point_entry_key
@@ -476,19 +394,6 @@ export default createStore({
         commit('addTickToCompetition',ret.tick)
       } else {
         commit('addTriesAllTime',ret.tick)
-      }
-      // Handle newly earned badges
-      if (ret.new_badges && ret.new_badges.length > 0) {
-        ret.new_badges.forEach(badge => {
-          commit('addEarnedBadge', {
-            badge_id: badge.id,
-            name: badge.name,
-            icon: badge.icon,
-            color: badge.color,
-            tier: badge.tier,
-            earned_at: new Date().toISOString(),
-          })
-        })
       }
       dispatch('rankings', { country: state.rankingTarget })
       return ret
@@ -587,11 +492,6 @@ export default createStore({
       commit('gymid' ,gymid)
       dispatch('getProfile')
     },
-    async getGyms({commit}, payload) {
-      const ret = await api.getGyms()
-      commit('gyms' , ret.gyms)
-      return ret
-    },
     async saveSettings({state, commit, dispatch}, payload) {
       const ret =  await api.saveSettings(payload)
       commit('climber', ret.climber)
@@ -622,20 +522,7 @@ export default createStore({
     },
     async registerToComp({state, commit, dispatch}, payload) {
       const ret = await api.registerToComp(payload)
-      // Update the status of participation status for UPCOMING comps
       commit('updatecompparticipates',ret.participates)
-      let newData = {
-        ...state.upcomingcomps
-      } 
-      newData.upcoming = newData.upcoming.map(comp => {
-        if (comp.id == payload.compid) {
-          return {...comp,
-            ['paidregistrations'] : [...comp.paidregistrations, ret.participates]
-          }
-        }
-        return comp
-      })
-      commit('upcomingcomps' , ret.participates)
       return ret
     },
     async getCompetition({state, commit }, payload) {
@@ -647,16 +534,6 @@ export default createStore({
       const ret = await api.getClimber(payload)
       commit('climber', ret)
       return ret
-    },
-    async getUpcomingCompetitions ({commit}, payload) {
-      const comps = await api.getUpcomingCompetitions(payload)
-      commit('upcomingcomps' , {
-        upcoming : comps.upcoming,
-        ongoing : comps.ongoing,
-        past : comps.past,
-        loaded : true
-      })
-      return comps
     },
     async  saveGymSettings({ commit } ,payload) {
       const ret = await api.saveGymSettings(payload)

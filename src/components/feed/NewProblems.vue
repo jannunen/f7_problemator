@@ -29,28 +29,36 @@
   </f7-list>
 </template>
 <script setup>
-import { useI18n } from 'vue-i18n'
 import { f7 } from 'framework7-vue'
-import { onMounted, ref, computed , watch} from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
+import { useQuery } from '@tanstack/vue-query'
 import NewProblemItem from '@components/feed/NewProblemItem.vue'
+import api from '@js/api'
 const store = useStore()
 const gym = computed(() => store.state.gym)
-const gyms = computed(() => store.state.gyms)
-const selectedGym = ref(null)
+const { data: gymsData } = useQuery({
+  queryKey: ['gyms'],
+  queryFn: () => api.getGyms(),
+  select: (data) => data.gyms,
+  initialData: { gyms: [] },
+})
+const gyms = gymsData
+const selectedGym = ref(gym.value?.id || null)
 watch(gym, (val) => {
   selectedGym.value = val.id
 })
-const selectedGymInfo = gyms.value.find((x) => x.id === selectedGym.value)
-const problems = computed(() => store.state.newProblems)
 
-const props = defineProps({
-  problems: Array,
+const { data: problems } = useQuery({
+  queryKey: computed(() => ['newProblems', selectedGym.value]),
+  queryFn: () => api.newProblems(selectedGym.value),
+  enabled: computed(() => selectedGym.value != null),
+  initialData: [],
 })
-const onChangeGym = (gymId) => {
-  store.dispatch('newProblems', selectedGym.value)
+
+const onChangeGym = () => {
+  // Query auto-refetches when selectedGym changes in the queryKey
 }
-const isBottom = ref(false)
 
 const onStartNavigate = (problem) => {
   f7.views.main.router.navigate('/problem/' + problem.id + '/popup', {

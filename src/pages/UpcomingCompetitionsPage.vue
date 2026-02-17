@@ -36,12 +36,12 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import dayjs from 'dayjs'
 import { isRegistrationPossible, toLocalTime } from '../js/helpers/component.helpers'
-const store = useStore()
+import { useQuery } from '@tanstack/vue-query'
+import api from '@js/api'
 const { t } = useI18n()
 const isFull = (comp) => (comp.maxcontenders != 0 && comp.paidregistrations_count >= comp.maxcontenders)
 const nowUTC = ref(dayjs().utc())
@@ -63,9 +63,10 @@ const getCompText = (comp) => {
 const getLink = (comp) => {
         return `/competitions/`+comp.id
 }
-const comps = computed(() => store.state.upcomingcomps)
-
-if (comps.value.loaded === false) {
-  store.dispatch('getUpcomingCompetitions')
-}
+const { data: comps } = useQuery({
+  queryKey: ['upcomingCompetitions'],
+  queryFn: () => api.getUpcomingCompetitions(),
+  select: (data) => ({ upcoming: data.upcoming || [], ongoing: data.ongoing || [], past: data.past || [], loaded: true }),
+  initialData: { upcoming: [], ongoing: [], past: [], loaded: false },
+})
 </script>

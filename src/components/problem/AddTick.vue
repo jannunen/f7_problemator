@@ -46,6 +46,14 @@ const saveTick = () => {
   store.dispatch('saveTick', payload)
     .then((resp) => {
       toaster(resp.message)
+      // Show badge earned notifications
+      if (resp.new_badges && resp.new_badges.length > 0) {
+        resp.new_badges.forEach(badge => {
+          setTimeout(() => {
+            toaster('You earned: ' + badge.name, 'Badge Unlocked!')
+          }, 500)
+        })
+      }
       // Navigate back.
       f7.views.main.router.back()
 

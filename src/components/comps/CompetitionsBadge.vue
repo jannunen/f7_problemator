@@ -15,17 +15,18 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
-import {  computed, ref } from 'vue'
-const store = useStore()
+import { computed } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
+import api from '@js/api'
 
 const { t } = useI18n()
-const comps = computed(() => store.state.upcomingcomps)
-if (comps.value.loaded === false) {
-  store.dispatch('getUpcomingCompetitions')
-}
-const upcomingCount = computed(() => comps.value.upcoming.length)
-const pastCount = computed(() => comps.value.past.length)
+const { data: comps } = useQuery({
+  queryKey: ['upcomingCompetitions'],
+  queryFn: () => api.getUpcomingCompetitions(),
+  select: (data) => ({ upcoming: data.upcoming || [], ongoing: data.ongoing || [], past: data.past || [] }),
+})
+const upcomingCount = computed(() => comps.value?.upcoming.length || 0)
+const pastCount = computed(() => comps.value?.past.length || 0)
 </script>
 <style scoped>
 .comp-badge {

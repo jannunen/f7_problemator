@@ -70,18 +70,11 @@
             <!-- Problem dots (skip selected so it renders on top) -->
             <template v-for="p in getWallProblems(wall)" :key="'p-' + p.id">
               <g v-if="!selectedProblem || selectedProblem.id !== p.id">
-                <!-- New problem glow -->
-                <path v-if="p.isNew && !p.isTicked"
-                        :d="circlePath(p.cx, p.cy, 0.012)"
-                        fill="none"
-                        stroke="#facc15"
-                        stroke-width="0.002"
-                        opacity="0.7" />
-                <!-- Ticked / project ring -->
-                <path v-if="p.isTicked || p.isProject"
+                <!-- Status ring: ticked=green, project=red, new=yellow -->
+                <path v-if="p.isTicked || p.isProject || p.isNew"
                         :d="circlePath(p.cx, p.cy, 0.0105)"
                         fill="none"
-                        :stroke="p.isTicked ? '#22c55e' : '#f59e0b'"
+                        :stroke="p.isTicked ? '#22c55e' : p.isProject ? '#ef4444' : '#facc15'"
                         stroke-width="0.0018" />
                 <path
                         :d="circlePath(p.cx, p.cy, 0.008)"
@@ -261,20 +254,16 @@
       <!-- Legend -->
       <div class="gym-map-legend" :class="{ 'gym-map-legend-dark': isDark }">
         <span class="gym-map-legend-item">
-          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5" fill="#888" stroke="#fff" stroke-width="1.5"/></svg>
-          Problem
-        </span>
-        <span class="gym-map-legend-item">
-          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="6" fill="none" stroke="#facc15" stroke-width="1.2" opacity="0.8"/><circle cx="7" cy="7" r="4.5" fill="#888" stroke="#fff" stroke-width="1"/></svg>
-          New
-        </span>
-        <span class="gym-map-legend-item">
           <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#22c55e" stroke-width="1.2"/><circle cx="7" cy="7" r="4" fill="#888" stroke="#fff" stroke-width="1"/></svg>
           Ticked
         </span>
         <span class="gym-map-legend-item">
-          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#f59e0b" stroke-width="1.2"/><circle cx="7" cy="7" r="4" fill="#888" stroke="#fff" stroke-width="1"/></svg>
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#ef4444" stroke-width="1.2"/><circle cx="7" cy="7" r="4" fill="#888" stroke="#fff" stroke-width="1"/></svg>
           Project
+        </span>
+        <span class="gym-map-legend-item">
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#facc15" stroke-width="1.2"/><circle cx="7" cy="7" r="4" fill="#888" stroke="#fff" stroke-width="1"/></svg>
+          New
         </span>
       </div>
 

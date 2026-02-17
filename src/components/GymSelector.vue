@@ -38,12 +38,20 @@
 <script setup>
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
-import {  computed } from 'vue'
+import { computed } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
+import api from '@js/api'
 const { t } = useI18n()
 const store = useStore()
-const gyms = computed(() => store.state.gyms)
 const emit = defineEmits(['select'])
-store.dispatch('getGyms')
+
+const { data: gyms } = useQuery({
+  queryKey: ['gyms'],
+  queryFn: () => api.getGyms(),
+  select: (data) => data.gyms,
+  initialData: { gyms: [] },
+})
+
 const gymid = computed(() => store.state.gymid)
 const selectGym = ({ target }) => {
   const idx = target.selectedIndex

@@ -12,6 +12,7 @@ import Framework7 from 'framework7/lite-bundle'
 // Import F7-Vue Plugin Bundle (with all F7 components registered)
 import Framework7Vue, { registerComponents } from 'framework7-vue/bundle'
 import store from "./store.js";
+import { VueQueryPlugin } from '@tanstack/vue-query'
 
 
 
@@ -40,6 +41,7 @@ const app = createApp(App);
 // Register all Framework7 Vue components
 registerComponents(app);
 app.use(store);
+app.use(VueQueryPlugin);
 
 const i18n = createI18n({
   legacy: false, // you must set `false`, to use Composition API

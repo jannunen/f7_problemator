@@ -31,18 +31,23 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 import relativeTime from 'dayjs/plugin/relativeTime'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 import dayjs from 'dayjs'
-import {  toLocalTime } from '../js/helpers/component.helpers'
-const store = useStore()
+import { toLocalTime } from '../js/helpers/component.helpers'
+import { useQuery } from '@tanstack/vue-query'
+import api from '@js/api'
 const { t } = useI18n()
 dayjs.extend(relativeTime)
 
 const getLink = (comp) => {
   return `https://api3.problemator.fi/comps/` + comp.id+ '/results'
 }
-const past = computed(() => store.state.upcomingcomps.past)
+const { data: comps } = useQuery({
+  queryKey: ['upcomingCompetitions'],
+  queryFn: () => api.getUpcomingCompetitions(),
+  initialData: { upcoming: [], ongoing: [], past: [] },
+})
+const past = computed(() => comps.value?.past || [])
 
 </script>

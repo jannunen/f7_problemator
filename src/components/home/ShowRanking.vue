@@ -139,6 +139,8 @@ import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
 import { right } from '@js/helpers'
 import { estimateGrade, toLocalTime, calculatePoints } from '@/js/helpers'
+import { useQuery } from '@tanstack/vue-query'
+import api from '@js/api'
 
 
 const props = defineProps({
@@ -160,7 +162,6 @@ const closeTop10Popup = () => {
     climber.value = null
     first.value = null
     last.value = null
-    loading.value = true
 }
 const getClimberName = (row) => {
     if (row.etunimi == null && row.sukunimi == null) {
@@ -176,25 +177,23 @@ const climber = ref(null)
 const first = ref(null)
 const last = ref(null)
 const myRank = computed(() => props.ranking.myrank)
-const loading = ref(true)
+
+const { data: rankingtop10, isLoading: loading } = useQuery({
+  queryKey: computed(() => ['rankingTop10', climber.value, props.ranking.ranking.id, props.country]),
+  queryFn: () => api.rankingtop10({
+    climber_id: climber.value,
+    country: props.country,
+    ranking_id: props.ranking.ranking.id,
+  }),
+  enabled: computed(() => climber.value != null),
+})
+
 const openTop10 = (row) => {
     climber.value = row.climber_id
     showAscents.value = true
     first.value = row.etunimi
     last.value = row.sukunimi
-    loading.value = true
-    // Find the top10
-    const payload = {
-        climber_id: climber.value,
-        country: props.country,
-        ranking_id: props.ranking.ranking.id,
-    }
-    store.dispatch('getRankingTop10', payload).then(() => {
-        loading.value = false
-    })
 }
-
-const rankingtop10 = computed(() => store.state.rankingtop10)
 const getFirstTickTimestamp = (problem) => {
   return toLocalTime(problem.ascent_tstamp, 'YYYY-MM-DD')
 }
