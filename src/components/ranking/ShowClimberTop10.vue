@@ -39,7 +39,7 @@
 
               <!-- Grade + details -->
               <div class="top10-info">
-                <div class="top10-grade">{{ problem.grade.name }}</div>
+                <div class="top10-grade">{{ problem.routetype === 'boulder' ? problem.grade.name.toUpperCase() : problem.grade.name }}</div>
                 <div class="top10-meta">
                   <span style="color: var(--p-success);">{{ getFirstTickTimestamp(problem) }}</span>
                   <span class="p-text-dim">@{{ problem.gym.name }}</span>
