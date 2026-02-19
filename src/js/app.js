@@ -43,9 +43,16 @@ registerComponents(app);
 app.use(store);
 app.use(VueQueryPlugin);
 
+const supportedLocales = Object.keys(messages)
+const savedLocale = localStorage.getItem('locale')
+const browserLang = navigator.language?.split('-')[0]
+const detectedLocale = (savedLocale && supportedLocales.includes(savedLocale))
+  ? savedLocale
+  : supportedLocales.includes(browserLang) ? browserLang : 'en'
+
 const i18n = createI18n({
   legacy: false, // you must set `false`, to use Composition API
-  locale: 'en', // set locale
+  locale: detectedLocale, // set locale
   fallbackLocale: 'en', // set fallback locale
   messages, // set locale messages
 })

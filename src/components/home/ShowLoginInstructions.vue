@@ -14,7 +14,7 @@
           <img :src="logo" alt="Problemator logo" class="logo-img" />
         </div>
         <h1 class="brand-title">Problemator</h1>
-        <p class="brand-subtitle">Track your climbing journey</p>
+        <p class="brand-subtitle">{{ t('auth.track_journey') }}</p>
       </div>
 
       <!-- Tab switcher with sliding indicator -->
@@ -28,14 +28,14 @@
           :class="{ active: authType === 'signin' }"
           @click="switchTab('signin')"
         >
-          Sign In
+          {{ t('auth.sign_in') }}
         </button>
         <button
           class="tab-btn"
           :class="{ active: authType === 'signup' }"
           @click="switchTab('signup')"
         >
-          Sign Up
+          {{ t('auth.sign_up') }}
         </button>
       </div>
 
@@ -54,7 +54,7 @@
         <div v-if="authStep === 'idle'" key="idle" class="form-section">
           <TransitionGroup name="field-stagger" appear>
             <div v-if="authType === 'signup'" key="firstname" class="input-group" style="--delay: 0">
-              <label class="input-label">First name</label>
+              <label class="input-label">{{ t('auth.first_name') }}</label>
               <div class="input-wrapper">
                 <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
@@ -63,13 +63,13 @@
                   v-model="etunimi"
                   type="text"
                   class="text-input"
-                  placeholder="Your first name"
+                  :placeholder="t('auth.your_first_name')"
                 />
               </div>
             </div>
 
             <div v-if="authType === 'signup'" key="lastname" class="input-group" style="--delay: 1">
-              <label class="input-label">Last name</label>
+              <label class="input-label">{{ t('auth.last_name') }}</label>
               <div class="input-wrapper">
                 <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M10 8a3 3 0 100-6 3 3 0 000 6zM3.465 14.493a1.23 1.23 0 00.41 1.412A9.957 9.957 0 0010 18c2.31 0 4.438-.784 6.131-2.1.43-.333.604-.903.408-1.41a7.002 7.002 0 00-13.074.003z" />
@@ -78,13 +78,13 @@
                   v-model="sukunimi"
                   type="text"
                   class="text-input"
-                  placeholder="Your last name"
+                  :placeholder="t('auth.your_last_name')"
                 />
               </div>
             </div>
 
             <div key="email" class="input-group" style="--delay: 2">
-              <label class="input-label">Email address</label>
+              <label class="input-label">{{ t('auth.email') }}</label>
               <div class="input-wrapper">
                 <svg class="input-icon" viewBox="0 0 20 20" fill="currentColor">
                   <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
@@ -112,7 +112,7 @@
               <svg v-if="sending" class="spinner" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round" />
               </svg>
-              {{ sending ? 'Sending code...' : 'Send verification code' }}
+              {{ sending ? t('auth.sending_code') : t('auth.send_code') }}
             </span>
           </p-button>
         </div>
@@ -124,10 +124,10 @@
               <path d="M3 4a2 2 0 00-2 2v1.161l8.441 4.221a1.25 1.25 0 001.118 0L19 7.162V6a2 2 0 00-2-2H3z" />
               <path d="M19 8.839l-7.77 3.885a2.75 2.75 0 01-2.46 0L1 8.839V14a2 2 0 002 2h14a2 2 0 002-2V8.839z" />
             </svg>
-            <span>Code sent to <strong>{{ authEmail }}</strong></span>
+            <span>{{ t('auth.code_sent_to') }} <strong>{{ authEmail }}</strong></span>
           </div>
 
-          <label class="input-label text-center">Enter 6-digit code</label>
+          <label class="input-label text-center">{{ t('auth.enter_code') }}</label>
 
           <!-- Individual OTP digit boxes -->
           <div class="otp-digits">
@@ -159,7 +159,7 @@
               <svg v-if="authStep === 'verifying'" class="spinner" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round" />
               </svg>
-              {{ authStep === 'verifying' ? 'Verifying...' : 'Verify code' }}
+              {{ authStep === 'verifying' ? t('auth.verifying') : t('auth.verify_code') }}
             </span>
           </p-button>
 
@@ -167,7 +167,7 @@
             <svg class="back-icon" viewBox="0 0 20 20" fill="currentColor">
               <path fill-rule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clip-rule="evenodd" />
             </svg>
-            Use a different email
+            {{ t('auth.use_different_email') }}
           </button>
         </div>
       </Transition>
@@ -177,7 +177,7 @@
         <svg class="cookie-icon" viewBox="0 0 20 20" fill="currentColor">
           <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a.75.75 0 000 1.5h.253a.25.25 0 01.244.304l-.459 2.066A1.75 1.75 0 0010.747 15H11a.75.75 0 000-1.5h-.253a.25.25 0 01-.244-.304l.459-2.066A1.75 1.75 0 009.253 9H9z" clip-rule="evenodd" />
         </svg>
-        <span>By signing in you accept our use of cookies for tracking your climbing progress.</span>
+        <span>{{ t('auth.cookie_notice') }}</span>
       </div>
     </div>
   </div>
@@ -186,9 +186,11 @@
 <script setup>
 import PButton from '@components/PButton.vue'
 import { useStore } from 'vuex'
+import { useI18n } from 'vue-i18n'
 import { ref, computed, reactive, watch, nextTick } from 'vue'
 import logo from '../../assets/images/logo.png'
 
+const { t } = useI18n()
 const store = useStore()
 const email = ref('')
 const etunimi = ref('')
@@ -250,7 +252,7 @@ const handleOtpPaste = (event) => {
 const sendOtp = async () => {
   if (!email.value) return
   if (authType.value === 'signup' && (!etunimi.value || !sukunimi.value)) {
-    store.commit('setAuthError', 'Please enter your first and last name.')
+    store.commit('setAuthError', t('auth.enter_name_error'))
     return
   }
   sending.value = true

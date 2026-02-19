@@ -1,6 +1,6 @@
 <template>
   <div v-if="earnedBadges.length > 0" class="px-4 mt-3">
-    <h2 class="font-bold text-lg mb-2">Badges</h2>
+    <h2 class="font-bold text-lg mb-2">{{ t('badges.title') }}</h2>
     <div class="flex flex-wrap gap-2">
       <div
         v-for="badge in recentBadges"
@@ -13,14 +13,17 @@
       </div>
     </div>
     <div v-if="earnedBadges.length > maxShow" class="mt-1 text-xs p-text-dim">
-      + {{ earnedBadges.length - maxShow }} more
+      {{ t('badges.more', { n: earnedBadges.length - maxShow }) }}
     </div>
   </div>
 </template>
 <script setup>
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import api from '@js/api'
+
+const { t } = useI18n()
 
 const maxShow = 5
 

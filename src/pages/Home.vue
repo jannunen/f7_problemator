@@ -4,8 +4,14 @@
       <f7-nav-left> </f7-nav-left>
       <f7-nav-title>Problemator </f7-nav-title>
       <f7-nav-right>
+        <div class="navbar-lang-btn" style="margin-right: 12px;">
+          <span class="material-icons" style="font-size: 22px; line-height: 1;">language</span>
+          <select class="navbar-lang-select" v-model="currentLocale">
+            <option v-for="(name, code) in localeNames" :key="code" :value="code">{{ name }}</option>
+          </select>
+        </div>
         <f7-link @click.prevent="store.commit('setSidePanel', true)">
-          <span class="material-icons" style="font-size: 22px; line-height: 1;">menu</span>
+          <span class="material-icons" style="font-size: 28px; line-height: 1;">menu</span>
         </f7-link>
       </f7-nav-right>
     </f7-navbar>
@@ -21,8 +27,8 @@
           <div class="p-banner p-banner--info">
             <span class="material-icons p-banner__icon">system_update</span>
             <div class="p-banner__content">
-              New version available ({{ serverVersion }}).
-              <button @click="updateVersion" class="p-btn p-btn--primary p-btn--sm mt-2">Update now</button>
+              {{ t('home.new_version', { version: serverVersion }) }}
+              <button @click="updateVersion" class="p-btn p-btn--primary p-btn--sm mt-2">{{ t('home.update_now') }}</button>
             </div>
           </div>
         </div>
@@ -35,8 +41,8 @@
         <!-- Empty state when no gym selected -->
         <div v-if="!gymid" class="px-4 mt-6 text-center">
           <span class="material-icons p-text-dim" style="font-size: 48px;">location_city</span>
-          <h2 class="text-lg font-bold mt-2">No gym selected</h2>
-          <p class="p-text-dim text-sm mt-1">Select a gym above to see your dashboard, problems, and stats.</p>
+          <h2 class="text-lg font-bold mt-2">{{ t('home.no_gym_selected') }}</h2>
+          <p class="p-text-dim text-sm mt-1">{{ t('home.select_gym_prompt') }}</p>
         </div>
 
         <!-- All gym-dependent sections -->
@@ -48,14 +54,13 @@
               <div class="p-banner p-banner--warning">
                 <span class="material-icons p-banner__icon p-text-warning">help_outline</span>
                 <div class="p-banner__content">
-                  It seems that you have no ticks. If you should have, click here for instructions.
+                  {{ t('home.no_ticks_message') }}
                   <button
                     @click="showTickHelpDialog = true"
                     class="p-btn p-btn--sm mt-2"
-                  >Help me</button>
+                  >{{ t('home.help_me') }}</button>
                   <div class="text-xs mt-1 p-text-dim">
-                    Otherwise this message will disappear after you start ticking problems.
-                    You can find this later from Settings-menu.
+                    {{ t('home.no_ticks_hint') }}
                   </div>
                 </div>
               </div>
@@ -154,7 +159,7 @@ import ShowTickHelp from '@components/home/ShowTickHelp.vue'
 import MyBadges from '@components/home/MyBadges.vue'
 import CompleteProfilePopup from '@components/home/CompleteProfilePopup.vue'
 import PButton from '@components/PButton.vue'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 const store = useStore()
@@ -172,7 +177,29 @@ const updateVersion = () => {
 }
 const isOpened = ref(false)
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
+
+const localeNames = {
+  en: 'English',
+  fi: 'Suomi',
+  es: 'Español',
+  sv: 'Svenska',
+  et: 'Eesti',
+  lt: 'Lietuvių',
+  lv: 'Latviešu',
+  ge: 'ქართული',
+  fr: 'Français',
+  no: 'Norsk',
+  de: 'Deutsch',
+  it: 'Italiano',
+  pl: 'Polski',
+}
+
+const currentLocale = ref(locale.value)
+watch(currentLocale, (val) => {
+  locale.value = val
+  localStorage.setItem('locale', val)
+})
 const props = defineProps({
   f7router: Object,
 })
@@ -191,3 +218,23 @@ const onStartNavigate = (problem) => {
   })
 }
 </script>
+<style scoped>
+.navbar-lang-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+}
+.navbar-lang-select {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  -webkit-appearance: none;
+}
+</style>

@@ -7,8 +7,8 @@
     </div>
 
     <div class="mb-4">
-      <div class="text-sm font-semibold mb-1 p-text-secondary">Hardest top10 climb scores per week</div>
-      <div class="text-xs mb-2 p-text-muted">4000pts = 6a, 5000pts = 6b, 7000pts = 7a, 8000pts = 7b, 9000pts = 7c.</div>
+      <div class="text-sm font-semibold mb-1 p-text-secondary">{{ t('mylogs.top10_title') }}</div>
+      <div class="text-xs mb-2 p-text-muted">{{ t('mylogs.top10_hint') }}</div>
       <Line
         :chart-data="progressData"
         :chart-options="{ plugins: { legend: { display: false } } }"
@@ -36,20 +36,20 @@
 
           <div v-else class="text-center py-4">
             <span class="material-icons mb-1 p-text-warning" style="font-size: 32px">trending_flat</span>
-            <div class="text-sm font-semibold p-text-warning">No ascents to list</div>
+            <div class="text-sm font-semibold p-text-warning">{{ t('mylogs.no_ascents') }}</div>
           </div>
         </div>
 
         <!-- Last N days selector -->
         <div class="flex items-center justify-center gap-1 mt-2 text-sm p-text-muted">
-          Last
+          {{ t('mylogs.last') }}
           <div class="p-dropdown">
             <span class="p-dropdown__trigger" @click="showDaysDropdown = !showDaysDropdown">{{ lastDays }}</span>
             <div v-if="showDaysDropdown" class="p-dropdown__menu">
               <button v-for="opt in dayOptions" :key="opt.value" class="p-dropdown__item" @click="lastDays = opt.value; showDaysDropdown = false">{{ opt.label }}</button>
             </div>
           </div>
-          days
+          {{ t('mylogs.days') }}
         </div>
       </div>
     </div>
@@ -126,16 +126,16 @@ const tries = computed(() => store.state.alltime.tries)
 const lastDays = ref(30)
 const showOfType = ref('boulder')
 const showDaysDropdown = ref(false)
-const dayOptions = [
-  { value: 1, label: 'today' },
-  { value: 7, label: 'week' },
-  { value: 14, label: 'two weeks' },
-  { value: 30, label: '30 days' },
-  { value: 60, label: '60 days' },
-  { value: 90, label: '90 days' },
-  { value: 180, label: 'half a year' },
-  { value: 360, label: 'year' },
-]
+const dayOptions = computed(() => [
+  { value: 1, label: t('mylogs.today') },
+  { value: 7, label: t('mylogs.week') },
+  { value: 14, label: t('mylogs.two_weeks') },
+  { value: 30, label: t('mylogs.days_30') },
+  { value: 60, label: t('mylogs.days_60') },
+  { value: 90, label: t('mylogs.days_90') },
+  { value: 180, label: t('mylogs.half_year') },
+  { value: 360, label: t('mylogs.year') },
+])
 
 const ascentsByGrade = computed(() => getAscentsByGrade(grades.value, ticks.value,lastDays.value,showOfType.value))
 const ascentsFound = computed(() => ascentsByGrade.value.size > 0)
@@ -148,7 +148,7 @@ const data = computed(() => ({
   datasets: [
     {
       data: ascents.value,
-      label: t("amount"),
+      label: t("mylogs.amount"),
       backgroundColor: ["rgba(56, 189, 248, 0.4)"],
       borderColor: ["rgba(56, 189, 248, 0.6)"],
       borderWidth: 1,
@@ -202,7 +202,7 @@ const progressData = computed(() => ({
   datasets: [
     {
       data: progressValues.value,
-      label: t("Score"),
+      label: t("mylogs.score"),
       borderColor: "#38bdf8",
       backgroundColor: "rgba(56, 189, 248, 0.08)",
       fill: true,

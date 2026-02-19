@@ -1,18 +1,18 @@
 <template>
     <div v-if="gym != null" class="p-card">
-    <div class="p-card__title">Problem/Route completion status</div>
+    <div class="p-card__title">{{ t('gym_stats.title') }}</div>
     <div class="grid grid-cols-2 gap-4 my-3">
       <div class="p-stat">
         <div class="p-stat__value">{{ percentageBoulders }}<span class="p-stat__unit">%</span></div>
-        <div class="p-stat__label">of {{ totalBoulders }} Boulders</div>
+        <div class="p-stat__label">{{ t('gym_stats.of_boulders', { n: totalBoulders }) }}</div>
       </div>
       <div class="p-stat">
         <div class="p-stat__value">{{ percentageRoutes }}<span class="p-stat__unit">%</span></div>
-        <div class="p-stat__label">of {{ totalRoutes }} Routes</div>
+        <div class="p-stat__label">{{ t('gym_stats.of_routes', { n: totalRoutes }) }}</div>
       </div>
     </div>
     <div class="text-center mt-2">
-      <a @click="f7.views.main.router.navigate('/gym/completion')" class="p-link text-sm font-semibold uppercase cursor-pointer">Open more details</a>
+      <a @click="f7.views.main.router.navigate('/gym/completion')" class="p-link text-sm font-semibold uppercase cursor-pointer">{{ t('gym_stats.open_details') }}</a>
     </div>
     </div>
 </template>

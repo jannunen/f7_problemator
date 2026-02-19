@@ -1,24 +1,24 @@
 <template>
   <div class="p-card">
     <div class="flex items-center justify-between mb-3">
-      <div class="p-card__title mb-0">Grade Pyramid</div>
+      <div class="p-card__title mb-0">{{ t('grade_pyramid.title') }}</div>
       <div class="p-toggle-group p-toggle-group--sm">
         <button
           class="p-toggle-group__btn"
           :class="{ 'p-toggle-group__btn--active': routeType === 'boulder' }"
           @click="routeType = 'boulder'"
-        >Boulder</button>
+        >{{ t('grade_pyramid.boulder') }}</button>
         <button
           class="p-toggle-group__btn"
           :class="{ 'p-toggle-group__btn--active': routeType === 'sport' }"
           @click="routeType = 'sport'"
-        >Sport</button>
+        >{{ t('grade_pyramid.sport') }}</button>
       </div>
     </div>
 
     <!-- Time range selector -->
     <div class="flex items-center justify-center gap-1 mb-3 text-sm p-text-muted">
-      Last
+      {{ t('grade_pyramid.last') }}
       <div class="p-dropdown">
         <span class="p-dropdown__trigger" @click="showDaysDropdown = !showDaysDropdown">{{ selectedDayLabel }}</span>
         <div v-if="showDaysDropdown" class="p-dropdown__menu">
@@ -33,14 +33,14 @@
 
     <!-- Legend -->
     <div class="flex items-center justify-center gap-3 mb-3 text-xs">
-      <span class="flex items-center gap-1"><span class="legend-dot legend-onsight"></span>{{ routeType === 'boulder' ? 'Flash' : 'Onsight' }}</span>
-      <span class="flex items-center gap-1"><span class="legend-dot legend-redpoint"></span>Redpoint</span>
-      <span v-if="routeType === 'sport'" class="flex items-center gap-1"><span class="legend-dot legend-toprope"></span>Top-rope</span>
+      <span class="flex items-center gap-1"><span class="legend-dot legend-onsight"></span>{{ routeType === 'boulder' ? t('grade_pyramid.flash') : t('grade_pyramid.onsight') }}</span>
+      <span class="flex items-center gap-1"><span class="legend-dot legend-redpoint"></span>{{ t('grade_pyramid.redpoint') }}</span>
+      <span v-if="routeType === 'sport'" class="flex items-center gap-1"><span class="legend-dot legend-toprope"></span>{{ t('grade_pyramid.toprope') }}</span>
     </div>
 
     <div v-if="pyramidRows.length === 0" class="text-center py-4">
       <span class="material-icons mb-1 p-text-muted" style="font-size: 32px">bar_chart</span>
-      <div class="text-sm p-text-muted">No ascents in this period</div>
+      <div class="text-sm p-text-muted">{{ t('grade_pyramid.no_ascents') }}</div>
     </div>
 
     <div v-else class="pyramid">
@@ -79,24 +79,26 @@
 <script setup>
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
+import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 
 const store = useStore()
+const { t } = useI18n()
 const routeType = ref('boulder')
 const days = ref(90)
 const showDaysDropdown = ref(false)
 
-const dayOptions = [
-  { value: 30, label: '30 days' },
-  { value: 60, label: '60 days' },
-  { value: 90, label: '90 days' },
-  { value: 180, label: '6 months' },
-  { value: 365, label: 'year' },
-  { value: 9999, label: 'all time' },
-]
+const dayOptions = computed(() => [
+  { value: 30, label: t('grade_pyramid.days_30') },
+  { value: 60, label: t('grade_pyramid.days_60') },
+  { value: 90, label: t('grade_pyramid.days_90') },
+  { value: 180, label: t('grade_pyramid.months_6') },
+  { value: 365, label: t('grade_pyramid.year') },
+  { value: 9999, label: t('grade_pyramid.all_time') },
+])
 
 const selectedDayLabel = computed(() =>
-  dayOptions.find(o => o.value === days.value)?.label || days.value + ' days'
+  dayOptions.value.find(o => o.value === days.value)?.label || days.value + ' ' + t('mylogs.days')
 )
 
 const grades = computed(() => store.state.grades || [])

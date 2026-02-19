@@ -23,6 +23,7 @@ export default defineConfig(({ command, mode }) => {
       outDir: BUILD_DIR,
       assetsInlineLimit: 0,
       emptyOutDir: true,
+      target: 'es2022',
     },
     resolve: {
       alias: {
@@ -49,6 +50,12 @@ export default defineConfig(({ command, mode }) => {
     esbuild: {
       jsxFactory: '$jsx',
       jsxFragment: '"Fragment"',
+      target: 'es2022',
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        target: 'es2022',
+      },
     },
   }
 })

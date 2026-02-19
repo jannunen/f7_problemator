@@ -11,43 +11,41 @@
         <f7-block v-if="climber != null">
             <f7-block strong>
                 <p>
-                    Here are your personal settings. You can toggle some visibility items
-                    and some convenience settings.
+                    {{ t('settings.intro') }}
                 </p>
             </f7-block>
             <f7-list >
-                <f7-block-title>Personal details (optional)</f7-block-title>
-                <f7-list-input label="First name" type="text" placeholder="Your first name" v-model:value="climber.etunimi" clear-button> </f7-list-input>
-                <f7-list-input label="Last name" type="text" placeholder="Your last name" v-model:value="climber.sukunimi" clear-button> </f7-list-input>
-                <f7-list-input label="Email (read only)" type="text" readonly :value="climber.email"> </f7-list-input>
-                <f7-list-input type="datepicker" 
+                <f7-block-title>{{ t('settings.personal_details') }}</f7-block-title>
+                <f7-list-input :label="t('settings.first_name')" type="text" :placeholder="t('settings.your_first_name')" v-model:value="climber.etunimi" clear-button> </f7-list-input>
+                <f7-list-input :label="t('settings.last_name')" type="text" :placeholder="t('settings.your_last_name')" v-model:value="climber.sukunimi" clear-button> </f7-list-input>
+                <f7-list-input :label="t('settings.email_readonly')" type="text" readonly :value="climber.email"> </f7-list-input>
+                <f7-list-input type="datepicker"
                   dateFormat="yyyy-mm-dd"
                   formatValue="yyyy-mm-dd"
                  :value="[climber.birthday]"
                   @calendar:change="(value) => setBirthDay(value)"
                 />
-                <f7-list-input label="Team" placeholder="Enter team" type="text" v-model:value="climber.team"> </f7-list-input>
-                <f7-list-input label="Gender" type="select" v-model:value="climber.gender" placeholder="Please choose...">
+                <f7-list-input :label="t('settings.team')" :placeholder="t('settings.enter_team')" type="text" v-model:value="climber.team"> </f7-list-input>
+                <f7-list-input :label="t('settings.gender')" type="select" v-model:value="climber.gender" :placeholder="t('settings.please_choose')">
                     <option v-for="gender in genders" :value="gender.id" :key="gender.id">{{ gender.name }}</option>
                 </f7-list-input>
                 <f7-list-item>
-                <select type="select" label="Country" v-model="climber.maa">
+                <select type="select" :label="t('settings.country')" v-model="climber.maa">
                     <option v-for="country in getNames()" :value="country" :key="country">{{ country }}</option>
                 </select>
                 </f7-list-item>
             </f7-list>
-                <p class="text-red-500 font-bold uppercase">Please note that the info below will be shown on your public profile page. If you don't like them to
-                show, please leave these fields empty!</p>
+                <p class="text-red-500 font-bold uppercase">{{ t('settings.public_profile_warning') }}</p>
             <f7-list>
-                
-                
-                <f7-list-input label="Height" type="text" placeholder="in cm" v-model:value="climber.height"> </f7-list-input>
-                <f7-list-input label="Ape index" placeholder="eg. +9" type="text" v-model:value="climber.apeindex"> </f7-list-input>
-                <f7-list-input label="City" placeholder="Enter city" type="text" v-model:value="climber.city"> </f7-list-input>
-                <f7-list-input label="Bio" type="textarea" v-model:value="climber.bio" resizable placeholder="Bio"> </f7-list-input>
+
+
+                <f7-list-input :label="t('settings.height')" type="text" :placeholder="t('settings.height_placeholder')" v-model:value="climber.height"> </f7-list-input>
+                <f7-list-input :label="t('settings.ape_index')" :placeholder="t('settings.ape_index_placeholder')" type="text" v-model:value="climber.apeindex"> </f7-list-input>
+                <f7-list-input :label="t('settings.city')" :placeholder="t('settings.enter_city')" type="text" v-model:value="climber.city"> </f7-list-input>
+                <f7-list-input :label="t('settings.bio')" type="textarea" v-model:value="climber.bio" resizable :placeholder="t('settings.bio')"> </f7-list-input>
                 </f7-list>
 
-                <p>Enter your social media links here. If you don't have one, leave the field empty.</p>
+                <p>{{ t('settings.social_media_intro') }}</p>
                 <f7-list>
                 <f7-list-input label="27 Crags"  type="text" v-model:value="climber.social_27crags"> </f7-list-input>
                 <f7-list-input label="Twitter"  type="text" v-model:value="climber.social_twitter"> </f7-list-input>
@@ -60,26 +58,26 @@
 
                 <f7-list>
 
-                <f7-block-title>Default ascent type</f7-block-title>
-                <f7-list-input label="Affects only sport climbing" type="select" v-model:value="climber.sport_tick_ascent_type" placeholder="Please choose...">
+                <f7-block-title>{{ t('settings.default_ascent_type') }}</f7-block-title>
+                <f7-list-input :label="t('settings.affects_sport_only')" type="select" v-model:value="climber.sport_tick_ascent_type" :placeholder="t('settings.please_choose')">
                     <option v-for="ascentType in ascentTypes" :value="ascentType.id" :key="ascentType.id">{{ ascentType.name }}</option>
                 </f7-list-input>
             </f7-list>
             <f7-list>
-                <f7-block-title>Visibility settings</f7-block-title>
+                <f7-block-title>{{ t('settings.visibility') }}</f7-block-title>
 
-                <f7-list-item title="Ranking visibility">
+                <f7-list-item :title="t('settings.ranking_visibility')">
                     <template #after>
                         <f7-toggle @toggle:change="(val) => toggleTrueFalseWithNumber('showinranking',val)" :checked="isChecked('showinranking')"></f7-toggle>
                     </template>
                 </f7-list-item>
-                <f7-list-item title="Show my ascents to others">
+                <f7-list-item :title="t('settings.show_ascents')">
                     <template #after>
                         <f7-toggle @toggle:change="(val) => toggleTrueFalseWithNumber('publicascents',val)" :checked="isChecked('publicascents')"></f7-toggle>
                     </template>
                 </f7-list-item>
             </f7-list>
-            <button class="btn-primary" @click="saveSettings" block>Save settings</button>
+            <button class="btn-primary" @click="saveSettings" block>{{ t('settings.save') }}</button>
         </f7-block>
 
     </f7-page>
@@ -106,14 +104,14 @@ onMounted(() => {
     climber.value = JSON.parse(JSON.stringify(climberStore.value))
 })
 
-const genders = ref([
-    { id: 'm', name: 'male' },
-    { id: 'f', name: 'female' },
-    { id: 'unset', name: 'none of your business' },
+const genders = computed(() => [
+    { id: 'm', name: t('settings.male') },
+    { id: 'f', name: t('settings.female') },
+    { id: 'unset', name: t('settings.prefer_not_to_say') },
 ])
-const ascentTypes = ref([
-    { id: '0', name: 'lead' },
-    { id: '1', name: 'top-rope' },
+const ascentTypes = computed(() => [
+    { id: '0', name: t('settings.lead') },
+    { id: '1', name: t('settings.top_rope') },
 ])
 const saveSettings = () => {
     // Incorporate two data sources

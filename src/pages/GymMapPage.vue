@@ -2,7 +2,7 @@
   <f7-page name="gym-map" :page-content="false">
     <f7-navbar>
       <f7-nav-left back-link="Back"></f7-nav-left>
-      <f7-nav-title>Gym Map</f7-nav-title>
+      <f7-nav-title>{{ t('gymmap.title') }}</f7-nav-title>
       <f7-nav-right></f7-nav-right>
     </f7-navbar>
     <div
@@ -99,10 +99,21 @@
                       style="pointer-events: none; user-select: none; font-weight: 600">{{ shortTag(p.tag) }}</text>
                 <!-- Expiring overlay -->
                 <rect v-if="p.soontoberemoved == 1"
-                      :x="p.cx - 0.009" :y="p.cy - 0.009"
-                      width="0.018" height="0.018" rx="0.003"
+                      :x="p.cx - 0.012" :y="p.cy - 0.012"
+                      width="0.024" height="0.024" rx="0.004"
                       fill="#ef4444" opacity="0.6"
                       style="pointer-events: none;" />
+                <!-- Circuit tag hanging below the dot -->
+                <g v-if="p.circuits && p.circuits.length > 0" style="pointer-events: none;">
+                  <line :x1="p.cx" :y1="p.cy + 0.009" :x2="p.cx" :y2="p.cy + 0.015" :stroke="p.circuits[0].color?.code || '#888'" stroke-width="0.0012" />
+                  <rect :x="p.cx - circuitTagWidth(p) / 2" :y="p.cy + 0.015"
+                        :width="circuitTagWidth(p)" height="0.009" rx="0.002"
+                        :fill="p.circuits[0].color?.code || '#888'" />
+                  <text :x="p.cx" :y="p.cy + 0.0195"
+                        font-size="0.005" :fill="p.circuits[0].color?.textcolor || '#fff'"
+                        text-anchor="middle" dominant-baseline="central"
+                        style="font-weight: 700; user-select: none;">{{ p.circuits[0].circuitshortname || p.circuits[0].circuitname }}</text>
+                </g>
               </g>
             </template>
           </g>
@@ -115,10 +126,21 @@
             <text :x="selectedProblem.cx" :y="selectedProblem.cy" font-size="0.0056" fill="#fff" text-anchor="middle" dominant-baseline="central" style="pointer-events: none; user-select: none; font-weight: 600">{{ displayGrade(selectedProblem) }}</text>
             <!-- Expiring overlay -->
             <rect v-if="selectedProblem.soontoberemoved == 1"
-                  :x="selectedProblem.cx - 0.009" :y="selectedProblem.cy - 0.009"
-                  width="0.018" height="0.018" rx="0.003"
+                  :x="selectedProblem.cx - 0.012" :y="selectedProblem.cy - 0.012"
+                  width="0.024" height="0.024" rx="0.004"
                   fill="#ef4444" opacity="0.6"
                   style="pointer-events: none;" />
+            <!-- Circuit tag hanging below the dot -->
+            <g v-if="selectedProblem.circuits && selectedProblem.circuits.length > 0" style="pointer-events: none;">
+              <line :x1="selectedProblem.cx" :y1="selectedProblem.cy + 0.009" :x2="selectedProblem.cx" :y2="selectedProblem.cy + 0.015" :stroke="selectedProblem.circuits[0].color?.code || '#888'" stroke-width="0.0012" />
+              <rect :x="selectedProblem.cx - circuitTagWidth(selectedProblem) / 2" :y="selectedProblem.cy + 0.015"
+                    :width="circuitTagWidth(selectedProblem)" height="0.009" rx="0.002"
+                    :fill="selectedProblem.circuits[0].color?.code || '#888'" />
+              <text :x="selectedProblem.cx" :y="selectedProblem.cy + 0.0195"
+                    font-size="0.005" :fill="selectedProblem.circuits[0].color?.textcolor || '#fff'"
+                    text-anchor="middle" dominant-baseline="central"
+                    style="font-weight: 700; user-select: none;">{{ selectedProblem.circuits[0].circuitshortname || selectedProblem.circuits[0].circuitname }}</text>
+            </g>
           </g>
         </g>
       </svg>
@@ -127,44 +149,44 @@
       <div v-if="selectedProblem && popupPos" ref="popupRef" class="gym-map-popup" :class="{ 'gym-map-popup-dark': isDark }" :style="popupStyle" @click.stop @mousedown.stop @touchstart.stop>
         <table class="gym-map-popup-table">
           <tr>
-            <td class="gym-map-popup-label">Grade</td>
+            <td class="gym-map-popup-label">{{ t('gymmap.grade') }}</td>
             <td class="gym-map-popup-value" style="font-size: 15px; font-weight: 700;">{{ displayGrade(selectedProblem) }}</td>
           </tr>
           <tr>
-            <td class="gym-map-popup-label">Colour</td>
+            <td class="gym-map-popup-label">{{ t('gymmap.colour') }}</td>
             <td class="gym-map-popup-value"><span class="gym-map-popup-color" :style="{ background: selectedProblem.color }"></span></td>
           </tr>
           <tr v-if="selectedProblem.tag">
-            <td class="gym-map-popup-label">Tag</td>
+            <td class="gym-map-popup-label">{{ t('gymmap.tag') }}</td>
             <td class="gym-map-popup-value">{{ shortTag(selectedProblem.tag) }}</td>
           </tr>
           <tr v-if="selectedProblem.wallName">
-            <td class="gym-map-popup-label">Wall</td>
+            <td class="gym-map-popup-label">{{ t('gymmap.wall') }}</td>
             <td class="gym-map-popup-value">{{ selectedProblem.wallName }}</td>
           </tr>
           <tr v-if="selectedProblem.author">
-            <td class="gym-map-popup-label">Setter</td>
+            <td class="gym-map-popup-label">{{ t('gymmap.setter') }}</td>
             <td class="gym-map-popup-value">{{ setterName(selectedProblem) }}</td>
           </tr>
           <tr v-if="selectedProblem.added">
-            <td class="gym-map-popup-label">Set date</td>
+            <td class="gym-map-popup-label">{{ t('gymmap.set_date') }}</td>
             <td class="gym-map-popup-value">{{ formatDate(selectedProblem.added) }}</td>
           </tr>
           <tr v-if="selectedProblem.removal_date">
-            <td class="gym-map-popup-label">Removal</td>
+            <td class="gym-map-popup-label">{{ t('gymmap.removal') }}</td>
             <td class="gym-map-popup-value gym-map-popup-removal">{{ formatDate(selectedProblem.removal_date) }}</td>
           </tr>
           <tr v-if="selectedProblem.total_ascents != null">
-            <td class="gym-map-popup-label">Ascents</td>
+            <td class="gym-map-popup-label">{{ t('gymmap.ascents') }}</td>
             <td class="gym-map-popup-value">{{ selectedProblem.total_ascents }}</td>
           </tr>
           <tr v-if="likeCount(selectedProblem) > 0">
-            <td class="gym-map-popup-label">Likes</td>
+            <td class="gym-map-popup-label">{{ t('gymmap.likes') }}</td>
             <td class="gym-map-popup-value">{{ likeCount(selectedProblem) }}</td>
           </tr>
         </table>
         <button class="gym-map-popup-btn" @click.stop="openProblemDetails">
-          Open problem details
+          {{ t('gymmap.open_details') }}
         </button>
       </div>
 
@@ -193,24 +215,24 @@
       <!-- Filter panel -->
       <div v-if="showFilters" class="gym-map-filter-panel" :class="{ 'gym-map-filter-panel-dark': isDark }" @click.stop @mousedown.stop @touchstart.stop>
         <div class="gym-map-filter-header">
-          <span class="gym-map-filter-title">Filters</span>
-          <span v-if="activeFilterCount > 0" class="gym-map-filter-clear" @click="clearFilters">Clear all</span>
+          <span class="gym-map-filter-title">{{ t('gymmap.filters') }}</span>
+          <span v-if="activeFilterCount > 0" class="gym-map-filter-clear" @click="clearFilters">{{ t('gymmap.clear_all') }}</span>
         </div>
 
         <!-- Quick toggles -->
         <div class="gym-map-filter-section">
-          <div class="gym-map-filter-label">Quick filters</div>
+          <div class="gym-map-filter-label">{{ t('gymmap.quick_filters') }}</div>
           <div class="gym-map-filter-chips">
-            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterNew, 'gym-map-chip-dark': isDark }" @click="filterNew = !filterNew">New</span>
-            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterExpiring, 'gym-map-chip-dark': isDark }" @click="filterExpiring = !filterExpiring">Expiring</span>
-            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterTicked, 'gym-map-chip-dark': isDark }" @click="filterTicked = !filterTicked">Ticked</span>
-            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterProject, 'gym-map-chip-dark': isDark }" @click="filterProject = !filterProject">Projects</span>
-            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterTodo, 'gym-map-chip-dark': isDark }" @click="filterTodo = !filterTodo">Not ticked</span>
+            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterNew, 'gym-map-chip-dark': isDark }" @click="filterNew = !filterNew">{{ t('gymmap.new') }}</span>
+            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterExpiring, 'gym-map-chip-dark': isDark }" @click="filterExpiring = !filterExpiring">{{ t('gymmap.expiring') }}</span>
+            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterTicked, 'gym-map-chip-dark': isDark }" @click="filterTicked = !filterTicked">{{ t('gymmap.ticked') }}</span>
+            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterProject, 'gym-map-chip-dark': isDark }" @click="filterProject = !filterProject">{{ t('gymmap.projects') }}</span>
+            <span class="gym-map-chip gym-map-chip-toggle" :class="{ 'gym-map-chip-active': filterTodo, 'gym-map-chip-dark': isDark }" @click="filterTodo = !filterTodo">{{ t('gymmap.not_ticked') }}</span>
           </div>
         </div>
 
         <div class="gym-map-filter-section">
-          <div class="gym-map-filter-label">Grade</div>
+          <div class="gym-map-filter-label">{{ t('gymmap.grade') }}</div>
           <div v-if="availableGrades.length > 2" class="gym-map-grade-range">
             <div class="gym-map-grade-range-labels">
               <span :class="{ 'gym-map-grade-range-label-active': filterGrades.size > 0 }">{{ filterGrades.size > 0 ? availableGrades[gradeSliderMin] : availableGrades[0] }}</span>
@@ -228,35 +250,35 @@
         </div>
 
         <div v-if="availableColors.length > 0" class="gym-map-filter-section">
-          <div class="gym-map-filter-label">Colour</div>
+          <div class="gym-map-filter-label">{{ t('gymmap.colour') }}</div>
           <div class="gym-map-filter-chips">
             <span v-for="c in availableColors" :key="'fc-' + c.name" class="gym-map-chip gym-map-chip-color" :class="{ 'gym-map-chip-active': filterColors.has(c.name), 'gym-map-chip-dark': isDark }" @click="toggleFilter('colors', c.name)"><span class="gym-map-color-dot" :style="{ background: c.code }"></span>{{ c.name }}</span>
           </div>
         </div>
 
         <div v-if="availableAttributes.length > 0" class="gym-map-filter-section">
-          <div class="gym-map-filter-label">Attributes</div>
+          <div class="gym-map-filter-label">{{ t('gymmap.attributes') }}</div>
           <div class="gym-map-filter-chips">
             <span v-for="a in availableAttributes" :key="'fa-' + a" class="gym-map-chip" :class="{ 'gym-map-chip-active': filterAttributes.has(a), 'gym-map-chip-dark': isDark }" @click="toggleFilter('attributes', a)">{{ a }}</span>
           </div>
         </div>
 
         <div v-if="availableCircuits.length > 0" class="gym-map-filter-section">
-          <div class="gym-map-filter-label">Circuit</div>
+          <div class="gym-map-filter-label">{{ t('gymmap.circuit') }}</div>
           <div class="gym-map-filter-chips">
             <span v-for="c in availableCircuits" :key="'fci-' + c.id" class="gym-map-chip gym-map-chip-color" :class="{ 'gym-map-chip-active': filterCircuits.has(c.id), 'gym-map-chip-dark': isDark }" @click="toggleFilter('circuits', c.id)"><span class="gym-map-color-dot" :style="{ background: c.color }"></span>{{ c.name }}</span>
           </div>
         </div>
 
         <div class="gym-map-filter-section">
-          <div class="gym-map-filter-label">Wall</div>
+          <div class="gym-map-filter-label">{{ t('gymmap.wall') }}</div>
           <div class="gym-map-filter-chips">
             <span v-for="w in availableWallNames" :key="'fw-' + w" class="gym-map-chip" :class="{ 'gym-map-chip-active': filterWalls.has(w), 'gym-map-chip-dark': isDark }" @click="toggleFilter('walls', w)">{{ w }}</span>
           </div>
         </div>
 
         <div class="gym-map-filter-section">
-          <div class="gym-map-filter-label">Setter</div>
+          <div class="gym-map-filter-label">{{ t('gymmap.setter') }}</div>
           <div class="gym-map-filter-chips">
             <span v-for="s in availableSetters" :key="'fs-' + s" class="gym-map-chip" :class="{ 'gym-map-chip-active': filterSetters.has(s), 'gym-map-chip-dark': isDark }" @click="toggleFilter('setters', s)">{{ s }}</span>
           </div>
@@ -266,24 +288,28 @@
       <!-- Legend -->
       <div class="gym-map-legend" :class="{ 'gym-map-legend-dark': isDark }">
         <span class="gym-map-legend-item">
-          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#22c55e" stroke-width="1.2"/><circle cx="7" cy="7" r="4" fill="#888" stroke="#fff" stroke-width="1"/></svg>
-          Ticked
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#22c55e" stroke-width="1.2"/></svg>
+          {{ t('gymmap.ticked') }}
         </span>
         <span class="gym-map-legend-item">
-          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#ef4444" stroke-width="1.2"/><circle cx="7" cy="7" r="4" fill="#888" stroke="#fff" stroke-width="1"/></svg>
-          Project
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#ef4444" stroke-width="1.2"/></svg>
+          {{ t('gymmap.project') }}
         </span>
         <span class="gym-map-legend-item">
-          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#facc15" stroke-width="1.2"/><circle cx="7" cy="7" r="4" fill="#888" stroke="#fff" stroke-width="1"/></svg>
-          New
+          <svg width="14" height="14" viewBox="0 0 14 14"><circle cx="7" cy="7" r="5.5" fill="none" stroke="#facc15" stroke-width="1.2"/></svg>
+          {{ t('gymmap.new') }}
+        </span>
+        <span class="gym-map-legend-item">
+          <svg width="14" height="14" viewBox="0 0 14 14"><rect x="2" y="2" width="10" height="10" rx="2" fill="#ef4444" opacity="0.6"/></svg>
+          {{ t('gymmap.expiring') }}
         </span>
       </div>
 
       <!-- Empty state -->
       <div v-if="mappedWalls.length === 0" class="gym-map-empty">
         <i class="icon f7-icons" :style="{ fontSize: '48px', color: isDark ? '#64748b' : '#94a3b8' }">map</i>
-        <p :style="{ marginTop: '12px', fontSize: '15px', color: isDark ? '#94a3b8' : '#64748b' }">No wall shapes drawn yet</p>
-        <p :style="{ fontSize: '13px', color: isDark ? '#64748b' : '#94a3b8' }">Wall shapes are drawn in the routesetter dashboard.</p>
+        <p :style="{ marginTop: '12px', fontSize: '15px', color: isDark ? '#94a3b8' : '#64748b' }">{{ t('gymmap.no_wall_shapes') }}</p>
+        <p :style="{ fontSize: '13px', color: isDark ? '#64748b' : '#94a3b8' }">{{ t('gymmap.no_wall_shapes_hint') }}</p>
       </div>
     </div>
   </f7-page>
@@ -293,10 +319,12 @@
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { f7 } from 'framework7-vue'
 import { useStore } from 'vuex'
+import { useI18n } from 'vue-i18n'
 const props = defineProps({
   f7router: Object,
 })
 
+const { t } = useI18n()
 const store = useStore()
 const svgRef = ref(null)
 const containerRef = ref(null)
@@ -702,6 +730,11 @@ function getColor(problem) {
     return map[problem.colour.name.toLowerCase()] || '#888'
   }
   return '#888'
+}
+
+function circuitTagWidth(p) {
+  const name = p.circuits?.[0]?.circuitshortname || p.circuits?.[0]?.circuitname || ''
+  return Math.max(0.014, name.length * 0.0036 + 0.006)
 }
 
 function circlePath(cx, cy, r) {

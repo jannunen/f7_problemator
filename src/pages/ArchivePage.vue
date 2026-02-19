@@ -2,20 +2,17 @@
     <f7-page>
         <f7-navbar>
             <f7-nav-left>
-                <f7-link href="/home">&lt; home</f7-link>
+                <f7-link href="/home">&lt; {{ t('sidepanel.home') }}</f7-link>
             </f7-nav-left>
             <f7-nav-title> {{ t('archive.archive_title') }} </f7-nav-title>
         </f7-navbar>
         <f7-block class="m-0 p-1">
-            <p class="mb-2">What is this sorcery? By default this will show your daily
-                ticks. But if you choose weekly/mohthly/yearly span and click
-                a day, it will fetch the ticks accordingly and populate the data.</p>
+            <p class="mb-2">{{ t('archive.intro') }}</p>
             <div class="flex flex-col items-center">
-                <div class="text-center">date span: {{ selectedSpan }}</div>
+                <div class="text-center">{{ t('archive.date_span') }}: {{ selectedSpan }}</div>
                 <br />
                 <br />
-                The chart loading is throttled, so there is a 2 second wait before you
-                can click again. <span class="font-bold text-red-300" v-if="!newClickPossible">wait</span><span class="font-bold text-green-300" v-else>ready</span>
+                {{ t('archive.throttle_notice') }} <span class="font-bold text-red-300" v-if="!newClickPossible">{{ t('archive.wait') }}</span><span class="font-bold text-green-300" v-else>{{ t('archive.ready') }}</span>
                 <calendar :attributes='attrs' @dayclick="onDayClick">
                     <template #day-popover="{ day, format, masks }">
                         <div class="text-xs text-gray-300 font-semibold text-center">
@@ -24,12 +21,12 @@
                     </template>
                 </calendar>
 
-                <label for="location" class="text-white">Show time span</label>
+                <label for="location" class="text-white">{{ t('archive.show_time_span') }}</label>
                 <select v-model="showSpan" class="text-black" id="location" name="location">
-                    <option value="day">Day</option>
-                    <option value="week">Week</option>
-                    <option value="month">Month</option>
-                    <option value="year">Year</option>
+                    <option value="day">{{ t('archive.day') }}</option>
+                    <option value="week">{{ t('archive.week') }}</option>
+                    <option value="month">{{ t('archive.month') }}</option>
+                    <option value="year">{{ t('archive.year') }}</option>
                 </select>
 
 
@@ -41,7 +38,7 @@
 
                 <div v-if="loading" class="flex flex-col items-center justify-center mt-3">
                     <f7-preloader class="my-2"></f7-preloader>
-                    Loading date(s)...
+                    {{ t('archive.loading_dates') }}
                 </div>
 
 
@@ -49,18 +46,17 @@
 
                     <div class="flex flex-row justify-around my-1 gap-2">
                         <div class="text-center border border-gray-800 p-1 ">
-                            {{ ascents.length }} tick(s)
+                            {{ t('archive.ticks_count', { n: ascents.length }) }}
                             <Bar v-if="!loading" :chart-options="{ plugins: { legend: { display: false } } }" :chart-data="data" chart-id="archive_chart_ticks" :width="150" :height="100" />
                         </div>
                         <div class="text-center border border-gray-700 p-1">
-                            {{ projects.length }} project(s)
+                            {{ t('archive.projects_count', { n: projects.length }) }}
                             <Bar v-if="!loading" :chart-options="{ plugins: { legend: { display: false } } }" :chart-data="projectData" chart-id="archive_chart_projs" :width="150" :height="100" />
                         </div>
                     </div>
 
-                    <f7-block-title>Ticks ({{ reversedTicks.length }})</f7-block-title>
-                    <small>Want to see your weekly stats? Just choose week as a time span and click any
-                        day on the weekday you want to show the data on.</small>
+                    <f7-block-title>{{ t('archive.ticks_title', { n: reversedTicks.length }) }}</f7-block-title>
+                    <small>{{ t('archive.weekly_stats_hint') }}</small>
                     <f7-list v-if="reversedTicks.length > 0" problem-list>
                         <f7-list-item @swipeout:deleted="(evt) => onDeleted(tick, j)" swipeout v-for="(tick, index) in reversedTicks" :key="tick.id">
                             <template #media>
@@ -96,7 +92,7 @@
                             </f7-swipeout-actions>
                         </f7-list-item>
                     </f7-list>
-                    <f7-block-title>Tries / Projecting ({{ reversedProjects.length }})</f7-block-title>
+                    <f7-block-title>{{ t('archive.tries_projecting', { n: reversedProjects.length }) }}</f7-block-title>
                     <f7-list v-if="reversedProjects.length > 0">
                         <f7-list-item @swipeout:deleted="(evt) => onProjectDeleted(tick, j)" swipeout v-for="(tick, index) in reversedProjects" :key="tick.id">
                             <template #media>
@@ -108,7 +104,7 @@
                                     <div class="flex flex-col">
                                         <div class="flex flex-row">
                                             <div class="rounded-full font-bold text-yellow-400">
-                                                {{ t('a burn') }}
+                                                {{ t('archive.a_burn') }}
                                             </div>
                                             <div class="ps-2">@{{ tick.problem.gym.name }}</div>
                                         </div>

@@ -1,7 +1,7 @@
 {
   "name": "Problemator",
   "private": true,
-  "version": "1.0.10",
+  "version": "1.1.2",
   "description": "Problemator is an app for tracking your climbing",
   "repository": "",
   "license": "UNLICENSED",
@@ -34,6 +34,7 @@
     "framework7-icons": "^5.0.3",
     "framework7-vue": "^6.3.16",
     "lodash": "^4.17.21",
+    "mapbox-gl": "^3.18.1",
     "material-icons": "^1.2.1",
     "rxjs": "^7.5.5",
     "skeleton-elements": "^3.5.0",

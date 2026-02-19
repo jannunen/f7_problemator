@@ -30,17 +30,17 @@
       <div class="profile-stats">
         <div class="profile-stats__item">
           <span class="profile-stats__value">{{ profile.total_ascents || 0 }}</span>
-          <span class="profile-stats__label">Ascents</span>
+          <span class="profile-stats__label">{{ t('climber_profile.ascents') }}</span>
         </div>
         <div class="profile-stats__divider"></div>
         <div class="profile-stats__item">
           <span class="profile-stats__value">{{ formatGrade(profile.boulder_hardest?.name) || '—' }}</span>
-          <span class="profile-stats__label">Hardest boulder</span>
+          <span class="profile-stats__label">{{ t('climber_profile.hardest_boulder') }}</span>
         </div>
         <div class="profile-stats__divider"></div>
         <div class="profile-stats__item">
           <span class="profile-stats__value">{{ profile.sport_hardest?.name || '—' }}</span>
-          <span class="profile-stats__label">Hardest sport</span>
+          <span class="profile-stats__label">{{ t('climber_profile.hardest_sport') }}</span>
         </div>
       </div>
 
@@ -48,33 +48,33 @@
       <div class="profile-follow-bar">
         <div class="profile-follow-bar__stat">
           <span class="profile-follow-bar__count">{{ profile.following?.length ?? 0 }}</span>
-          <span class="profile-follow-bar__label">Following</span>
+          <span class="profile-follow-bar__label">{{ t('climber_profile.following') }}</span>
         </div>
         <div class="profile-follow-bar__stat">
           <span class="profile-follow-bar__count">{{ profile.followers?.length ?? 0 }}</span>
-          <span class="profile-follow-bar__label">Followers</span>
+          <span class="profile-follow-bar__label">{{ t('climber_profile.followers') }}</span>
         </div>
         <div class="profile-follow-bar__action">
           <template v-if="climber?.id != profile.id">
-            <button v-if="amIFollowing" class="p-btn p-btn--ghost p-btn--sm" @click.prevent="followUnFollow(profile.id)">Unfollow</button>
-            <button v-else class="p-btn p-btn--primary p-btn--sm" @click.prevent="followUnFollow(profile.id)">Follow</button>
+            <button v-if="amIFollowing" class="p-btn p-btn--ghost p-btn--sm" @click.prevent="followUnFollow(profile.id)">{{ t('climber_profile.unfollow') }}</button>
+            <button v-else class="p-btn p-btn--primary p-btn--sm" @click.prevent="followUnFollow(profile.id)">{{ t('climber_profile.follow') }}</button>
           </template>
-          <span v-else class="profile-follow-bar__you">This is you</span>
+          <span v-else class="profile-follow-bar__you">{{ t('climber_profile.this_is_you') }}</span>
         </div>
       </div>
 
       <!-- Top 10 card -->
       <div class="p-card" v-if="profile.boulder_top10_alltime || profile.sport_top10_alltime">
-        <div class="p-section-title" style="margin-top: 0;">Top 10 average</div>
+        <div class="p-section-title" style="margin-top: 0;">{{ t('climber_profile.top10_average') }}</div>
         <div class="profile-top10">
           <div class="profile-top10__item" v-if="profile.boulder_top10_alltime">
             <span class="profile-top10__grade">{{ estimateGrade(profile.boulder_top10_alltime, grades).toUpperCase() }}</span>
-            <span class="profile-top10__type">Boulder</span>
+            <span class="profile-top10__type">{{ t('climber_profile.boulder') }}</span>
             <span class="profile-top10__score">{{ profile.boulder_top10_alltime }} pts</span>
           </div>
           <div class="profile-top10__item" v-if="profile.sport_top10_alltime">
             <span class="profile-top10__grade">{{ estimateGrade(profile.sport_top10_alltime, grades) }}</span>
-            <span class="profile-top10__type">Sport</span>
+            <span class="profile-top10__type">{{ t('climber_profile.sport') }}</span>
             <span class="profile-top10__score">{{ profile.sport_top10_alltime }} pts</span>
           </div>
         </div>
@@ -82,26 +82,26 @@
 
       <!-- Body specs card -->
       <div class="p-card" v-if="profile.height || profile.apeindex || profile.age">
-        <div class="p-section-title" style="margin-top: 0;">Specs</div>
+        <div class="p-section-title" style="margin-top: 0;">{{ t('climber_profile.specs') }}</div>
         <div class="profile-specs">
           <div class="profile-specs__item" v-if="profile.height">
             <span class="material-icons profile-specs__icon">straighten</span>
-            <span class="profile-specs__label">Height</span>
+            <span class="profile-specs__label">{{ t('climber_profile.height') }}</span>
             <span class="profile-specs__value">{{ profile.height }} cm</span>
           </div>
           <div class="profile-specs__item" v-if="profile.apeindex">
             <span class="material-icons profile-specs__icon">open_with</span>
-            <span class="profile-specs__label">Ape index</span>
+            <span class="profile-specs__label">{{ t('climber_profile.ape_index') }}</span>
             <span class="profile-specs__value">{{ profile.apeindex }} cm</span>
           </div>
           <div class="profile-specs__item" v-if="profile.age">
             <span class="material-icons profile-specs__icon">cake</span>
-            <span class="profile-specs__label">Age</span>
+            <span class="profile-specs__label">{{ t('climber_profile.age') }}</span>
             <span class="profile-specs__value">{{ profile.age }}</span>
           </div>
           <div class="profile-specs__item" v-if="profile.added">
             <span class="material-icons profile-specs__icon">calendar_today</span>
-            <span class="profile-specs__label">Joined</span>
+            <span class="profile-specs__label">{{ t('climber_profile.joined') }}</span>
             <span class="profile-specs__value">{{ dayjs(profile.added).format("YYYY-MM-DD") }}</span>
           </div>
         </div>
@@ -109,7 +109,7 @@
 
       <!-- Social links -->
       <div class="p-card" v-if="hasSocials">
-        <div class="p-section-title" style="margin-top: 0;">Social</div>
+        <div class="p-section-title" style="margin-top: 0;">{{ t('climber_profile.social') }}</div>
         <social-buttons :profile="profile" />
       </div>
 
@@ -119,12 +119,12 @@
       <!-- Settings hint -->
       <div class="profile-hint">
         <span class="material-icons profile-hint__icon">info</span>
-        <span>Change personal data in <a class="p-link" href="#" @click.prevent="openSettings">settings</a>. Leave fields empty to hide them.</span>
+        <span>{{ t('climber_profile.settings_hint') }} <a class="p-link" href="#" @click.prevent="openSettings">{{ t('climber_profile.settings_link') }}</a>. {{ t('climber_profile.settings_hint2') }}</span>
       </div>
 
       <!-- Latest ascents -->
       <div class="profile-ascents" v-if="profile.latest_ascents && profile.latest_ascents.length > 0">
-        <div class="p-section-title" style="margin: 0.75rem 1rem 0.375rem;">Latest ascents</div>
+        <div class="p-section-title" style="margin: 0.75rem 1rem 0.375rem;">{{ t('climber_profile.latest_ascents') }}</div>
         <f7-list media class="my-0">
           <climbed-problem-list-item
             v-for="problem in profile.latest_ascents"
@@ -135,7 +135,7 @@
         </f7-list>
       </div>
       <div v-else class="p-card" style="text-align: center;">
-        <span class="p-text-muted">No ascents yet</span>
+        <span class="p-text-muted">{{ t('climber_profile.no_ascents_yet') }}</span>
       </div>
     </div>
   </f7-page>
