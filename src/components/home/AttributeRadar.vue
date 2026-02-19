@@ -82,14 +82,21 @@ const chartLabels = computed(() => {
   return entries
 })
 
+// Normalize each dataset to 0–100% of its own max so the shapes are
+// visually comparable even when the user has very few ticks.
 const radarData = computed(() => {
   if (!chartLabels.value.length) return null
+
+  const maxTicked = Math.max(...chartLabels.value.map((d) => d.ticked), 1)
+  const maxUnticked = Math.max(...chartLabels.value.map((d) => d.unticked), 1)
+
   return {
     labels: chartLabels.value.map((d) => d.label),
     datasets: [
       {
         label: t('attribute_radar.ticked'),
-        data: chartLabels.value.map((d) => d.ticked),
+        data: chartLabels.value.map((d) => (d.ticked / maxTicked) * 100),
+        rawCounts: chartLabels.value.map((d) => d.ticked),
         backgroundColor: 'rgba(245, 158, 11, 0.2)',
         borderColor: '#f59e0b',
         borderWidth: 1.5,
@@ -98,7 +105,8 @@ const radarData = computed(() => {
       },
       {
         label: t('attribute_radar.unticked'),
-        data: chartLabels.value.map((d) => d.unticked),
+        data: chartLabels.value.map((d) => (d.unticked / maxUnticked) * 100),
+        rawCounts: chartLabels.value.map((d) => d.unticked),
         backgroundColor: 'rgba(100, 116, 139, 0.1)',
         borderColor: '#64748b',
         borderWidth: 1,
@@ -110,54 +118,53 @@ const radarData = computed(() => {
   }
 })
 
-const radarOptions = computed(() => {
-  const maxVal = Math.max(...chartLabels.value.map((d) => d.total), 1)
-  return {
-    responsive: true,
-    maintainAspectRatio: true,
-    plugins: {
-      legend: {
-        display: true,
-        position: 'bottom',
-        labels: {
-          color: 'var(--p-text-secondary, #94a3b8)',
-          font: { size: 10 },
-          boxWidth: 12,
-          padding: 8,
-        },
+const radarOptions = computed(() => ({
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: {
+    legend: {
+      display: true,
+      position: 'bottom',
+      labels: {
+        color: 'var(--p-text-secondary, #94a3b8)',
+        font: { size: 10 },
+        boxWidth: 12,
+        padding: 8,
       },
-      tooltip: {
-        callbacks: {
-          label: (ctx) => `${ctx.dataset.label}: ${ctx.raw}`,
+    },
+    tooltip: {
+      callbacks: {
+        label: (ctx) => {
+          const raw = ctx.dataset.rawCounts?.[ctx.dataIndex] ?? ctx.raw
+          return `${ctx.dataset.label}: ${raw}`
         },
       },
     },
-    scales: {
-      r: {
-        beginAtZero: true,
-        ticks: {
-          display: false,
-          stepSize: Math.max(1, Math.ceil(maxVal / 4)),
-        },
-        grid: {
-          color: 'rgba(148, 163, 184, 0.15)',
-        },
-        angleLines: {
-          color: 'rgba(148, 163, 184, 0.1)',
-        },
-        pointLabels: {
-          color: 'var(--p-text-secondary, #94a3b8)',
-          font: { size: 10, weight: 500 },
-          callback: (label, index) => {
-            const entry = chartLabels.value[index]
-            const truncated = label.length > 14 ? label.slice(0, 12) + '...' : label
-            return `${truncated} (${entry?.total ?? ''})`
-          },
+  },
+  scales: {
+    r: {
+      beginAtZero: true,
+      min: 0,
+      max: 100,
+      ticks: { display: false },
+      grid: {
+        color: 'rgba(148, 163, 184, 0.15)',
+      },
+      angleLines: {
+        color: 'rgba(148, 163, 184, 0.1)',
+      },
+      pointLabels: {
+        color: 'var(--p-text-secondary, #94a3b8)',
+        font: { size: 10, weight: 500 },
+        callback: (label, index) => {
+          const entry = chartLabels.value[index]
+          const truncated = label.length > 14 ? label.slice(0, 12) + '...' : label
+          return `${truncated} (${entry?.ticked ?? 0}/${entry?.total ?? 0})`
         },
       },
     },
-  }
-})
+  },
+}))
 </script>
 
 <style scoped>
