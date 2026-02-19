@@ -2,7 +2,7 @@
     <!-- Top10 popup — keep f7-popup for gesture/backdrop -->
     <f7-popup v-model:opened="showAscents">
     <f7-page>
-      <f7-navbar title="Top10 ascents for ranking">
+      <f7-navbar :title="'Top10 — ' + (routeType !== 'all' ? routeType : 'all types')">
         <f7-nav-right>
           <f7-link @click="closeTop10Popup" popup-close>Close</f7-link>
         </f7-nav-right>
@@ -23,12 +23,12 @@
         </a>
 
         <div v-if="rankingtop10 != null && rankingtop10.id != null">
-          <div class="p-section-title mb-2">Rank consists of {{ rankingtop10.problems.length }} problem(s)</div>
+          <div class="p-section-title mb-2">Rank consists of {{ filteredProblems.length }} problem(s)</div>
 
           <!-- Problem list -->
           <div class="top10-list">
             <div
-              v-for="(problem, index) in rankingtop10.problems"
+              v-for="(problem, index) in filteredProblems"
               :key="problem.id"
               class="top10-row"
             >
@@ -73,7 +73,7 @@
             </div>
             <div class="top10-summary__row">
               <span class="p-text-muted">Avg grade (grades)</span>
-              <span class="top10-summary__value">{{ estimateGrade(getScore(rankingtop10.problems), grades) }}</span>
+              <span class="top10-summary__value">{{ estimateGrade(getScore(filteredProblems), grades) }}</span>
             </div>
             <div class="top10-summary__row">
               <span class="p-text-muted">Avg grade (scores)</span>
@@ -177,6 +177,13 @@ const climber = ref(null)
 const first = ref(null)
 const last = ref(null)
 const myRank = computed(() => props.ranking.myrank)
+const routeType = computed(() => props.ranking?.ranking?.route_type ?? 'all')
+
+const filteredProblems = computed(() => {
+  if (!rankingtop10.value?.problems) return []
+  if (routeType.value === 'all') return rankingtop10.value.problems
+  return rankingtop10.value.problems.filter(p => p.routetype === routeType.value)
+})
 
 const { data: rankingtop10, isLoading: loading } = useQuery({
   queryKey: computed(() => ['rankingTop10', climber.value, props.ranking.ranking.id, props.country]),

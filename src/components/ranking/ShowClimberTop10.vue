@@ -1,7 +1,7 @@
 <template>
   <f7-popup :opened="opened" @popup:closed="emit('update:opened', false)">
     <f7-page>
-      <f7-navbar title="Top10 ascents for ranking">
+      <f7-navbar :title="'Top10 — ' + (props.route_type !== 'all' ? props.route_type : 'all types')">
         <f7-nav-right>
           <f7-link @click="emit('close')" popup-close>Close</f7-link>
         </f7-nav-right>
@@ -22,12 +22,12 @@
         </a>
 
         <div v-if="ranking != null && ranking.id != null">
-          <div class="p-section-title mb-2">Rank consists of {{ ranking.problems.length }} problem(s)</div>
+          <div class="p-section-title mb-2">Rank consists of {{ filteredProblems.length }} problem(s)</div>
 
           <!-- Problem list -->
           <div class="top10-list">
             <div
-              v-for="(problem, index) in ranking.problems"
+              v-for="(problem, index) in filteredProblems"
               :key="problem.id"
               class="top10-row"
             >
@@ -72,7 +72,7 @@
             </div>
             <div class="top10-summary__row">
               <span class="p-text-muted">Avg grade (grades)</span>
-              <span class="top10-summary__value">{{ estimateGrade(getScore(ranking.problems), grades) }}</span>
+              <span class="top10-summary__value">{{ estimateGrade(getScore(filteredProblems), grades) }}</span>
             </div>
             <div class="top10-summary__row">
               <span class="p-text-muted">Avg grade (scores)</span>
@@ -99,6 +99,7 @@ const props = defineProps({
   climber_id: Number,
   country: String,
   ranking_id: Number,
+  route_type: { type: String, default: 'all' },
   first : String,
   last : String,
 })
@@ -116,6 +117,11 @@ const { data: ranking, isLoading: loading } = useQuery({
 })
 
 const grades = computed(() => store.state.grades)
+const filteredProblems = computed(() => {
+  if (!ranking.value?.problems) return []
+  if (props.route_type === 'all') return ranking.value.problems
+  return ranking.value.problems.filter(p => p.routetype === props.route_type)
+})
 const getFirstTickTimestamp = (problem) => {
   return toLocalTime(problem.ascent_tstamp, 'YYYY-MM-DD')
 }
