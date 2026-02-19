@@ -24,7 +24,10 @@
     "refresh": "värskenda",
     "description": "Edetabel põhineb top10 raskeimal tippudel. Flashid annavad rohkem punkte, katsed vähendavad.",
     "country_hint": "Kui ei näe oma kohta riigi edetabelis, mine seadetesse, määra riik ja roni mõni probleem.",
-    "global": "Globaalne"
+    "global": "Globaalne",
+    "all_tab": "Kõik",
+    "boulder_tab": "Boulder",
+    "sport_tab": "Sport"
   },
   "results": {
     "name": "Nimi",

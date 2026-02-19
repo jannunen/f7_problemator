@@ -24,7 +24,10 @@
     "refresh": "aggiorna",
     "description": "La classifica si basa sui 10 problemi piu difficili. I Flash danno piu punti, i tentativi li sottraggono.",
     "country_hint": "Se non vedi la tua posizione nella lista del tuo paese, vai alle impostazioni, imposta il paese e scala alcuni problemi.",
-    "global": "Globale"
+    "global": "Globale",
+    "all_tab": "Tutti",
+    "boulder_tab": "Boulder",
+    "sport_tab": "Sport"
   },
   "results": {
     "name": "Nome",

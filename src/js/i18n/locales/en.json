@@ -24,7 +24,10 @@
     "refresh": "refresh",
     "description": "Ranking is based on top10 hardest problems. Flashes give more points, tries deduce.",
     "country_hint": "If you don't see your ranking in your country's list, go to the settings page, set the country and climb some problems.",
-    "global": "Global"
+    "global": "Global",
+    "all_tab": "All",
+    "boulder_tab": "Boulder",
+    "sport_tab": "Sport"
   },
   "results": {
     "name": "Name",

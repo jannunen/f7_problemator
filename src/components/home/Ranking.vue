@@ -95,17 +95,36 @@
         </div>
 
         <div v-if="rankings != null">
-            <!-- Ranking tabs -->
+            <!-- Route type toggle -->
             <div class="p-toggle-group mb-3">
                 <button
-                        v-for="(r, idx) in rankings"
-                        :key="r.ranking.id"
                         class="p-toggle-group__btn"
-                        :class="{ 'p-toggle-group__btn--active': rankingTab == idx }"
-                        @click.prevent="rankingTab = idx">{{ r.ranking.name }}</button>
+                        :class="{ 'p-toggle-group__btn--active': routeTypeFilter == 'all' }"
+                        @click.prevent="routeTypeFilter = 'all'">{{ t('ranking.all_tab') }}</button>
+                <button
+                        class="p-toggle-group__btn"
+                        :class="{ 'p-toggle-group__btn--active': routeTypeFilter == 'boulder' }"
+                        @click.prevent="routeTypeFilter = 'boulder'">{{ t('ranking.boulder_tab') }}</button>
+                <button
+                        class="p-toggle-group__btn"
+                        :class="{ 'p-toggle-group__btn--active': routeTypeFilter == 'sport' }"
+                        @click.prevent="routeTypeFilter = 'sport'">{{ t('ranking.sport_tab') }}</button>
             </div>
 
-            <div v-for="(r, idx) in rankings" :key="r.ranking.id">
+            <!-- Ranking tabs -->
+            <div class="ranking-tabs-scroll mb-3">
+                <div class="p-toggle-group">
+                    <button
+                            v-for="(r, idx) in filteredRankings"
+                            :key="r.ranking.id"
+                            class="p-toggle-group__btn"
+                            :class="{ 'p-toggle-group__btn--active': rankingTab == idx }"
+                            @click.prevent="rankingTab = idx">{{ r.ranking.name }}</button>
+                </div>
+                <span class="scroll-hint material-icons">chevron_right</span>
+            </div>
+
+            <div v-for="(r, idx) in filteredRankings" :key="r.ranking.id">
                 <div v-if="rankingTab == idx">
                     <show-ranking :country="rankingTarget" :ranking="r" />
                 </div>
@@ -127,9 +146,26 @@ const { t } = useI18n()
 const rankingTab = ref(0)
 const store = useStore()
 const rankingTarget = ref(null)
+const routeTypeFilter = ref('all')
 const showRankingSheet = ref(false)
 const rankings = computed(() => store.state.rankings)
 const gym = computed(() => store.state.gym)
+const filteredRankings = computed(() => {
+    if (!rankings.value) return null
+    return rankings.value.filter(r => r.ranking.route_type === routeTypeFilter.value)
+})
+watch(routeTypeFilter, (newVal, oldVal) => {
+    // Preserve the selected timespan when switching route type
+    const oldList = rankings.value?.filter(r => r.ranking.route_type === oldVal) || []
+    const selectedName = oldList[rankingTab.value]?.ranking?.name
+    if (selectedName) {
+        const newList = rankings.value?.filter(r => r.ranking.route_type === newVal) || []
+        const matchIdx = newList.findIndex(r => r.ranking.name === selectedName)
+        rankingTab.value = matchIdx >= 0 ? matchIdx : 0
+    } else {
+        rankingTab.value = 0
+    }
+})
 const changeTarget = (tgt) => {
     rankingTarget.value = tgt
     refresh()
@@ -151,5 +187,33 @@ refresh()
     font-size: 16px;
     vertical-align: middle;
     cursor: pointer;
+}
+
+.ranking-tabs-scroll {
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.ranking-tabs-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.ranking-tabs-scroll .p-toggle-group {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    padding-right: 24px;
+}
+
+.scroll-hint {
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: var(--p-text-muted, #999);
+    pointer-events: none;
 }
 </style>

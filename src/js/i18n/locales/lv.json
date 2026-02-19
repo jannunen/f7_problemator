@@ -24,7 +24,10 @@
     "refresh": "atjaunināt",
     "description": "Reitings balstās uz top10 grūtākajiem uzkāpieniem. Flash dod vairāk punktu, mēģinājumi samazina.",
     "country_hint": "Ja neredzat savu pozīciju valsts sarakstā, dodieties uz iestatījumiem, iestatiet valsti un uzkāpiet uz dažām problēmām.",
-    "global": "Globāls"
+    "global": "Globāls",
+    "all_tab": "Visi",
+    "boulder_tab": "Boulder",
+    "sport_tab": "Sport"
   },
   "results": {
     "name": "Vārds",

@@ -24,7 +24,10 @@
     "refresh": "päivitä",
     "description": "Ranking perustuu top10 vaikeimpiin ongelmiin. Flashit antavat enemmän pisteitä, yritykset vähentävät.",
     "country_hint": "Jos et näe rankingisi maakohtaisessa listassa, mene asetuksiin, aseta maa ja kiipeile ongelmia.",
-    "global": "Globaali"
+    "global": "Globaali",
+    "all_tab": "Kaikki",
+    "boulder_tab": "Boulder",
+    "sport_tab": "Sport"
   },
   "results": {
     "name": "Nimi",

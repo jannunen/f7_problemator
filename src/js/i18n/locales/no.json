@@ -24,7 +24,10 @@
     "refresh": "oppdater",
     "description": "Ranking er basert på topp 10 vanskeligste problemer. Flash gir mer poeng, forsøk trekker fra.",
     "country_hint": "Hvis du ikke ser rangeringen din i landets liste, gå til innstillingssiden, angi land og klatr noen problemer.",
-    "global": "Global"
+    "global": "Global",
+    "all_tab": "Alle",
+    "boulder_tab": "Boulder",
+    "sport_tab": "Sport"
   },
   "results": {
     "name": "Navn",

@@ -24,7 +24,10 @@
     "refresh": "uppdatera",
     "description": "Ranking baseras på de 10 svåraste problemmen. Flash ger mer poäng, försök drar av.",
     "country_hint": "Om du inte ser din ranking i ditt lands lista, gå till inställningssidan, ange land och klättra några problem.",
-    "global": "Global"
+    "global": "Global",
+    "all_tab": "Alla",
+    "boulder_tab": "Boulder",
+    "sport_tab": "Sport"
   },
   "results": {
     "name": "Namn",

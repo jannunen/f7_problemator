@@ -24,7 +24,10 @@
     "refresh": "aktualisieren",
     "description": "Das Ranking basiert auf den 10 schwersten Problemen. Flash gibt mehr Punkte, Versuche ziehen ab.",
     "country_hint": "Wenn du dich nicht in der Länderliste siehst, gehe zu den Einstellungen, wähle dein Land und klettere ein paar Probleme.",
-    "global": "Global"
+    "global": "Global",
+    "all_tab": "Alle",
+    "boulder_tab": "Boulder",
+    "sport_tab": "Sport"
   },
   "results": {
     "name": "Name",

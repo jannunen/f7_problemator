@@ -24,7 +24,10 @@
     "refresh": "atnaujinti",
     "description": "Reitingas grindžiamas top10 sunkiausiais įkopimais. Flash duoda daugiau taškų, bandymai mažina.",
     "country_hint": "Jei nematote savo pozicijos šalies sąraše, eikite į nustatymus, nustatykite šalį ir užlipkite ant kelių problemų.",
-    "global": "Pasaulinis"
+    "global": "Pasaulinis",
+    "all_tab": "Visi",
+    "boulder_tab": "Boulder",
+    "sport_tab": "Sport"
   },
   "results": {
     "name": "Vardas",
