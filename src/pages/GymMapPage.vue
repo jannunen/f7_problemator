@@ -70,6 +70,11 @@
             <!-- Problem dots (skip selected so it renders on top) -->
             <template v-for="p in getWallProblems(wall)" :key="'p-' + p.id">
               <g v-if="!selectedProblem || selectedProblem.id !== p.id">
+                <!-- Circuit pen (drawn first so circle covers the top) -->
+                <path v-if="p.circuits && p.circuits.length > 0"
+                      :d="penPath(p.cx, p.cy, 0.005, 0.022)"
+                      :fill="p.circuits[0].color?.code || '#888'"
+                      style="pointer-events: none;" />
                 <!-- Status ring: ticked=green, project=red, new=yellow -->
                 <path v-if="p.isTicked || p.isProject || p.isNew"
                         :d="circlePath(p.cx, p.cy, 0.0105)"
@@ -103,23 +108,17 @@
                       width="0.024" height="0.024" rx="0.004"
                       fill="#ef4444" opacity="0.6"
                       style="pointer-events: none;" />
-                <!-- Circuit tag hanging below the dot -->
-                <g v-if="p.circuits && p.circuits.length > 0" style="pointer-events: none;">
-                  <line :x1="p.cx" :y1="p.cy + 0.009" :x2="p.cx" :y2="p.cy + 0.015" :stroke="p.circuits[0].color?.code || '#888'" stroke-width="0.0012" />
-                  <rect :x="p.cx - circuitTagWidth(p) / 2" :y="p.cy + 0.015"
-                        :width="circuitTagWidth(p)" height="0.009" rx="0.002"
-                        :fill="p.circuits[0].color?.code || '#888'" />
-                  <text :x="p.cx" :y="p.cy + 0.0195"
-                        font-size="0.005" :fill="p.circuits[0].color?.textcolor || '#fff'"
-                        text-anchor="middle" dominant-baseline="central"
-                        style="font-weight: 700; user-select: none;">{{ p.circuits[0].circuitshortname || p.circuits[0].circuitname }}</text>
-                </g>
               </g>
             </template>
           </g>
 
           <!-- Selected problem rendered last = topmost -->
           <g v-if="selectedProblem">
+            <!-- Circuit pen (drawn first so circle covers the top) -->
+            <path v-if="selectedProblem.circuits && selectedProblem.circuits.length > 0"
+                  :d="penPath(selectedProblem.cx, selectedProblem.cy, 0.005, 0.022)"
+                  :fill="selectedProblem.circuits[0].color?.code || '#888'"
+                  style="pointer-events: none;" />
             <!-- Pulse ring -->
             <path :d="circlePath(selectedProblem.cx, selectedProblem.cy, 0.012)" fill="none" stroke="#fff" stroke-width="0.002" opacity="0.6" />
             <path :d="circlePath(selectedProblem.cx, selectedProblem.cy, 0.008)" :fill="getColor(selectedProblem)" stroke="#fff" stroke-width="0.003" @click.stop="onProblemTap(selectedProblem)" />
@@ -130,17 +129,6 @@
                   width="0.024" height="0.024" rx="0.004"
                   fill="#ef4444" opacity="0.6"
                   style="pointer-events: none;" />
-            <!-- Circuit tag hanging below the dot -->
-            <g v-if="selectedProblem.circuits && selectedProblem.circuits.length > 0" style="pointer-events: none;">
-              <line :x1="selectedProblem.cx" :y1="selectedProblem.cy + 0.009" :x2="selectedProblem.cx" :y2="selectedProblem.cy + 0.015" :stroke="selectedProblem.circuits[0].color?.code || '#888'" stroke-width="0.0012" />
-              <rect :x="selectedProblem.cx - circuitTagWidth(selectedProblem) / 2" :y="selectedProblem.cy + 0.015"
-                    :width="circuitTagWidth(selectedProblem)" height="0.009" rx="0.002"
-                    :fill="selectedProblem.circuits[0].color?.code || '#888'" />
-              <text :x="selectedProblem.cx" :y="selectedProblem.cy + 0.0195"
-                    font-size="0.005" :fill="selectedProblem.circuits[0].color?.textcolor || '#fff'"
-                    text-anchor="middle" dominant-baseline="central"
-                    style="font-weight: 700; user-select: none;">{{ selectedProblem.circuits[0].circuitshortname || selectedProblem.circuits[0].circuitname }}</text>
-            </g>
           </g>
         </g>
       </svg>
@@ -183,6 +171,10 @@
           <tr v-if="likeCount(selectedProblem) > 0">
             <td class="gym-map-popup-label">{{ t('gymmap.likes') }}</td>
             <td class="gym-map-popup-value">{{ likeCount(selectedProblem) }}</td>
+          </tr>
+          <tr v-if="selectedProblem.circuits && selectedProblem.circuits.length > 0">
+            <td class="gym-map-popup-label">{{ t('gymmap.circuit') }}</td>
+            <td class="gym-map-popup-value"><span class="gym-map-popup-color" :style="{ background: selectedProblem.circuits[0].color?.code || '#888' }"></span> {{ selectedProblem.circuits[0].circuitname || selectedProblem.circuits[0].circuitshortname }}</td>
           </tr>
         </table>
         <button class="gym-map-popup-btn" @click.stop="openProblemDetails">
@@ -732,13 +724,17 @@ function getColor(problem) {
   return '#888'
 }
 
-function circuitTagWidth(p) {
-  const name = p.circuits?.[0]?.circuitshortname || p.circuits?.[0]?.circuitname || ''
-  return Math.max(0.014, name.length * 0.0036 + 0.006)
-}
-
 function circlePath(cx, cy, r) {
   return `M${cx - r},${cy}a${r},${r} 0 1,0 ${r * 2},0a${r},${r} 0 1,0 -${r * 2},0Z`
+}
+
+function penPath(cx, cy, halfWidth, length) {
+  // Narrow triangle pointing to 1 o'clock (30° from 12)
+  const dx = 0.5        // sin(30°)
+  const dy = -0.866      // -cos(30°)
+  const px = 0.866       // cos(30°) — perpendicular for base
+  const py = 0.5         // sin(30°)
+  return `M${cx - halfWidth * px},${cy - halfWidth * py}L${cx + halfWidth * px},${cy + halfWidth * py}L${cx + length * dx},${cy + length * dy}Z`
 }
 
 // Navigation
