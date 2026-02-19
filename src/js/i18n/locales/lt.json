@@ -468,6 +468,19 @@
     "cookie_notice": "Prisijungdami sutinkate su slapukų naudojimu jūsų lipimo pažangos sekimui.",
     "enter_name_error": "Prašome įvesti savo vardą ir pavardę."
   },
+  "attribute_radar": {
+    "title": "Lipimo stiliaus profilis",
+    "ticked": "Atlikta",
+    "unticked": "Neatlikta"
+  },
+  "gym_info": {
+    "street_address": "Gatvės adresas",
+    "zip": "Pašto kodas",
+    "website": "Svetainė",
+    "phone": "Telefonas",
+    "opening_hours": "Darbo laikas",
+    "description": "Aprašymas"
+  },
   "btn_all_routes": "Visi maršrutai",
   "btn_new_routes": "Nauji maršrutai",
   "btn_expiring_routes": "Baigianti galioti maršrutai",

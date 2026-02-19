@@ -83,6 +83,7 @@
           <!-- Section: Progress -->
           <div class="home-section">
             <my-badges />
+            <attribute-radar />
             <grade-pyramid />
             <my-logs :show-selector="true" />
           </div>
@@ -153,6 +154,7 @@ import ExpiringProblemsAlert from '@components/ExpiringProblemsAlert.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import Ranking from '@components/home/Ranking.vue'
 import GradePyramid from '@components/home/GradePyramid.vue'
+import AttributeRadar from '@components/home/AttributeRadar.vue'
 import FloorMapBlock from '@components/ui/FloorMapBlock.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'

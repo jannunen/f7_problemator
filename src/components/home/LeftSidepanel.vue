@@ -2,8 +2,8 @@
   <f7-panel left v-model:opened="sidePanelOpen" @panel:close="store.commit('setSidePanel', false)">
     <f7-view>
       <show-tick-help :opened="showTickHelpDialog" />
-      <show-tips :opened="showTipsDialog" @close="showTipsDialog=false" />
-      <show-changelog :opened="showChangeLogDialog" @close="showChangeLogDialog=false" />
+      <show-tips :opened="showTipsDialog" @close="showTipsDialog = false" />
+      <show-changelog :opened="showChangeLogDialog" @close="showChangeLogDialog = false" />
       <f7-page>
         <!-- Brand header -->
         <div class="flex flex-col items-center py-6 px-4">
@@ -40,17 +40,19 @@
             <span class="p-nav-item__label">{{ t('sidepanel.tick_archive') }}</span>
           </button>
 
+          <!--
           <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'import_ticks' }" @click="showTickHelpDialog=true">
             <span class="material-icons p-nav-item__icon">merge</span>
             <span class="p-nav-item__label">{{ t('sidepanel.import_ticks') }}</span>
           </button>
+        -->
 
-          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'tips' }" @click="showTipsDialog=true">
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'tips' }" @click="showTipsDialog = true">
             <span class="material-icons p-nav-item__icon">lightbulb</span>
             <span class="p-nav-item__label">{{ t('sidepanel.tips') }}</span>
           </button>
 
-          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'changelog' }" @click="showChangeLogDialog=true">
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'changelog' }" @click="showChangeLogDialog = true">
             <span class="material-icons p-nav-item__icon">list</span>
             <span class="p-nav-item__label">{{ t('sidepanel.roadmap_changes') }}</span>
           </button>
@@ -105,8 +107,8 @@
 
         <div class="flex flex-col px-4 mt-6 text-center">
           <div class="text-xs p-text-dim">
-            {{ t('sidepanel.user_id') }}: {{ climber?.id || 'N/A'}}<br />
-            {{ t('sidepanel.gym_id') }}: {{ gym?.id || 'N/A'}}
+            {{ t('sidepanel.user_id') }}: {{ climber?.id || 'N/A' }}<br />
+            {{ t('sidepanel.gym_id') }}: {{ gym?.id || 'N/A' }}
           </div>
         </div>
       </f7-page>
@@ -238,9 +240,11 @@ const selectedItem = computed(() => store.state.selectedItem)
   border-radius: 50%;
   border: 2px solid rgba(var(--p-accent-rgb), 0.2);
 }
+
 .sidepanel-tagline {
   letter-spacing: 0.06em;
 }
+
 .p-lang-select {
   margin-left: auto;
   padding: 4px 8px;

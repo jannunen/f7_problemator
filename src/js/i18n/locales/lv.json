@@ -468,6 +468,19 @@
     "cookie_notice": "Pieslēdzoties jūs piekrītat sīkdatņu izmantošanai jūsu kāpšanas progresa izsekošanai.",
     "enter_name_error": "Lūdzu ievadiet savu vārdu un uzvārdu."
   },
+  "attribute_radar": {
+    "title": "Kāpšanas stila profils",
+    "ticked": "Izpildīts",
+    "unticked": "Nav izpildīts"
+  },
+  "gym_info": {
+    "street_address": "Ielas adrese",
+    "zip": "Pasta indekss",
+    "website": "Tīmekļa vietne",
+    "phone": "Tālrunis",
+    "opening_hours": "Darba laiks",
+    "description": "Apraksts"
+  },
   "btn_all_routes": "Visi maršruti",
   "btn_new_routes": "Jauni maršruti",
   "btn_expiring_routes": "Beidzošies maršruti",

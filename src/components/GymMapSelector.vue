@@ -45,10 +45,16 @@ function addMarkers() {
     const el = document.createElement('div')
     el.className = 'gym-marker' + (isActive ? ' gym-marker--active' : '')
 
-    const popup = new mapboxgl.Popup({ offset: 25, closeButton: false }).setHTML(
+    const locationParts = [gym.city, gym.country].filter(Boolean).map(escapeHtml)
+    const descrText = gym.descr ? escapeHtml(gym.descr.length > 80 ? gym.descr.slice(0, 77) + '...' : gym.descr) : ''
+    const websiteLink = gym.website ? `<a href="${escapeHtml(gym.website)}" target="_blank" rel="noopener" class="gym-popup-link">${escapeHtml(gym.website.replace(/^https?:\/\//, ''))}</a>` : ''
+
+    const popup = new mapboxgl.Popup({ offset: 25, closeButton: false, maxWidth: '260px' }).setHTML(
       `<div class="gym-popup">
         <strong>${escapeHtml(gym.name)}</strong>
-        ${gym.city ? `<div class="gym-popup-city">${escapeHtml(gym.city)}</div>` : ''}
+        ${locationParts.length ? `<div class="gym-popup-city">${locationParts.join(', ')}</div>` : ''}
+        ${descrText ? `<div class="gym-popup-descr">${descrText}</div>` : ''}
+        ${websiteLink ? `<div class="gym-popup-website">${websiteLink}</div>` : ''}
         <button class="gym-popup-btn" data-gym-id="${gym.id}">Select</button>
       </div>`
     )
@@ -90,7 +96,7 @@ onMounted(() => {
     container: mapContainer.value,
     style: 'mapbox://styles/mapbox/dark-v11',
     center: [24.94, 60.17], // Helsinki default
-    zoom: 11,
+    zoom: 14,
   })
 
   map.addControl(new mapboxgl.NavigationControl(), 'top-right')
@@ -161,7 +167,22 @@ onBeforeUnmount(() => {
 .gym-popup-city {
   font-size: 12px;
   color: #666;
+  margin-bottom: 4px;
+}
+.gym-popup-descr {
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+.gym-popup-website {
   margin-bottom: 6px;
+}
+.gym-popup-link {
+  font-size: 11px;
+  color: var(--p-accent, #4a90d9);
+  text-decoration: none;
+  word-break: break-all;
 }
 .gym-popup-btn {
   background: var(--p-accent, #4a90d9);

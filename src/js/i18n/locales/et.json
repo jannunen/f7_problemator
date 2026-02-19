@@ -468,6 +468,19 @@
     "cookie_notice": "Sisse logides nõustud küpsiste kasutamisega sinu ronimise edenemise jälgimiseks.",
     "enter_name_error": "Palun sisesta oma ees- ja perekonnanimi."
   },
+  "attribute_radar": {
+    "title": "Ronimisstiili profiil",
+    "ticked": "Tehtud",
+    "unticked": "Tegemata"
+  },
+  "gym_info": {
+    "street_address": "Tänav",
+    "zip": "Postiindeks",
+    "website": "Veebileht",
+    "phone": "Telefon",
+    "opening_hours": "Lahtiolekuajad",
+    "description": "Kirjeldus"
+  },
   "btn_all_routes": "Kõik marsruudid",
   "btn_new_routes": "Uued marsruudid",
   "btn_expiring_routes": "Aeguvad marsruudid",

@@ -1,12 +1,12 @@
 <template>
-   <f7-popup :opened="opened">
-      <f7-page>
+  <f7-popup :opened="opened">
+    <f7-page>
       <f7-navbar title="Roadmap &amp; Changes">
         <f7-nav-right>
           <f7-link @click="emit('close')">Close</f7-link>
         </f7-nav-right>
       </f7-navbar>
-      <f7-block >
+      <f7-block>
 
         <f7-toolbar tabbar bottom>
           <f7-link tab-link="#tab-1" tab-link-active>Roadmap</f7-link>
@@ -26,7 +26,13 @@
               <li>Messaging</li>
             </ul>
           </f7-tab>
-          <f7-tab id="tab-2" class="mt-2" >
+          <f7-tab id="tab-2" class="mt-2">
+            <release-note title="1.0.1" :notes="['Added gym map for showing boulders']"></release-note>
+            <release-note title="0.9.21" :notes="['Enhanced UI styles, changed to email OTP.']"></release-note>
+            <release-note title="0.9.20" :notes="['Added grade pyramid and re-added styles radar-charts']"></release-note>
+            <release-note title="0.9.18" :notes="['Re-enabled ranking']"></release-note>
+            <release-note title="0.9.17" :notes="['Fixed QR code reading']"></release-note>
+            <release-note title="0.9.13" :notes="['Added comp point entry without login']"></release-note>
             <release-note title="0.9.12" :notes="['Expiring problems notification']"></release-note>
             <release-note title="0.9.7" :notes="['Added past comps']"></release-note>
             <release-note title="0.9.6" :notes="['Added climber profile page, following and feed.']"></release-note>
@@ -34,22 +40,22 @@
             <release-note title="0.9.4" :notes="['Added public ascents listing to problem details page']"></release-note>
             <release-note title="0.9.2" :notes="['Possibility list your hardest ascents (works from ranking\'s \'my rank\')']"></release-note>
             <release-note title="0.8.36 (2022-11-10)" :notes="['Re-added ranking. Let us see if it works']" />
-            <release-note title="0.8.33 (2022-10-30)" :notes="['Fixed some issues with small screen','Added change notes']" />
-            <release-note title="0.8.32 (2022-10-30)" :notes="['Fixed result view layout','Added better refresh countdown indicator for result list' ]" />
+            <release-note title="0.8.33 (2022-10-30)" :notes="['Fixed some issues with small screen', 'Added change notes']" />
+            <release-note title="0.8.32 (2022-10-30)" :notes="['Fixed result view layout', 'Added better refresh countdown indicator for result list']" />
           </f7-tab>
         </f7-tabs>
 
 
 
       </f7-block>
-      </f7-page>
-    </f7-popup> 
-    
+    </f7-page>
+  </f7-popup>
+
 </template>
 <script setup>
 import ReleaseNote from '@components/ui/ReleaseNote.vue'
 defineProps({
-  opened : Boolean,
+  opened: Boolean,
 })
 const emit = defineEmits(['close'])
 </script>

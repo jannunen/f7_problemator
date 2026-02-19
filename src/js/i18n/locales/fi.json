@@ -468,6 +468,19 @@
     "cookie_notice": "Kirjautumalla hyväksyt evästeiden käytön kiipeilyedistymisesi seuraamiseen.",
     "enter_name_error": "Syötä etu- ja sukunimesi."
   },
+  "attribute_radar": {
+    "title": "Kiipeilytyylien profiili",
+    "ticked": "Tikattu",
+    "unticked": "Tikkaamaton"
+  },
+  "gym_info": {
+    "street_address": "Katuosoite",
+    "zip": "Postinumero",
+    "website": "Verkkosivut",
+    "phone": "Puhelin",
+    "opening_hours": "Aukioloajat",
+    "description": "Kuvaus"
+  },
   "btn_all_routes": "Kaikki reitit",
   "btn_new_routes": "Uudet reitit",
   "btn_expiring_routes": "Poistuvat reitit",

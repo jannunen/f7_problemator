@@ -468,6 +468,19 @@
     "cookie_notice": "Ved å logge inn godtar du vår bruk av informasjonskapsler for å spore klatrefremdriften din.",
     "enter_name_error": "Vennligst skriv inn for- og etternavnet ditt."
   },
+  "attribute_radar": {
+    "title": "Klatrestilsprofil",
+    "ticked": "Gjort",
+    "unticked": "Ikke gjort"
+  },
+  "gym_info": {
+    "street_address": "Gateadresse",
+    "zip": "Postnummer",
+    "website": "Nettside",
+    "phone": "Telefon",
+    "opening_hours": "Åpningstider",
+    "description": "Beskrivelse"
+  },
   "btn_all_routes": "Alle ruter",
   "btn_new_routes": "Nye ruter",
   "btn_expiring_routes": "Utgående ruter",

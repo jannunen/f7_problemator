@@ -468,6 +468,19 @@
     "cookie_notice": "Mit der Anmeldung akzeptierst du unsere Verwendung von Cookies zur Verfolgung deines Kletterfortschritts.",
     "enter_name_error": "Bitte gib deinen Vor- und Nachnamen ein."
   },
+  "attribute_radar": {
+    "title": "Kletterstil-Profil",
+    "ticked": "Geschafft",
+    "unticked": "Nicht geschafft"
+  },
+  "gym_info": {
+    "street_address": "Straße",
+    "zip": "Postleitzahl",
+    "website": "Webseite",
+    "phone": "Telefon",
+    "opening_hours": "Öffnungszeiten",
+    "description": "Beschreibung"
+  },
   "btn_all_routes": "Alle Routen",
   "btn_new_routes": "Neue Routen",
   "btn_expiring_routes": "Auslaufende Routen",

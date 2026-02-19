@@ -468,6 +468,19 @@
     "cookie_notice": "Accedendo accetti il nostro utilizzo dei cookie per monitorare i tuoi progressi nell'arrampicata.",
     "enter_name_error": "Inserisci il tuo nome e cognome."
   },
+  "attribute_radar": {
+    "title": "Profilo dello stile di arrampicata",
+    "ticked": "Salita",
+    "unticked": "Non salita"
+  },
+  "gym_info": {
+    "street_address": "Indirizzo",
+    "zip": "CAP",
+    "website": "Sito web",
+    "phone": "Telefono",
+    "opening_hours": "Orari di apertura",
+    "description": "Descrizione"
+  },
   "btn_all_routes": "Tutte le vie",
   "btn_new_routes": "Vie nuove",
   "btn_expiring_routes": "Vie in scadenza",

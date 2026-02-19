@@ -468,6 +468,19 @@
     "cookie_notice": "Al iniciar sesion aceptas el uso de cookies para registrar tu progreso en la escalada.",
     "enter_name_error": "Por favor introduce tu nombre y apellido."
   },
+  "attribute_radar": {
+    "title": "Perfil de estilo de escalada",
+    "ticked": "Hecho",
+    "unticked": "No hecho"
+  },
+  "gym_info": {
+    "street_address": "Direccion",
+    "zip": "Codigo postal",
+    "website": "Sitio web",
+    "phone": "Telefono",
+    "opening_hours": "Horario de apertura",
+    "description": "Descripcion"
+  },
   "btn_all_routes": "Todas las vias",
   "btn_new_routes": "Vias nuevas",
   "btn_expiring_routes": "Vias por caducar",

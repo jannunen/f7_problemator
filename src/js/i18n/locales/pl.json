@@ -468,6 +468,19 @@
     "cookie_notice": "Logując się, akceptujesz nasze używanie plików cookie do śledzenia Twoich postępów wspinaczkowych.",
     "enter_name_error": "Proszę wpisać imię i nazwisko."
   },
+  "attribute_radar": {
+    "title": "Profil stylu wspinaczki",
+    "ticked": "Zaliczone",
+    "unticked": "Niezaliczone"
+  },
+  "gym_info": {
+    "street_address": "Adres",
+    "zip": "Kod pocztowy",
+    "website": "Strona internetowa",
+    "phone": "Telefon",
+    "opening_hours": "Godziny otwarcia",
+    "description": "Opis"
+  },
   "btn_all_routes": "Wszystkie drogi",
   "btn_new_routes": "Nowe drogi",
   "btn_expiring_routes": "Wygasające drogi",

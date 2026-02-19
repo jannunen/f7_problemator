@@ -468,6 +468,19 @@
     "cookie_notice": "En vous connectant, vous acceptez notre utilisation de cookies pour suivre votre progression en escalade.",
     "enter_name_error": "Veuillez entrer votre prenom et votre nom de famille."
   },
+  "attribute_radar": {
+    "title": "Profil de style d'escalade",
+    "ticked": "Réussi",
+    "unticked": "Non réussi"
+  },
+  "gym_info": {
+    "street_address": "Adresse",
+    "zip": "Code postal",
+    "website": "Site web",
+    "phone": "Telephone",
+    "opening_hours": "Horaires d'ouverture",
+    "description": "Description"
+  },
   "btn_all_routes": "Toutes les voies",
   "btn_new_routes": "Nouvelles voies",
   "btn_expiring_routes": "Voies bientot retirees",

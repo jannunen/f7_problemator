@@ -468,6 +468,19 @@
     "cookie_notice": "By signing in you accept our use of cookies for tracking your climbing progress.",
     "enter_name_error": "Please enter your first and last name."
   },
+  "attribute_radar": {
+    "title": "Climbing style profile",
+    "ticked": "Ticked",
+    "unticked": "Not ticked"
+  },
+  "gym_info": {
+    "street_address": "Street address",
+    "zip": "Zip code",
+    "website": "Website",
+    "phone": "Phone",
+    "opening_hours": "Opening hours",
+    "description": "Description"
+  },
   "btn_all_routes": "All routes",
   "btn_new_routes": "New routes",
   "btn_expiring_routes": "Expiring routes",

@@ -468,6 +468,19 @@
     "cookie_notice": "Genom att logga in godkänner du vår användning av cookies för att spåra ditt klättringsförlopp.",
     "enter_name_error": "Vänligen ange ditt för- och efternamn."
   },
+  "attribute_radar": {
+    "title": "Klätterstilsprofil",
+    "ticked": "Avklarad",
+    "unticked": "Inte avklarad"
+  },
+  "gym_info": {
+    "street_address": "Gatuadress",
+    "zip": "Postnummer",
+    "website": "Webbplats",
+    "phone": "Telefon",
+    "opening_hours": "Öppettider",
+    "description": "Beskrivning"
+  },
   "btn_all_routes": "Alla leder",
   "btn_new_routes": "Nya leder",
   "btn_expiring_routes": "Utgående leder",
