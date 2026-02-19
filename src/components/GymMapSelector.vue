@@ -18,7 +18,7 @@ const mapContainer = ref(null)
 let map = null
 let markers = []
 
-const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || 'pk.eyJ1IjoicHJvYmxlbWF0b3IiLCJhIjoiY200cWRhMGhxMHM2bTJycXZ4dnh1dXhnbSJ9.2A3pCMhz2ABMkBjJxQmPRg'
+const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN || '...'
 
 function clearMarkers() {
   markers.forEach((m) => m.remove())
