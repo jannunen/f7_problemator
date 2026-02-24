@@ -65,7 +65,6 @@ function addMarkers() {
       const btn = document.querySelector(`.gym-popup-btn[data-gym-id="${gym.id}"]`)
       if (btn) {
         btn.addEventListener('click', () => {
-          store.dispatch('changeGym', gym.id)
           emit('select', gym.id)
           popup.remove()
         })

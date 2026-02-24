@@ -72,7 +72,7 @@
               <g v-if="!selectedProblem || selectedProblem.id !== p.id">
                 <!-- Circuit pen (drawn first so circle covers the top) -->
                 <path v-if="p.circuits && p.circuits.length > 0"
-                      :d="penPath(p.cx, p.cy, 0.005, 0.022)"
+                      :d="penPath(p.cx, p.cy, p.wcx, p.wcy, 0.005, 0.022)"
                       :fill="p.circuits[0].color?.code || '#888'"
                       style="pointer-events: none;" />
                 <!-- Status ring: ticked=green, project=red, new=yellow -->
@@ -116,7 +116,7 @@
           <g v-if="selectedProblem">
             <!-- Circuit pen (drawn first so circle covers the top) -->
             <path v-if="selectedProblem.circuits && selectedProblem.circuits.length > 0"
-                  :d="penPath(selectedProblem.cx, selectedProblem.cy, 0.005, 0.022)"
+                  :d="penPath(selectedProblem.cx, selectedProblem.cy, selectedProblem.wcx, selectedProblem.wcy, 0.005, 0.022)"
                   :fill="selectedProblem.circuits[0].color?.code || '#888'"
                   style="pointer-events: none;" />
             <!-- Pulse ring -->
@@ -673,6 +673,8 @@ function getWallProblems(wall) {
       color: getColor(p),
       gradeName: p.grade?.name || p.gradeName || '',
       wallName: wallObj.wallchar || wallObj.walldesc || '',
+      wcx: center.x,
+      wcy: center.y,
       isTicked: tickedProblemIds.value.has(pid),
       isProject: projectProblemIds.value.has(pid),
       isNew: !!p.added && (Date.now() - new Date(p.added).getTime()) < 7 * 24 * 60 * 60 * 1000,
@@ -728,12 +730,17 @@ function circlePath(cx, cy, r) {
   return `M${cx - r},${cy}a${r},${r} 0 1,0 ${r * 2},0a${r},${r} 0 1,0 -${r * 2},0Z`
 }
 
-function penPath(cx, cy, halfWidth, length) {
-  // Narrow triangle pointing to 1 o'clock (30° from 12)
-  const dx = 0.5        // sin(30°)
-  const dy = -0.866      // -cos(30°)
-  const px = 0.866       // cos(30°) — perpendicular for base
-  const py = 0.5         // sin(30°)
+function penPath(cx, cy, wcx, wcy, halfWidth, length) {
+  // Direction pointing away from wall center
+  let dx = cx - wcx
+  let dy = cy - wcy
+  const dist = Math.sqrt(dx * dx + dy * dy)
+  if (dist < 0.0001) {
+    dx = 0.5; dy = -0.866 // fallback: 1 o'clock
+  } else {
+    dx /= dist; dy /= dist
+  }
+  const px = -dy, py = dx // perpendicular for base
   return `M${cx - halfWidth * px},${cy - halfWidth * py}L${cx + halfWidth * px},${cy + halfWidth * py}L${cx + length * dx},${cy + length * dy}Z`
 }
 
