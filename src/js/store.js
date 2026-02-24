@@ -503,10 +503,12 @@ export default createStore({
       return ret
     },
     async fetchArchiveDate({state, commit, dispatch}, payload) {
-      const ret = await api.getArchiveDay(payload)
-      //commit('archive' , {...state.archive, ['dateDetails'] : {...state.archive.dateDetails, [payload.span] : ret.day} })
-      commit('archive' , {...state.archive, ['dateDetails'] : {...state.archive.dateDetails, [payload.span] : ret.day} })
-      return ret.day
+      const [ticks, tries] = await Promise.all([
+        api.getArchiveDay({...payload, type: 'ticks'}),
+        api.getArchiveDay({...payload, type: 'tries'}),
+      ])
+      commit('archive' , {...state.archive, ['dateDetails'] : {...state.archive.dateDetails, [payload.span] : { ticks, tries } } })
+      return { ticks, tries }
     },
     async getTickDates({state, commit, dispatch}, payload) {
       const ret = await api.getTickDates(payload)

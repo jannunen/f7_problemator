@@ -286,8 +286,8 @@ const onDayClick = (evt) => {
         })
 }
 
-const reversedTicks = computed(() => archiveDate.value.ticks?.reverse() || [])
-const reversedProjects = computed(() => archiveDate.value.tries?.reverse() || [])
+const reversedTicks = computed(() => [...(archiveDate.value.ticks || [])].reverse())
+const reversedProjects = computed(() => [...(archiveDate.value.tries || [])].reverse())
 /*
 const onlyProjectDays = computed(() => Object.keys(tickDates.value).reduce((acc, datekey) => {
     const item = tickDates.value[datekey]
