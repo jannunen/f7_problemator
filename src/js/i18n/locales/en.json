@@ -29,6 +29,14 @@
     "boulder_tab": "Boulder",
     "sport_tab": "Sport"
   },
+  "yearly_scores": {
+    "title": "Yearly Top Scores",
+    "all": "All",
+    "boulder": "Boulder",
+    "sport": "Sport",
+    "live": "live",
+    "empty": "No yearly scores yet"
+  },
   "results": {
     "name": "Name",
     "team": "Team",

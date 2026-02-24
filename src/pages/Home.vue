@@ -83,6 +83,7 @@
           <!-- Section: Progress -->
           <div class="home-section">
             <my-badges />
+            <yearly-scores />
             <attribute-radar />
             <grade-pyramid />
             <my-logs :show-selector="true" />
@@ -159,6 +160,7 @@ import FloorMapBlock from '@components/ui/FloorMapBlock.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
 import MyBadges from '@components/home/MyBadges.vue'
+import YearlyScores from '@components/home/YearlyScores.vue'
 import CompleteProfilePopup from '@components/home/CompleteProfilePopup.vue'
 import PButton from '@components/PButton.vue'
 import { computed, ref, watch } from 'vue'
