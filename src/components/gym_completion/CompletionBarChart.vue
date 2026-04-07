@@ -38,6 +38,11 @@ watch(svg, (newValue) => {
     drawChart()
 })
 
+watch(() => props.data, () => {
+    if (!svg.value) return
+    drawChart()
+})
+
 function drawChart() {
     // Clear any previous chart
     d3.select("#chart").selectAll("*").remove()
