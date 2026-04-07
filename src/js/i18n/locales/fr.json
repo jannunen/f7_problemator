@@ -381,7 +381,8 @@
     "help_me": "Aide",
     "no_ticks_hint": "Sinon, ce message disparaitra lorsque vous commencerez a enregistrer des problemes. Vous pourrez retrouver ceci plus tard dans le menu Parametres.",
     "show_problem_list": "Afficher la liste des problemes",
-    "open_problem_map": "Ouvrir la carte des problemes"
+    "open_problem_map": "Ouvrir la carte des problemes",
+    "if_that_does_not_help": "ou si cela n'aide pas, essayez :"
   },
   "gymmap": {
     "title": "Carte de la salle",

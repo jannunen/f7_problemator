@@ -10,6 +10,7 @@ import 'mapbox-gl/dist/mapbox-gl.css'
 
 const props = defineProps({
   gyms: { type: Array, default: () => [] },
+  userLocation: { type: Object, default: null },
 })
 const emit = defineEmits(['select'])
 const store = useStore()
@@ -61,24 +62,18 @@ function addMarkers() {
 
     const marker = new mapboxgl.Marker({ element: el }).setLngLat([lng, lat]).setPopup(popup).addTo(map)
 
-    popup.on('open', () => {
-      const btn = document.querySelector(`.gym-popup-btn[data-gym-id="${gym.id}"]`)
-      if (btn) {
-        btn.addEventListener('click', () => {
-          emit('select', gym.id)
-          popup.remove()
-        })
-      }
+    el.addEventListener('click', () => {
+      emit('select', gym.id)
     })
 
     markers.push(marker)
   })
 
   if (hasValidCoords && markers.length > 1) {
-    map.fitBounds(bounds, { padding: 50, maxZoom: 12 })
+    map.fitBounds(bounds, { padding: 50, maxZoom: 8 })
   } else if (hasValidCoords && markers.length === 1) {
     map.setCenter(bounds.getCenter())
-    map.setZoom(10)
+    map.setZoom(8)
   }
 }
 
@@ -91,11 +86,15 @@ function escapeHtml(str) {
 onMounted(() => {
   mapboxgl.accessToken = MAPBOX_TOKEN
 
+  const center = props.userLocation
+    ? [props.userLocation.lng, props.userLocation.lat]
+    : [24.94, 60.17] // Helsinki default
+
   map = new mapboxgl.Map({
     container: mapContainer.value,
     style: 'mapbox://styles/mapbox/dark-v11',
-    center: [24.94, 60.17], // Helsinki default
-    zoom: 14,
+    center,
+    zoom: 5,
   })
 
   map.addControl(new mapboxgl.NavigationControl(), 'top-right')

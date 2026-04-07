@@ -381,7 +381,9 @@
     "select_gym_prompt": "Valitse halli yläpuolelta nähdäksesi kojelaudan, reitit ja tilastot.",
     "no_ticks_message": "Näyttää siltä, ettei sinulla ole tikkejä. Jos niitä pitäisi olla, klikkaa tästä ohjeita varten.",
     "help_me": "Auta minua",
-    "no_ticks_hint": "Muuten tämä viesti katoaa kun alat tikkaamaan reittejä. Löydät tämän myöhemmin Asetukset-valikosta."
+    "no_ticks_hint": "Muuten tämä viesti katoaa kun alat tikkaamaan reittejä. Löydät tämän myöhemmin Asetukset-valikosta.",
+    "loading_stuck": "Jos sovellus ei lataudu, Jos olet lisännyt sovelluksen aloitusnäytölle, poista ja lisää uudelleen saadaksesi Problematorin toimimaan taas.",
+    "reload_app": "lataa uudelleen"
   },
   "gymmap": {
     "title": "Hallikartta",
