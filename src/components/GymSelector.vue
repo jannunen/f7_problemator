@@ -81,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
@@ -162,10 +162,16 @@ if (navigator.geolocation) {
   )
 }
 
-const onGymSelected = (id) => {
+const onGymSelected = async (id) => {
+  // Close first, and let the close reach the DOM before anything reloads the
+  // profile. changeGym flips profileLoaded to false synchronously, and any
+  // ancestor that unmounts this component mid-close leaves Framework7's
+  // backdrop and body scroll lock behind — destroy() does not close().
+  popupOpened.value = false
+  await nextTick()
+
   store.dispatch('changeGym', id)
   emit('select', id)
-  popupOpened.value = false
 }
 </script>
 

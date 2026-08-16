@@ -24,6 +24,15 @@
           {{ t('home.if_that_does_not_help') }} <a href="https://pwa2.problemator.fi/">https://pwa2.problemator.fi/</a>
         </div>
       </div>
+      <!-- Gym selector always visible — deliberately OUTSIDE the profileLoaded
+           block. Picking a gym flips profileLoaded to false synchronously, so
+           while it lived inside, the selector unmounted in the same tick as its
+           own popup closed. Framework7 destroys a popup on unmount without
+           closing it, which strands the backdrop and the body scroll lock. -->
+      <div class="home-section">
+        <gym-selector />
+      </div>
+
       <div v-if="profileLoaded">
         <complete-profile-popup />
         <show-tick-help :opened="showTickHelpDialog" />
