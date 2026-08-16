@@ -548,7 +548,7 @@
     "foot_rule_hint_follow_hands": "Any hand hold may also be used as a foot.",
     "foot_rule_hint_screw_ons": "Only the wall's screw-on footholds may be used.",
     "name_label": "Name",
-    "name_placeholder": "Optional",
+    "name_placeholder": "e.g. Crimpy traverse",
     "need_start": "Mark at least one start hold.",
     "need_finish": "Mark at least one finish hold.",
     "need_three": "Mark one more hold. | Mark {n} more hold. | Mark {n} more holds.",
@@ -598,6 +598,8 @@
     "any_foot_rule": "Any feet",
     "not_sent_yet": "Not sent yet",
     "my_projects": "My projects",
-    "no_match": "No problems match these filters."
+    "no_match": "No problems match these filters.",
+    "need_name": "Give the problem a name.",
+    "name_hint": "A spray wall problem has no tag, so the name is how people find it."
   }
 }

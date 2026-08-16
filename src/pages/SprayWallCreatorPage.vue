@@ -104,7 +104,14 @@
 
         <div class="mt-3">
           <label class="text-sm font-bold">{{ t('spraywall.name_label') }}</label>
-          <input v-model="name" type="text" class="spray-input mt-1" :placeholder="t('spraywall.name_placeholder')" />
+          <input
+            v-model="name"
+            type="text"
+            maxlength="255"
+            class="spray-input mt-1"
+            :placeholder="t('spraywall.name_placeholder')"
+          />
+          <p class="text-xs p-text-dim mt-1">{{ t('spraywall.name_hint') }}</p>
         </div>
 
         <!-- Says what is still missing rather than just disabling Save, so the
@@ -285,6 +292,7 @@ const missing = computed(() => {
   if (countOf('finish') === 0) out.push(t('spraywall.need_finish'))
   if (total < 3) out.push(t('spraywall.need_three', 3 - total))
   if (!gradeId.value) out.push(t('spraywall.need_grade'))
+  if (!name.value.trim()) out.push(t('spraywall.need_name'))
   return out
 })
 
@@ -300,7 +308,7 @@ const save = async () => {
       wallid: Number(props.wallId),
       spray_wall_foot_rule: footRule.value,
       gradeid: gradeId.value,
-      addt: name.value || null,
+      addt: name.value.trim(),
       holds: Object.entries(roles.value).map(([id, role]) => ({
         spray_wall_hold_id: Number(id),
         role,

@@ -540,7 +540,7 @@
     "foot_rule_hint_follow_hands": "Mitä tahansa käsiotetta saa käyttää myös jalalle.",
     "foot_rule_hint_screw_ons": "Vain seinän ruuviotteita saa käyttää jaloille.",
     "name_label": "Nimi",
-    "name_placeholder": "Vapaaehtoinen",
+    "name_placeholder": "esim. Pieniä otteita",
     "need_start": "Merkitse ainakin yksi lähtöote.",
     "need_finish": "Merkitse ainakin yksi maaliote.",
     "need_three": "Merkitse vielä yksi ote. | Merkitse vielä {n} ote. | Merkitse vielä {n} otetta.",
@@ -590,6 +590,8 @@
     "any_foot_rule": "Kaikki jalkasäännöt",
     "not_sent_yet": "En ole noussut",
     "my_projects": "Omat projektit",
-    "no_match": "Yksikään reitti ei vastaa näitä suodattimia."
+    "no_match": "Yksikään reitti ei vastaa näitä suodattimia.",
+    "need_name": "Anna reitille nimi.",
+    "name_hint": "Spray-seinän reitillä ei ole tagia, joten nimi on ainoa tapa löytää se."
   }
 }
