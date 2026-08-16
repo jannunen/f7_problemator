@@ -49,8 +49,10 @@
       </div>
 
       <template v-else>
-        <div class="spray-filters">
-          <div class="spray-search">
+        <div class="px-4 py-2">
+          <!-- Search stays outside the collapsible card: it is the one control
+               someone reaches for without first deciding to "filter". -->
+          <div class="spray-search mb-3">
             <span class="material-icons">search</span>
             <input
               v-model="search"
@@ -63,53 +65,83 @@
             </button>
           </div>
 
-          <select v-model="sort" class="spray-filters__select">
-            <option v-for="option in SORTS" :key="option" :value="option">
-              {{ t('spraywall.sort_' + option) }}
-            </option>
-          </select>
-          <select v-model="footRule" class="spray-filters__select">
-            <option value="">{{ t('spraywall.any_foot_rule') }}</option>
-            <option value="marked">{{ t('spraywall.foot_marked') }}</option>
-            <option value="follow_hands">{{ t('spraywall.foot_follow_hands') }}</option>
-            <option value="screw_ons">{{ t('spraywall.foot_screw_ons') }}</option>
-          </select>
           <button
-            class="spray-filters__chip"
-            :class="{ 'spray-filters__chip--on': excludeMySends }"
-            @click="excludeMySends = !excludeMySends"
-          >{{ t('spraywall.not_sent_yet') }}</button>
-          <button
-            class="spray-filters__chip"
-            :class="{ 'spray-filters__chip--on': onlyMyProjects }"
-            @click="onlyMyProjects = !onlyMyProjects"
-          >{{ t('spraywall.my_projects') }}</button>
-
-          <!-- Only offered when something is actually narrowed, so it is never
-               a dead control taking up a row. Sort is left alone: it hides
-               nothing, so clearing it is not what "reset filters" means. -->
-          <button v-if="hasFilters" class="spray-filters__reset" @click="resetFilters">
-            <span class="material-icons">filter_alt_off</span>
-            {{ t('spraywall.reset_filters') }}
+            class="filter-toggle-btn"
+            :class="{ 'filter-toggle-btn--open': showFilters }"
+            @click="showFilters = !showFilters"
+          >
+            <span class="material-icons filter-toggle-btn__icon">tune</span>
+            <span>{{ showFilters ? t('spraywall.hide_filters') : t('spraywall.filters') }}</span>
+            <span v-if="activeFilterCount" class="spray-filter-count">{{ activeFilterCount }}</span>
+            <span
+              class="material-icons filter-toggle-btn__chevron"
+              :class="{ 'filter-toggle-btn__chevron--open': showFilters }"
+            >expand_more</span>
           </button>
 
-          <!-- A range, not a set: grades are ordinal and a climber thinks
-               "6A to 7A", not "these seven bands". -->
-          <div v-if="gradesOnWall.length" class="spray-grades">
-            <span class="spray-grades__label">{{ t('spraywall.grade_range') }}</span>
-            <select v-model="gradeMin" class="spray-grades__select">
-              <option :value="''">{{ t('spraywall.grade_any_min') }}</option>
-              <option v-for="grade in gradesOnWall" :key="'min' + grade.id" :value="grade.id">
-                {{ grade.name }}
-              </option>
-            </select>
-            <span class="spray-grades__dash">–</span>
-            <select v-model="gradeMax" class="spray-grades__select">
-              <option :value="''">{{ t('spraywall.grade_any_max') }}</option>
-              <option v-for="grade in gradesOnWall" :key="'max' + grade.id" :value="grade.id">
-                {{ grade.name }}
-              </option>
-            </select>
+          <div v-if="showFilters" class="p-card mb-3">
+            <div class="mb-4">
+              <div class="p-section-title">{{ t('spraywall.sort_by') }}</div>
+              <div class="flex flex-start flex-wrap gap-1 py-1">
+                <span
+                  v-for="option in SORTS"
+                  :key="option"
+                  class="p-chip"
+                  :class="{ 'p-chip--active': sort === option }"
+                  @click="sort = option"
+                >{{ t('spraywall.sort_' + option) }}</span>
+              </div>
+            </div>
+
+            <!-- The app's own grade filter, so the two ranges look and behave
+                 identically rather than being two takes on the same idea. -->
+            <div v-if="gradesOnWall.length" class="mb-4">
+              <div class="p-section-title">{{ t('problemlist.gradefilter') }}</div>
+              <grade-filter
+                :grades="gradesOnWall"
+                :min="gradeMinObj"
+                :max="gradeMaxObj"
+                @min="gradeMinObj = $event"
+                @max="gradeMaxObj = $event"
+              />
+            </div>
+
+            <div class="mb-4">
+              <div class="p-section-title">{{ t('spraywall.foot_rule') }}</div>
+              <div class="flex flex-start flex-wrap gap-1 py-1">
+                <span
+                  v-for="option in FOOT_RULES"
+                  :key="option.value"
+                  class="p-chip"
+                  :class="{ 'p-chip--active': footRule === option.value }"
+                  @click="footRule = option.value"
+                >{{ t(option.label) }}</span>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <div class="p-section-title">{{ t('spraywall.show') }}</div>
+              <div class="flex flex-col gap-0">
+                <div class="p-list__item">
+                  <span style="color: var(--p-text-secondary);">{{ t('spraywall.not_sent_yet') }}</span>
+                  <label class="p-toggle">
+                    <input type="checkbox" v-model="excludeMySends" />
+                    <span class="p-toggle__track"></span>
+                  </label>
+                </div>
+                <div class="p-list__item">
+                  <span style="color: var(--p-text-secondary);">{{ t('spraywall.my_projects') }}</span>
+                  <label class="p-toggle">
+                    <input type="checkbox" v-model="onlyMyProjects" />
+                    <span class="p-toggle__track"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <button v-if="hasFilters" class="p-btn p-btn--sm p-btn--block" @click="resetFilters">
+              {{ t('spraywall.reset_filters') }}
+            </button>
           </div>
         </div>
 
@@ -160,6 +192,7 @@ import { useStore } from 'vuex'
 import { f7 } from 'framework7-vue'
 import api from '@js/api'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
+import GradeFilter from '@components/ui/problemlist/GradeFilter.vue'
 
 const { t } = useI18n()
 const store = useStore()
@@ -189,23 +222,46 @@ watch(search, (value) => {
   searchTimer = setTimeout(() => { searchDebounced.value = value.trim() }, 300)
 })
 onBeforeUnmount(() => clearTimeout(searchTimer))
-const gradeMin = ref('')
-const gradeMax = ref('')
+// GradeFilter speaks in grade OBJECTS, or the strings 'min'/'max' for
+// unbounded, so these hold what it emits and only the id is sent to the API.
+// It also keeps its own two sliders coherent, so the min/max guard this page
+// used to carry is no longer needed.
+const gradeMinObj = ref('min')
+const gradeMaxObj = ref('max')
+const showFilters = ref(false)
 const footRule = ref('')
 const excludeMySends = ref(false)
 const onlyMyProjects = ref(false)
 
-// Part of the key, so changing a control refetches rather than showing the
-// previous answer while the new one loads.
+const FOOT_RULES = [
+  { value: '', label: 'spraywall.any_foot_rule' },
+  { value: 'marked', label: 'spraywall.foot_marked' },
+  { value: 'follow_hands', label: 'spraywall.foot_follow_hands' },
+  { value: 'screw_ons', label: 'spraywall.foot_screw_ons' },
+]
+
+const gradeIdOf = (value) => (value && typeof value === 'object' ? value.id : null)
+
 // Whether the climber has narrowed the list themselves. Without this an empty
 // result from a filter would show the "nobody has set anything here yet" state,
 // which is both wrong and discouraging on a wall full of problems.
 const hasFilters = computed(
   () => !!footRule.value || excludeMySends.value || onlyMyProjects.value ||
-    !!searchDebounced.value || !!gradeMin.value || !!gradeMax.value
+    !!searchDebounced.value ||
+    gradeIdOf(gradeMinObj.value) !== null || gradeIdOf(gradeMaxObj.value) !== null
 )
 
-const scoreOf = (id) => Number(gradesOnWall.value.find((g) => g.id === id)?.score ?? 0)
+// Shown on the collapsed button, so a narrowed list is never a mystery once
+// the card is shut again.
+const activeFilterCount = computed(() => {
+  let n = 0
+  if (gradeIdOf(gradeMinObj.value) !== null) n++
+  if (gradeIdOf(gradeMaxObj.value) !== null) n++
+  if (footRule.value) n++
+  if (excludeMySends.value) n++
+  if (onlyMyProjects.value) n++
+  return n
+})
 
 const resetFilters = () => {
   search.value = ''
@@ -213,23 +269,12 @@ const resetFilters = () => {
   // rather than 300ms later.
   clearTimeout(searchTimer)
   searchDebounced.value = ''
-  gradeMin.value = ''
-  gradeMax.value = ''
+  gradeMinObj.value = 'min'
+  gradeMaxObj.value = 'max'
   footRule.value = ''
   excludeMySends.value = false
   onlyMyProjects.value = false
 }
-
-// Keep the pair coherent rather than letting it silently return nothing: a
-// max below the min is a slip, not an intention.
-watch(gradeMin, (value) => {
-  if (!value || !gradeMax.value) return
-  if (scoreOf(value) > scoreOf(gradeMax.value)) gradeMax.value = value
-})
-watch(gradeMax, (value) => {
-  if (!value || !gradeMin.value) return
-  if (scoreOf(value) < scoreOf(gradeMin.value)) gradeMin.value = value
-})
 
 // Ordered by score, not sort: problemator_grade.sort is NULL for every row,
 // so ordering by it left the dropdowns in whatever order the store happened to
@@ -242,8 +287,8 @@ const gradesOnWall = computed(() => {
 const query = computed(() => ({
   sort: sort.value,
   ...(searchDebounced.value ? { q: searchDebounced.value } : {}),
-  ...(gradeMin.value ? { grade_min: gradeMin.value } : {}),
-  ...(gradeMax.value ? { grade_max: gradeMax.value } : {}),
+  ...(gradeIdOf(gradeMinObj.value) !== null ? { grade_min: gradeIdOf(gradeMinObj.value) } : {}),
+  ...(gradeIdOf(gradeMaxObj.value) !== null ? { grade_max: gradeIdOf(gradeMaxObj.value) } : {}),
   ...(footRule.value ? { foot_rule: footRule.value } : {}),
   ...(excludeMySends.value ? { exclude_my_sends: 1 } : {}),
   ...(onlyMyProjects.value ? { only_my_projects: 1 } : {}),
@@ -286,31 +331,15 @@ const startCreating = () => {
   margin-top: 0.5rem;
 }
 
-.spray-filters {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding: 8px 1rem 0;
-}
-
-.spray-filters__select {
-  flex: 1 1 45%;
-  min-width: 0;
-  padding: 4px 8px;
-  border-radius: 8px;
-  font-size: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.04);
-  color: inherit;
-}
-
-.spray-filters__chip {
-  padding: 4px 10px;
+.spray-filter-count {
+  min-width: 18px;
+  padding: 0 5px;
   border-radius: 999px;
-  font-size: 0.7rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: transparent;
-  color: inherit;
+  font-size: 0.65rem;
+  line-height: 18px;
+  text-align: center;
+  background: var(--p-accent);
+  color: #fff;
 }
 
 .spray-search {
@@ -348,56 +377,8 @@ const startCreating = () => {
 }
 
 .spray-grades {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  flex: 1 1 100%;
-}
-
-.spray-grades {
   align-items: center;
   font-size: 0.75rem;
-}
-
-.spray-grades__label {
-  opacity: 0.7;
-}
-
-.spray-grades__select {
-  flex: 1;
-  min-width: 0;
-  padding: 3px 6px;
-  border-radius: 6px;
-  font-size: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(255, 255, 255, 0.04);
-  color: inherit;
-}
-
-.spray-grades__dash {
-  opacity: 0.5;
-}
-
-.spray-filters__reset {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: transparent;
-  color: var(--p-warning, #f59e0b);
-}
-
-.spray-filters__reset .material-icons {
-  font-size: 15px;
-}
-
-.spray-filters__chip--on {
-  background: rgba(var(--p-accent-rgb), 0.2);
-  border-color: var(--p-accent);
-  color: var(--p-accent);
 }
 
 .spray-row {

@@ -608,6 +608,10 @@
     "reset_filters": "Reset filters",
     "zoom_out": "Zoom out",
     "zoom_reset": "Reset zoom",
-    "zoom_hint": "Double-tap the wall to zoom in on that spot."
+    "zoom_hint": "Double-tap the wall to zoom in on that spot.",
+    "filters": "Filters",
+    "hide_filters": "Hide filters",
+    "sort_by": "Sort by",
+    "show": "Show"
   }
 }
