@@ -29,6 +29,8 @@
       <!-- Zoom is a plain width multiplier on a scrolling box. A spray wall
            carries hundreds of holds, and at fit-to-screen the small ones are
            smaller than a fingertip. -->
+      <photo-adjust-controls />
+
       <div class="spray-zoom-bar">
         <button
           v-for="z in zoomLevels"
@@ -41,7 +43,7 @@
 
       <div class="spray-canvas-scroll">
         <div class="spray-canvas" :style="{ width: zoom * 100 + '%' }">
-          <img :src="image.image_url" class="spray-canvas__img" :alt="t('spraywall.wall')" />
+          <img :src="image.image_url" class="spray-canvas__img" :alt="t('spraywall.wall')" :style="{ filter: photoFilter }" />
           <svg
             class="spray-canvas__svg"
             :viewBox="`0 0 ${image.width} ${image.height}`"
@@ -131,6 +133,8 @@ import { useI18n } from 'vue-i18n'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { f7 } from 'framework7-vue'
 import api from '@js/api'
+import PhotoAdjustControls from '@components/ui/PhotoAdjustControls.vue'
+import { usePhotoAdjust } from '@js/usePhotoAdjust'
 
 const { t } = useI18n()
 const queryClient = useQueryClient()
@@ -156,6 +160,8 @@ const ROLE_FILLS = {
   foot: 'rgba(253, 224, 71, 0.55)',
   finish: 'rgba(252, 165, 165, 0.55)',
 }
+
+const { photoFilter } = usePhotoAdjust()
 
 const zoomLevels = [1, 2, 3]
 const zoom = ref(1)

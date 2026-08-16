@@ -562,6 +562,11 @@
     "foot_rule_explain_follow_hands": "Any hold you marked for hands may also be stood on. Nothing extra to mark, and the usual choice on a dense spray wall where marking every foothold would take longer than the climb.",
     "foot_rule_explain_screw_ons": "Only the small screw-on footholds bolted to the wall may be used — none of the holds in the problem. The hardest of the three, since your feet are limited to whatever the gym screwed on.",
     "foot_rule_change_title": "Clear the marked feet?",
-    "foot_rule_change_body": "This rule has no marked feet, so the one hold you marked as a foot will be cleared. | This rule has no marked feet, so the {n} hold you marked as a foot will be cleared. | This rule has no marked feet, so the {n} holds you marked as feet will be cleared."
+    "foot_rule_change_body": "This rule has no marked feet, so the one hold you marked as a foot will be cleared. | This rule has no marked feet, so the {n} hold you marked as a foot will be cleared. | This rule has no marked feet, so the {n} holds you marked as feet will be cleared.",
+    "adjust_photo": "Adjust photo",
+    "grayscale": "Grayscale",
+    "contrast": "Contrast",
+    "brightness": "Brightness",
+    "reset_photo": "Reset photo"
   }
 }

@@ -554,6 +554,11 @@
     "foot_rule_explain_follow_hands": "Mitä tahansa käsille merkittyä otetta saa käyttää myös jaloille. Mitään ei tarvitse merkitä erikseen, ja tämä on tavallisin valinta tiheällä spray-seinällä, jossa jokaisen jalka-otteen merkitseminen kestäisi kauemmin kuin itse reitti.",
     "foot_rule_explain_screw_ons": "Vain seinään ruuvatut pienet ruuviotteet ovat sallittuja jaloille - ei mikään reitin otteista. Näistä kolmesta vaikein, koska jalat ovat sen varassa mitä sali on ruuvannut kiinni.",
     "foot_rule_change_title": "Poistetaanko merkityt jalat?",
-    "foot_rule_change_body": "Tässä säännössä ei ole merkittyjä jalkoja, joten merkitsemäsi yksi jalka-ote poistetaan. | Tässä säännössä ei ole merkittyjä jalkoja, joten merkitsemäsi {n} jalka-ote poistetaan. | Tässä säännössä ei ole merkittyjä jalkoja, joten merkitsemäsi {n} jalka-otetta poistetaan."
+    "foot_rule_change_body": "Tässä säännössä ei ole merkittyjä jalkoja, joten merkitsemäsi yksi jalka-ote poistetaan. | Tässä säännössä ei ole merkittyjä jalkoja, joten merkitsemäsi {n} jalka-ote poistetaan. | Tässä säännössä ei ole merkittyjä jalkoja, joten merkitsemäsi {n} jalka-otetta poistetaan.",
+    "adjust_photo": "Säädä kuvaa",
+    "grayscale": "Harmaasävy",
+    "contrast": "Kontrasti",
+    "brightness": "Kirkkaus",
+    "reset_photo": "Palauta kuva"
   }
 }

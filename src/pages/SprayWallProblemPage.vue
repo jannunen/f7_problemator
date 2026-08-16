@@ -36,6 +36,8 @@
       </div>
 
       <template v-else>
+        <photo-adjust-controls />
+
         <div class="spray-zoom-bar">
           <button
             v-for="z in zoomLevels"
@@ -48,7 +50,7 @@
 
         <div class="spray-canvas-scroll">
           <div class="spray-canvas" :style="{ width: zoom * 100 + '%' }">
-            <img :src="problem.image.image_url" class="spray-canvas__img" :alt="title" />
+            <img :src="problem.image.image_url" class="spray-canvas__img" :alt="title" :style="{ filter: photoFilter }" />
             <svg
               class="spray-canvas__svg"
               :viewBox="`0 0 ${problem.image.width} ${problem.image.height}`"
@@ -98,6 +100,8 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import api from '@js/api'
+import PhotoAdjustControls from '@components/ui/PhotoAdjustControls.vue'
+import { usePhotoAdjust } from '@js/usePhotoAdjust'
 
 const { t } = useI18n()
 
@@ -122,6 +126,8 @@ const ROLE_FILLS = {
   foot: 'rgba(253, 224, 71, 0.55)',
   finish: 'rgba(252, 165, 165, 0.55)',
 }
+
+const { photoFilter } = usePhotoAdjust()
 
 const zoomLevels = [1, 2, 3]
 const zoom = ref(1)
