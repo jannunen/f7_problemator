@@ -197,24 +197,25 @@ const hasFilters = computed(
     !!searchDebounced.value || !!gradeMin.value || !!gradeMax.value
 )
 
-const sortOf = (id) => gradesOnWall.value.find((g) => g.id === id)?.sort ?? 0
+const scoreOf = (id) => Number(gradesOnWall.value.find((g) => g.id === id)?.score ?? 0)
 
 // Keep the pair coherent rather than letting it silently return nothing: a
 // max below the min is a slip, not an intention.
 watch(gradeMin, (value) => {
   if (!value || !gradeMax.value) return
-  if (sortOf(value) > sortOf(gradeMax.value)) gradeMax.value = value
+  if (scoreOf(value) > scoreOf(gradeMax.value)) gradeMax.value = value
 })
 watch(gradeMax, (value) => {
   if (!value || !gradeMin.value) return
-  if (sortOf(value) < sortOf(gradeMin.value)) gradeMin.value = value
+  if (scoreOf(value) < scoreOf(gradeMin.value)) gradeMin.value = value
 })
 
-// Grades the gym actually uses, in its own easy-to-hard order. Offering the
-// whole scale would list bands this wall has never seen.
+// Ordered by score, not sort: problemator_grade.sort is NULL for every row,
+// so ordering by it left the dropdowns in whatever order the store happened to
+// hold. score runs 100, 200, 250 ... strictly upward with difficulty.
 const gradesOnWall = computed(() => {
   const all = store.state.grades || []
-  return [...all].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+  return [...all].sort((a, b) => Number(a.score ?? 0) - Number(b.score ?? 0))
 })
 
 const query = computed(() => ({
