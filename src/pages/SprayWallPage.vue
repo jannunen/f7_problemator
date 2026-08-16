@@ -332,14 +332,16 @@ const startCreating = () => {
 }
 
 .spray-filter-count {
-  min-width: 18px;
-  padding: 0 5px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
   border-radius: 999px;
-  font-size: 0.65rem;
-  line-height: 18px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  line-height: 20px;
   text-align: center;
   background: var(--p-accent);
-  color: #fff;
+  color: var(--p-bg-deep);
 }
 
 .spray-search {

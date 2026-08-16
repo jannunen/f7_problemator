@@ -679,3 +679,45 @@
 .p-page-with-tabbar {
   padding-bottom: calc(60px + env(safe-area-inset-bottom, 0) + 8px);
 }
+
+/* Filter disclosure button.
+   Lived in ProblemList.vue's scoped block, so any other page using the class
+   got an unstyled browser button. It belongs here with the rest of the shared
+   vocabulary it is used alongside. */
+.filter-toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  border: 1px solid var(--p-border);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--p-text-secondary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.filter-toggle-btn:active {
+  background: rgba(255, 255, 255, 0.08);
+}
+.filter-toggle-btn--open {
+  border-color: var(--p-accent);
+  color: var(--p-accent);
+}
+.filter-toggle-btn__icon {
+  font-size: 20px;
+}
+.filter-toggle-btn__chevron {
+  font-size: 20px;
+  transition: transform 0.2s;
+  /* Pushed to the right so the chevron sits at the edge rather than crowding
+     the label, whatever else the button carries. */
+  margin-left: auto;
+}
+.filter-toggle-btn__chevron--open {
+  transform: rotate(180deg);
+}
