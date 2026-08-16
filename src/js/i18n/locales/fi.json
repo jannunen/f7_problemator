@@ -596,6 +596,7 @@
     "search_placeholder": "Hae nimellä tai tekijällä",
     "grade_range": "Taso",
     "grade_any_min": "Mikä tahansa",
-    "grade_any_max": "Mikä tahansa"
+    "grade_any_max": "Mikä tahansa",
+    "reset_filters": "Tyhjennä suodattimet"
   }
 }

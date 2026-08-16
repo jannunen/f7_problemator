@@ -85,6 +85,14 @@
             @click="onlyMyProjects = !onlyMyProjects"
           >{{ t('spraywall.my_projects') }}</button>
 
+          <!-- Only offered when something is actually narrowed, so it is never
+               a dead control taking up a row. Sort is left alone: it hides
+               nothing, so clearing it is not what "reset filters" means. -->
+          <button v-if="hasFilters" class="spray-filters__reset" @click="resetFilters">
+            <span class="material-icons">filter_alt_off</span>
+            {{ t('spraywall.reset_filters') }}
+          </button>
+
           <!-- A range, not a set: grades are ordinal and a climber thinks
                "6A to 7A", not "these seven bands". -->
           <div v-if="gradesOnWall.length" class="spray-grades">
@@ -198,6 +206,19 @@ const hasFilters = computed(
 )
 
 const scoreOf = (id) => Number(gradesOnWall.value.find((g) => g.id === id)?.score ?? 0)
+
+const resetFilters = () => {
+  search.value = ''
+  // Cleared directly as well as through the watcher, so the list refetches now
+  // rather than 300ms later.
+  clearTimeout(searchTimer)
+  searchDebounced.value = ''
+  gradeMin.value = ''
+  gradeMax.value = ''
+  footRule.value = ''
+  excludeMySends.value = false
+  onlyMyProjects.value = false
+}
 
 // Keep the pair coherent rather than letting it silently return nothing: a
 // max below the min is a slip, not an intention.
@@ -355,6 +376,22 @@ const startCreating = () => {
 
 .spray-grades__dash {
   opacity: 0.5;
+}
+
+.spray-filters__reset {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: var(--p-warning, #f59e0b);
+}
+
+.spray-filters__reset .material-icons {
+  font-size: 15px;
 }
 
 .spray-filters__chip--on {

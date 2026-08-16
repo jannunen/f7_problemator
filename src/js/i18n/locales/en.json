@@ -604,6 +604,7 @@
     "search_placeholder": "Search name or setter",
     "grade_range": "Grade",
     "grade_any_min": "Any",
-    "grade_any_max": "Any"
+    "grade_any_max": "Any",
+    "reset_filters": "Reset filters"
   }
 }
