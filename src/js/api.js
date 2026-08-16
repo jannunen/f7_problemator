@@ -162,6 +162,17 @@ const api = {
    const ret = await   axios .get(endpoint + '/my/ticks')
    return ret.data
   },
+  // Spray walls: walls a climber sets their own problems on by picking holds
+  // off a photo. is_spray_wall lives on the wall, so the gym has to be asked
+  // which of its walls are spray walls before anything else here is reachable.
+  async getSprayWalls(gymid) {
+    const ret = await axios.get(endpoint + '/gyms/' + gymid + '/spray-walls')
+    return ret.data
+  },
+  async getSprayWallProblems(wallId) {
+    const ret = await axios.get(endpoint + '/walls/' + wallId + '/spray-wall/problems')
+    return ret.data
+  },
   async getProfile(gymid) {
     const url = endpoint + `/profile?gymid=${gymid}`
     const ret = await axios.get(url)

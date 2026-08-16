@@ -85,6 +85,7 @@
           <!-- Section: Gym overview -->
           <div class="home-section">
             <expiring-problems-alert />
+            <spray-wall-block />
             <floor-map-block :f7router="props.f7router" />
             <badge-gym-stats :gym="gym" />
           </div>
@@ -163,6 +164,7 @@ import Ranking from '@components/home/Ranking.vue'
 import GradePyramid from '@components/home/GradePyramid.vue'
 import AttributeRadar from '@components/home/AttributeRadar.vue'
 import FloorMapBlock from '@components/ui/FloorMapBlock.vue'
+import SprayWallBlock from '@components/ui/SprayWallBlock.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
 import MyBadges from '@components/home/MyBadges.vue'

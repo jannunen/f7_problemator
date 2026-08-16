@@ -507,6 +507,24 @@
     "back": "Back",
     "loading": "Loading...",
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "retry": "Retry"
+  },
+  "spraywall": {
+    "title": "Spray walls",
+    "intro": "Pick holds off a photo and set your own problem.",
+    "wall": "Wall",
+    "problem": "Problem",
+    "problem_count": "No problems yet | 1 problem | {n} problems",
+    "hold_count": "No holds | 1 hold | {n} holds",
+    "moderated": "new problems reviewed",
+    "not_ready": "not photographed yet",
+    "not_ready_title": "Not ready yet",
+    "not_ready_body": "The gym has not photographed and labelled this wall's holds, so there is nothing to build a problem from.",
+    "empty_title": "No problems yet",
+    "empty_body": "Nobody has set a problem on this wall. Be the first.",
+    "awaiting_review": "awaiting review",
+    "rejected": "rejected",
+    "load_failed": "Could not load this wall's problems."
   }
 }

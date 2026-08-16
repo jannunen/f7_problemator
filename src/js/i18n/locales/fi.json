@@ -499,6 +499,24 @@
     "back": "Takaisin",
     "loading": "Ladataan...",
     "save": "Tallenna",
-    "cancel": "Peruuta"
+    "cancel": "Peruuta",
+    "retry": "Yritä uudelleen"
+  },
+  "spraywall": {
+    "title": "Spray-seinät",
+    "intro": "Valitse otteet kuvasta ja tee oma reitti.",
+    "wall": "Seinä",
+    "problem": "Reitti",
+    "problem_count": "Ei vielä reittejä | 1 reitti | {n} reittiä",
+    "hold_count": "Ei otteita | 1 ote | {n} otetta",
+    "moderated": "uudet reitit tarkistetaan",
+    "not_ready": "ei vielä kuvattu",
+    "not_ready_title": "Ei vielä valmis",
+    "not_ready_body": "Sali ei ole vielä kuvannut ja merkinnyt tämän seinän otteita, joten reittiä ei voi vielä tehdä.",
+    "empty_title": "Ei vielä reittejä",
+    "empty_body": "Kukaan ei ole vielä tehnyt reittiä tälle seinälle. Ole ensimmäinen.",
+    "awaiting_review": "odottaa tarkistusta",
+    "rejected": "hylätty",
+    "load_failed": "Seinän reittejä ei voitu ladata."
   }
 }
