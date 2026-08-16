@@ -600,6 +600,10 @@
     "my_projects": "My projects",
     "no_match": "No problems match these filters.",
     "need_name": "Give the problem a name.",
-    "name_hint": "A spray wall problem has no tag, so the name is how people find it."
+    "name_hint": "A spray wall problem has no tag, so the name is how people find it.",
+    "search_placeholder": "Search name or setter",
+    "grade_range": "Grade",
+    "grade_any_min": "Any",
+    "grade_any_max": "Any"
   }
 }

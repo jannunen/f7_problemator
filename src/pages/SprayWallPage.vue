@@ -50,6 +50,19 @@
 
       <template v-else>
         <div class="spray-filters">
+          <div class="spray-search">
+            <span class="material-icons">search</span>
+            <input
+              v-model="search"
+              type="search"
+              class="spray-search__input"
+              :placeholder="t('spraywall.search_placeholder')"
+            />
+            <button v-if="search" class="spray-search__clear" @click="search = ''">
+              <span class="material-icons">close</span>
+            </button>
+          </div>
+
           <select v-model="sort" class="spray-filters__select">
             <option v-for="option in SORTS" :key="option" :value="option">
               {{ t('spraywall.sort_' + option) }}
@@ -71,6 +84,25 @@
             :class="{ 'spray-filters__chip--on': onlyMyProjects }"
             @click="onlyMyProjects = !onlyMyProjects"
           >{{ t('spraywall.my_projects') }}</button>
+
+          <!-- A range, not a set: grades are ordinal and a climber thinks
+               "6A to 7A", not "these seven bands". -->
+          <div v-if="gradesOnWall.length" class="spray-grades">
+            <span class="spray-grades__label">{{ t('spraywall.grade_range') }}</span>
+            <select v-model="gradeMin" class="spray-grades__select">
+              <option :value="''">{{ t('spraywall.grade_any_min') }}</option>
+              <option v-for="grade in gradesOnWall" :key="'min' + grade.id" :value="grade.id">
+                {{ grade.name }}
+              </option>
+            </select>
+            <span class="spray-grades__dash">–</span>
+            <select v-model="gradeMax" class="spray-grades__select">
+              <option :value="''">{{ t('spraywall.grade_any_max') }}</option>
+              <option v-for="grade in gradesOnWall" :key="'max' + grade.id" :value="grade.id">
+                {{ grade.name }}
+              </option>
+            </select>
+          </div>
         </div>
 
         <!-- Filters can empty a wall that has plenty on it, so say which state
@@ -113,14 +145,16 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
+import { useStore } from 'vuex'
 import { f7 } from 'framework7-vue'
 import api from '@js/api'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
 
 const { t } = useI18n()
+const store = useStore()
 
 const props = defineProps({
   // Framework7 passes route params as strings.
@@ -137,6 +171,18 @@ const SORTS = [
 ]
 
 const sort = ref('newest')
+const search = ref('')
+// The query key drives the fetch, so the raw input would fire a request per
+// keystroke. The box stays responsive; only this settled value is sent.
+const searchDebounced = ref('')
+let searchTimer = null
+watch(search, (value) => {
+  clearTimeout(searchTimer)
+  searchTimer = setTimeout(() => { searchDebounced.value = value.trim() }, 300)
+})
+onBeforeUnmount(() => clearTimeout(searchTimer))
+const gradeMin = ref('')
+const gradeMax = ref('')
 const footRule = ref('')
 const excludeMySends = ref(false)
 const onlyMyProjects = ref(false)
@@ -147,11 +193,35 @@ const onlyMyProjects = ref(false)
 // result from a filter would show the "nobody has set anything here yet" state,
 // which is both wrong and discouraging on a wall full of problems.
 const hasFilters = computed(
-  () => !!footRule.value || excludeMySends.value || onlyMyProjects.value
+  () => !!footRule.value || excludeMySends.value || onlyMyProjects.value ||
+    !!searchDebounced.value || !!gradeMin.value || !!gradeMax.value
 )
+
+const sortOf = (id) => gradesOnWall.value.find((g) => g.id === id)?.sort ?? 0
+
+// Keep the pair coherent rather than letting it silently return nothing: a
+// max below the min is a slip, not an intention.
+watch(gradeMin, (value) => {
+  if (!value || !gradeMax.value) return
+  if (sortOf(value) > sortOf(gradeMax.value)) gradeMax.value = value
+})
+watch(gradeMax, (value) => {
+  if (!value || !gradeMin.value) return
+  if (sortOf(value) < sortOf(gradeMin.value)) gradeMin.value = value
+})
+
+// Grades the gym actually uses, in its own easy-to-hard order. Offering the
+// whole scale would list bands this wall has never seen.
+const gradesOnWall = computed(() => {
+  const all = store.state.grades || []
+  return [...all].sort((a, b) => (a.sort ?? 0) - (b.sort ?? 0))
+})
 
 const query = computed(() => ({
   sort: sort.value,
+  ...(searchDebounced.value ? { q: searchDebounced.value } : {}),
+  ...(gradeMin.value ? { grade_min: gradeMin.value } : {}),
+  ...(gradeMax.value ? { grade_max: gradeMax.value } : {}),
   ...(footRule.value ? { foot_rule: footRule.value } : {}),
   ...(excludeMySends.value ? { exclude_my_sends: 1 } : {}),
   ...(onlyMyProjects.value ? { only_my_projects: 1 } : {}),
@@ -219,6 +289,71 @@ const startCreating = () => {
   border: 1px solid rgba(255, 255, 255, 0.15);
   background: transparent;
   color: inherit;
+}
+
+.spray-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 100%;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.spray-search .material-icons {
+  font-size: 18px;
+  opacity: 0.6;
+}
+
+.spray-search__input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 0.8rem;
+  outline: none;
+}
+
+.spray-search__clear {
+  border: none;
+  background: none;
+  color: inherit;
+  padding: 0;
+  line-height: 0;
+}
+
+.spray-grades {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex: 1 1 100%;
+}
+
+.spray-grades {
+  align-items: center;
+  font-size: 0.75rem;
+}
+
+.spray-grades__label {
+  opacity: 0.7;
+}
+
+.spray-grades__select {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 6px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+}
+
+.spray-grades__dash {
+  opacity: 0.5;
 }
 
 .spray-filters__chip--on {

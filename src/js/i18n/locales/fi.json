@@ -592,6 +592,10 @@
     "my_projects": "Omat projektit",
     "no_match": "Yksikään reitti ei vastaa näitä suodattimia.",
     "need_name": "Anna reitille nimi.",
-    "name_hint": "Spray-seinän reitillä ei ole tagia, joten nimi on ainoa tapa löytää se."
+    "name_hint": "Spray-seinän reitillä ei ole tagia, joten nimi on ainoa tapa löytää se.",
+    "search_placeholder": "Hae nimellä tai tekijällä",
+    "grade_range": "Taso",
+    "grade_any_min": "Mikä tahansa",
+    "grade_any_max": "Mikä tahansa"
   }
 }
