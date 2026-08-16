@@ -146,6 +146,17 @@ const ROLE_COLORS = {
   finish: '#ef4444',
 }
 
+// A marked hold gets a light wash of its role colour as a background, not just
+// a transparent version of it. On a dark wall photo, 40%-alpha blue reads as
+// near-black; mixing toward white first keeps the fill legible against both a
+// bright hold and a shadowed one.
+const ROLE_FILLS = {
+  start: 'rgba(134, 239, 172, 0.55)',
+  hand: 'rgba(147, 197, 253, 0.55)',
+  foot: 'rgba(253, 224, 71, 0.55)',
+  finish: 'rgba(252, 165, 165, 0.55)',
+}
+
 const zoomLevels = [1, 2, 3]
 const zoom = ref(1)
 const roles = ref({})
@@ -232,7 +243,7 @@ const holdPath = (hold) => {
 
 const fillFor = (holdId) => {
   const role = roles.value[holdId]
-  return role ? ROLE_COLORS[role] + '66' : 'rgba(255,255,255,0.06)'
+  return role ? ROLE_FILLS[role] : 'rgba(255,255,255,0.06)'
 }
 
 const strokeFor = (holdId) => {

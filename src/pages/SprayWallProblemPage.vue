@@ -60,7 +60,7 @@
                 v-for="(hold, i) in drawableHolds"
                 :key="i"
                 :d="holdPath(hold)"
-                :fill="ROLE_COLORS[hold.role] + '66'"
+                :fill="ROLE_FILLS[hold.role]"
                 :stroke="ROLE_COLORS[hold.role]"
                 stroke-width="3"
                 vector-effect="non-scaling-stroke"
@@ -110,6 +110,17 @@ const ROLE_COLORS = {
   hand: '#3b82f6',
   foot: '#eab308',
   finish: '#ef4444',
+}
+
+// A marked hold gets a light wash of its role colour as a background, not just
+// a transparent version of it. On a dark wall photo, 40%-alpha blue reads as
+// near-black; mixing toward white first keeps the fill legible against both a
+// bright hold and a shadowed one.
+const ROLE_FILLS = {
+  start: 'rgba(134, 239, 172, 0.55)',
+  hand: 'rgba(147, 197, 253, 0.55)',
+  foot: 'rgba(253, 224, 71, 0.55)',
+  finish: 'rgba(252, 165, 165, 0.55)',
 }
 
 const zoomLevels = [1, 2, 3]
