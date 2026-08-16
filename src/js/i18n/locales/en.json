@@ -572,6 +572,10 @@
     "use_gym_setting": "Use gym's setting",
     "save_mine": "Save as mine",
     "saved": "Saved",
-    "adjust_note": "The gym sets how this wall looks by default. Save your own if you prefer something else."
+    "adjust_note": "The gym sets how this wall looks by default. Save your own if you prefer something else.",
+    "grade_label": "Grade",
+    "grade_placeholder": "Choose a grade",
+    "need_grade": "Choose a grade.",
+    "send_count": "No sends yet | 1 send | {n} sends"
   }
 }

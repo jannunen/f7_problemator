@@ -81,6 +81,36 @@
           </span>
         </div>
 
+        <!-- Who set it and when. On a spray wall the setter is another climber,
+             which is most of what tells you whether a problem is worth trying. -->
+        <div class="spray-meta mt-3">
+          <span v-if="problem.author?.name" class="spray-meta__item">
+            <span class="material-icons">person</span>{{ problem.author.name }}
+          </span>
+          <span v-if="setDate" class="spray-meta__item">
+            <span class="material-icons">event</span>{{ setDate }}
+          </span>
+          <span v-if="problem.grade?.name" class="spray-meta__item">
+            <span class="material-icons">signal_cellular_alt</span>{{ problem.grade.name }}
+          </span>
+        </div>
+
+        <div class="spray-meta mt-2">
+          <span class="spray-meta__item">
+            <span class="material-icons">check_circle_outline</span>
+            {{ t('spraywall.send_count', problem.total_ascents || 0) }}
+          </span>
+          <span v-if="problem.c_like" class="spray-meta__item">
+            <span class="material-icons">thumb_up</span>{{ problem.c_like }}
+          </span>
+          <span v-if="problem.c_dislike" class="spray-meta__item">
+            <span class="material-icons">thumb_down</span>{{ problem.c_dislike }}
+          </span>
+          <span v-if="problem.comment_count" class="spray-meta__item">
+            <span class="material-icons">chat_bubble_outline</span>{{ problem.comment_count }}
+          </span>
+        </div>
+
         <div class="mt-3 text-sm">
           <div>
             <span class="p-text-dim">{{ t('spraywall.foot_rule') }}:</span>
@@ -208,6 +238,15 @@ const alreadyTicked = computed(() => {
   return (store.state.alltime?.ticks || []).some((tick) => tick.problemid == id)
 })
 
+// `added` is a plain datetime string from the API; toLocaleDateString gives the
+// climber's own format rather than an ISO stamp.
+const setDate = computed(() => {
+  const raw = problem.value?.added
+  if (!raw) return null
+  const parsed = new Date(String(raw).replace(' ', 'T'))
+  return Number.isNaN(parsed.getTime()) ? null : parsed.toLocaleDateString()
+})
+
 const holdPath = (hold) => {
   const w = problem.value?.image?.width || 1
   const h = problem.value?.image?.height || 1
@@ -259,6 +298,25 @@ const holdPath = (hold) => {
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+.spray-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  font-size: 0.8rem;
+  opacity: 0.85;
+}
+
+.spray-meta__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.spray-meta__item .material-icons {
+  font-size: 16px;
+  opacity: 0.7;
 }
 
 .spray-legend {

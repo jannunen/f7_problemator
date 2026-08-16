@@ -95,6 +95,14 @@
         </div>
 
         <div class="mt-3">
+          <label class="text-sm font-bold">{{ t('spraywall.grade_label') }}</label>
+          <select v-model="gradeId" class="spray-select mt-1">
+            <option :value="null">{{ t('spraywall.grade_placeholder') }}</option>
+            <option v-for="grade in grades" :key="grade.id" :value="grade.id">{{ grade.name }}</option>
+          </select>
+        </div>
+
+        <div class="mt-3">
           <label class="text-sm font-bold">{{ t('spraywall.name_label') }}</label>
           <input v-model="name" type="text" class="spray-input mt-1" :placeholder="t('spraywall.name_placeholder')" />
         </div>
@@ -130,6 +138,7 @@
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { f7 } from 'framework7-vue'
 import api from '@js/api'
@@ -137,6 +146,8 @@ import PhotoAdjustControls from '@components/ui/PhotoAdjustControls.vue'
 import { usePhotoAdjust } from '@js/usePhotoAdjust'
 
 const { t } = useI18n()
+const store = useStore()
+const grades = computed(() => store.state.grades || [])
 const queryClient = useQueryClient()
 
 const props = defineProps({
@@ -168,6 +179,7 @@ const zoom = ref(1)
 const roles = ref({})
 const footRule = ref('marked')
 const name = ref('')
+const gradeId = ref(null)
 const saving = ref(false)
 const saveError = ref(null)
 const explainOpen = ref(false)
@@ -272,6 +284,7 @@ const missing = computed(() => {
   if (countOf('start') === 0) out.push(t('spraywall.need_start'))
   if (countOf('finish') === 0) out.push(t('spraywall.need_finish'))
   if (total < 3) out.push(t('spraywall.need_three', 3 - total))
+  if (!gradeId.value) out.push(t('spraywall.need_grade'))
   return out
 })
 
@@ -286,6 +299,7 @@ const save = async () => {
     await api.createSprayWallProblem({
       wallid: Number(props.wallId),
       spray_wall_foot_rule: footRule.value,
+      gradeid: gradeId.value,
       addt: name.value || null,
       holds: Object.entries(roles.value).map(([id, role]) => ({
         spray_wall_hold_id: Number(id),
