@@ -121,6 +121,31 @@
           </p>
         </div>
 
+        <!-- Collapsed by default: it is a log, and the counts above already
+             say whether there is anything in it. -->
+        <div v-if="events.length" class="spray-events mt-3">
+          <button class="spray-events__toggle" @click="eventsOpen = !eventsOpen">
+            <span class="material-icons">{{ eventsOpen ? 'expand_less' : 'expand_more' }}</span>
+            {{ t('spraywall.events', events.length) }}
+          </button>
+
+          <div v-if="eventsOpen" class="spray-events__list">
+            <div v-for="(event, i) in events" :key="i" class="spray-events__row">
+              <span
+                class="spray-events__type"
+                :class="event.type === 'tick' ? 'spray-events__type--tick' : 'spray-events__type--project'"
+              >
+                <span class="material-icons">{{ event.type === 'tick' ? 'check_circle' : 'trending_up' }}</span>
+                {{ t('spraywall.event_' + event.type) }}
+              </span>
+              <span class="spray-events__meta">
+                <template v-if="event.tries">{{ t('spraywall.try_count', event.tries) }}</template>
+              </span>
+              <span class="spray-events__date">{{ formatDate(event.date) }}</span>
+            </div>
+          </div>
+        </div>
+
         <div v-if="alreadyTicked" class="p-banner p-banner--info mt-3">
           <span class="material-icons p-banner__icon">check_circle</span>
           <div class="p-banner__content">{{ t('spraywall.already_ticked') }}</div>
@@ -240,12 +265,18 @@ const alreadyTicked = computed(() => {
 
 // `added` is a plain datetime string from the API; toLocaleDateString gives the
 // climber's own format rather than an ISO stamp.
-const setDate = computed(() => {
-  const raw = problem.value?.added
-  if (!raw) return null
+// Dates arrive as plain datetime strings; toLocaleDateString gives the
+// climber's own format rather than an ISO stamp.
+const formatDate = (raw) => {
+  if (!raw) return ''
   const parsed = new Date(String(raw).replace(' ', 'T'))
-  return Number.isNaN(parsed.getTime()) ? null : parsed.toLocaleDateString()
-})
+  return Number.isNaN(parsed.getTime()) ? '' : parsed.toLocaleDateString()
+}
+
+const setDate = computed(() => formatDate(problem.value?.added) || null)
+
+const events = computed(() => problem.value?.events || [])
+const eventsOpen = ref(false)
 
 const holdPath = (hold) => {
   const w = problem.value?.image?.width || 1
@@ -298,6 +329,66 @@ const holdPath = (hold) => {
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+.spray-events__toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  font-size: 0.8rem;
+  color: var(--p-accent);
+}
+
+.spray-events__toggle .material-icons {
+  font-size: 18px;
+}
+
+.spray-events__list {
+  margin-top: 4px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 4px 10px;
+}
+
+.spray-events__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 0;
+  font-size: 0.78rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.spray-events__row:last-child {
+  border-bottom: none;
+}
+
+.spray-events__type {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+
+.spray-events__type .material-icons {
+  font-size: 16px;
+}
+
+.spray-events__type--tick {
+  color: #22c55e;
+}
+
+.spray-events__type--project {
+  color: #eab308;
+}
+
+.spray-events__meta,
+.spray-events__date {
+  opacity: 0.7;
+  white-space: nowrap;
 }
 
 .spray-meta {

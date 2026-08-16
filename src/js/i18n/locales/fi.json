@@ -568,6 +568,10 @@
     "grade_label": "Taso",
     "grade_placeholder": "Valitse taso",
     "need_grade": "Valitse taso.",
-    "send_count": "Ei vielä nousuja | 1 nousu | {n} nousua"
+    "send_count": "Ei vielä nousuja | 1 nousu | {n} nousua",
+    "events": "Tapahtumat (0) | Tapahtumat (1) | Tapahtumat ({n})",
+    "event_tick": "Noustu",
+    "event_project": "Projektina",
+    "try_count": "1 yritys | {n} yritystä"
   }
 }

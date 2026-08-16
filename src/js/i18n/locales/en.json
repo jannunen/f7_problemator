@@ -576,6 +576,10 @@
     "grade_label": "Grade",
     "grade_placeholder": "Choose a grade",
     "need_grade": "Choose a grade.",
-    "send_count": "No sends yet | 1 send | {n} sends"
+    "send_count": "No sends yet | 1 send | {n} sends",
+    "events": "Events (0) | Events (1) | Events ({n})",
+    "event_tick": "Sent",
+    "event_project": "Projecting",
+    "try_count": "1 try | {n} tries"
   }
 }
