@@ -129,19 +129,40 @@
             {{ t('spraywall.events', events.length) }}
           </button>
 
-          <div v-if="eventsOpen" class="spray-events__list">
-            <div v-for="(event, i) in events" :key="i" class="spray-events__row">
-              <span
-                class="spray-events__type"
-                :class="event.type === 'tick' ? 'spray-events__type--tick' : 'spray-events__type--project'"
+          <div v-if="eventsOpen" class="spray-events__body">
+            <div class="spray-events__tabs">
+              <button
+                v-for="tab in eventTabs"
+                :key="tab"
+                class="spray-events__tab"
+                :class="{ 'spray-events__tab--active': eventTab === tab }"
+                @click="eventTab = tab"
               >
-                <span class="material-icons">{{ event.type === 'tick' ? 'check_circle' : 'trending_up' }}</span>
-                {{ t('spraywall.event_' + event.type) }}
-              </span>
-              <span class="spray-events__meta">
-                <template v-if="event.tries">{{ t('spraywall.try_count', event.tries) }}</template>
-              </span>
-              <span class="spray-events__date">{{ formatDate(event.date) }}</span>
+                {{ t('spraywall.events_' + tab) }} ({{ eventsIn(tab).length }})
+              </button>
+            </div>
+
+            <p v-if="visibleEvents.length === 0" class="spray-events__empty">
+              {{ t('spraywall.events_none') }}
+            </p>
+
+            <div v-else class="spray-events__list">
+              <div v-for="(event, i) in visibleEvents" :key="i" class="spray-events__row">
+                <span
+                  class="spray-events__type"
+                  :class="event.type === 'tick' ? 'spray-events__type--tick' : 'spray-events__type--project'"
+                >
+                  <span class="material-icons">{{ event.type === 'tick' ? 'check_circle' : 'trending_up' }}</span>
+                  {{ t('spraywall.event_' + event.type) }}
+                </span>
+                <span class="spray-events__who">
+                  {{ event.is_own ? t('spraywall.you') : (event.name || t('spraywall.someone')) }}
+                </span>
+                <span class="spray-events__meta">
+                  <template v-if="event.tries">{{ t('spraywall.try_count', event.tries) }}</template>
+                </span>
+                <span class="spray-events__date">{{ formatDate(event.date) }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -278,6 +299,19 @@ const setDate = computed(() => formatDate(problem.value?.added) || null)
 const events = computed(() => problem.value?.events || [])
 const eventsOpen = ref(false)
 
+// Defaults to all: the interesting view of a spray wall problem is what has
+// happened on it, not only what you did.
+const eventTabs = ['all', 'own', 'others']
+const eventTab = ref('all')
+
+const eventsIn = (tab) => {
+  if (tab === 'own') return events.value.filter((e) => e.is_own)
+  if (tab === 'others') return events.value.filter((e) => !e.is_own)
+  return events.value
+}
+
+const visibleEvents = computed(() => eventsIn(eventTab.value))
+
 const holdPath = (hold) => {
   const w = problem.value?.image?.width || 1
   const h = problem.value?.image?.height || 1
@@ -344,6 +378,38 @@ const holdPath = (hold) => {
 
 .spray-events__toggle .material-icons {
   font-size: 18px;
+}
+
+.spray-events__tabs {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.spray-events__tab {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: inherit;
+}
+
+.spray-events__tab--active {
+  background: rgba(var(--p-accent-rgb), 0.2);
+  border-color: var(--p-accent);
+  color: var(--p-accent);
+}
+
+.spray-events__empty {
+  font-size: 0.75rem;
+  opacity: 0.6;
+  margin: 8px 0 0;
+}
+
+.spray-events__who {
+  opacity: 0.85;
+  white-space: nowrap;
 }
 
 .spray-events__list {

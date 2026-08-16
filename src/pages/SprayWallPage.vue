@@ -29,7 +29,7 @@
       <!-- Empty state shows the wall itself. "No problems yet" against a blank
            screen gives no sense of what the wall is or that anything can be
            done about it; the photo does both. -->
-      <div v-else-if="problems.length === 0" class="px-4 mt-4 text-center">
+      <div v-else-if="problems.length === 0 && !hasFilters" class="px-4 mt-4 text-center">
         <img
           v-if="image?.image_url"
           :src="image.image_url"
@@ -49,7 +49,38 @@
       </div>
 
       <template v-else>
-        <f7-list class="spray-problem-list">
+        <div class="spray-filters">
+          <select v-model="sort" class="spray-filters__select">
+            <option v-for="option in SORTS" :key="option" :value="option">
+              {{ t('spraywall.sort_' + option) }}
+            </option>
+          </select>
+          <select v-model="footRule" class="spray-filters__select">
+            <option value="">{{ t('spraywall.any_foot_rule') }}</option>
+            <option value="marked">{{ t('spraywall.foot_marked') }}</option>
+            <option value="follow_hands">{{ t('spraywall.foot_follow_hands') }}</option>
+            <option value="screw_ons">{{ t('spraywall.foot_screw_ons') }}</option>
+          </select>
+          <button
+            class="spray-filters__chip"
+            :class="{ 'spray-filters__chip--on': excludeMySends }"
+            @click="excludeMySends = !excludeMySends"
+          >{{ t('spraywall.not_sent_yet') }}</button>
+          <button
+            class="spray-filters__chip"
+            :class="{ 'spray-filters__chip--on': onlyMyProjects }"
+            @click="onlyMyProjects = !onlyMyProjects"
+          >{{ t('spraywall.my_projects') }}</button>
+        </div>
+
+        <!-- Filters can empty a wall that has plenty on it, so say which state
+             this is rather than reusing the "nobody has set anything" copy. -->
+        <p v-if="problems.length === 0" class="px-4 mt-4 text-center text-sm p-text-dim">
+          {{ t('spraywall.no_match') }}
+        </p>
+
+        <f7-list v-else class="spray-problem-list">
+
           <f7-list-item
             v-for="problem in problems"
             :key="problem.id"
@@ -59,13 +90,26 @@
             @click="openProblem(problem)"
           >
             <template #subtitle>
-              {{ t('spraywall.hold_count', problem.holds?.length || 0) }}
-              <template v-if="problem.spray_wall_approval === 'pending'">
-                · {{ t('spraywall.awaiting_review') }}
-              </template>
-              <template v-else-if="problem.spray_wall_approval === 'rejected'">
-                · {{ t('spraywall.rejected') }}
-              </template>
+              <span class="spray-row">
+                <span v-if="problem.author?.name" class="spray-row__item">
+                  <span class="material-icons">person</span>{{ problem.author.name }}
+                </span>
+                <span class="spray-row__item">
+                  <span class="material-icons">check_circle_outline</span>{{ problem.total_ascents || 0 }}
+                </span>
+                <span v-if="problem.c_like" class="spray-row__item">
+                  <span class="material-icons">thumb_up</span>{{ problem.c_like }}
+                </span>
+                <span class="spray-row__item">
+                  <span class="material-icons">radio_button_unchecked</span>{{ problem.holds?.length || 0 }}
+                </span>
+                <span v-if="problem.spray_wall_approval === 'pending'" class="spray-row__item">
+                  · {{ t('spraywall.awaiting_review') }}
+                </span>
+                <span v-else-if="problem.spray_wall_approval === 'rejected'" class="spray-row__item">
+                  · {{ t('spraywall.rejected') }}
+                </span>
+              </span>
             </template>
           </f7-list-item>
         </f7-list>
@@ -82,7 +126,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { f7 } from 'framework7-vue'
@@ -99,11 +143,38 @@ const props = defineProps({
 
 const enabled = computed(() => !!props.wallId && props.ready !== false)
 
+const SORTS = [
+  'newest', 'oldest', 'most_ascents', 'least_ascents',
+  'most_likes', 'least_likes', 'easiest', 'hardest',
+]
+
+const sort = ref('newest')
+const footRule = ref('')
+const excludeMySends = ref(false)
+const onlyMyProjects = ref(false)
+
+// Part of the key, so changing a control refetches rather than showing the
+// previous answer while the new one loads.
+// Whether the climber has narrowed the list themselves. Without this an empty
+// result from a filter would show the "nobody has set anything here yet" state,
+// which is both wrong and discouraging on a wall full of problems.
+const hasFilters = computed(
+  () => !!footRule.value || excludeMySends.value || onlyMyProjects.value
+)
+
+const query = computed(() => ({
+  sort: sort.value,
+  ...(footRule.value ? { foot_rule: footRule.value } : {}),
+  ...(excludeMySends.value ? { exclude_my_sends: 1 } : {}),
+  ...(onlyMyProjects.value ? { only_my_projects: 1 } : {}),
+}))
+
 const { data: problems, isLoading, isError, refetch } = useQuery({
-  queryKey: computed(() => ['spray-wall-problems', props.wallId]),
-  queryFn: () => api.getSprayWallProblems(props.wallId),
+  queryKey: computed(() => ['spray-wall-problems', props.wallId, query.value]),
+  queryFn: () => api.getSprayWallProblems(props.wallId, query.value),
   enabled,
   initialData: [],
+  keepPreviousData: true,
 })
 
 // Fetched here too so the empty state can show the wall, and so "add" is only
@@ -138,6 +209,56 @@ const startCreating = () => {
 <style scoped>
 .spray-problem-list {
   margin-top: 0.5rem;
+}
+
+.spray-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 1rem 0;
+}
+
+.spray-filters__select {
+  flex: 1 1 45%;
+  min-width: 0;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+}
+
+.spray-filters__chip {
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: inherit;
+}
+
+.spray-filters__chip--on {
+  background: rgba(var(--p-accent-rgb), 0.2);
+  border-color: var(--p-accent);
+  color: var(--p-accent);
+}
+
+.spray-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.spray-row__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.spray-row__item .material-icons {
+  font-size: 14px;
+  opacity: 0.6;
 }
 
 .spray-preview {

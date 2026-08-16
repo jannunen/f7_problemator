@@ -169,8 +169,8 @@ const api = {
     const ret = await axios.get(endpoint + '/gyms/' + gymid + '/spray-walls')
     return ret.data
   },
-  async getSprayWallProblems(wallId) {
-    const ret = await axios.get(endpoint + '/walls/' + wallId + '/spray-wall/problems')
+  async getSprayWallProblems(wallId, params = {}) {
+    const ret = await axios.get(endpoint + '/walls/' + wallId + '/spray-wall/problems', { params })
     return ret.data
   },
   // The photo plus the holds that may be picked. Always one image's worth:

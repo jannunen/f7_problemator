@@ -572,6 +572,24 @@
     "events": "Tapahtumat (0) | Tapahtumat (1) | Tapahtumat ({n})",
     "event_tick": "Noustu",
     "event_project": "Projektina",
-    "try_count": "1 yritys | {n} yritystä"
+    "try_count": "1 yritys | {n} yritystä",
+    "events_all": "Kaikki",
+    "events_own": "Omat",
+    "events_others": "Muut",
+    "events_none": "Ei vielä mitään.",
+    "you": "Sinä",
+    "someone": "Kiipeilijä",
+    "sort_newest": "Uusimmat ensin",
+    "sort_oldest": "Vanhimmat ensin",
+    "sort_most_ascents": "Eniten nousuja",
+    "sort_least_ascents": "Vähiten nousuja",
+    "sort_most_likes": "Eniten tykätyt",
+    "sort_least_likes": "Vähiten tykätyt",
+    "sort_easiest": "Helpoimmat ensin",
+    "sort_hardest": "Vaikeimmat ensin",
+    "any_foot_rule": "Kaikki jalkasäännöt",
+    "not_sent_yet": "En ole noussut",
+    "my_projects": "Omat projektit",
+    "no_match": "Yksikään reitti ei vastaa näitä suodattimia."
   }
 }

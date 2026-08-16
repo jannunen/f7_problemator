@@ -580,6 +580,24 @@
     "events": "Events (0) | Events (1) | Events ({n})",
     "event_tick": "Sent",
     "event_project": "Projecting",
-    "try_count": "1 try | {n} tries"
+    "try_count": "1 try | {n} tries",
+    "events_all": "All",
+    "events_own": "Mine",
+    "events_others": "Others",
+    "events_none": "Nothing here yet.",
+    "you": "You",
+    "someone": "A climber",
+    "sort_newest": "Newest first",
+    "sort_oldest": "Oldest first",
+    "sort_most_ascents": "Most sends",
+    "sort_least_ascents": "Fewest sends",
+    "sort_most_likes": "Most liked",
+    "sort_least_likes": "Least liked",
+    "sort_easiest": "Easiest first",
+    "sort_hardest": "Hardest first",
+    "any_foot_rule": "Any feet",
+    "not_sent_yet": "Not sent yet",
+    "my_projects": "My projects",
+    "no_match": "No problems match these filters."
   }
 }
