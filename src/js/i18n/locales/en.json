@@ -605,6 +605,9 @@
     "grade_range": "Grade",
     "grade_any_min": "Any",
     "grade_any_max": "Any",
-    "reset_filters": "Reset filters"
+    "reset_filters": "Reset filters",
+    "zoom_out": "Zoom out",
+    "zoom_reset": "Reset zoom",
+    "zoom_hint": "Double-tap the wall to zoom in on that spot."
   }
 }

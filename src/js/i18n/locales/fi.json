@@ -597,6 +597,9 @@
     "grade_range": "Taso",
     "grade_any_min": "Mikä tahansa",
     "grade_any_max": "Mikä tahansa",
-    "reset_filters": "Tyhjennä suodattimet"
+    "reset_filters": "Tyhjennä suodattimet",
+    "zoom_out": "Loitonna",
+    "zoom_reset": "Palauta",
+    "zoom_hint": "Kaksoisnapauta seinää lähentääksesi kohtaan."
   }
 }

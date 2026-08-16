@@ -31,40 +31,60 @@
            smaller than a fingertip. -->
       <photo-adjust-controls />
 
-      <div class="spray-zoom-bar">
-        <button
-          v-for="z in zoomLevels"
-          :key="z"
-          class="spray-zoom-btn"
-          :class="{ 'spray-zoom-btn--active': zoom === z }"
-          @click="zoom = z"
-        >{{ z }}×</button>
+      <!-- The scroll box and its floating controls share this wrapper, so the
+           buttons sit over the photo rather than scrolling away with it. -->
+      <div class="spray-stage">
+        <div ref="scrollEl" class="spray-canvas-scroll">
+          <div class="spray-canvas" :style="{ width: zoom * 100 + '%' }" @click="onCanvasTap">
+            <img :src="image.image_url" class="spray-canvas__img" :alt="t('spraywall.wall')" :style="{ filter: photoFilter }" />
+            <svg
+              class="spray-canvas__svg"
+              :viewBox="`0 0 ${image.width} ${image.height}`"
+              preserveAspectRatio="none"
+            >
+              <!-- Paths, not polygons or circles: Safari ignores fill on some
+                   basic shapes, and a path renders identically everywhere. -->
+              <path
+                v-for="hold in holds"
+                :key="hold.id"
+                :d="holdPath(hold)"
+                :fill="fillFor(hold.id)"
+                :stroke="strokeFor(hold.id)"
+                :stroke-width="roles[hold.id] ? 3 : 1.5"
+                vector-effect="non-scaling-stroke"
+                class="spray-hold"
+                @click="cycle(hold.id, $event)"
+              />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Only while zoomed: at 1x there is nothing to undo, and two dead
+             buttons over the wall would cost the space the wall needs. Top and
+             bottom both, since a thumb reaching the top of a phone held at the
+             wall is a stretch. -->
+        <template v-if="zoom > 1">
+          <div class="spray-stage__controls spray-stage__controls--top">
+            <button class="spray-stage__btn" @click.stop="zoomOut">
+              <span class="material-icons">zoom_out</span>{{ t('spraywall.zoom_out') }}
+            </button>
+            <button class="spray-stage__btn" @click.stop="resetZoom">
+              <span class="material-icons">zoom_out_map</span>{{ t('spraywall.zoom_reset') }}
+            </button>
+          </div>
+          <div class="spray-stage__controls spray-stage__controls--bottom">
+            <button class="spray-stage__btn" @click.stop="zoomOut">
+              <span class="material-icons">zoom_out</span>{{ t('spraywall.zoom_out') }}
+            </button>
+            <button class="spray-stage__btn" @click.stop="resetZoom">
+              <span class="material-icons">zoom_out_map</span>{{ t('spraywall.zoom_reset') }}
+            </button>
+          </div>
+          <span class="spray-stage__level">{{ zoom }}×</span>
+        </template>
       </div>
 
-      <div class="spray-canvas-scroll">
-        <div class="spray-canvas" :style="{ width: zoom * 100 + '%' }">
-          <img :src="image.image_url" class="spray-canvas__img" :alt="t('spraywall.wall')" :style="{ filter: photoFilter }" />
-          <svg
-            class="spray-canvas__svg"
-            :viewBox="`0 0 ${image.width} ${image.height}`"
-            preserveAspectRatio="none"
-          >
-            <!-- Paths, not polygons or circles: Safari ignores fill on some
-                 basic shapes, and a path renders identically everywhere. -->
-            <path
-              v-for="hold in holds"
-              :key="hold.id"
-              :d="holdPath(hold)"
-              :fill="fillFor(hold.id)"
-              :stroke="strokeFor(hold.id)"
-              :stroke-width="roles[hold.id] ? 3 : 1.5"
-              vector-effect="non-scaling-stroke"
-              class="spray-hold"
-              @click="cycle(hold.id)"
-            />
-          </svg>
-        </div>
-      </div>
+      <p class="px-4 mt-1 text-xs p-text-dim text-center">{{ t('spraywall.zoom_hint') }}</p>
 
       <div class="px-4 mt-3">
         <div class="spray-legend">
@@ -143,7 +163,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
@@ -181,8 +201,17 @@ const ROLE_FILLS = {
 
 const { photoFilter, useWall } = usePhotoAdjust()
 
-const zoomLevels = [1, 2, 3]
+const MAX_ZOOM = 4
 const zoom = ref(1)
+const scrollEl = ref(null)
+
+// Double-tap bookkeeping. Rather than delaying every tap by 300ms to see
+// whether a second one follows — which would make picking holds feel broken —
+// the first tap acts immediately and a second one UNDOES it before zooming.
+// Selecting a hold stays instant; only the rarer double-tap pays anything.
+const DOUBLE_TAP_MS = 300
+const DOUBLE_TAP_PX = 30
+let lastTap = null
 const roles = ref({})
 const footRule = ref('marked')
 const name = ref('')
@@ -248,20 +277,109 @@ const onFootRuleChange = (event) => {
   )
 }
 
-const cycle = (holdId) => {
+const applyRole = (holdId, role) => {
+  const next = { ...roles.value }
+  if (role == null) delete next[holdId]
+  else next[holdId] = role
+  roles.value = next
+}
+
+const cycle = (holdId, event) => {
+  if (event && isDoubleTap(event, holdId)) return
+
   const order = cycleOrder.value
   const current = roles.value[holdId]
-  const next = { ...roles.value }
 
+  let role
   if (!current) {
-    next[holdId] = order[0]
+    role = order[0]
   } else {
     const i = order.indexOf(current)
     // An unknown role here means the foot rule changed under it; drop it.
-    if (i === -1 || i === order.length - 1) delete next[holdId]
-    else next[holdId] = order[i + 1]
+    role = i === -1 || i === order.length - 1 ? null : order[i + 1]
   }
-  roles.value = next
+  applyRole(holdId, role)
+}
+
+/**
+ * True when this tap completes a double-tap. Zooms, and rolls back the role
+ * change the first tap made so a zoom gesture never silently retags a hold.
+ */
+const isDoubleTap = (event, holdId = null) => {
+  const now = event.timeStamp || Date.now()
+  const prev = lastTap
+  lastTap = { at: now, x: event.clientX, y: event.clientY, holdId, roleBefore: roles.value[holdId] }
+
+  if (
+    prev &&
+    now - prev.at < DOUBLE_TAP_MS &&
+    Math.abs(event.clientX - prev.x) < DOUBLE_TAP_PX &&
+    Math.abs(event.clientY - prev.y) < DOUBLE_TAP_PX
+  ) {
+    if (prev.holdId !== null) applyRole(prev.holdId, prev.roleBefore)
+    lastTap = null
+    zoomInAt(event)
+    return true
+  }
+
+  return false
+}
+
+// Taps that miss every hold still zoom, so the gesture works on bare wall.
+const onCanvasTap = (event) => {
+  if (event.target.classList?.contains('spray-hold')) return
+  isDoubleTap(event)
+}
+
+/**
+ * Zoom one step, keeping whatever was under the finger under the finger. Zoom
+ * is a width multiplier on a scrolling box, so the scroll offsets have to be
+ * recomputed against the new content size or the tapped hold flies off screen.
+ */
+const zoomInAt = (event) => {
+  if (zoom.value >= MAX_ZOOM) return
+
+  const el = scrollEl.value
+  const canvas = el?.querySelector('.spray-canvas')
+  if (!el || !canvas) {
+    zoom.value = Math.min(zoom.value + 1, MAX_ZOOM)
+    return
+  }
+
+  const rect = canvas.getBoundingClientRect()
+  const fx = (event.clientX - rect.left) / rect.width
+  const fy = (event.clientY - rect.top) / rect.height
+
+  zoom.value = Math.min(zoom.value + 1, MAX_ZOOM)
+
+  nextTick(() => {
+    el.scrollLeft = fx * el.scrollWidth - el.clientWidth / 2
+    el.scrollTop = fy * el.scrollHeight - el.clientHeight / 2
+  })
+}
+
+const zoomOut = () => {
+  const el = scrollEl.value
+  // Hold the centre rather than snapping to a corner on the way out.
+  const fx = el && el.scrollWidth ? (el.scrollLeft + el.clientWidth / 2) / el.scrollWidth : 0.5
+  const fy = el && el.scrollHeight ? (el.scrollTop + el.clientHeight / 2) / el.scrollHeight : 0.5
+
+  zoom.value = Math.max(zoom.value - 1, 1)
+
+  nextTick(() => {
+    if (!el) return
+    el.scrollLeft = fx * el.scrollWidth - el.clientWidth / 2
+    el.scrollTop = fy * el.scrollHeight - el.clientHeight / 2
+  })
+}
+
+const resetZoom = () => {
+  zoom.value = 1
+  nextTick(() => {
+    if (!scrollEl.value) return
+    scrollEl.value.scrollLeft = 0
+    scrollEl.value.scrollTop = 0
+  })
 }
 
 const holdPath = (hold) => {
@@ -331,31 +449,70 @@ const save = async () => {
 </script>
 
 <style scoped>
-.spray-zoom-bar {
+.spray-stage {
+  position: relative;
+}
+
+/* Sits over the photo and does not scroll with it. pointer-events: none on the
+   strip so it never swallows a tap meant for a hold behind it; the buttons
+   themselves opt back in. */
+.spray-stage__controls {
+  position: absolute;
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: center;
-  gap: 6px;
-  padding: 6px 0;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 2;
 }
 
-.spray-zoom-btn {
-  padding: 4px 12px;
+.spray-stage__controls--top {
+  top: 8px;
+}
+
+.spray-stage__controls--bottom {
+  bottom: 8px;
+}
+
+.spray-stage__btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
   border-radius: 999px;
   font-size: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: transparent;
-  color: inherit;
+  border: none;
+  color: #fff;
+  /* Opaque enough to stay readable over any part of a wall photo. */
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(2px);
 }
 
-.spray-zoom-btn--active {
-  background: rgba(var(--p-accent-rgb), 0.2);
-  border-color: var(--p-accent);
-  color: var(--p-accent);
+.spray-stage__btn .material-icons {
+  font-size: 16px;
+}
+
+.spray-stage__level {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.72);
+  pointer-events: none;
 }
 
 .spray-canvas-scroll {
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  /* Capped, so the floating controls stay on screen at 4x instead of being
+     pushed past the bottom of a very tall wall photo. */
+  max-height: 70vh;
 }
 
 .spray-canvas {
