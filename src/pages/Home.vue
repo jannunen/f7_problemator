@@ -49,11 +49,6 @@
           </div>
         </div>
 
-        <!-- Gym selector always visible -->
-        <div class="home-section">
-          <gym-selector />
-        </div>
-
         <!-- Empty state when no gym selected -->
         <div v-if="!gymid" class="px-4 mt-6 text-center">
           <span class="material-icons p-text-dim" style="font-size: 48px;">location_city</span>
