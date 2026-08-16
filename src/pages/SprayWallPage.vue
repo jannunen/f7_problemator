@@ -83,13 +83,22 @@
              colour badge, grade, ascents, likes and author, the same project /
              sent markers, and the quick-tick swipeout for free. A spray wall
              problem is an ordinary problem, so it should not need its own row. -->
-        <f7-list v-else media-list class="spray-problem-list">
+        <!-- `media`, not `media-list`, matching ProblemList exactly.
+             framework7-vue's list-item forgets to CALL the inner-start and
+             inner-end slots in its media branch (list-item.js:145) while
+             calling them correctly in the other one, so Vue receives the raw
+             slot function and renders its source as text. SearchHitItem puts
+             the author in #inner-end, so media mode fills the row with a
+             stringified Vue internal. `media` is not an f7-list prop at all
+             (the prop is `mediaList`), which is exactly why it stays out of
+             that branch. -->
+        <f7-list v-else media class="spray-problem-list" problem-list>
           <search-hit-item
             v-for="problem in problems"
             :key="problem.id"
             :problem="problem"
             @start-navigate="openProblem"
-          />
+          ></search-hit-item>
         </f7-list>
 
         <div class="px-4 mb-6">
