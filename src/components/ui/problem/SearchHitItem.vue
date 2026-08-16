@@ -3,7 +3,14 @@
   <f7-list-item media link="#" swipeout @swipeout:open="swipingout = true" @swipeout:closed="swipingout = false" @click="() => onClick(problem)" :class="{ 'hit-expiring': problem.soontoberemoved == 1 }">
 
     <template #title>
-      <div class="hit-title">{{ getAfter(problem) }}
+      <!-- A spray wall problem has no tag, so its name is the only thing that
+           identifies it; a gym-set route is identified by its tag on the wall,
+           and there the date is the more useful headline. -->
+      <div v-if="problem.is_spray_wall && problem.addt" class="hit-title">
+        <div class="hit-name">{{ firstLine(problem.addt) }}</div>
+        <div class="hit-when">{{ getAfter(problem) }}</div>
+      </div>
+      <div v-else class="hit-title">{{ getAfter(problem) }}
       </div>
     </template>
 
@@ -121,6 +128,8 @@ export default {
     const getAuthor = (group) => {
       return group.ascentCount + ' ' + t('home.ascents')
     }
+    // addt is free text and may run to several lines; only the first is a name.
+    const firstLine = (text) => String(text).split('\n')[0]
     const getAfter = (group) => {
       const date = dayjs(group.added)
       return date.fromNow()
@@ -173,6 +182,7 @@ export default {
       getAuthor,
       getTagShort,
       getAfter,
+      firstLine,
       isMyProject,
       isMyTick,
       getTagShort,
@@ -188,6 +198,18 @@ export default {
 .hit-title {
   color: var(--p-text-secondary);
   font-size: 0.85rem;
+}
+.hit-name {
+  color: var(--p-text);
+  font-weight: 600;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hit-when {
+  color: var(--p-text-secondary);
+  font-size: 0.75rem;
 }
 .hit-likes {
   color: var(--p-text);
