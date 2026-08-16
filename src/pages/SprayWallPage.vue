@@ -79,39 +79,17 @@
           {{ t('spraywall.no_match') }}
         </p>
 
-        <f7-list v-else class="spray-problem-list">
-
-          <f7-list-item
+        <!-- The app's own problem row, not a lookalike. Same layout, same
+             colour badge, grade, ascents, likes and author, the same project /
+             sent markers, and the quick-tick swipeout for free. A spray wall
+             problem is an ordinary problem, so it should not need its own row. -->
+        <f7-list v-else media-list class="spray-problem-list">
+          <search-hit-item
             v-for="problem in problems"
             :key="problem.id"
-            :title="problemTitle(problem)"
-            :after="problem.grade?.name || ''"
-            link="#"
-            @click="openProblem(problem)"
-          >
-            <template #subtitle>
-              <span class="spray-row">
-                <span v-if="problem.author?.name" class="spray-row__item">
-                  <span class="material-icons">person</span>{{ problem.author.name }}
-                </span>
-                <span class="spray-row__item">
-                  <span class="material-icons">check_circle_outline</span>{{ problem.total_ascents || 0 }}
-                </span>
-                <span v-if="problem.c_like" class="spray-row__item">
-                  <span class="material-icons">thumb_up</span>{{ problem.c_like }}
-                </span>
-                <span class="spray-row__item">
-                  <span class="material-icons">radio_button_unchecked</span>{{ problem.holds?.length || 0 }}
-                </span>
-                <span v-if="problem.spray_wall_approval === 'pending'" class="spray-row__item">
-                  · {{ t('spraywall.awaiting_review') }}
-                </span>
-                <span v-else-if="problem.spray_wall_approval === 'rejected'" class="spray-row__item">
-                  · {{ t('spraywall.rejected') }}
-                </span>
-              </span>
-            </template>
-          </f7-list-item>
+            :problem="problem"
+            @start-navigate="openProblem"
+          />
         </f7-list>
 
         <div class="px-4 mb-6">
@@ -131,6 +109,7 @@ import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { f7 } from 'framework7-vue'
 import api from '@js/api'
+import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
 
 const { t } = useI18n()
 
@@ -187,11 +166,6 @@ const { data: image } = useQuery({
 })
 
 const canCreate = computed(() => (image.value?.holds?.length || 0) > 0)
-
-const problemTitle = (problem) => {
-  if (problem.addt) return problem.addt.split('\n')[0]
-  return `${t('spraywall.problem')} #${problem.id}`
-}
 
 const openProblem = (problem) => {
   f7.views.main.router.navigate(`/spray-wall/problem/${problem.id}`, {
