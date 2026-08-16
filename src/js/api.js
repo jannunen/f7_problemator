@@ -173,6 +173,16 @@ const api = {
     const ret = await axios.get(endpoint + '/walls/' + wallId + '/spray-wall/problems')
     return ret.data
   },
+  // The photo plus the holds that may be picked. Always one image's worth:
+  // the server refuses a problem whose holds span two photos.
+  async getSprayWallImage(wallId) {
+    const ret = await axios.get(endpoint + '/walls/' + wallId + '/spray-wall/image')
+    return ret.data
+  },
+  async createSprayWallProblem(payload) {
+    const ret = await axios.post(endpoint + '/spray-wall/problems', payload)
+    return ret.data
+  },
   async getProfile(gymid) {
     const url = endpoint + `/profile?gymid=${gymid}`
     const ret = await axios.get(url)

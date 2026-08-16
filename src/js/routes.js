@@ -16,6 +16,7 @@ import OngoingCompetitionsPage from '../pages/OngoingCompetitionsPage.vue';
 import SingleCompetitionPage from '../pages/SingleCompetitionPage.vue';
 import PublicSingleCompetitionPage from '../pages/PublicSingleCompetitionPage.vue';
 import SprayWallPage from '../pages/SprayWallPage.vue';
+import SprayWallCreatorPage from '../pages/SprayWallCreatorPage.vue';
 const routes = [
   {
     path: '/',
@@ -101,6 +102,12 @@ const routes = [
   {
     path: '/climber/:id',
     component: ClimberProfilePage,
+  },
+  {
+    // Listed before the wall route so '/spray-wall/12/new' is not swallowed
+    // by ':wallId'.
+    path: '/spray-wall/:wallId/new',
+    component: SprayWallCreatorPage,
   },
   {
     path: '/spray-wall/:wallId',
