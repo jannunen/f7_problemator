@@ -543,6 +543,17 @@
     "name_placeholder": "Vapaaehtoinen",
     "need_start": "Merkitse ainakin yksi lähtöote.",
     "need_finish": "Merkitse ainakin yksi maaliote.",
-    "need_three": "Merkitse vielä yksi ote. | Merkitse vielä {n} ote. | Merkitse vielä {n} otetta."
+    "need_three": "Merkitse vielä yksi ote. | Merkitse vielä {n} ote. | Merkitse vielä {n} otetta.",
+    "problem_failed": "Reittiä ei voitu ladata.",
+    "photo_gone": "Kuvaa, jolle tämä reitti tehtiin, ei ole enää saatavilla.",
+    "pending_notice": "Odottaa reittimestarin tarkistusta. Siihen asti vain sinä näet sen.",
+    "rejected_notice": "Reittimestari hylkäsi tämän reitin.",
+    "what_do_these_mean": "Mitä nämä tarkoittavat?",
+    "hide_explanation": "Piilota",
+    "foot_rule_explain_marked": "Merkitset tietyt otteet jalka-otteiksi, ja vain niitä saa käyttää jaloille. Tarkin vaihtoehto ja työläin tehdä: täydellä seinällä merkittävää tulee paljon.",
+    "foot_rule_explain_follow_hands": "Mitä tahansa käsille merkittyä otetta saa käyttää myös jaloille. Mitään ei tarvitse merkitä erikseen, ja tämä on tavallisin valinta tiheällä spray-seinällä, jossa jokaisen jalka-otteen merkitseminen kestäisi kauemmin kuin itse reitti.",
+    "foot_rule_explain_screw_ons": "Vain seinään ruuvatut pienet ruuviotteet ovat sallittuja jaloille - ei mikään reitin otteista. Näistä kolmesta vaikein, koska jalat ovat sen varassa mitä sali on ruuvannut kiinni.",
+    "foot_rule_change_title": "Poistetaanko merkityt jalat?",
+    "foot_rule_change_body": "Tässä säännössä ei ole merkittyjä jalkoja, joten merkitsemäsi yksi jalka-ote poistetaan. | Tässä säännössä ei ole merkittyjä jalkoja, joten merkitsemäsi {n} jalka-ote poistetaan. | Tässä säännössä ei ole merkittyjä jalkoja, joten merkitsemäsi {n} jalka-otetta poistetaan."
   }
 }

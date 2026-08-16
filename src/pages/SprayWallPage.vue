@@ -55,6 +55,8 @@
             :key="problem.id"
             :title="problemTitle(problem)"
             :after="problem.grade?.name || ''"
+            link="#"
+            @click="openProblem(problem)"
           >
             <template #subtitle>
               {{ t('spraywall.hold_count', problem.holds?.length || 0) }}
@@ -118,6 +120,12 @@ const canCreate = computed(() => (image.value?.holds?.length || 0) > 0)
 const problemTitle = (problem) => {
   if (problem.addt) return problem.addt.split('\n')[0]
   return `${t('spraywall.problem')} #${problem.id}`
+}
+
+const openProblem = (problem) => {
+  f7.views.main.router.navigate(`/spray-wall/problem/${problem.id}`, {
+    props: { problemId: problem.id },
+  })
 }
 
 const startCreating = () => {

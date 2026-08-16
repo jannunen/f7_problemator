@@ -551,6 +551,17 @@
     "name_placeholder": "Optional",
     "need_start": "Mark at least one start hold.",
     "need_finish": "Mark at least one finish hold.",
-    "need_three": "Mark one more hold. | Mark {n} more hold. | Mark {n} more holds."
+    "need_three": "Mark one more hold. | Mark {n} more hold. | Mark {n} more holds.",
+    "problem_failed": "Could not load this problem.",
+    "photo_gone": "The photo this problem was set on is no longer available.",
+    "pending_notice": "Waiting for a setter to review it. Only you can see it until then.",
+    "rejected_notice": "A setter rejected this problem.",
+    "what_do_these_mean": "What do these mean?",
+    "hide_explanation": "Hide",
+    "foot_rule_explain_marked": "You mark specific holds as footholds, and only those may be used for feet. The most precise option, and the most work to set: on a busy wall you may be marking a lot of holds.",
+    "foot_rule_explain_follow_hands": "Any hold you marked for hands may also be stood on. Nothing extra to mark, and the usual choice on a dense spray wall where marking every foothold would take longer than the climb.",
+    "foot_rule_explain_screw_ons": "Only the small screw-on footholds bolted to the wall may be used — none of the holds in the problem. The hardest of the three, since your feet are limited to whatever the gym screwed on.",
+    "foot_rule_change_title": "Clear the marked feet?",
+    "foot_rule_change_body": "This rule has no marked feet, so the one hold you marked as a foot will be cleared. | This rule has no marked feet, so the {n} hold you marked as a foot will be cleared. | This rule has no marked feet, so the {n} holds you marked as feet will be cleared."
   }
 }

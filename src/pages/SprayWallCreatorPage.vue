@@ -75,12 +75,21 @@
 
         <div class="mt-3">
           <label class="text-sm font-bold">{{ t('spraywall.foot_rule') }}</label>
-          <select v-model="footRule" class="spray-select mt-1">
+          <select :value="footRule" class="spray-select mt-1" @change="onFootRuleChange">
             <option value="marked">{{ t('spraywall.foot_marked') }}</option>
             <option value="follow_hands">{{ t('spraywall.foot_follow_hands') }}</option>
             <option value="screw_ons">{{ t('spraywall.foot_screw_ons') }}</option>
           </select>
           <p class="text-xs p-text-dim mt-1">{{ t('spraywall.foot_rule_hint_' + footRule) }}</p>
+          <button class="spray-explain-btn mt-1" @click="explainOpen = !explainOpen">
+            {{ explainOpen ? t('spraywall.hide_explanation') : t('spraywall.what_do_these_mean') }}
+          </button>
+          <div v-if="explainOpen" class="spray-explain">
+            <p v-for="rule in ['marked', 'follow_hands', 'screw_ons']" :key="rule" class="mb-2">
+              <strong>{{ t('spraywall.foot_' + rule) }}</strong> —
+              {{ t('spraywall.foot_rule_explain_' + rule) }}
+            </p>
+          </div>
         </div>
 
         <div class="mt-3">
@@ -117,7 +126,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { f7 } from 'framework7-vue'
@@ -144,6 +153,7 @@ const footRule = ref('marked')
 const name = ref('')
 const saving = ref(false)
 const saveError = ref(null)
+const explainOpen = ref(false)
 
 const { data: image, isLoading, isError, refetch } = useQuery({
   queryKey: computed(() => ['spray-wall-image', props.wallId]),
@@ -166,20 +176,35 @@ const visibleRoles = computed(() =>
   footRule.value === 'marked' ? ['start', 'hand', 'foot', 'finish'] : ['start', 'hand', 'finish']
 )
 
-// Switching away from 'marked' would otherwise leave foot holds attached that
-// the server refuses, with nothing on screen explaining the rejection.
-watch(footRule, (rule) => {
-  if (rule === 'marked') return
-  const next = { ...roles.value }
-  let cleared = 0
-  for (const id of Object.keys(next)) {
-    if (next[id] === 'foot') {
-      delete next[id]
-      cleared++
-    }
+// Switching away from 'marked' invalidates every foot hold already marked, and
+// the server refuses the combination. Confirm before throwing that work away
+// rather than silently deleting it and leaving the climber to notice.
+const onFootRuleChange = (event) => {
+  const rule = event.target.value
+  const feet = Object.values(roles.value).filter((r) => r === 'foot').length
+
+  if (rule === 'marked' || feet === 0) {
+    footRule.value = rule
+    return
   }
-  if (cleared > 0) roles.value = next
-})
+
+  f7.dialog.confirm(
+    t('spraywall.foot_rule_change_body', feet),
+    t('spraywall.foot_rule_change_title'),
+    () => {
+      const next = { ...roles.value }
+      for (const id of Object.keys(next)) {
+        if (next[id] === 'foot') delete next[id]
+      }
+      roles.value = next
+      footRule.value = rule
+    },
+    () => {
+      // Cancelled: put the <select> back, since it shows the DOM value not ours.
+      event.target.value = footRule.value
+    }
+  )
+}
 
 const cycle = (holdId) => {
   const order = cycleOrder.value
@@ -309,6 +334,24 @@ const save = async () => {
 .spray-hold {
   cursor: pointer;
   pointer-events: all;
+}
+
+.spray-explain-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 0.75rem;
+  text-decoration: underline;
+  color: var(--p-accent);
+}
+
+.spray-explain {
+  font-size: 0.75rem;
+  opacity: 0.85;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .spray-legend {

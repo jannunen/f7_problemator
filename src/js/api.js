@@ -179,6 +179,10 @@ const api = {
     const ret = await axios.get(endpoint + '/walls/' + wallId + '/spray-wall/image')
     return ret.data
   },
+  async getSprayWallProblem(problemId) {
+    const ret = await axios.get(endpoint + '/spray-wall/problems/' + problemId)
+    return ret.data
+  },
   async createSprayWallProblem(payload) {
     const ret = await axios.post(endpoint + '/spray-wall/problems', payload)
     return ret.data
