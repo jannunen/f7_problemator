@@ -90,6 +90,27 @@
             {{ t('spraywall.foot_rule_hint_' + (problem.spray_wall_foot_rule || 'marked')) }}
           </p>
         </div>
+
+        <div v-if="alreadyTicked" class="p-banner p-banner--info mt-3">
+          <span class="material-icons p-banner__icon">check_circle</span>
+          <div class="p-banner__content">{{ t('spraywall.already_ticked') }}</div>
+        </div>
+
+        <!-- A spray wall send is a tick like any other, so this is the app's
+             ordinary AddTick, not a copy of it. It needs only problem.id. -->
+        <template v-if="isAuthenticated && canTick">
+          <div class="p-section-title text-center mt-3" style="font-size: 0.85rem;">
+            {{ t('problem.add_new_tick') }}
+          </div>
+          <add-tick :problem="problem" />
+        </template>
+
+        <!-- Ticking an unreviewed problem would score ranking points for
+             something a setter may still remove. -->
+        <div v-else-if="isAuthenticated" class="p-banner p-banner--warning mt-3">
+          <span class="material-icons p-banner__icon p-text-warning">lock</span>
+          <div class="p-banner__content">{{ t('spraywall.cannot_tick_yet') }}</div>
+        </div>
       </div>
     </template>
   </f7-page>
@@ -102,8 +123,11 @@ import { useQuery } from '@tanstack/vue-query'
 import api from '@js/api'
 import PhotoAdjustControls from '@components/ui/PhotoAdjustControls.vue'
 import { usePhotoAdjust } from '@js/usePhotoAdjust'
+import { useStore } from 'vuex'
+import AddTick from '@components/problem/AddTick.vue'
 
 const { t } = useI18n()
+const store = useStore()
 
 const props = defineProps({
   problemId: [String, Number],
@@ -158,6 +182,24 @@ const title = computed(() => {
   if (!p) return t('spraywall.problem')
   if (p.addt) return p.addt.split('\n')[0]
   return `${t('spraywall.problem')} #${p.id}`
+})
+
+const isAuthenticated = computed(() => store.state.isAuthenticated)
+
+// Only approved problems can be ticked. A pending one is not public yet and a
+// rejected one has been removed from circulation; either way the tick would
+// score ranking points for something that may not survive review.
+const canTick = computed(() => {
+  const approval = problem.value?.spray_wall_approval
+  return approval === 'approved' || approval == null
+})
+
+// Read from the same global tick history the rest of the app uses, so the state
+// agrees with what the profile and problem list already show.
+const alreadyTicked = computed(() => {
+  const id = problem.value?.id
+  if (!id) return false
+  return (store.state.alltime?.ticks || []).some((tick) => tick.problemid == id)
 })
 
 const holdPath = (hold) => {

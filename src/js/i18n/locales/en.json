@@ -567,6 +567,8 @@
     "grayscale": "Grayscale",
     "contrast": "Contrast",
     "brightness": "Brightness",
-    "reset_photo": "Reset photo"
+    "reset_photo": "Reset photo",
+    "already_ticked": "You have ticked this problem.",
+    "cannot_tick_yet": "This problem cannot be ticked until a setter approves it."
   }
 }

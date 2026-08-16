@@ -559,6 +559,8 @@
     "grayscale": "Harmaasävy",
     "contrast": "Kontrasti",
     "brightness": "Kirkkaus",
-    "reset_photo": "Palauta kuva"
+    "reset_photo": "Palauta kuva",
+    "already_ticked": "Olet jo kuitannut tämän reitin.",
+    "cannot_tick_yet": "Tätä reittiä ei voi kuitata ennen kuin reittimestari on hyväksynyt sen."
   }
 }
