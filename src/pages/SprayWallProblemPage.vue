@@ -117,7 +117,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import api from '@js/api'
@@ -151,7 +151,7 @@ const ROLE_FILLS = {
   finish: 'rgba(252, 165, 165, 0.55)',
 }
 
-const { photoFilter } = usePhotoAdjust()
+const { photoFilter, useWall } = usePhotoAdjust()
 
 const zoomLevels = [1, 2, 3]
 const zoom = ref(1)
@@ -163,6 +163,12 @@ const { data: problem, isLoading, isError, refetch } = useQuery({
 })
 
 const holds = computed(() => problem.value?.holds || [])
+
+// Keyed on the problem's wall, so a personal setting saved while building on
+// this wall is the one that applies when viewing a problem on it.
+watch(problem, (loaded) => {
+  if (loaded?.image) useWall(loaded.wallid, loaded.image.display_adjust)
+}, { immediate: true })
 
 // A hold whose geometry is missing cannot be drawn. present() nulls those
 // fields when the underlying hold row is gone, so skip rather than emit a

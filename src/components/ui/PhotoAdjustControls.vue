@@ -3,7 +3,7 @@
     <button class="photo-adjust__toggle" @click="open = !open">
       <span class="material-icons">tune</span>
       {{ t('spraywall.adjust_photo') }}
-      <span v-if="!isDefault" class="photo-adjust__badge">•</span>
+      <span v-if="!matchesGym || hasMine" class="photo-adjust__badge">•</span>
     </button>
 
     <div v-if="open" class="photo-adjust__panel">
@@ -22,9 +22,15 @@
         <input type="range" min="50" max="200" step="5" v-model.number="brightness" />
         <span class="photo-adjust__value">{{ brightness }}%</span>
       </label>
-      <button class="photo-adjust__reset" :disabled="isDefault" @click="reset">
-        {{ t('spraywall.reset_photo') }}
-      </button>
+      <div class="photo-adjust__actions">
+        <button class="photo-adjust__action" :disabled="matchesGym && !hasMine" @click="onReset">
+          {{ t('spraywall.use_gym_setting') }}
+        </button>
+        <button class="photo-adjust__action photo-adjust__action--save" @click="onSave">
+          {{ saved ? t('spraywall.saved') : t('spraywall.save_mine') }}
+        </button>
+      </div>
+      <p class="photo-adjust__note">{{ t('spraywall.adjust_note') }}</p>
     </div>
   </div>
 </template>
@@ -35,7 +41,20 @@ import { useI18n } from 'vue-i18n'
 import { usePhotoAdjust } from '@js/usePhotoAdjust'
 
 const { t } = useI18n()
-const { grayscale, contrast, brightness, isDefault, reset } = usePhotoAdjust()
+const { grayscale, contrast, brightness, matchesGym, hasMine, saveMine, resetToGym } = usePhotoAdjust()
+
+const saved = ref(false)
+
+const onSave = () => {
+  saveMine()
+  saved.value = true
+  setTimeout(() => { saved.value = false }, 2000)
+}
+
+const onReset = () => {
+  resetToGym()
+  saved.value = false
+}
 
 // Collapsed by default: most climbers never touch this, and three sliders
 // permanently above the wall cost screen space that the wall needs more.
@@ -99,18 +118,35 @@ const open = ref(false)
   opacity: 0.7;
 }
 
-.photo-adjust__reset {
+.photo-adjust__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+}
+
+.photo-adjust__action {
   background: none;
   border: none;
   padding: 2px 0;
   font-size: 0.7rem;
   text-decoration: underline;
   color: inherit;
-  opacity: 0.7;
+  opacity: 0.75;
 }
 
-.photo-adjust__reset:disabled {
+.photo-adjust__action--save {
+  color: var(--p-accent);
+  opacity: 1;
+}
+
+.photo-adjust__action:disabled {
   opacity: 0.3;
   text-decoration: none;
+}
+
+.photo-adjust__note {
+  font-size: 0.65rem;
+  opacity: 0.5;
+  margin: 4px 0 0;
 }
 </style>

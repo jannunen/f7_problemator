@@ -567,8 +567,11 @@
     "grayscale": "Grayscale",
     "contrast": "Contrast",
     "brightness": "Brightness",
-    "reset_photo": "Reset photo",
     "already_ticked": "You have ticked this problem.",
-    "cannot_tick_yet": "This problem cannot be ticked until a setter approves it."
+    "cannot_tick_yet": "This problem cannot be ticked until a setter approves it.",
+    "use_gym_setting": "Use gym's setting",
+    "save_mine": "Save as mine",
+    "saved": "Saved",
+    "adjust_note": "The gym sets how this wall looks by default. Save your own if you prefer something else."
   }
 }

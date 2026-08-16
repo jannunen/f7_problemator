@@ -559,8 +559,11 @@
     "grayscale": "Harmaasävy",
     "contrast": "Kontrasti",
     "brightness": "Kirkkaus",
-    "reset_photo": "Palauta kuva",
     "already_ticked": "Olet jo kuitannut tämän reitin.",
-    "cannot_tick_yet": "Tätä reittiä ei voi kuitata ennen kuin reittimestari on hyväksynyt sen."
+    "cannot_tick_yet": "Tätä reittiä ei voi kuitata ennen kuin reittimestari on hyväksynyt sen.",
+    "use_gym_setting": "Käytä salin asetusta",
+    "save_mine": "Tallenna omakseni",
+    "saved": "Tallennettu",
+    "adjust_note": "Sali määrittää, miltä seinä oletuksena näyttää. Tallenna omasi, jos haluat toisin."
   }
 }

@@ -128,7 +128,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { f7 } from 'framework7-vue'
@@ -161,7 +161,7 @@ const ROLE_FILLS = {
   finish: 'rgba(252, 165, 165, 0.55)',
 }
 
-const { photoFilter } = usePhotoAdjust()
+const { photoFilter, useWall } = usePhotoAdjust()
 
 const zoomLevels = [1, 2, 3]
 const zoom = ref(1)
@@ -179,6 +179,12 @@ const { data: image, isLoading, isError, refetch } = useQuery({
 })
 
 const holds = computed(() => image.value?.holds || [])
+
+// Adopt the gym's setting for this wall as soon as the photo arrives, unless
+// the climber has saved their own for it.
+watch(image, (loaded) => {
+  if (loaded) useWall(props.wallId, loaded.display_adjust)
+}, { immediate: true })
 
 // 'foot' is only a legal role when the foot rule is 'marked'; the server
 // rejects the problem otherwise. Skipping it in the cycle means the rule
