@@ -459,40 +459,7 @@ const removeWall = (wallId) => {
 }
 </script>
 <style scoped>
-.filter-toggle-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-  padding: 10px 16px;
-  margin-bottom: 12px;
-  border: 1px solid var(--p-border);
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--p-text-secondary);
-  font-size: 0.9rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
-}
-.filter-toggle-btn:active {
-  background: rgba(255, 255, 255, 0.08);
-}
-.filter-toggle-btn--open {
-  border-color: var(--p-accent);
-  color: var(--p-accent);
-}
-.filter-toggle-btn__icon {
-  font-size: 20px;
-}
-.filter-toggle-btn__chevron {
-  font-size: 20px;
-  transition: transform 0.2s;
-}
-.filter-toggle-btn__chevron--open {
-  transform: rotate(180deg);
-}
+
 .list-group-title {
   padding: 0.5rem 1rem;
   font-size: 0.8rem;

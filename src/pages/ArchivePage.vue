@@ -58,7 +58,7 @@
                     <f7-block-title>{{ t('archive.ticks_title', { n: reversedTicks.length }) }}</f7-block-title>
                     <small>{{ t('archive.weekly_stats_hint') }}</small>
                     <f7-list v-if="reversedTicks.length > 0" problem-list>
-                        <f7-list-item @swipeout:deleted="(evt) => onDeleted(tick, j)" swipeout v-for="(tick, index) in reversedTicks" :key="tick.id">
+                        <f7-list-item @swipeout:deleted="(evt) => onDeleted(tick, j)" @click="openProblem(tick)" swipeout v-for="(tick, index) in reversedTicks" :key="tick.id" link="#">
                             <template #media>
                                 <div class="flex flex-col items-center">{{ index + 1 }}.<br /><span class="font-bold">{{ right(tick.problem.tag, 4) }}</span> </div>
                             </template>
@@ -94,7 +94,7 @@
                     </f7-list>
                     <f7-block-title>{{ t('archive.tries_projecting', { n: reversedProjects.length }) }}</f7-block-title>
                     <f7-list v-if="reversedProjects.length > 0">
-                        <f7-list-item @swipeout:deleted="(evt) => onProjectDeleted(tick, j)" swipeout v-for="(tick, index) in reversedProjects" :key="tick.id">
+                        <f7-list-item @swipeout:deleted="(evt) => onProjectDeleted(tick, j)" @click="openProblem(tick)" swipeout v-for="(tick, index) in reversedProjects" :key="tick.id" link="#">
                             <template #media>
                                 <div class="flex flex-col items-center">{{ index + 1 }}.<br /><span class="font-bold">{{ right(tick.problem.tag, 4) }}</span> </div>
                             </template>
@@ -145,6 +145,7 @@ import { computed, ref, onMounted } from 'vue'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'v-calendar/dist/style.css'
 import { Calendar, SetupCalendar, DatePicker } from 'v-calendar'
+import { f7 } from 'framework7-vue'
 import { toaster, alert } from '@js/helpers/notifications.js'
 import { right } from '@js/helpers'
 
@@ -307,6 +308,13 @@ const daysWithTicks = computed(() => Object.keys(tickDates.value).reduce((acc, d
     return acc
 }, []))
 */
+const openProblem = (tick) => {
+    if (tick.problem?.id) {
+        f7.views.main.router.navigate('/problem/' + tick.problem.id + '/popup', {
+            props: { problem: tick.problem },
+        })
+    }
+}
 const onProjectDeleted = (tick) => {
     store.dispatch('deleteProject', tick.id).then((resp) => {
         toaster(resp.message)

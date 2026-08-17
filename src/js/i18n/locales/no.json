@@ -381,7 +381,8 @@
     "help_me": "Hjelp meg",
     "no_ticks_hint": "Ellers forsvinner denne meldingen etter at du begynner å ticke problemer. Du finner dette senere i Innstillinger-menyen.",
     "show_problem_list": "Vis problemliste",
-    "open_problem_map": "Åpne problemkart"
+    "open_problem_map": "Åpne problemkart",
+    "if_that_does_not_help": "eller hvis det ikke hjelper, prøv:"
   },
   "gymmap": {
     "title": "Gymkart",

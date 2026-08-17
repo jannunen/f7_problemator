@@ -381,7 +381,8 @@
     "help_me": "Pomóż mi",
     "no_ticks_hint": "W przeciwnym razie ta wiadomość zniknie po rozpoczęciu przejść problemów. Możesz to później znaleźć w menu Ustawienia.",
     "show_problem_list": "Pokaż listę problemów",
-    "open_problem_map": "Otwórz mapę problemów"
+    "open_problem_map": "Otwórz mapę problemów",
+    "if_that_does_not_help": "lub jeśli to nie pomoże, spróbuj:"
   },
   "gymmap": {
     "title": "Mapa ścianki",

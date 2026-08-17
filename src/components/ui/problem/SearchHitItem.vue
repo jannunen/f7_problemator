@@ -3,7 +3,19 @@
   <f7-list-item media link="#" swipeout @swipeout:open="swipingout = true" @swipeout:closed="swipingout = false" @click="() => onClick(problem)" :class="{ 'hit-expiring': problem.soontoberemoved == 1 }">
 
     <template #title>
-      <div class="hit-title">{{ getAfter(problem) }}
+      <!-- A spray wall problem has no tag, so its name is the only thing that
+           identifies it; a gym-set route is identified by its tag on the wall,
+           and there the date is the more useful headline. -->
+      <div v-if="hasSprayName" class="hit-title">
+        <div class="hit-name">{{ firstLine(problem.addt) }}</div>
+        <!-- Same classes as the header slot they came from, so the weights and
+             colours are unchanged; only the position moved. -->
+        <div class="hit-sub">
+          <small class="hit-ascents">{{ problem.total_ascents }} {{ t('home.ascents') }}</small>
+          <span class="hit-when">{{ getAfter(problem) }}</span>
+        </div>
+      </div>
+      <div v-else class="hit-title">{{ getAfter(problem) }}
       </div>
     </template>
 
@@ -15,7 +27,7 @@
     </template>
 
     <template #header>
-      <small class="hit-ascents"> {{ problem.total_ascents }} {{ t('home.ascents') }}</small>
+      <small v-if="!hasSprayName" class="hit-ascents"> {{ problem.total_ascents }} {{ t('home.ascents') }}</small>
     </template>
 
     <template #inner-end>
@@ -40,13 +52,23 @@
 
     <template #media>
 
-      <div class="flex flex-col justify-center items-center">
-        <round-badge :width="20" :bgColor="problem.colour?.code"></round-badge>
-        <span class="hit-tag">{{ getTagShort(problem.tag) }}</span>
+      <div class="hit-media">
+        <div class="hit-media__row">
+          <div class="flex flex-col justify-center items-center">
+            <round-badge :width="20" :bgColor="problem.colour?.code"></round-badge>
+            <span class="hit-tag">{{ getTagShort(problem.tag) }}</span>
+          </div>
+          <h4 class="hit-grade">
+            {{ getGrade(problem.routetype, problem.grade) }}
+          </h4>
+        </div>
+        <!-- A wall may publish problems before a setter has looked at them, so
+             a climber needs to tell which is which from the list rather than
+             only after opening one. -->
+        <span v-if="problem.spray_wall_approval === 'pending'" class="hit-unreviewed">
+          {{ t('spraywall.unreviewed') }}
+        </span>
       </div>
-      <h4 class="hit-grade">
-        {{ getGrade(problem.routetype, problem.grade) }}
-      </h4>
 
     </template>
     <f7-swipeout-actions right>
@@ -121,6 +143,11 @@ export default {
     const getAuthor = (group) => {
       return group.ascentCount + ' ' + t('home.ascents')
     }
+    // addt is free text and may run to several lines; only the first is a name.
+    const firstLine = (text) => String(text).split('\n')[0]
+    // A spray wall problem has no tag, so its name leads the row. Nothing else
+    // has one, and nothing else changes.
+    const hasSprayName = computed(() => !!(props.problem.is_spray_wall && props.problem.addt))
     const getAfter = (group) => {
       const date = dayjs(group.added)
       return date.fromNow()
@@ -173,6 +200,8 @@ export default {
       getAuthor,
       getTagShort,
       getAfter,
+      firstLine,
+      hasSprayName,
       isMyProject,
       isMyTick,
       getTagShort,
@@ -188,6 +217,43 @@ export default {
 .hit-title {
   color: var(--p-text-secondary);
   font-size: 0.85rem;
+}
+.hit-name {
+  color: var(--p-text);
+  font-weight: 600;
+  font-size: 0.95rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.hit-media {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.hit-media__row {
+  display: flex;
+  align-items: center;
+}
+.hit-unreviewed {
+  padding: 1px 6px;
+  white-space: nowrap;
+  border-radius: 999px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  vertical-align: middle;
+  color: var(--p-warning, #f59e0b);
+  border: 1px solid currentColor;
+}
+.hit-sub {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.hit-when {
+  color: var(--p-text-secondary);
+  font-size: 0.75rem;
 }
 .hit-likes {
   color: var(--p-text);

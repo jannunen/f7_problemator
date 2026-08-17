@@ -15,6 +15,9 @@ import PastCompetitionsPage from '../pages/PastCompetitionsPage.vue';
 import OngoingCompetitionsPage from '../pages/OngoingCompetitionsPage.vue';
 import SingleCompetitionPage from '../pages/SingleCompetitionPage.vue';
 import PublicSingleCompetitionPage from '../pages/PublicSingleCompetitionPage.vue';
+import SprayWallPage from '../pages/SprayWallPage.vue';
+import SprayWallCreatorPage from '../pages/SprayWallCreatorPage.vue';
+import SprayWallProblemPage from '../pages/SprayWallProblemPage.vue';
 const routes = [
   {
     path: '/',
@@ -100,6 +103,21 @@ const routes = [
   {
     path: '/climber/:id',
     component: ClimberProfilePage,
+  },
+  {
+    // Listed before the wall route so '/spray-wall/12/new' is not swallowed
+    // by ':wallId'.
+    path: '/spray-wall/:wallId/new',
+    component: SprayWallCreatorPage,
+  },
+  {
+    // Before ':wallId', or 'problem' is read as a wall id.
+    path: '/spray-wall/problem/:problemId',
+    component: SprayWallProblemPage,
+  },
+  {
+    path: '/spray-wall/:wallId',
+    component: SprayWallPage,
   },
 ];
 

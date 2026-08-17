@@ -31,6 +31,15 @@ const getGrade = (gradeid) => {
   }
   return grades.value[gradeid].name
 }
+// A problem with no grade of its own only ever gets one from the people who
+// climb it, so a send without an opinion leaves it ungraded forever — invisible
+// to any grade filter and worth nothing in ranking, since RankingService joins
+// on gradeid. Asking here is the only moment anyone is in a position to answer.
+const needsGrade = computed(
+  () => props.problem?.gradeid == null && props.problem?.grade == null
+)
+const missingGrade = computed(() => needsGrade.value && tick.value.grade_opinion == null)
+
 const gradeSelected = (grade) => {
     tick.value.grade_opinion = grade
     popupGradeOpinionOpen.value = false
@@ -42,6 +51,8 @@ const dateSelected = (date) => {
 
 
 const saveTick = () => {
+  if (missingGrade.value) return
+
   let payload = { ...tick.value }
   store.dispatch('saveTick', payload)
     .then((resp) => {
@@ -98,10 +109,12 @@ const formatDate = (date) => {
     </div>
     <!-- Grade opinion -->
     <button class="tick-control" @click="openGradeOpinionPopup">
-      <div class="grade-circle">{{
+      <div class="grade-circle" :class="{ 'grade-circle--required': missingGrade }">{{
         getGrade(tick.grade_opinion)
       }}</div>
-      <span class="tick-control__label">{{ t('problem.grade_opinion') }}</span>
+      <span class="tick-control__label">
+        {{ t('problem.grade_opinion') }}<span v-if="needsGrade" class="grade-required-mark">*</span>
+      </span>
     </button>
   </div>
 
@@ -132,8 +145,20 @@ const formatDate = (date) => {
     {{ t('problem.projecting_not_possible_desc') }}
   </div>
 
+  <!-- Says why rather than only disabling: a dead button with no explanation is
+       the worst way to learn a rule. -->
+  <div v-if="missingGrade" class="p-banner p-banner--warning mb-2">
+    <span class="material-icons p-banner__icon p-text-warning">info_outline</span>
+    <div class="p-banner__content">{{ t('problem.grade_required') }}</div>
+  </div>
+
   <!-- Save button -->
-  <button @click="saveTick" class="p-btn p-btn--primary p-btn--block" style="height: 48px; font-size: 0.95rem;">
+  <button
+    @click="saveTick"
+    :disabled="missingGrade"
+    class="p-btn p-btn--primary p-btn--block"
+    :style="{ height: '48px', fontSize: '0.95rem', opacity: missingGrade ? 0.5 : 1 }"
+  >
     {{ t('problem.btn_add_tick') }}
   </button>
 
@@ -196,5 +221,17 @@ const formatDate = (date) => {
   font-size: 0.85rem;
   font-weight: 700;
   color: var(--p-accent);
+}
+</style>
+
+<style scoped>
+.grade-circle--required {
+  border-color: var(--p-warning, #f59e0b);
+  color: var(--p-warning, #f59e0b);
+}
+
+.grade-required-mark {
+  color: var(--p-warning, #f59e0b);
+  margin-left: 2px;
 }
 </style>

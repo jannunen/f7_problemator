@@ -162,6 +162,31 @@ const api = {
    const ret = await   axios .get(endpoint + '/my/ticks')
    return ret.data
   },
+  // Spray walls: walls a climber sets their own problems on by picking holds
+  // off a photo. is_spray_wall lives on the wall, so the gym has to be asked
+  // which of its walls are spray walls before anything else here is reachable.
+  async getSprayWalls(gymid) {
+    const ret = await axios.get(endpoint + '/gyms/' + gymid + '/spray-walls')
+    return ret.data
+  },
+  async getSprayWallProblems(wallId, params = {}) {
+    const ret = await axios.get(endpoint + '/walls/' + wallId + '/spray-wall/problems', { params })
+    return ret.data
+  },
+  // The photo plus the holds that may be picked. Always one image's worth:
+  // the server refuses a problem whose holds span two photos.
+  async getSprayWallImage(wallId) {
+    const ret = await axios.get(endpoint + '/walls/' + wallId + '/spray-wall/image')
+    return ret.data
+  },
+  async getSprayWallProblem(problemId) {
+    const ret = await axios.get(endpoint + '/spray-wall/problems/' + problemId)
+    return ret.data
+  },
+  async createSprayWallProblem(payload) {
+    const ret = await axios.post(endpoint + '/spray-wall/problems', payload)
+    return ret.data
+  },
   async getProfile(gymid) {
     const url = endpoint + `/profile?gymid=${gymid}`
     const ret = await axios.get(url)

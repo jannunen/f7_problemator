@@ -138,11 +138,21 @@ const dayOptions = computed(() => [
 ])
 
 const ascentsByGrade = computed(() => getAscentsByGrade(grades.value, ticks.value,lastDays.value,showOfType.value))
-const ascentsFound = computed(() => ascentsByGrade.value.size > 0)
-const labels = computed(() => Array.from(ascentsByGrade.value.keys()).map(
-  (gradeId) => grades.value.find((grade) => grade.id == gradeId).name
-))
-const ascents = computed(() => Array.from(ascentsByGrade.value.values()))
+// Paired in one pass so labels and values cannot drift apart, and skipping any
+// grade id the gym's list does not resolve. A tick can legitimately point at
+// one — an ungraded problem, or a grade retired since the send — and find()
+// returning undefined threw on .name and took the whole page down.
+const ascentRows = computed(() =>
+  Array.from(ascentsByGrade.value.entries())
+    .map(([gradeId, count]) => {
+      const grade = grades.value.find((g) => g.id == gradeId)
+      return grade ? { label: grade.name, count } : null
+    })
+    .filter(Boolean)
+)
+const labels = computed(() => ascentRows.value.map((row) => row.label))
+const ascents = computed(() => ascentRows.value.map((row) => row.count))
+const ascentsFound = computed(() => ascentRows.value.length > 0)
 const data = computed(() => ({
   labels : labels.value,
   datasets: [

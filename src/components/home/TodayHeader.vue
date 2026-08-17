@@ -1,9 +1,18 @@
 <script setup>
 import ScoreToday from '@components/home/ScoreToday.vue'
 import QrSearchSheet from '@components/ui/problem/QrSearchSheet.vue'
+import { f7 } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
-import { ref } from 'vue'
+import { useStore } from 'vuex'
+import { ref, computed } from 'vue'
+import dayjs from 'dayjs'
 const { t } = useI18n()
+const store = useStore()
+const allTicks = computed(() => store.state.alltime?.ticks || [])
+const ticksTodayLength = computed(() => allTicks.value.filter(x => dayjs(x.tstamp).isSame(dayjs(), 'date')).length)
+const navigateToArchive = () => {
+  f7.views.main.router.navigate({ url: '/archive' })
+}
 
 const props = defineProps({
   profile: Object,
@@ -31,6 +40,12 @@ const emit = defineEmits(['addtick'])
         </button>
       </div>
 
+    </div>
+    <div v-if="ticksTodayLength > 0" class="score-today__link-hint">
+      <a href="#" @click.prevent="navigateToArchive" class="score-today__link">
+        <span class="material-icons" style="font-size: 14px;">list</span>
+        {{ t('home.view_todays_ticks', 'View today\'s ascents') }}
+      </a>
     </div>
     <qr-search-sheet :opened="qrReaderOpened" @close="qrReaderOpened = false" />
 
@@ -100,5 +115,23 @@ const emit = defineEmits(['addtick'])
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
+}
+.score-today__link-hint {
+  width: 100%;
+  text-align: center;
+  margin-top: 0.5rem;
+}
+.score-today__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: var(--p-accent);
+  text-decoration: none;
+  opacity: 0.8;
+  transition: opacity var(--p-duration) ease;
+}
+.score-today__link:active {
+  opacity: 0.5;
 }
 </style>

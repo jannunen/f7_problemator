@@ -17,6 +17,22 @@
     </f7-navbar>
 
     <div>
+      <div class="flex justify-center gap-6 mt-5 mb-4">
+        <div class="px-4 mt-4 text-center p-text-dim text-sm">
+          {{ t('home.loading_stuck') }}
+          <a :href="'https://pwa2.problemator.fi/?forceReload=' + Math.random() * 1000000" class="p-link ml-1">{{ t('home.reload_app') }}</a>
+          {{ t('home.if_that_does_not_help') }} <a href="https://pwa2.problemator.fi/">https://pwa2.problemator.fi/</a>
+        </div>
+      </div>
+      <!-- Gym selector always visible — deliberately OUTSIDE the profileLoaded
+           block. Picking a gym flips profileLoaded to false synchronously, so
+           while it lived inside, the selector unmounted in the same tick as its
+           own popup closed. Framework7 destroys a popup on unmount without
+           closing it, which strands the backdrop and the body scroll lock. -->
+      <div class="home-section">
+        <gym-selector />
+      </div>
+
       <div v-if="profileLoaded">
         <complete-profile-popup />
         <show-tick-help :opened="showTickHelpDialog" />
@@ -31,11 +47,6 @@
               <button @click="updateVersion" class="p-btn p-btn--primary p-btn--sm mt-2">{{ t('home.update_now') }}</button>
             </div>
           </div>
-        </div>
-
-        <!-- Gym selector always visible -->
-        <div class="home-section">
-          <gym-selector />
         </div>
 
         <!-- Empty state when no gym selected -->
@@ -56,9 +67,8 @@
                 <div class="p-banner__content">
                   {{ t('home.no_ticks_message') }}
                   <button
-                    @click="showTickHelpDialog = true"
-                    class="p-btn p-btn--sm mt-2"
-                  >{{ t('home.help_me') }}</button>
+                          @click="showTickHelpDialog = true"
+                          class="p-btn p-btn--sm mt-2">{{ t('home.help_me') }}</button>
                   <div class="text-xs mt-1 p-text-dim">
                     {{ t('home.no_ticks_hint') }}
                   </div>
@@ -70,6 +80,7 @@
           <!-- Section: Gym overview -->
           <div class="home-section">
             <expiring-problems-alert />
+            <spray-wall-block />
             <floor-map-block :f7router="props.f7router" />
             <badge-gym-stats :gym="gym" />
           </div>
@@ -93,6 +104,7 @@
       </div>
       <div v-else>
         <div v-if="!ready" class="home-skeleton">
+          <!-- Fallback reload prompt -->
           <!-- Skeleton: gym selector -->
           <div class="home-skeleton__row mx-4 mt-3">
             <div class="p-skeleton" style="height: 2.75rem; border-radius: var(--p-radius);"></div>
@@ -128,18 +140,8 @@
           <show-login-instructions />
         </div>
       </div>
-      <f7-sheet
-        v-model:opened="isOpened"
-        style="height: auto"
-        close-on-escape
-        close-by-outside-click
-        swipe-to-close
-        @sheet:closed="isOpened = false"
-      >
-        <SearchProblemsSheetVue
-          @close="onSearchSheetClosed"
-          @start-navigate="onStartNavigate"
-        />
+      <f7-sheet v-model:opened="isOpened" style="height: auto" close-on-escape close-by-outside-click swipe-to-close @sheet:closed="isOpened = false">
+        <SearchProblemsSheetVue @close="onSearchSheetClosed" @start-navigate="onStartNavigate" />
       </f7-sheet>
     </div>
   </f7-page>
@@ -157,13 +159,14 @@ import Ranking from '@components/home/Ranking.vue'
 import GradePyramid from '@components/home/GradePyramid.vue'
 import AttributeRadar from '@components/home/AttributeRadar.vue'
 import FloorMapBlock from '@components/ui/FloorMapBlock.vue'
+import SprayWallBlock from '@components/ui/SprayWallBlock.vue'
 import ShowLoginInstructions from '@components/home/ShowLoginInstructions.vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
 import MyBadges from '@components/home/MyBadges.vue'
 import YearlyScores from '@components/home/YearlyScores.vue'
 import CompleteProfilePopup from '@components/home/CompleteProfilePopup.vue'
 import PButton from '@components/PButton.vue'
-import { computed, ref, watch } from 'vue'
+import { computed, ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 const store = useStore()
@@ -177,9 +180,10 @@ const ticksLoaded = computed(() => store.state.ticksLoaded)
 const version = computed(() => store.state.version)
 const serverVersion = computed(() => store.state.server_version)
 const updateVersion = () => {
-  window.location.reload(true)
+  window.location.href = '/?forceReload=' + Math.random() * 1000000
 }
 const isOpened = ref(false)
+const showLoadingHint = ref(true)
 
 const { t, locale } = useI18n()
 
@@ -232,6 +236,7 @@ const onStartNavigate = (problem) => {
   height: 36px;
   cursor: pointer;
 }
+
 .navbar-lang-select {
   position: absolute;
   inset: 0;

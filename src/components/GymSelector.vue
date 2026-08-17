@@ -50,6 +50,7 @@
           <GymMapSelector
             v-if="popupOpened"
             :gyms="gyms"
+            :user-location="userLocation"
             @select="onGymSelected"
           />
         </div>
@@ -57,7 +58,8 @@
         <div v-else class="gym-list-container">
           <f7-searchbar
             :disable-button-text="t('global.cancel')"
-            :placeholder="t('global.clear_search_action')"
+            :placeholder="t('gymselector.search_placeholder', 'Search gyms...')"
+            :custom-search="true"
             @searchbar:search="onSearch"
             @searchbar:clear="searchQuery = ''"
           />
@@ -79,7 +81,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
@@ -93,6 +95,7 @@ const emit = defineEmits(['select'])
 const popupOpened = ref(false)
 const mode = ref('map')
 const searchQuery = ref('')
+const userLocation = ref(null)
 
 const { data: gyms } = useQuery({
   queryKey: ['gyms'],
@@ -109,10 +112,35 @@ const currentGymName = computed(() => {
   return gym?.name || ''
 })
 
+function haversineDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371
+  const dLat = ((lat2 - lat1) * Math.PI) / 180
+  const dLon = ((lon2 - lon1) * Math.PI) / 180
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2)
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
+function gymDistance(gym) {
+  if (!userLocation.value) return Infinity
+  const lat = parseFloat(gym.latitude)
+  const lng = parseFloat(gym.longitude)
+  if (!lat || !lng || isNaN(lat) || isNaN(lng)) return Infinity
+  return haversineDistance(userLocation.value.lat, userLocation.value.lng, lat, lng)
+}
+
+const sortedGyms = computed(() => {
+  if (!userLocation.value) return gyms.value
+  return [...gyms.value].sort((a, b) => gymDistance(a) - gymDistance(b))
+})
+
 const filteredGyms = computed(() => {
-  if (!searchQuery.value) return gyms.value
+  const list = sortedGyms.value
+  if (!searchQuery.value) return list
   const q = searchQuery.value.toLowerCase()
-  return gyms.value.filter(
+  return list.filter(
     (g) =>
       g.name?.toLowerCase().includes(q) ||
       g.city?.toLowerCase().includes(q) ||
@@ -120,14 +148,30 @@ const filteredGyms = computed(() => {
   )
 })
 
-const onSearch = (searchbar, query) => {
+const onSearch = (_searchbar, query) => {
   searchQuery.value = query
 }
 
-const onGymSelected = (id) => {
+// Get user location for sorting by distance
+if (navigator.geolocation) {
+  navigator.geolocation.getCurrentPosition(
+    (pos) => {
+      userLocation.value = { lat: pos.coords.latitude, lng: pos.coords.longitude }
+    },
+    () => {} // silently ignore if denied
+  )
+}
+
+const onGymSelected = async (id) => {
+  // Close first, and let the close reach the DOM before anything reloads the
+  // profile. changeGym flips profileLoaded to false synchronously, and any
+  // ancestor that unmounts this component mid-close leaves Framework7's
+  // backdrop and body scroll lock behind — destroy() does not close().
+  popupOpened.value = false
+  await nextTick()
+
   store.dispatch('changeGym', id)
   emit('select', id)
-  popupOpened.value = false
 }
 </script>
 

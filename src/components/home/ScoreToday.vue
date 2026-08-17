@@ -9,7 +9,7 @@
             <span class="p-stat__label">{{ t('home.hardest_climb') }}</span>
         </div>
     </a>
-    <div class="score-today__block">
+    <a href="#" @click.prevent="navigateToArchive" class="score-today__block">
         <div class="p-stat">
             <div class="p-stat__value">{{ ticksTodayLength }}</div>
             <div class="p-stat__label">{{ t('home.ascents') }}</div>
@@ -18,7 +18,7 @@
             <span class="score-today__sub-value">{{ triesTodayLength }}</span>
             <span class="p-stat__label">{{ t('home.tries') }}</span>
         </div>
-    </div>
+    </a>
 </template>
 <script setup>
 import { f7  } from 'framework7-vue'
