@@ -67,6 +67,9 @@ const open = ref(false)
 }
 
 .photo-adjust__toggle {
+  /* Framework7 sets `button { width: 100% }` globally, which makes every
+     bare button fill its line and flex rows stack. */
+  width: auto;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -125,6 +128,9 @@ const open = ref(false)
 }
 
 .photo-adjust__action {
+  /* Framework7 sets `button { width: 100% }` globally, which makes every
+     bare button fill its line and flex rows stack. */
+  width: auto;
   background: none;
   border: none;
   padding: 2px 0;

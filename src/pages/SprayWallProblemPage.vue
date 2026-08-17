@@ -592,6 +592,9 @@ const holdPath = (hold) => {
 }
 
 .spray-stage__btn {
+  /* Framework7 sets `button { width: 100% }` globally, which makes every
+     bare button fill its line and flex rows stack. */
+  width: auto;
   pointer-events: auto;
   display: inline-flex;
   align-items: center;
@@ -649,6 +652,9 @@ const holdPath = (hold) => {
 }
 
 .spray-events__toggle {
+  /* Framework7 sets `button { width: 100% }` globally, which makes every
+     bare button fill its line and flex rows stack. */
+  width: auto;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -670,6 +676,9 @@ const holdPath = (hold) => {
 }
 
 .spray-events__tab {
+  /* Framework7 sets `button { width: 100% }` globally, which makes every
+     bare button fill its line and flex rows stack. */
+  width: auto;
   padding: 3px 10px;
   border-radius: 999px;
   font-size: 0.7rem;
@@ -743,6 +752,9 @@ const holdPath = (hold) => {
 /* Sized to sit in the stats line rather than stand out from it: these are
    counts you can press, not primary actions. */
 .spray-meta__btn {
+  /* Framework7 sets `button { width: 100% }` globally, which makes every
+     bare button fill its line and flex rows stack. */
+  width: auto;
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -770,6 +782,9 @@ const holdPath = (hold) => {
 }
 
 .spray-comment-btn {
+  /* Framework7 sets `button { width: 100% }` globally, which makes every
+     bare button fill its line and flex rows stack. */
+  width: auto;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -811,6 +826,9 @@ const holdPath = (hold) => {
 }
 
 .spray-toggle {
+  /* Framework7 sets `button { width: 100% }` globally, which makes every
+     bare button fill its line and flex rows stack. */
+  width: auto;
   display: inline-flex;
   align-items: center;
   gap: 4px;

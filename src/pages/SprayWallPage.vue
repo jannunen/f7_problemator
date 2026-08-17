@@ -371,6 +371,9 @@ const startCreating = () => {
 }
 
 .spray-search__clear {
+  /* Framework7 sets `button { width: 100% }` globally, which makes every
+     bare button fill its line and flex rows stack. */
+  width: auto;
   border: none;
   background: none;
   color: inherit;
