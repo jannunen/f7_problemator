@@ -607,6 +607,8 @@
     "show": "Näytä",
     "circles": "Ympyrät",
     "zoom_explainer_tap": "Kaksoisnapauta seinää lähentääksesi siihen kohtaan.",
-    "zoom_explainer_controls": "Lähennettynä Loitonna ja Palauta näkyvät kuvan ylä- ja alareunassa. Liiku raahaamalla."
+    "zoom_explainer_controls": "Lähennettynä Loitonna ja Palauta näkyvät kuvan ylä- ja alareunassa. Liiku raahaamalla.",
+    "pending_public_notice": "Reittimestari ei ole vielä tarkistanut tätä. Se voi vielä muuttua tai poistua.",
+    "unreviewed": "tarkistamatta"
   }
 }

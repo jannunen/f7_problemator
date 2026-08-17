@@ -12,10 +12,17 @@
     </div>
 
     <template v-else>
+      <!-- Two different situations wearing the same approval state: on a wall
+           that shows unreviewed problems this one is public, so claiming only
+           the author can see it would be plainly false. -->
       <div v-if="problem.spray_wall_approval === 'pending'" class="px-4 mt-2">
         <div class="p-banner p-banner--info">
-          <span class="material-icons p-banner__icon">visibility_off</span>
-          <div class="p-banner__content">{{ t('spraywall.pending_notice') }}</div>
+          <span class="material-icons p-banner__icon">
+            {{ problem.wall_shows_unmoderated ? 'schedule' : 'visibility_off' }}
+          </span>
+          <div class="p-banner__content">
+            {{ problem.wall_shows_unmoderated ? t('spraywall.pending_public_notice') : t('spraywall.pending_notice') }}
+          </div>
         </div>
       </div>
       <div v-else-if="problem.spray_wall_approval === 'rejected'" class="px-4 mt-2">
@@ -400,7 +407,12 @@ const isAuthenticated = computed(() => store.state.isAuthenticated)
 // score ranking points for something that may not survive review.
 const canTick = computed(() => {
   const approval = problem.value?.spray_wall_approval
-  return approval === 'approved' || approval == null
+  if (approval === 'approved' || approval == null) return true
+
+  // A gym that has chosen to publish unreviewed problems is treating them as
+  // climbable, so refusing the tick would make that setting half-useless. A
+  // rejected one is still off limits.
+  return approval === 'pending' && !!problem.value?.wall_shows_unmoderated
 })
 
 // Read from the same global tick history the rest of the app uses, so the state

@@ -615,6 +615,8 @@
     "show": "Show",
     "circles": "Circles",
     "zoom_explainer_tap": "Double-tap the wall to zoom in on that spot.",
-    "zoom_explainer_controls": "While zoomed, Zoom out and Reset zoom appear at the top and bottom of the photo. Drag to move around."
+    "zoom_explainer_controls": "While zoomed, Zoom out and Reset zoom appear at the top and bottom of the photo. Drag to move around.",
+    "pending_public_notice": "Not reviewed by a setter yet. It may still change or be removed.",
+    "unreviewed": "unreviewed"
   }
 }

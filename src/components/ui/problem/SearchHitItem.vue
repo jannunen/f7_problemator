@@ -7,7 +7,15 @@
            identifies it; a gym-set route is identified by its tag on the wall,
            and there the date is the more useful headline. -->
       <div v-if="problem.is_spray_wall && problem.addt" class="hit-title">
-        <div class="hit-name">{{ firstLine(problem.addt) }}</div>
+        <div class="hit-name">
+          {{ firstLine(problem.addt) }}
+          <!-- A wall may publish problems before a setter has looked at them,
+               so a climber needs to be able to tell which is which from the
+               list rather than only after opening one. -->
+          <span v-if="problem.spray_wall_approval === 'pending'" class="hit-unreviewed">
+            {{ t('spraywall.unreviewed') }}
+          </span>
+        </div>
         <div class="hit-when">{{ getAfter(problem) }}</div>
       </div>
       <div v-else class="hit-title">{{ getAfter(problem) }}
@@ -206,6 +214,16 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.hit-unreviewed {
+  margin-left: 5px;
+  padding: 1px 6px;
+  border-radius: 999px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  vertical-align: middle;
+  color: var(--p-warning, #f59e0b);
+  border: 1px solid currentColor;
 }
 .hit-when {
   color: var(--p-text-secondary);
