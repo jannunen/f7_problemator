@@ -49,18 +49,9 @@
           </button>
         </div>
 
-        <div class="spray-zoom-bar">
-          <button
-            v-for="z in zoomLevels"
-            :key="z"
-            class="spray-zoom-btn"
-            :class="{ 'spray-zoom-btn--active': zoom === z }"
-            @click="zoom = z"
-          >{{ z }}×</button>
-        </div>
-
-        <div class="spray-canvas-scroll">
-          <div class="spray-canvas" :style="{ width: zoom * 100 + '%' }">
+        <div class="spray-stage">
+        <div ref="scrollEl" class="spray-canvas-scroll">
+          <div class="spray-canvas" :style="{ width: zoom * 100 + '%' }" @click="onCanvasTap">
             <img :src="problem.image.image_url" class="spray-canvas__img" :alt="title" :style="{ filter: photoFilter }" />
             <svg
               class="spray-canvas__svg"
@@ -93,6 +84,32 @@
             </svg>
           </div>
         </div>
+
+        <!-- Floating while zoomed, at both ends: on a wall photo taller than
+             the screen a bar above the image scrolls out of reach exactly when
+             you are looking at the bottom of it. -->
+        <template v-if="zoom > 1">
+          <div class="spray-stage__controls spray-stage__controls--top">
+            <button class="spray-stage__btn" @click.stop="zoomOut">
+              <span class="material-icons">zoom_out</span>{{ t('spraywall.zoom_out') }}
+            </button>
+            <button class="spray-stage__btn" @click.stop="resetZoom">
+              <span class="material-icons">zoom_out_map</span>{{ t('spraywall.zoom_reset') }}
+            </button>
+          </div>
+          <div class="spray-stage__controls spray-stage__controls--bottom">
+            <button class="spray-stage__btn" @click.stop="zoomOut">
+              <span class="material-icons">zoom_out</span>{{ t('spraywall.zoom_out') }}
+            </button>
+            <button class="spray-stage__btn" @click.stop="resetZoom">
+              <span class="material-icons">zoom_out_map</span>{{ t('spraywall.zoom_reset') }}
+            </button>
+          </div>
+          <span class="spray-stage__level">{{ zoom }}×</span>
+        </template>
+        </div>
+
+        <p class="px-4 mt-1 text-xs p-text-dim text-center">{{ t('spraywall.zoom_hint') }}</p>
       </template>
 
       <div class="px-4 mt-3 mb-6">
@@ -216,7 +233,7 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import api from '@js/api'
@@ -256,8 +273,80 @@ const { photoFilter, useWall } = usePhotoAdjust()
 // metres back, which is where you stand when reading one.
 const showCircles = ref(true)
 
-const zoomLevels = [1, 2, 3]
+const MAX_ZOOM = 4
 const zoom = ref(1)
+const scrollEl = ref(null)
+
+// Same gesture as the creator. Nothing here is tappable, so unlike there a
+// double-tap has nothing to undo — it only ever zooms.
+const DOUBLE_TAP_MS = 300
+const DOUBLE_TAP_PX = 30
+let lastTap = null
+
+const onCanvasTap = (event) => {
+  const now = event.timeStamp || Date.now()
+  const prev = lastTap
+  lastTap = { at: now, x: event.clientX, y: event.clientY }
+
+  if (
+    prev &&
+    now - prev.at < DOUBLE_TAP_MS &&
+    Math.abs(event.clientX - prev.x) < DOUBLE_TAP_PX &&
+    Math.abs(event.clientY - prev.y) < DOUBLE_TAP_PX
+  ) {
+    lastTap = null
+    zoomInAt(event)
+  }
+}
+
+// Zoom is a width multiplier on a scrolling box, so the scroll offsets have to
+// be recomputed against the new content size or the spot you tapped flies off
+// screen.
+const zoomInAt = (event) => {
+  if (zoom.value >= MAX_ZOOM) return
+
+  const el = scrollEl.value
+  const canvas = el?.querySelector('.spray-canvas')
+  if (!el || !canvas) {
+    zoom.value = Math.min(zoom.value + 1, MAX_ZOOM)
+    return
+  }
+
+  const rect = canvas.getBoundingClientRect()
+  const fx = (event.clientX - rect.left) / rect.width
+  const fy = (event.clientY - rect.top) / rect.height
+
+  zoom.value = Math.min(zoom.value + 1, MAX_ZOOM)
+
+  nextTick(() => {
+    el.scrollLeft = fx * el.scrollWidth - el.clientWidth / 2
+    el.scrollTop = fy * el.scrollHeight - el.clientHeight / 2
+  })
+}
+
+const zoomOut = () => {
+  const el = scrollEl.value
+  // Hold the centre rather than snapping to a corner on the way out.
+  const fx = el && el.scrollWidth ? (el.scrollLeft + el.clientWidth / 2) / el.scrollWidth : 0.5
+  const fy = el && el.scrollHeight ? (el.scrollTop + el.clientHeight / 2) / el.scrollHeight : 0.5
+
+  zoom.value = Math.max(zoom.value - 1, 1)
+
+  nextTick(() => {
+    if (!el) return
+    el.scrollLeft = fx * el.scrollWidth - el.clientWidth / 2
+    el.scrollTop = fy * el.scrollHeight - el.clientHeight / 2
+  })
+}
+
+const resetZoom = () => {
+  zoom.value = 1
+  nextTick(() => {
+    if (!scrollEl.value) return
+    scrollEl.value.scrollLeft = 0
+    scrollEl.value.scrollTop = 0
+  })
+}
 
 const { data: problem, isLoading, isError, refetch } = useQuery({
   queryKey: computed(() => ['spray-wall-problem', props.problemId]),
@@ -366,31 +455,68 @@ const holdPath = (hold) => {
 </script>
 
 <style scoped>
-.spray-zoom-bar {
+.spray-stage {
+  position: relative;
+}
+
+/* Over the photo and not scrolling with it. pointer-events: none on the strip
+   so it never swallows a tap; the buttons opt back in. */
+.spray-stage__controls {
+  position: absolute;
+  left: 0;
+  right: 0;
   display: flex;
   justify-content: center;
-  gap: 6px;
-  padding: 6px 0;
+  gap: 8px;
+  pointer-events: none;
+  z-index: 2;
 }
 
-.spray-zoom-btn {
-  padding: 4px 12px;
+.spray-stage__controls--top {
+  top: 8px;
+}
+
+.spray-stage__controls--bottom {
+  bottom: 8px;
+}
+
+.spray-stage__btn {
+  pointer-events: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
   border-radius: 999px;
   font-size: 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: transparent;
-  color: inherit;
+  border: none;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.72);
+  backdrop-filter: blur(2px);
 }
 
-.spray-zoom-btn--active {
-  background: rgba(var(--p-accent-rgb), 0.2);
-  border-color: var(--p-accent);
-  color: var(--p-accent);
+.spray-stage__btn .material-icons {
+  font-size: 16px;
+}
+
+.spray-stage__level {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 2;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.72);
+  pointer-events: none;
 }
 
 .spray-canvas-scroll {
   overflow: auto;
   -webkit-overflow-scrolling: touch;
+  /* Capped, so the floating controls stay on screen at 4x rather than being
+     pushed past the bottom of a very tall wall photo. */
+  max-height: 70vh;
 }
 
 .spray-canvas {
