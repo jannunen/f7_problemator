@@ -31,6 +31,17 @@
            smaller than a fingertip. -->
       <photo-adjust-controls />
 
+      <div class="spray-toggles">
+        <button
+          class="spray-toggle"
+          :class="{ 'spray-toggle--on': showCircles }"
+          @click="showCircles = !showCircles"
+        >
+          <span class="material-icons">{{ showCircles ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
+          {{ t('spraywall.circles') }}
+        </button>
+      </div>
+
       <!-- The scroll box and its floating controls share this wrapper, so the
            buttons sit over the photo rather than scrolling away with it. -->
       <div class="spray-stage">
