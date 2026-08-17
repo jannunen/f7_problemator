@@ -6,9 +6,14 @@
       <!-- A spray wall problem has no tag, so its name is the only thing that
            identifies it; a gym-set route is identified by its tag on the wall,
            and there the date is the more useful headline. -->
-      <div v-if="problem.is_spray_wall && problem.addt" class="hit-title">
+      <div v-if="hasSprayName" class="hit-title">
         <div class="hit-name">{{ firstLine(problem.addt) }}</div>
-        <div class="hit-when">{{ getAfter(problem) }}</div>
+        <!-- Same classes as the header slot they came from, so the weights and
+             colours are unchanged; only the position moved. -->
+        <div class="hit-sub">
+          <small class="hit-ascents">{{ problem.total_ascents }} {{ t('home.ascents') }}</small>
+          <span class="hit-when">{{ getAfter(problem) }}</span>
+        </div>
       </div>
       <div v-else class="hit-title">{{ getAfter(problem) }}
       </div>
@@ -22,7 +27,7 @@
     </template>
 
     <template #header>
-      <small class="hit-ascents"> {{ problem.total_ascents }} {{ t('home.ascents') }}</small>
+      <small v-if="!hasSprayName" class="hit-ascents"> {{ problem.total_ascents }} {{ t('home.ascents') }}</small>
     </template>
 
     <template #inner-end>
@@ -140,6 +145,9 @@ export default {
     }
     // addt is free text and may run to several lines; only the first is a name.
     const firstLine = (text) => String(text).split('\n')[0]
+    // A spray wall problem has no tag, so its name leads the row. Nothing else
+    // has one, and nothing else changes.
+    const hasSprayName = computed(() => !!(props.problem.is_spray_wall && props.problem.addt))
     const getAfter = (group) => {
       const date = dayjs(group.added)
       return date.fromNow()
@@ -193,6 +201,7 @@ export default {
       getTagShort,
       getAfter,
       firstLine,
+      hasSprayName,
       isMyProject,
       isMyTick,
       getTagShort,
@@ -236,6 +245,11 @@ export default {
   vertical-align: middle;
   color: var(--p-warning, #f59e0b);
   border: 1px solid currentColor;
+}
+.hit-sub {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
 }
 .hit-when {
   color: var(--p-text-secondary);
