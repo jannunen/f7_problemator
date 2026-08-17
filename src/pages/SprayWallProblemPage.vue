@@ -74,7 +74,7 @@
                   :d="holdCircle(hold)"
                   fill="none"
                   :stroke="ROLE_COLORS[hold.role]"
-                  stroke-width="2"
+                  stroke-width="6"
                   vector-effect="non-scaling-stroke"
                 />
               </template>

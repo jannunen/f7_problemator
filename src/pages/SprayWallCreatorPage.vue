@@ -51,7 +51,7 @@
                   :d="holdCircle(hold, image.width, image.height)"
                   fill="none"
                   :stroke="roles[hold.id] ? ROLE_COLORS[roles[hold.id]] : 'rgba(255,255,255,0.5)'"
-                  :stroke-width="roles[hold.id] ? 3 : 1.5"
+                  :stroke-width="roles[hold.id] ? 6 : 3"
                   vector-effect="non-scaling-stroke"
                   class="spray-ring"
                 />
