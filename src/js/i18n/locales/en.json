@@ -609,11 +609,12 @@
     "reset_filters": "Reset filters",
     "zoom_out": "Zoom out",
     "zoom_reset": "Reset zoom",
-    "zoom_hint": "Double-tap the wall to zoom in on that spot.",
     "filters": "Filters",
     "hide_filters": "Hide filters",
     "sort_by": "Sort by",
     "show": "Show",
-    "circles": "Circles"
+    "circles": "Circles",
+    "zoom_explainer_tap": "Double-tap the wall to zoom in on that spot.",
+    "zoom_explainer_controls": "While zoomed, Zoom out and Reset zoom appear at the top and bottom of the photo. Drag to move around."
   }
 }

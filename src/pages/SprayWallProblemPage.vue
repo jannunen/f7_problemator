@@ -49,6 +49,18 @@
           </button>
         </div>
 
+        <!-- Shown only at 1x. Once you have zoomed, the controls are on screen
+             and explaining them is noise; resetting brings it back, which is the
+             moment you are starting over anyway. Above the photo, so it is read
+             before use rather than found afterwards. -->
+        <div v-if="zoom === 1" class="spray-hint">
+          <span class="material-icons spray-hint__icon">touch_app</span>
+          <div>
+            <div><strong>{{ t('spraywall.zoom_explainer_tap') }}</strong></div>
+            <div class="spray-hint__sub">{{ t('spraywall.zoom_explainer_controls') }}</div>
+          </div>
+        </div>
+
         <div class="spray-stage">
         <div ref="scrollEl" class="spray-canvas-scroll">
           <div class="spray-canvas" :style="{ width: zoom * 100 + '%' }" @click="onCanvasTap">
@@ -109,7 +121,6 @@
         </template>
         </div>
 
-        <p class="px-4 mt-1 text-xs p-text-dim text-center">{{ t('spraywall.zoom_hint') }}</p>
       </template>
 
       <div class="px-4 mt-3 mb-6">
@@ -674,6 +685,28 @@ const holdPath = (hold) => {
   background: rgba(var(--p-accent-rgb), 0.2);
   border-color: var(--p-accent);
   color: var(--p-accent);
+}
+
+.spray-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 6px 1rem;
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  background: rgba(var(--p-accent-rgb), 0.1);
+  border: 1px solid rgba(var(--p-accent-rgb), 0.25);
+}
+
+.spray-hint__icon {
+  font-size: 18px;
+  color: var(--p-accent);
+}
+
+.spray-hint__sub {
+  opacity: 0.75;
 }
 
 .spray-legend {

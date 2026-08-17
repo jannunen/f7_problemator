@@ -601,11 +601,12 @@
     "reset_filters": "Tyhjennä suodattimet",
     "zoom_out": "Loitonna",
     "zoom_reset": "Palauta",
-    "zoom_hint": "Kaksoisnapauta seinää lähentääksesi kohtaan.",
     "filters": "Suodattimet",
     "hide_filters": "Piilota suodattimet",
     "sort_by": "Järjestys",
     "show": "Näytä",
-    "circles": "Ympyrät"
+    "circles": "Ympyrät",
+    "zoom_explainer_tap": "Kaksoisnapauta seinää lähentääksesi siihen kohtaan.",
+    "zoom_explainer_controls": "Lähennettynä Loitonna ja Palauta näkyvät kuvan ylä- ja alareunassa. Liiku raahaamalla."
   }
 }
