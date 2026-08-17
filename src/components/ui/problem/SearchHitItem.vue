@@ -7,15 +7,7 @@
            identifies it; a gym-set route is identified by its tag on the wall,
            and there the date is the more useful headline. -->
       <div v-if="problem.is_spray_wall && problem.addt" class="hit-title">
-        <div class="hit-name">
-          {{ firstLine(problem.addt) }}
-          <!-- A wall may publish problems before a setter has looked at them,
-               so a climber needs to be able to tell which is which from the
-               list rather than only after opening one. -->
-          <span v-if="problem.spray_wall_approval === 'pending'" class="hit-unreviewed">
-            {{ t('spraywall.unreviewed') }}
-          </span>
-        </div>
+        <div class="hit-name">{{ firstLine(problem.addt) }}</div>
         <div class="hit-when">{{ getAfter(problem) }}</div>
       </div>
       <div v-else class="hit-title">{{ getAfter(problem) }}
@@ -55,13 +47,23 @@
 
     <template #media>
 
-      <div class="flex flex-col justify-center items-center">
-        <round-badge :width="20" :bgColor="problem.colour?.code"></round-badge>
-        <span class="hit-tag">{{ getTagShort(problem.tag) }}</span>
+      <div class="hit-media">
+        <div class="hit-media__row">
+          <div class="flex flex-col justify-center items-center">
+            <round-badge :width="20" :bgColor="problem.colour?.code"></round-badge>
+            <span class="hit-tag">{{ getTagShort(problem.tag) }}</span>
+          </div>
+          <h4 class="hit-grade">
+            {{ getGrade(problem.routetype, problem.grade) }}
+          </h4>
+        </div>
+        <!-- A wall may publish problems before a setter has looked at them, so
+             a climber needs to tell which is which from the list rather than
+             only after opening one. -->
+        <span v-if="problem.spray_wall_approval === 'pending'" class="hit-unreviewed">
+          {{ t('spraywall.unreviewed') }}
+        </span>
       </div>
-      <h4 class="hit-grade">
-        {{ getGrade(problem.routetype, problem.grade) }}
-      </h4>
 
     </template>
     <f7-swipeout-actions right>
@@ -215,9 +217,19 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.hit-media {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.hit-media__row {
+  display: flex;
+  align-items: center;
+}
 .hit-unreviewed {
-  margin-left: 5px;
   padding: 1px 6px;
+  white-space: nowrap;
   border-radius: 999px;
   font-size: 0.6rem;
   font-weight: 600;
