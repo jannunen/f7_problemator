@@ -42,6 +42,21 @@
               :viewBox="`0 0 ${image.width} ${image.height}`"
               preserveAspectRatio="none"
             >
+              <!-- Rings first, so a tagged hold's own outline draws over its
+                   ring rather than under it. -->
+              <template v-if="showCircles">
+                <path
+                  v-for="hold in holds"
+                  :key="'ring' + hold.id"
+                  :d="holdCircle(hold, image.width, image.height)"
+                  fill="none"
+                  :stroke="roles[hold.id] ? ROLE_COLORS[roles[hold.id]] : 'rgba(255,255,255,0.5)'"
+                  :stroke-width="roles[hold.id] ? 3 : 1.5"
+                  vector-effect="non-scaling-stroke"
+                  class="spray-ring"
+                />
+              </template>
+
               <!-- Paths, not polygons or circles: Safari ignores fill on some
                    basic shapes, and a path renders identically everywhere. -->
               <path
@@ -200,6 +215,10 @@ const ROLE_FILLS = {
 }
 
 const { photoFilter, useWall } = usePhotoAdjust()
+
+// On by default: rings are what make a hold findable at a glance, and someone
+// who prefers the bare photo can turn them off.
+const showCircles = ref(true)
 
 const MAX_ZOOM = 4
 const zoom = ref(1)
@@ -382,6 +401,22 @@ const resetZoom = () => {
   })
 }
 
+// A ring around the hold, drawn from its bbox. The polygon traces the hold's
+// exact outline, which is precise and hard to pick out at arm's length on a
+// wall of five hundred; a ring standing clear of the hold is what Kilter,
+// Stokt and Tension all use, and it reads from further away.
+//
+// A path, not <circle>: Safari ignores fill and stroke on some basic shapes,
+// which cost real time earlier in this project. Two arcs make a full circle.
+const holdCircle = (hold, w, h) => {
+  const cx = (hold.bbox_x + hold.bbox_w / 2) * w
+  const cy = (hold.bbox_y + hold.bbox_h / 2) * h
+  // Sized off the larger side so a long thin hold is still enclosed, with a
+  // margin so the ring sits outside the hold rather than cutting across it.
+  const r = (Math.max(hold.bbox_w * w, hold.bbox_h * h) / 2) * 1.35
+  return `M${cx - r},${cy} a${r},${r} 0 1,0 ${r * 2},0 a${r},${r} 0 1,0 ${-r * 2},0 Z`
+}
+
 const holdPath = (hold) => {
   const w = image.value?.width || 1
   const h = image.value?.height || 1
@@ -531,6 +566,39 @@ const save = async () => {
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+.spray-toggles {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.spray-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: inherit;
+}
+
+.spray-toggle .material-icons {
+  font-size: 15px;
+}
+
+.spray-toggle--on {
+  background: rgba(var(--p-accent-rgb), 0.2);
+  border-color: var(--p-accent);
+  color: var(--p-accent);
+}
+
+/* Rings are a visual aid; taps belong to the hold shape underneath. */
+.spray-ring {
+  pointer-events: none;
 }
 
 .spray-hold {

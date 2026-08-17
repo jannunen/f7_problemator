@@ -38,6 +38,17 @@
       <template v-else>
         <photo-adjust-controls />
 
+        <div class="spray-toggles">
+          <button
+            class="spray-toggle"
+            :class="{ 'spray-toggle--on': showCircles }"
+            @click="showCircles = !showCircles"
+          >
+            <span class="material-icons">{{ showCircles ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
+            {{ t('spraywall.circles') }}
+          </button>
+        </div>
+
         <div class="spray-zoom-bar">
           <button
             v-for="z in zoomLevels"
@@ -56,6 +67,18 @@
               :viewBox="`0 0 ${problem.image.width} ${problem.image.height}`"
               preserveAspectRatio="none"
             >
+              <template v-if="showCircles">
+                <path
+                  v-for="(hold, i) in ringableHolds"
+                  :key="'ring' + i"
+                  :d="holdCircle(hold)"
+                  fill="none"
+                  :stroke="ROLE_COLORS[hold.role]"
+                  stroke-width="2"
+                  vector-effect="non-scaling-stroke"
+                />
+              </template>
+
               <!-- Paths rather than polygons or circles: Safari ignores fill on
                    some basic shapes. -->
               <path
@@ -229,6 +252,10 @@ const ROLE_FILLS = {
 
 const { photoFilter, useWall } = usePhotoAdjust()
 
+// On by default: rings are what make a problem readable at a glance from a few
+// metres back, which is where you stand when reading one.
+const showCircles = ref(true)
+
 const zoomLevels = [1, 2, 3]
 const zoom = ref(1)
 
@@ -311,6 +338,25 @@ const eventsIn = (tab) => {
 }
 
 const visibleEvents = computed(() => eventsIn(eventTab.value))
+
+// Needs a bbox, which a hold whose row is gone no longer has.
+const ringableHolds = computed(() =>
+  holds.value.filter((h) => h.bbox_w != null && h.bbox_h != null && ROLE_COLORS[h.role])
+)
+// A ring around the hold, drawn from its bbox. The polygon traces the hold's
+// exact outline, which is precise and hard to pick out at arm's length on a
+// wall of five hundred; a ring standing clear of the hold reads from further
+// away, which is what Kilter, Stokt and Tension all do.
+//
+// A path, not <circle>: Safari ignores fill and stroke on some basic shapes.
+const holdCircle = (hold) => {
+  const w = problem.value?.image?.width || 1
+  const h = problem.value?.image?.height || 1
+  const cx = (hold.bbox_x + hold.bbox_w / 2) * w
+  const cy = (hold.bbox_y + hold.bbox_h / 2) * h
+  const r = (Math.max(hold.bbox_w * w, hold.bbox_h * h) / 2) * 1.35
+  return `M${cx - r},${cy} a${r},${r} 0 1,0 ${r * 2},0 a${r},${r} 0 1,0 ${-r * 2},0 Z`
+}
 
 const holdPath = (hold) => {
   const w = problem.value?.image?.width || 1
@@ -474,6 +520,34 @@ const holdPath = (hold) => {
 .spray-meta__item .material-icons {
   font-size: 16px;
   opacity: 0.7;
+}
+
+.spray-toggles {
+  display: flex;
+  justify-content: center;
+  padding: 4px 0;
+}
+
+.spray-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: inherit;
+}
+
+.spray-toggle .material-icons {
+  font-size: 15px;
+}
+
+.spray-toggle--on {
+  background: rgba(var(--p-accent-rgb), 0.2);
+  border-color: var(--p-accent);
+  color: var(--p-accent);
 }
 
 .spray-legend {

@@ -355,7 +355,8 @@
     "tick_delete_are_you_sure": "Oletko varma, että haluat poistaa tämän nousun?",
     "confirm_like": "Haluatko varmasti tykätä tästä radasta?",
     "tick_in_tries": "ei yrityksiä | 1 yritys | {n} yritystä",
-    "confirm_dislike": "Haluatko varmasti epätykätä tätä rataa? Ratamestari saa tästä ilmoituksen, mutta se on anonyymi."
+    "confirm_dislike": "Haluatko varmasti epätykätä tätä rataa? Ratamestari saa tästä ilmoituksen, mutta se on anonyymi.",
+    "grade_required": "Tällä reitillä ei ole vielä tasoa. Kerro arviosi, niin voit kuitata nousun."
   },
   "home": {
     "hardest_climb": "Kovin nousu",
@@ -604,6 +605,7 @@
     "filters": "Suodattimet",
     "hide_filters": "Piilota suodattimet",
     "sort_by": "Järjestys",
-    "show": "Näytä"
+    "show": "Näytä",
+    "circles": "Ympyrät"
   }
 }
