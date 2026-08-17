@@ -153,43 +153,44 @@
           </span>
         </div>
 
+        <!-- Sends, likes, dislikes and comments read as one line of stats
+             about the problem, so they sit on one. Counts come from
+             problemator_opinion rather than the c_like column, which nothing in
+             the app has ever written. -->
         <div class="spray-meta mt-2">
           <span class="spray-meta__item">
             <span class="material-icons">check_circle_outline</span>
             {{ t('spraywall.send_count', problem.total_ascents || 0) }}
           </span>
-        </div>
 
-        <!-- Counts come from problemator_opinion rather than the c_like column,
-             which nothing in the app has ever written. -->
-        <div v-if="isAuthenticated" class="spray-actions mt-3">
           <button
-            class="spray-action"
-            :class="{ 'spray-action--on': problem.my_opinion === 'like' }"
-            :disabled="opining"
+            class="spray-meta__btn"
+            :class="{ 'spray-meta__btn--on': problem.my_opinion === 'like' }"
+            :disabled="opining || !isAuthenticated"
             @click="setOpinion('like')"
           >
-            <span class="material-icons">favorite</span>
-            {{ problem.like_count || 0 }}
+            <span class="material-icons">favorite</span>{{ problem.like_count || 0 }}
           </button>
+
           <button
-            class="spray-action"
-            :class="{ 'spray-action--on': problem.my_opinion === 'dislike' }"
-            :disabled="opining"
+            class="spray-meta__btn"
+            :class="{ 'spray-meta__btn--on': problem.my_opinion === 'dislike' }"
+            :disabled="opining || !isAuthenticated"
             @click="setOpinion('dislike')"
           >
-            <span class="material-icons">thumb_down</span>
-            {{ problem.dislike_count || 0 }}
+            <span class="material-icons">thumb_down</span>{{ problem.dislike_count || 0 }}
           </button>
-          <button class="spray-action" @click="commentsOpen = true">
-            <span class="material-icons">chat_bubble_outline</span>
-            {{ (problem.messages || []).length }}
-          </button>
-          <button class="spray-action" @click="askComment">
-            <span class="material-icons">add_comment</span>
-            {{ t('spraywall.add_comment') }}
+
+          <button class="spray-meta__btn" @click="commentsOpen = true">
+            <span class="material-icons">chat_bubble_outline</span>{{ (problem.messages || []).length }}
           </button>
         </div>
+
+        <!-- Its own row: writing a comment is an action, not a statistic. -->
+        <button v-if="isAuthenticated" class="spray-comment-btn mt-2" @click="askComment">
+          <span class="material-icons">add_comment</span>
+          {{ t('spraywall.add_comment') }}
+        </button>
 
         <!-- The app's own bar chart. It zips grades and opinions positionally,
              so both must be in score order and the same length — which is what
@@ -739,13 +740,36 @@ const holdPath = (hold) => {
   white-space: nowrap;
 }
 
-.spray-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
+/* Sized to sit in the stats line rather than stand out from it: these are
+   counts you can press, not primary actions. */
+.spray-meta__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: inherit;
+  font-size: 0.8rem;
+  opacity: 0.85;
 }
 
-.spray-action {
+.spray-meta__btn .material-icons {
+  font-size: 16px;
+  opacity: 0.7;
+}
+
+.spray-meta__btn--on,
+.spray-meta__btn--on .material-icons {
+  color: var(--p-accent);
+  opacity: 1;
+}
+
+.spray-meta__btn:disabled {
+  opacity: 0.45;
+}
+
+.spray-comment-btn {
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -757,18 +781,8 @@ const holdPath = (hold) => {
   color: inherit;
 }
 
-.spray-action .material-icons {
+.spray-comment-btn .material-icons {
   font-size: 17px;
-}
-
-.spray-action--on {
-  background: rgba(var(--p-accent-rgb), 0.2);
-  border-color: var(--p-accent);
-  color: var(--p-accent);
-}
-
-.spray-action:disabled {
-  opacity: 0.5;
 }
 
 .spray-meta {
