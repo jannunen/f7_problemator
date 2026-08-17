@@ -31,17 +31,6 @@
            smaller than a fingertip. -->
       <photo-adjust-controls />
 
-      <div class="spray-toggles">
-        <button
-          class="spray-toggle"
-          :class="{ 'spray-toggle--on': showCircles }"
-          @click="showCircles = !showCircles"
-        >
-          <span class="material-icons">{{ showCircles ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
-          {{ t('spraywall.circles') }}
-        </button>
-      </div>
-
       <!-- The scroll box and its floating controls share this wrapper, so the
            buttons sit over the photo rather than scrolling away with it. -->
       <!-- Shown only at 1x. Once you have zoomed, the controls are on screen
@@ -54,6 +43,17 @@
           <div><strong>{{ t('spraywall.zoom_explainer_tap') }}</strong></div>
           <div class="spray-hint__sub">{{ t('spraywall.zoom_explainer_controls') }}</div>
         </div>
+      </div>
+
+      <div class="spray-toggles">
+        <button
+          class="spray-toggle"
+          :class="{ 'spray-toggle--on': showCircles }"
+          @click="showCircles = !showCircles"
+        >
+          <span class="material-icons">{{ showCircles ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
+          {{ t('spraywall.circles') }}
+        </button>
       </div>
 
       <div class="spray-stage">
@@ -121,7 +121,6 @@
           <span class="spray-stage__level">{{ zoom }}×</span>
         </template>
       </div>
-
 
       <div class="px-4 mt-3">
         <div class="spray-legend">

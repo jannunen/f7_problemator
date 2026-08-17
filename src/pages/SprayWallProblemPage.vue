@@ -38,17 +38,6 @@
       <template v-else>
         <photo-adjust-controls />
 
-        <div class="spray-toggles">
-          <button
-            class="spray-toggle"
-            :class="{ 'spray-toggle--on': showCircles }"
-            @click="showCircles = !showCircles"
-          >
-            <span class="material-icons">{{ showCircles ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
-            {{ t('spraywall.circles') }}
-          </button>
-        </div>
-
         <!-- Shown only at 1x. Once you have zoomed, the controls are on screen
              and explaining them is noise; resetting brings it back, which is the
              moment you are starting over anyway. Above the photo, so it is read
@@ -59,6 +48,17 @@
             <div><strong>{{ t('spraywall.zoom_explainer_tap') }}</strong></div>
             <div class="spray-hint__sub">{{ t('spraywall.zoom_explainer_controls') }}</div>
           </div>
+        </div>
+
+        <div class="spray-toggles">
+          <button
+            class="spray-toggle"
+            :class="{ 'spray-toggle--on': showCircles }"
+            @click="showCircles = !showCircles"
+          >
+            <span class="material-icons">{{ showCircles ? 'radio_button_checked' : 'radio_button_unchecked' }}</span>
+            {{ t('spraywall.circles') }}
+          </button>
         </div>
 
         <div class="spray-stage">
