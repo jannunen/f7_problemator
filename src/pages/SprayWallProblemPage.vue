@@ -184,13 +184,14 @@
           <button class="spray-meta__btn" @click="commentsOpen = true">
             <span class="material-icons">chat_bubble_outline</span>{{ (problem.messages || []).length }}
           </button>
-        </div>
 
-        <!-- Its own row: writing a comment is an action, not a statistic. -->
-        <button v-if="isAuthenticated" class="spray-comment-btn mt-2" @click="askComment">
-          <span class="material-icons">add_comment</span>
-          {{ t('spraywall.add_comment') }}
-        </button>
+          <!-- Keeps its outline on the same row: it is the one action among
+               four counts, and it all fits on one line. -->
+          <button v-if="isAuthenticated" class="spray-comment-btn" @click="askComment">
+            <span class="material-icons">add_comment</span>
+            {{ t('spraywall.add_comment') }}
+          </button>
+        </div>
 
         <!-- The app's own bar chart. It zips grades and opinions positionally,
              so both must be in score order and the same length — which is what
@@ -782,28 +783,30 @@ const holdPath = (hold) => {
 }
 
 .spray-comment-btn {
+  margin-left: auto;
   /* Framework7 sets `button { width: 100% }` globally, which makes every
      bare button fill its line and flex rows stack. */
   width: auto;
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 6px 12px;
+  padding: 3px 10px;
   border-radius: 999px;
-  font-size: 0.78rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  font-size: 0.72rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   background: transparent;
   color: inherit;
 }
 
 .spray-comment-btn .material-icons {
-  font-size: 17px;
+  font-size: 15px;
 }
 
 .spray-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  align-items: center;
+  gap: 12px;
   font-size: 0.8rem;
   opacity: 0.85;
 }
