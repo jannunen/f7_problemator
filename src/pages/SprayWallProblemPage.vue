@@ -158,15 +158,48 @@
             <span class="material-icons">check_circle_outline</span>
             {{ t('spraywall.send_count', problem.total_ascents || 0) }}
           </span>
-          <span v-if="problem.c_like" class="spray-meta__item">
-            <span class="material-icons">thumb_up</span>{{ problem.c_like }}
-          </span>
-          <span v-if="problem.c_dislike" class="spray-meta__item">
-            <span class="material-icons">thumb_down</span>{{ problem.c_dislike }}
-          </span>
-          <span v-if="problem.comment_count" class="spray-meta__item">
-            <span class="material-icons">chat_bubble_outline</span>{{ problem.comment_count }}
-          </span>
+        </div>
+
+        <!-- Counts come from problemator_opinion rather than the c_like column,
+             which nothing in the app has ever written. -->
+        <div v-if="isAuthenticated" class="spray-actions mt-3">
+          <button
+            class="spray-action"
+            :class="{ 'spray-action--on': problem.my_opinion === 'like' }"
+            :disabled="opining"
+            @click="setOpinion('like')"
+          >
+            <span class="material-icons">favorite</span>
+            {{ problem.like_count || 0 }}
+          </button>
+          <button
+            class="spray-action"
+            :class="{ 'spray-action--on': problem.my_opinion === 'dislike' }"
+            :disabled="opining"
+            @click="setOpinion('dislike')"
+          >
+            <span class="material-icons">thumb_down</span>
+            {{ problem.dislike_count || 0 }}
+          </button>
+          <button class="spray-action" @click="commentsOpen = true">
+            <span class="material-icons">chat_bubble_outline</span>
+            {{ (problem.messages || []).length }}
+          </button>
+          <button class="spray-action" @click="askComment">
+            <span class="material-icons">add_comment</span>
+            {{ t('spraywall.add_comment') }}
+          </button>
+        </div>
+
+        <!-- The app's own bar chart. It zips grades and opinions positionally,
+             so both must be in score order and the same length — which is what
+             opinionsGrouped() returns. -->
+        <div v-if="gradeOpinionData.opinions.length" class="mt-4">
+          <div class="p-section-title">{{ t('problem.grade_opinions') }}</div>
+          <grade-opinions
+            :grades="gradeOpinionData.grades"
+            :opinions="gradeOpinionData.opinions"
+          />
         </div>
 
         <div class="mt-3 text-sm">
@@ -247,6 +280,13 @@
         </div>
       </div>
     </template>
+
+    <show-comments
+      v-if="problem"
+      :problem="problem"
+      :opened="commentsOpen"
+      @close="commentsOpen = false"
+    />
   </f7-page>
 </template>
 
@@ -255,6 +295,9 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import api from '@js/api'
+import ShowComments from '@components/problem/ShowComments.vue'
+import GradeOpinions from '@components/ui/problem/GradeOpinions.vue'
+import { f7 } from 'framework7-vue'
 import PhotoAdjustControls from '@components/ui/PhotoAdjustControls.vue'
 import { usePhotoAdjust } from '@js/usePhotoAdjust'
 import { useStore } from 'vuex'
@@ -401,6 +444,50 @@ const title = computed(() => {
 })
 
 const isAuthenticated = computed(() => store.state.isAuthenticated)
+
+const commentsOpen = ref(false)
+const opining = ref(false)
+
+// GradeOpinions zips the two arrays positionally rather than matching on
+// gradeid, so they must be the same length and the same order. opinionsGrouped()
+// returns one row per grade sorted by score, so the grades are sorted the same
+// way rather than trusted to arrive that way.
+const gradeOpinionData = computed(() => {
+  const opinions = problem.value?.grade_opinions || []
+  const grades = [...(store.state.grades || [])]
+    .sort((a, b) => Number(a.score ?? 0) - Number(b.score ?? 0))
+  return { grades, opinions }
+})
+
+// Called directly rather than through the likeProblem / dislikeProblem store
+// actions: those write into state.problems, a normalised map this page never
+// reads, so the button would never change. The query is refetched instead.
+const setOpinion = async (kind) => {
+  if (opining.value) return
+  opining.value = true
+  try {
+    if (kind === 'like') await api.likeProblem(problem.value.id)
+    else await api.dislikeProblem(problem.value.id)
+    await refetch()
+  } catch (e) {
+    // Nothing to say beyond leaving the count as it was.
+  } finally {
+    opining.value = false
+  }
+}
+
+const askComment = () => {
+  f7.dialog.prompt(t('spraywall.comment_prompt'), async (comment) => {
+    if (!comment || !comment.trim()) return
+    try {
+      await api.commentProblem({ id: problem.value.id, comment: comment.trim() })
+      await refetch()
+      f7.dialog.alert(t('spraywall.comment_thanks'))
+    } catch (e) {
+      f7.dialog.alert(t('spraywall.comment_failed'))
+    }
+  })
+}
 
 // Only approved problems can be ticked. A pending one is not public yet and a
 // rejected one has been removed from circulation; either way the tick would
@@ -650,6 +737,38 @@ const holdPath = (hold) => {
 .spray-events__date {
   opacity: 0.7;
   white-space: nowrap;
+}
+
+.spray-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.spray-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: inherit;
+}
+
+.spray-action .material-icons {
+  font-size: 17px;
+}
+
+.spray-action--on {
+  background: rgba(var(--p-accent-rgb), 0.2);
+  border-color: var(--p-accent);
+  color: var(--p-accent);
+}
+
+.spray-action:disabled {
+  opacity: 0.5;
 }
 
 .spray-meta {
