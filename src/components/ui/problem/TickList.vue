@@ -142,8 +142,11 @@ const onDeleted = (tick) => {
 }
 const emit = defineEmits(['close'])
 const getTriesText = (tick) => t('problem.tries', { n: tick.tries })
-const reversedTicks = computed(() => props.ticks?.reverse())
-const reversedProjects = computed(() => props.projects?.reverse())
+// reverse() mutates in place, so these reversed the PARENT's arrays every
+// time the computed re-evaluated — flipping the visible order back and forth.
+// Copy first.
+const reversedTicks = computed(() => [...(props.ticks ?? [])].reverse())
+const reversedProjects = computed(() => [...(props.projects ?? [])].reverse())
 
 </script>
 

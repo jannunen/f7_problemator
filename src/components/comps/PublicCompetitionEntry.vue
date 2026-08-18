@@ -217,7 +217,6 @@ const getJudgingLink = computed(() => {
     return url
   }
 })
-const totalPrice = ref(0)
 const isPaymentForced = computed(() => props.comp.forcepayment == 1)
 const isPaidAndPriceIsSet = computed(() => {
   if (climber.value == null) {
@@ -235,7 +234,10 @@ const isPaidAndPriceIsSet = computed(() => {
     const row = rows[rowKey]
     const serie = props.comp.categories.find(x => x.id == row.serieid)
     const price = parseFloat(serie.pivot.price)
-    totalPrice.value += price
+    // This used to do `totalPrice.value += price` — a computed writing to a
+    // ref, so the total grew on every re-evaluation rather than being
+    // recalculated. totalPrice was never read anywhere, so the accumulation
+    // was pure side effect and is gone.
     // IF there is a price, but no payment info, return false immediately
     if (!isNaN(price) && price > 0 && (row.paid == null || dayjs(row.paid).year() == 0)) {
       return false

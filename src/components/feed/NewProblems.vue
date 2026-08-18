@@ -14,7 +14,7 @@
       }"
     >
       <select name="gym" v-model="selectedGym" @change="onChangeGym">
-        <option v-for="gym in gyms" :value="gym.id">{{ gym.name }}</option>
+        <option v-for="gym in gyms" :key="gym.id" :value="gym.id">{{ gym.name }}</option>
       </select>
     </f7-list-item>
   </f7-list>

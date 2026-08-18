@@ -205,16 +205,17 @@ dayjs.extend(relativeTime)
 const gym = computed(() => store.state.gym)
 const routeTypes = computed(() => store.state.routetypes)
 const onAreaSelected = (area) => {
-  // Filter by wall
-  const wallChar = area.title
-  const wall = walls.value.find(x => x.wallchar === wallChar)
-  if (wall !== null) {
+  // Bound to <floor-map @area-selected>, so this runs whenever someone taps a
+  // wall region on the floor plan. It used to throw three ways over: .find()
+  // returns undefined rather than null so the guard let it through;
+  // props.modelValue is not a prop on this page, so [...] threw on undefined;
+  // and `emit` was never declared with defineEmits. This is a page, not a
+  // v-model component — setting the filter is the whole job.
+  const wallChar = area?.title
+  const wall = walls.value.find((x) => x.wallchar === wallChar)
+  if (wall != null) {
     selectedWalls.value = [wall.id]
   }
-  // Update the selected walls
-  const newSelection = [...props.modelValue, wall.id]
-  emit('select', newSelection)
-  emit('update:modelValue', newSelection)
 }
 
 const tipDismiss = (which) => {
@@ -239,20 +240,13 @@ const props = defineProps({
     type: Object,
   },
 })
-const selectWall = (evt) => {
-  const selectedOption = parseInt(evt.target.value)
-  const newSelection = [...props.modelValue, selectedOption]
-  emit('select', newSelection)
-  emit('update:modelValue', newSelection)
-}
-
 onMounted(() => {
   // The areaSelected is an object, which has the wall name as title.
   // So resolve the wall ids based on the wall name.
   if (props.areaSelected !== null) {
     const wallChar = props.areaSelected.title
     const wall = walls.value.find(x => x.wallchar === wallChar)
-    if (wall !== null) {
+    if (wall != null) {
       selectedWalls.value = [wall.id]
       store.dispatch('setSelectedWalls', [wall.id])
     }

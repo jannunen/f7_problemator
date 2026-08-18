@@ -103,7 +103,7 @@ export default {
             const xmargin = 0.05
             const ymargin = 0.4
             const graphWidth = Math.round(width.value * (1-(xmargin*2)))
-            if (ctx != null && !isNaN(graphWidth) && props.items.length > 0) {
+            if (ctx.value != null && !isNaN(graphWidth) && props.items.length > 0) {
                 const yOffset = Math.round(ymargin*height.value)
                 let xOffset =Math.round(xmargin*width.value)
 

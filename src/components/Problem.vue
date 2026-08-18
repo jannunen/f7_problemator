@@ -53,7 +53,7 @@ const onShowComments = (pid) => {
     showCommentsDialog.value = true
 }
 const openAddTick = () => {
-  const url = `/problem/${problem.id}/addtick`
+  const url = `/problem/${problem.value?.id}/addtick`
   props.f7router.navigate(url)
 }
 </script>
