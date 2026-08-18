@@ -46,6 +46,27 @@
           </button>
         </div>
 
+        <!-- Asked for, never assumed. Firing getCurrentPosition on mount put
+             the OS permission dialog in front of a climber who had not yet
+             been told what it buys them, which reads as the app grabbing at
+             something. Here the button says what it does before the system
+             asks for anything. -->
+        <div v-if="showLocatePrompt" class="gym-locate">
+          <button class="gym-locate__btn" :disabled="locating" @click="locate">
+            <span class="material-icons" style="font-size: 16px;">my_location</span>
+            {{ locating
+              ? t('gymselector.locating', 'Looking for your nearest gym\u2026')
+              : t('gymselector.locate', 'Find my nearest gym') }}
+          </button>
+          <p class="gym-locate__why">
+            {{ t('gymselector.locate_why', 'Checks where you are, on this device only, so the closest gym comes first. Your location is never stored or sent to us.') }}
+          </p>
+        </div>
+
+        <!-- A refusal is a fine answer; say so once and get out of the way,
+             rather than leaving a button that looks like it did nothing. -->
+        <p v-else-if="locateError" class="gym-locate__error">{{ locateError }}</p>
+
         <div v-if="mode === 'map'" class="gym-map-container">
           <GymMapSelector
             v-if="popupOpened"
@@ -152,13 +173,34 @@ const onSearch = (_searchbar, query) => {
   searchQuery.value = query
 }
 
-// Get user location for sorting by distance
-if (navigator.geolocation) {
+// Location sorts the gym list by distance and feeds the map. It is a
+// convenience on top of a search box that already works, so it is opt-in.
+const locating = ref(false)
+const locateError = ref('')
+
+const showLocatePrompt = computed(
+  () => 'geolocation' in navigator && !userLocation.value && !locateError.value
+)
+
+function locate() {
+  locating.value = true
+  locateError.value = ''
   navigator.geolocation.getCurrentPosition(
     (pos) => {
+      locating.value = false
       userLocation.value = { lat: pos.coords.latitude, lng: pos.coords.longitude }
     },
-    () => {} // silently ignore if denied
+    (err) => {
+      locating.value = false
+      locateError.value =
+        err.code === err.PERMISSION_DENIED
+          ? t('gymselector.locate_denied', 'Location is off for Problemator. Search for your gym by name instead.')
+          : t('gymselector.locate_failed', 'Could not work out where you are. Search for your gym by name instead.')
+    },
+    // City-level accuracy is all a distance sort needs, and a stale fix
+    // beats a fresh one that costs a GPS lock indoors. Without a timeout
+    // the spinner can hang for the rest of the session.
+    { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 }
   )
 }
 
@@ -218,6 +260,43 @@ const onGymSelected = async (id) => {
 .gym-selector-tab--active {
   background: rgba(255, 255, 255, 0.12);
   color: var(--p-text);
+}
+.gym-locate {
+  margin: 0 16px 10px;
+}
+.gym-locate__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 9px 0;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--p-text);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.gym-locate__btn:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.12);
+}
+.gym-locate__btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.gym-locate__why {
+  margin: 6px 2px 0;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: var(--p-text-dim);
+}
+.gym-locate__error {
+  margin: 0 18px 10px;
+  font-size: 0.75rem;
+  color: var(--p-text-muted);
 }
 .gym-map-container {
   padding: 0 8px;

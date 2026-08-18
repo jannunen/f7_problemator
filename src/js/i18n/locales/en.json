@@ -194,7 +194,12 @@
   "gymselector": {
     "active_gym": "Active gym",
     "list": "List",
-    "map": "Map"
+    "map": "Map",
+    "locate": "Find my nearest gym",
+    "locating": "Looking for your nearest gym…",
+    "locate_why": "Checks where you are, on this device only, so the closest gym comes first. Your location is never stored or sent to us.",
+    "locate_denied": "Location is off for Problemator. Search for your gym by name instead.",
+    "locate_failed": "Could not work out where you are. Search for your gym by name instead."
   },
   "wallselector": {
     "all_walls": "All walls/sectors",

@@ -186,7 +186,12 @@
   "gymselector": {
     "active_gym": "Aktiivinen halli",
     "list": "Lista",
-    "map": "Kartta"
+    "map": "Kartta",
+    "locate": "Etsi lähin sali",
+    "locating": "Etsitään lähintä salia…",
+    "locate_why": "Tarkistaa sijaintisi vain tällä laitteella, jotta lähin sali näkyy ensimmäisenä. Sijaintiasi ei tallenneta eikä lähetetä meille.",
+    "locate_denied": "Sijainti ei ole käytössä Problematorille. Hae sali nimellä.",
+    "locate_failed": "Sijaintia ei saatu selville. Hae sali nimellä."
   },
   "wallselector": {
     "all_walls": "Kaikki seinät/sektorit",
