@@ -32,4 +32,19 @@
     <!-- Permissions -->
 
     <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- The QR scanner reads a boulder's code through getUserMedia in the
+         WebView. Capacitor's BridgeWebChromeClient asks for the runtime grant,
+         but only if the permission is declared here. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Sorts the gym list by distance and nothing else; the app works fine
+         without it, so it must not gate installation. -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Declared not-required so devices without a camera can still install.
+         Play treats an undeclared <uses-feature> implied by CAMERA as required. -->
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
+    <uses-feature android:name="android.hardware.location" android:required="false" />
 </manifest>

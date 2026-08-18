@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-        <string>Problemator</string>
+	<string>Problemator</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -22,6 +22,10 @@
 	<string>$(CURRENT_PROJECT_VERSION)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Problemator uses the camera to scan the QR code on a boulder, so it can open that problem for you. Nothing from the camera is stored or sent anywhere.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Problemator uses your location once, on this device, to put the climbing gyms nearest you at the top of the gym list. Your location is never stored or sent to us — you can also just search for your gym by name.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
