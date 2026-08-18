@@ -97,8 +97,40 @@ npm run build
 # schedule and must not be blocked on them.
 if [ -d "ios" ] || [ -d "android" ]; then
   echo "==> Native"
+
+  # Capacitor scaffolds versionCode 1 / "1.0" and never touches them again.
+  # Play rejects an upload whose versionCode did not increase, so leaving the
+  # default in place caps the app at exactly one submission ever; App Store
+  # Connect rejects a rebuild of an already-used CFBundleVersion the same way.
+  # Every write below is checked, because a version that silently did not
+  # change is only discovered at upload, after the archive.
+  if [ -d "android" ]; then
+    GRADLE=android/app/build.gradle
+    sed -i.bak -E "s|^([[:space:]]*versionCode[[:space:]]+)[0-9]+|\1$BUILD_NUMBER|" "$GRADLE"
+    sed -i.bak -E "s|^([[:space:]]*versionName[[:space:]]+)\"[^\"]*\"|\1\"$NEW_VERSION\"|" "$GRADLE"
+    rm -f "$GRADLE.bak"
+    grep -qE "versionCode[[:space:]]+$BUILD_NUMBER\$" "$GRADLE" \
+      || { echo "error: versionCode not written to $GRADLE" >&2; exit 1; }
+    grep -qF "versionName \"$NEW_VERSION\"" "$GRADLE" \
+      || { echo "error: versionName not written to $GRADLE" >&2; exit 1; }
+    echo "    $GRADLE -> versionName $NEW_VERSION, versionCode $BUILD_NUMBER"
+  fi
+
+  if [ -d "ios" ]; then
+    PBX=ios/App/App.xcodeproj/project.pbxproj
+    sed -i.bak -E "s|(MARKETING_VERSION = )[^;]*;|\1$NEW_VERSION;|g" "$PBX"
+    sed -i.bak -E "s|(CURRENT_PROJECT_VERSION = )[^;]*;|\1$BUILD_NUMBER;|g" "$PBX"
+    rm -f "$PBX.bak"
+    # Debug and Release each carry their own copy; if only one changed, the
+    # archive would ship a different version than the one tested.
+    [ "$(grep -c "MARKETING_VERSION = $NEW_VERSION;" "$PBX")" -eq 2 ] \
+      || { echo "error: MARKETING_VERSION not set in both configurations of $PBX" >&2; exit 1; }
+    [ "$(grep -c "CURRENT_PROJECT_VERSION = $BUILD_NUMBER;" "$PBX")" -eq 2 ] \
+      || { echo "error: CURRENT_PROJECT_VERSION not set in both configurations of $PBX" >&2; exit 1; }
+    echo "    $PBX -> MARKETING_VERSION $NEW_VERSION, CURRENT_PROJECT_VERSION $BUILD_NUMBER"
+  fi
+
   npx cap sync
-  echo "    build number for the stores: $BUILD_NUMBER"
   echo "    (open the projects to archive/upload when you are ready to submit)"
 else
   echo "==> Native: no ios/ or android/ yet, skipping"
@@ -106,6 +138,10 @@ fi
 
 echo "==> Commit and tag"
 git add package.json
+# Written as `if`, not `[ -d x ] && git add`: under `set -e` a false test is a
+# non-zero status and would abort the release right before the commit.
+if [ -d "android" ]; then git add android/app/build.gradle; fi
+if [ -d "ios" ]; then git add ios/App/App.xcodeproj/project.pbxproj; fi
 git commit -m "chore: $NEW_VERSION"
 git tag -a "v$NEW_VERSION" -m "Problemator mobile $NEW_VERSION (build $BUILD_NUMBER)"
 
