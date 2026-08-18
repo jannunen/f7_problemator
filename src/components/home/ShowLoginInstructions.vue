@@ -294,9 +294,13 @@ watch(authStep, (val) => {
   position: relative;
   min-height: 100dvh;
   display: flex;
-  align-items: center;
+  /* Top-aligned rather than centred: dead-centre put the mark halfway down
+     the screen, below the fold of a thumb's reach and oddly low once the
+     navbar is accounted for. The offset is viewport-relative so the card
+     sits high on a phone without being glued to the navbar on a tablet. */
+  align-items: flex-start;
   justify-content: center;
-  padding: 1.5rem;
+  padding: clamp(1rem, 6vh, 4rem) 1.5rem 1.5rem;
   overflow: hidden;
   background: linear-gradient(145deg, #0c1220 0%, #162032 50%, #0e1a2a 100%);
 }

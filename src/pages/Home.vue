@@ -17,12 +17,19 @@
     </f7-navbar>
 
     <div>
-      <!-- Gym selector always visible — deliberately OUTSIDE the profileLoaded
-           block. Picking a gym flips profileLoaded to false synchronously, so
-           while it lived inside, the selector unmounted in the same tick as its
-           own popup closed. Framework7 destroys a popup on unmount without
-           closing it, which strands the backdrop and the body scroll lock. -->
-      <div class="home-section">
+      <!-- Signed in only. Logged out there is nothing to pick a gym for, and
+           mounting the selector fired a request for the gym list that the API
+           refuses without a token — so the sign-in screen led with a
+           permanent "Loading gyms…". Once you are in, the dashboard's own
+           empty state asks you to choose one.
+
+           Gated on isAuthenticated rather than profileLoaded, and kept
+           OUTSIDE that block: picking a gym flips profileLoaded to false
+           synchronously, so the selector would unmount in the same tick as
+           its own popup closed, and Framework7 destroys a popup on unmount
+           without closing it — stranding the backdrop and the body scroll
+           lock. Signing in is the only thing that changes isAuthenticated. -->
+      <div v-if="isAuthenticated" class="home-section">
         <gym-selector />
       </div>
 
@@ -217,6 +224,7 @@ const props = defineProps({
   f7router: Object,
 })
 const profileLoaded = computed(() => store.state.profileLoaded)
+const isAuthenticated = computed(() => store.state.isAuthenticated)
 const onSearchSheetClosed = () => {
   isOpened.value = false
 }
