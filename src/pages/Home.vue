@@ -39,7 +39,7 @@
         <left-sidepanel />
 
         <!-- Version update banner -->
-        <div v-if="serverVersion != null && serverVersion != version" class="px-4 mt-2">
+        <div v-if="updateAvailable" class="px-4 mt-2">
           <div class="p-banner p-banner--info">
             <span class="material-icons p-banner__icon">system_update</span>
             <div class="p-banner__content">
@@ -148,6 +148,7 @@
 </template>
 <script setup>
 import TodayHeader from '@components/home/TodayHeader.vue'
+import { isUpdateAvailable } from '@js/version.js'
 import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.vue'
 import GymSelector from '@components/GymSelector.vue'
 import MyLogs from '@components/home/MyLogs.vue'
@@ -179,6 +180,9 @@ const alltime = computed(() => store.state.alltime)
 const ticksLoaded = computed(() => store.state.ticksLoaded)
 const version = computed(() => store.state.version)
 const serverVersion = computed(() => store.state.server_version)
+// Same fix as LeftSidepanel: a string inequality that was permanently true,
+// so this banner never went away.
+const updateAvailable = computed(() => isUpdateAvailable(version.value, serverVersion.value))
 const updateVersion = () => {
   window.location.href = '/?forceReload=' + Math.random() * 1000000
 }

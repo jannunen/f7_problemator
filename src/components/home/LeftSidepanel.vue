@@ -95,7 +95,7 @@
           </button>
         </div>
 
-        <div v-if="serverVersion != null && serverVersion != version" class="text-center px-4 mt-4">
+        <div v-if="updateAvailable" class="text-center px-4 mt-4">
           <div class="p-banner p-banner--info">
             <span class="material-icons p-banner__icon">system_update</span>
             <div class="p-banner__content">
@@ -118,6 +118,7 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
+import { isUpdateAvailable } from '@js/version.js'
 import { useStore } from 'vuex'
 import { f7 } from 'framework7-vue'
 import { ref, watch, computed } from 'vue'
@@ -133,6 +134,11 @@ const showChangeLogDialog = ref(false)
 
 const gym = computed(() => store.state.gym)
 const version = computed(() => store.state.version)
+// Was `serverVersion != version`, a string inequality. The backend advertised
+// 0.8.10 while the app was 1.3.2, so it was permanently true and every user
+// saw this banner on every launch. Now it asks whether the server is offering
+// something strictly newer, and stays silent when it cannot tell.
+const updateAvailable = computed(() => isUpdateAvailable(version.value, serverVersion.value))
 const climber = computed(() => store.state.climber)
 const isAuthenticated = computed(() => store.state.isAuthenticated)
 const serverVersion = computed(() => store.state.server_version)
