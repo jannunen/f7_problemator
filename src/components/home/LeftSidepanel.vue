@@ -118,6 +118,7 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
+import { performUpdate } from '@js/helpers/update.js'
 import { isUpdateAvailable } from '@js/version.js'
 import { useStore } from 'vuex'
 import { f7 } from 'framework7-vue'
@@ -194,7 +195,10 @@ const openArchive = () => {
   f7.views.main.router.navigate("/archive")
 }
 const updateVersion = () => {
-  window.location.reload()
+  // On the web this reloads and picks up the new service worker. In a shipped
+  // binary a reload re-runs the same bundled app, so it opens the store
+  // listing instead — see src/js/helpers/update.js.
+  performUpdate()
 }
 // Handles changing the dark/light theme. Seems a bit kludge, because it is.
 watch(localDarkMode, (isDarkTheme, oldValue) => {

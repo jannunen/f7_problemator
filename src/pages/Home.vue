@@ -148,6 +148,7 @@
 </template>
 <script setup>
 import TodayHeader from '@components/home/TodayHeader.vue'
+import { performUpdate } from '@js/helpers/update.js'
 import { isUpdateAvailable } from '@js/version.js'
 import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.vue'
 import GymSelector from '@components/GymSelector.vue'
@@ -184,7 +185,14 @@ const serverVersion = computed(() => store.state.server_version)
 // so this banner never went away.
 const updateAvailable = computed(() => isUpdateAvailable(version.value, serverVersion.value))
 const updateVersion = () => {
-  window.location.href = '/?forceReload=' + Math.random() * 1000000
+  // On the web, a cache-busting navigation. In a shipped binary that just
+  // reloads the same bundled app, so performUpdate sends it to the store
+  // instead — see src/js/helpers/update.js.
+  performUpdate({
+    reload: () => {
+      window.location.href = '/?forceReload=' + Math.random() * 1000000
+    },
+  })
 }
 const isOpened = ref(false)
 const showLoadingHint = ref(true)

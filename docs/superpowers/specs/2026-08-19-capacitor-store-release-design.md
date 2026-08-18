@@ -77,10 +77,21 @@ from Capacitor. Everything below branches on it.
 | "Update now" button | `window.location.reload()` | open the store listing — a reload never updates a shipped binary |
 | Android hardware back | n/a | must pop the Framework7 router, not exit the app |
 | Status bar / safe areas | n/a | notch and home-indicator insets |
-| Service worker | Workbox precache | **not registered on native** — the WebView loads from the bundle, and a stale precache would serve an old app inside a new binary |
+| Service worker | generated, never registered | nothing to do — see below |
 
-That last one is the subtle one and the likeliest source of "why is the app not
-updating" reports after release.
+**Correction to an earlier draft of this spec.** It claimed a stale Workbox
+precache would serve an old app inside a new binary, and called that the
+likeliest source of post-release confusion. That risk does not exist: `npm run
+build` runs `workbox generateSW` and emits `www/service-worker.js`, but nothing
+in the codebase ever calls `navigator.serviceWorker.register`. The file is
+built and deployed on every release and has never been active.
+
+So there is no native guard to write. Two consequences worth recording
+separately, neither in scope here:
+
+- the PWA has **no offline caching**, despite shipping a service worker
+- `doReloadApp` in `LeftSidepanel.vue` carefully unregisters service workers
+  and clears caches that were never created
 
 ## Versioning and release
 

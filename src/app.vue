@@ -5,8 +5,8 @@
     <!-- initial page is specified in routes.js -->
 
     <f7-view 
-    :push-state="true"
-    :browser-history="true"
+    :push-state="useBrowserHistory"
+    :browser-history="useBrowserHistory"
     :browser-history-root="historyRoot"
     main 
     ></f7-view>
@@ -14,10 +14,13 @@
 </template>
 <script>
 import routes from './js/routes.js'
+import { registerBackButton, setupChrome } from '@js/native.js'
+import { useBrowserHistory } from '@js/platform.js'
 import { useI18n } from 'vue-i18n'
 import {  watch, computed } from 'vue'
 import { useStore } from 'vuex'
 import $ from 'dom7'
+import { f7 } from 'framework7-vue'
 
 export default {
   props: {
@@ -28,10 +31,19 @@ export default {
     const store = useStore()
     const allTime = computed(() => store.state.alltime)
     const profile = computed(() => store.state.profile)
+    // Despite the name, VITE_REDIRECT_URI is not an auth redirect — auth is
+    // OTP with a JWT in localStorage. It is Framework7's history root, and it
+    // only means anything on the web.
     const historyRoot = import.meta.env.VITE_REDIRECT_URI
     const isAuthenticated = computed(() => store.state.isAuthenticated)
 
     store.dispatch('version')
+
+    // No-ops on the web. On native: dismiss the splash, keep the status bar
+    // from overlaying our header, and make Android's back button pop the
+    // Framework7 stack instead of exiting the app.
+    setupChrome()
+    registerBackButton(f7)
     // Save tip showing status in localStorage.
     const tipShowStatus = JSON.parse(localStorage.getItem('tipShowStatus'))
     const access_token = computed(() => store.state.access_token)
@@ -84,6 +96,7 @@ export default {
       routes,
       isAuthenticated,
       historyRoot,
+      useBrowserHistory,
       accessToken : access_token.value,
     }
   },

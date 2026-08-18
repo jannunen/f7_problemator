@@ -1,0 +1,18 @@
+{
+  "appId": "fi.problemator.app",
+  "appName": "Problemator",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "ios": {
+    "contentInset": "always"
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1000,
+      "backgroundColor": "#18213b",
+      "showSpinner": false
+    }
+  }
+}
