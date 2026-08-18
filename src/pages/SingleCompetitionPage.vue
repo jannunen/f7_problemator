@@ -53,6 +53,8 @@ const getJudgingLink = computed(() => {
         const url = `/competitions/${comp.value.id}/judging`
         return url
     }
+  // No competition yet: say so, rather than returning undefined.
+  return null
 })
 const isJudge = computed(() => {
   return comp.value.judges.find(x => {

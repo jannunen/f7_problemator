@@ -16,7 +16,6 @@ const triesBonus = ref(1)
 const hits = ref([])
 const search = ref('')
 const apiurl = 'https://pwa.problemator.fi'
-const comp = computed(() => store.state.competition)
 const clearSearch= () => {
  search.value = ''
  hits.value = [] 
@@ -103,7 +102,7 @@ const fetchContender = debounce(() => {
   selected.value = null
   hits.value = []
   // Find  from local paidregistrations
-  const contenders = comp.value.paidregistrations
+  const contenders = props.comp.paidregistrations
   hits.value = contenders.filter((contender) => {
     const lower = search.value.toLowerCase()
     if (contender.etunimi.toLowerCase().includes(lower)) {

@@ -216,6 +216,8 @@ const getJudgingLink = computed(() => {
     const url = `/competitions/${props.comp.id}/judging`
     return url
   }
+  // No competition yet: say so, rather than returning undefined.
+  return null
 })
 const isPaymentForced = computed(() => props.comp.forcepayment == 1)
 const isPaidAndPriceIsSet = computed(() => {

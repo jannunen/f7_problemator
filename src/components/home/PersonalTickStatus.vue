@@ -51,9 +51,6 @@ import { useStore } from "vuex";
 import HorizontalBarGraph from "../ui/HorizontalBarGraph.vue";
 
 export default {
-  components: {
-    RoundBadge,
-  },
   setup() {
     const store = useStore();
     const profile = store.state.profile;

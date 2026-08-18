@@ -123,9 +123,7 @@ function drawChart() {
         .range([COLORS.done, COLORS.available])
 
     // Stacked data
-    const stackedData = d3.stack()
-        .keys(subgroups)
-        (data)
+    const stackedData = d3.stack().keys(subgroups)(data)
 
     const barRadius = 3
 

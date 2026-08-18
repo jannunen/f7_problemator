@@ -22,7 +22,6 @@ dayjs.extend(relativeTime)
 const { t } = useI18n()
 const problem = ref(null)
 const props = defineProps({
-  problem: Object,
   f7router: Object,
   id : Number,
 })

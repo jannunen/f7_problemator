@@ -1,7 +1,7 @@
 <template>
     <div ref="graphcontainer" class="graphcontainer" >
         <div >
-            <canvas class="graph" ref="graph" :width="width" :height="height"></canvas>
+            <canvas class="graph" ref="graph" :width="width" :height="canvasHeight"></canvas>
         </div>
     </div>
 </template>
@@ -163,7 +163,9 @@ export default {
             width,
             graphcontainer,
             graph,
-            height,
+            // exposed under a distinct name: `height` is already a prop meaning
+            // the BAR height, while this is the container's pixel height.
+            canvasHeight: height,
         }
 
     }

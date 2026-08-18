@@ -36,9 +36,6 @@
                `
                return style
            },
-           getBadgeStyle() {
-
-           }
        }
    }
    </script>
