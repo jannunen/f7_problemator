@@ -23,13 +23,14 @@
     <div>
       <div class="">
         <div class="text-right  mb-2">Joined: {{ dayjs(profile.added).format("YYYY-MM-DD") ?? 'Too long ago'}}</div>
-        <div class="text-right font-bold mb-2"><i class="px-1 fa fa-location-dot"></i> {{ profile.city }}</div>
+        <div class="text-right font-bold mb-2"><Icon name="location-dot" class="inline-block align-baseline mx-1" /> {{ profile.city }}</div>
         <social-buttons :profile="profile" />
       </div>
     </div>
   </div>
 </template>
 <script setup>
+import Icon from '@/components/ui/Icon.vue'
 import SocialButtons from '@components/profile/SocialButtons.vue'
 import dayjs from 'dayjs'
 const props = defineProps({

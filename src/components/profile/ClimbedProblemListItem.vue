@@ -7,7 +7,7 @@
     <template #after>
       <strong class="text-white font-bold mr-2" v-if="problem.c_like > 0">
         {{ problem.c_like }}
-        <i class="text-red-500 fa fa-heart " />
+        <Icon name="heart" class="text-red-500 inline-block align-baseline" />
       </strong>
     </template>
 
@@ -46,6 +46,7 @@
     </template>
   </f7-list-item></template>
 <script setup>
+import Icon from '@/components/ui/Icon.vue'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 import PBadge from '@components/PBadge.vue'
 import dayjs from 'dayjs'

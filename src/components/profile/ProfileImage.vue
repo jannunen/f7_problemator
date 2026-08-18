@@ -4,11 +4,12 @@
   >
     <img v-if="src != null" :src="src" alt="Profile image" />
     <div v-else class="w-full h-full flex justify-center items-center ">
-        <i class="fa fa-user" style="font-size : 6em;"></i>
+        <Icon name="user" size="6em" label="No profile picture" />
     </div>
   </div>
 </template>
 <script setup>
+import Icon from '@/components/ui/Icon.vue'
 const props = defineProps({
   src: String,
 })
