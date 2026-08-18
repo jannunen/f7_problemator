@@ -204,7 +204,10 @@ const progress = computed(() => {
 })
 
 //const sortedProgress = computed(() => progress.value.sort((b,a) => dayjs(a.yearWeek,'YYYY-ww').isAfter(dayjs(b.yearWeek,'YYYY-ww'))))
-const sortedProgress = computed(() => progress.value.reverse())
+// reverse() mutates in place, so this reversed the array that `progress`
+// hands out every time it re-evaluated. toReversed() is not available on the
+// older Safari this ships to, so copy then reverse.
+const sortedProgress = computed(() => [...progress.value].reverse())
 const progressLabels = computed(() => sortedProgress.value.map(x => x.yearWeek))
 const progressValues = computed(() => sortedProgress.value.map(x => x.points))
 const progressData = computed(() => ({

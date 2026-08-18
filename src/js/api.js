@@ -194,7 +194,7 @@ const api = {
   },
   async login( payload) {
     const url = endpoint + "/api/auth/login"
-    const ret = await fetchPost(url, payload)
+    const ret = await axios.post(url, payload)
     return ret.data
   },
   async deleteTickByProblem(payload,prefix='') {

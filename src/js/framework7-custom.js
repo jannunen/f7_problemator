@@ -1,4 +1,3 @@
-/* eslint-disable import/extensions */
 
 import Framework7, { request, utils, getDevice, createStore } from 'framework7';
 // import Appbar from 'framework7/components/appbar';

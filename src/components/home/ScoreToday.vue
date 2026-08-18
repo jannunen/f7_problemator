@@ -43,7 +43,9 @@ const tries = computed(() => allTries.value.filter(x => {
 }))
 
 const hardestClimb = computed(() => {
-    const best = ticks.value.sort((b, a) => a.gradeid - b.gradeid).slice(0, 10).find(x => x != null)
+    // Sorts a copy: ticks is a computed, and sorting its value in place mutates
+    // the cached array that the other computed in this file also reads.
+    const best = [...ticks.value].sort((b, a) => a.gradeid - b.gradeid).slice(0, 10).find(x => x != null)
     if (best != null) {
         const grade = grades.value.find(x => x.id == best.gradeid)
         if (grade != null && grade.name != null) {
@@ -59,7 +61,7 @@ const scoreToday = computed(() => {
     if (ticks?.value == null) {
         return 0
     }
-    const ticksToday = ticks.value
+    const ticksToday = [...ticks.value]
     const top10 = ticksToday.sort((b, a) => a.gradeid - b.gradeid).slice(0, 10)
     const points = top10.reduce((acc, item) => {
         const grade = grades.value.find(x => x.id == item.gradeid)

@@ -17,6 +17,10 @@ const getClasses = computed(() => {
       return [...classList, 'text-orange-800 bg-orange-100 dark:bg-gray-800 dark:text-orange-400'.split(" ")]
     case 'success':
       return [...classList, 'text-green-800 bg-green-100 dark:bg-gray-800 dark:text-green-400'.split(" ")]
+    default:
+      // An unrecognised variant used to return undefined, so the alert
+      // rendered with no styling at all rather than a neutral one.
+      return classList
   }
 })
    

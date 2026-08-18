@@ -64,7 +64,7 @@
         {{ t('problem.projecting') }}
       </div>
       <button @click="myTicksPopupOpen = true" class="p-link text-xs mt-1 block text-center">
-        {{ t('problem.sessions', sessionCount) }}
+        {{ t('problem.sessions', sessionCount()) }}
       </button>
     </div>
     <popup-list-ticks

@@ -22,7 +22,6 @@ dayjs.extend(relativeTime)
 const { t } = useI18n()
 const problem = ref(null)
 const props = defineProps({
-  problem: Object,
   f7router: Object,
   id : Number,
 })
@@ -53,7 +52,7 @@ const onShowComments = (pid) => {
     showCommentsDialog.value = true
 }
 const openAddTick = () => {
-  const url = `/problem/${problem.id}/addtick`
+  const url = `/problem/${problem.value?.id}/addtick`
   props.f7router.navigate(url)
 }
 </script>

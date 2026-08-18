@@ -177,7 +177,6 @@
         isMyProject,
         isMyTick,
         PBadge,
-        getTagShort,
         getGrade,
         t,
       }

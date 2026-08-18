@@ -238,8 +238,9 @@ const getJudgingLink = computed(() => {
     const url = `/competitions/${props.comp.id}/judging`
     return url
   }
+  // No competition yet: say so, rather than returning undefined.
+  return null
 })
-const totalPrice = ref(0)
 const isPaymentForced = computed(() => props.comp.forcepayment == 1)
 const isPaidAndPriceIsSet = computed(() => {
   if (climber.value == null) {
@@ -257,7 +258,10 @@ const isPaidAndPriceIsSet = computed(() => {
     const row = rows[rowKey]
     const serie = props.comp.categories.find(x => x.id == row.serieid)
     const price = parseFloat(serie.pivot.price)
-    totalPrice.value += price
+    // This used to do `totalPrice.value += price` — a computed writing to a
+    // ref, so the total grew on every re-evaluation rather than being
+    // recalculated. totalPrice was never read anywhere, so the accumulation
+    // was pure side effect and is gone.
     // IF there is a price, but no payment info, return false immediately
     if (!isNaN(price) && price > 0 && (row.paid == null || dayjs(row.paid).year() == 0)) {
       return false
@@ -405,7 +409,11 @@ const tickCount = computed(() => {
 })
 const sortedProblems = computed(() => {
 
-  const probs = props.comp.problems.sort((a, b) => {
+  // [...] first: this sorts a COPY. Sorting props.comp.problems directly
+  // reordered store.state.competition.problems in place, from inside a
+  // computed getter — a child mutating shared state as a side effect of
+  // being read.
+  const probs = [...(props.comp.problems ?? [])].sort((a, b) => {
     const anum = parseInt(a.pivot.num)
     const bnum = parseInt(b.pivot.num)
     if (anum - bnum == 0) {

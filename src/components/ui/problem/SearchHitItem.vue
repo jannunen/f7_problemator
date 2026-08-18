@@ -204,7 +204,6 @@ export default {
       hasSprayName,
       isMyProject,
       isMyTick,
-      getTagShort,
       getGrade,
       t,
     }

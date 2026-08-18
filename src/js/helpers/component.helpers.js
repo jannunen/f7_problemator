@@ -92,8 +92,11 @@ const toLocalTime = (utcTime,format="DD.MM.YYYY HH:mm") => {
 const getSessionCount = (problem) => {
     // Session count is the amount of different days the project has
     // been projected on.
-    //const projecting = problem.myProjects
-    alert('not like this')
+    //
+    // This body referenced an undefined `projecting` and popped an alert(),
+    // so it threw on call. It never surfaced because the one call site passed
+    // the function to i18n without invoking it — two bugs masking each other.
+    const projecting = problem?.myProjects ?? []
     const projectDays = projecting.reduce((acc, item) => {
         // Reduce the timestamp to date.
         const date = item.tstamp.substring(0, 10)

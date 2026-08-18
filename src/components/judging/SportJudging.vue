@@ -282,9 +282,9 @@ const showTime = (start) => {
   var now = new Date()
   var time = now.getTime()
 
-  var secs = (time - start) / 1000
-  var mins = Math.floor(secs / 60)
-  var secs = Math.round(secs % 60, 0)
+  const totalSecs = (time - start) / 1000
+  const mins = Math.floor(totalSecs / 60)
+  const secs = Math.round(totalSecs % 60)
   timemin.value = mins
   timesec.value = secs
 }

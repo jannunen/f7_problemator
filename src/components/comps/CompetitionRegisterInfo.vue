@@ -159,7 +159,7 @@ const isPaid = (catid) => {
 const isCategoryFull = (cat) => cat.maxparticipants - cat.participants.length <= 0
 const user = computed(() => store.state.user)
 const getPaymentLink = (cat) => {
-    return `https://www.problemator.fi/t/problemator/competitions/payment/${cat.compid}?contid=${user.id}`
+    return `https://www.problemator.fi/t/problemator/competitions/payment/${cat.compid}?contid=${user.value?.id}`
 }
 const askUnRegister = (cat) => {
     confirm(t('comps.are_you_sure_you_want_to_unregister'),null,() => {

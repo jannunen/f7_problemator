@@ -39,7 +39,6 @@ const { t } = useI18n()
 const store = useStore()
 const props = defineProps({
   opened: Boolean,
-  grades: Array,
 })
 const emit = defineEmits(['close', 'select'])
 const grades = computed(() => store.state.grades)

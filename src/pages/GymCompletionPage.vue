@@ -60,7 +60,12 @@ const getActiveProblemsByGrade = computed(() => {
   if (Object.keys(problems.value).length > 0) {
     Object.keys(problems.value).forEach(probId => {
       const prob = problems.value[probId]
-      if (routeTypeFilter.value !== 'all' && prob.routetype !== routeTypeFilter.value) return
+      const matchesFilter =
+        routeTypeFilter.value === 'all' || prob.routetype === routeTypeFilter.value
+      // grade is nullable — an ungraded problem would have thrown here.
+      if (!matchesFilter || prob.grade == null) {
+        return undefined
+      }
 
       const gradeId = prob.grade.id
       gradeMap.set(gradeId, gradeMap.get(gradeId) + 1)
@@ -78,6 +83,9 @@ const getActiveProblemsByGrade = computed(() => {
       }
     })
   }
+  // A gym with no problems loaded yet fell out of the bottom returning
+  // undefined, so the chart got undefined instead of an empty series.
+  return []
 })
 
 </script>

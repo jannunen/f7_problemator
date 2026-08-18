@@ -16,7 +16,6 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import store from '@js/store.js'
 import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import dayjs from 'dayjs'

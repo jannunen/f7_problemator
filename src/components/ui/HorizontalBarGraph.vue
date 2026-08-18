@@ -1,7 +1,7 @@
 <template>
     <div ref="graphcontainer" class="graphcontainer" >
         <div >
-            <canvas class="graph" ref="graph" :width="width" :height="height"></canvas>
+            <canvas class="graph" ref="graph" :width="width" :height="canvasHeight"></canvas>
         </div>
     </div>
 </template>
@@ -103,7 +103,7 @@ export default {
             const xmargin = 0.05
             const ymargin = 0.4
             const graphWidth = Math.round(width.value * (1-(xmargin*2)))
-            if (ctx != null && !isNaN(graphWidth) && props.items.length > 0) {
+            if (ctx.value != null && !isNaN(graphWidth) && props.items.length > 0) {
                 const yOffset = Math.round(ymargin*height.value)
                 let xOffset =Math.round(xmargin*width.value)
 
@@ -163,7 +163,9 @@ export default {
             width,
             graphcontainer,
             graph,
-            height,
+            // exposed under a distinct name: `height` is already a prop meaning
+            // the BAR height, while this is the container's pixel height.
+            canvasHeight: height,
         }
 
     }
