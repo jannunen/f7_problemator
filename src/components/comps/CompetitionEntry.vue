@@ -405,7 +405,11 @@ const tickCount = computed(() => {
 })
 const sortedProblems = computed(() => {
 
-  const probs = props.comp.problems.sort((a, b) => {
+  // [...] first: this sorts a COPY. Sorting props.comp.problems directly
+  // reordered store.state.competition.problems in place, from inside a
+  // computed getter — a child mutating shared state as a side effect of
+  // being read.
+  const probs = [...(props.comp.problems ?? [])].sort((a, b) => {
     const anum = parseInt(a.pivot.num)
     const bnum = parseInt(b.pivot.num)
     if (anum - bnum == 0) {
