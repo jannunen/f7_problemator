@@ -23,9 +23,12 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO_ROOT"
 
-# Where the Laravel .env lives. Override when it is somewhere else:
-#   BACKEND_ENV=/path/to/.env ./scripts/release.sh 1.4.2
-BACKEND_ENV="${BACKEND_ENV:-/var/sites/problemator_backend/.env}"
+# The backend advertises the latest mobile version from COMMITTED config, not
+# from .env — so it travels with a backend deploy instead of being edited by
+# hand per environment. Override the repo location if it differs:
+#   BACKEND_REPO=/path/to/backend ./scripts/release.sh 1.4.2
+BACKEND_REPO="${BACKEND_REPO:-/var/sites/problemator_backend}"
+BACKEND_VERSION_FILE="$BACKEND_REPO/config/mobile.php"
 
 NEW_VERSION="${1:-}"
 if [ -z "$NEW_VERSION" ]; then
@@ -67,21 +70,25 @@ node -e "
 " "$NEW_VERSION"
 echo "    package.json -> $NEW_VERSION"
 
-# The backend advertises the latest MOBILE version so the app can offer an
-# update. Matched by key, never by line number, and it is an error if the file
-# or the key is missing rather than a silent no-op.
-if [ ! -f "$BACKEND_ENV" ]; then
-  echo "error: backend env not found at $BACKEND_ENV" >&2
-  echo "       set BACKEND_ENV=/path/to/.env and re-run" >&2
+# Update the committed backend config. This is a source change in another
+# repo, so it is written but NOT committed here — the backend has its own
+# review and deploy. Nothing about it is silent: if the file is missing, say so
+# and stop, rather than releasing a version the API will never advertise.
+if [ ! -f "$BACKEND_VERSION_FILE" ]; then
+  echo "error: $BACKEND_VERSION_FILE not found" >&2
+  echo "       set BACKEND_REPO=/path/to/backend and re-run" >&2
   exit 1
 fi
-if ! grep -q '^APP_VERSION=' "$BACKEND_ENV"; then
-  echo "error: no APP_VERSION key in $BACKEND_ENV" >&2
+# POSIX classes, not \s: BSD sed on macOS does not understand \s and would
+# silently match nothing — the same class of quiet failure the old deploy.sh had.
+if ! grep -qE "^[[:space:]]*'version'[[:space:]]*=>" "$BACKEND_VERSION_FILE"; then
+  echo "error: no 'version' key in $BACKEND_VERSION_FILE" >&2
   exit 1
 fi
-sed -i.bak -E "s|^APP_VERSION=.*|APP_VERSION=$NEW_VERSION|" "$BACKEND_ENV"
-rm -f "$BACKEND_ENV.bak"
-echo "    $BACKEND_ENV -> APP_VERSION=$NEW_VERSION"
+sed -i.bak -E "s|^([[:space:]]*'version'[[:space:]]*=>[[:space:]]*)'[^']*'|\1'$NEW_VERSION'|" "$BACKEND_VERSION_FILE"
+rm -f "$BACKEND_VERSION_FILE.bak"
+echo "    $BACKEND_VERSION_FILE -> '$NEW_VERSION'"
+echo "    NOTE: commit and deploy the backend for the update banner to reach users"
 
 echo "==> Build (this artifact serves web, iOS and Android)"
 npm run build
@@ -114,4 +121,8 @@ Released $NEW_VERSION.
 
 Not pushed. When you are ready:
   git push && git push --tags
+
+The backend's config/mobile.php now reads $NEW_VERSION but is uncommitted.
+Commit and deploy the backend, or the in-app update banner will keep
+advertising the previous version.
 DONE
