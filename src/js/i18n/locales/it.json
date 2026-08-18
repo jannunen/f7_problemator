@@ -381,8 +381,7 @@
     "help_me": "Aiuto",
     "no_ticks_hint": "Altrimenti questo messaggio scomparira quando inizierai a registrare problemi. Puoi ritrovare questo piu tardi nel menu Impostazioni.",
     "show_problem_list": "Mostra lista dei problemi",
-    "open_problem_map": "Apri mappa dei problemi",
-    "if_that_does_not_help": "o se questo non aiuta, prova:"
+    "open_problem_map": "Apri mappa dei problemi"
   },
   "gymmap": {
     "title": "Mappa della palestra",

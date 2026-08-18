@@ -381,8 +381,7 @@
     "help_me": "Hilf mir",
     "no_ticks_hint": "Andernfalls verschwindet diese Meldung, sobald du anfängst Probleme zu ticken. Du findest dies später im Einstellungen-Menü.",
     "show_problem_list": "Problemliste anzeigen",
-    "open_problem_map": "Problemkarte öffnen",
-    "if_that_does_not_help": "oder wenn das nicht hilft, versuchen Sie es mit:"
+    "open_problem_map": "Problemkarte öffnen"
   },
   "gymmap": {
     "title": "Hallenkarte",

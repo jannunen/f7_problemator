@@ -381,8 +381,7 @@
     "help_me": "Hjälp mig",
     "no_ticks_hint": "Annars försvinner detta meddelande efter att du börjar ticka problem. Du hittar detta senare i Inställningar-menyn.",
     "show_problem_list": "Visa problemlista",
-    "open_problem_map": "Öppna problemkarta",
-    "if_that_does_not_help": "eller om det inte hjälper, prova:"
+    "open_problem_map": "Öppna problemkarta"
   },
   "gymmap": {
     "title": "Gymkarta",

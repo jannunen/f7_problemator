@@ -381,8 +381,7 @@
     "help_me": "Padėkite man",
     "no_ticks_hint": "Kitaip šis pranešimas dings, kai pradėsite tikinti problemas. Tai rasite vėliau Nustatymų meniu.",
     "show_problem_list": "Rodyti problemų sąrašą",
-    "open_problem_map": "Atidaryti problemų žemėlapį",
-    "if_that_does_not_help": "arba jei tai nepadeda, pabandykite:"
+    "open_problem_map": "Atidaryti problemų žemėlapį"
   },
   "gymmap": {
     "title": "Salės žemėlapis",

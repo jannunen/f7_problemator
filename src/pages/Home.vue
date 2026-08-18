@@ -17,13 +17,6 @@
     </f7-navbar>
 
     <div>
-      <div class="flex justify-center gap-6 mt-5 mb-4">
-        <div class="px-4 mt-4 text-center p-text-dim text-sm">
-          {{ t('home.loading_stuck') }}
-          <a :href="'https://pwa2.problemator.fi/?forceReload=' + Math.random() * 1000000" class="p-link ml-1">{{ t('home.reload_app') }}</a>
-          {{ t('home.if_that_does_not_help') }} <a href="https://pwa2.problemator.fi/">https://pwa2.problemator.fi/</a>
-        </div>
-      </div>
       <!-- Gym selector always visible — deliberately OUTSIDE the profileLoaded
            block. Picking a gym flips profileLoaded to false synchronously, so
            while it lived inside, the selector unmounted in the same tick as its

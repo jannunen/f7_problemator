@@ -4,7 +4,13 @@
   >
     <!-- initial page is specified in routes.js -->
 
+    <!-- With browser history off, Framework7 has no location to derive the
+         first route from, so the main view came up empty: full-size, zero
+         pages, and nothing but the dark theme's black. On the web the URL
+         still decides, so `url` is left undefined there and deep links keep
+         working. -->
     <f7-view 
+    :url="useBrowserHistory ? undefined : '/'"
     :push-state="useBrowserHistory"
     :browser-history="useBrowserHistory"
     :browser-history-root="historyRoot"

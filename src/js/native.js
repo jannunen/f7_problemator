@@ -41,17 +41,27 @@ export async function registerBackButton(f7) {
  */
 export async function setupChrome() {
   if (!isNative) return
+
+  // Status bar and splash are handled separately, and setOverlaysWebView is
+  // guarded by platform. It is an Android-only method: on iOS it rejects with
+  // UNIMPLEMENTED, and when all three were chained in one try/catch that
+  // rejection skipped SplashScreen.hide() too. The splash then stayed up over
+  // the app on every single iOS launch until Capacitor's own timeout pulled
+  // it — which is not the harmless case the old comment claimed.
   try {
-    const [{ StatusBar, Style }, { SplashScreen }] = await Promise.all([
-      import('@capacitor/status-bar'),
-      import('@capacitor/splash-screen'),
-    ])
-    await StatusBar.setOverlaysWebView({ overlay: false })
+    const { StatusBar, Style } = await import('@capacitor/status-bar')
+    if (isAndroid) {
+      await StatusBar.setOverlaysWebView({ overlay: false })
+    }
     await StatusBar.setStyle({ style: Style.Dark })
+  } catch (e) {
+    console.warn('status bar setup skipped:', e?.message ?? e)
+  }
+
+  try {
+    const { SplashScreen } = await import('@capacitor/splash-screen')
     await SplashScreen.hide()
   } catch (e) {
-    // A missing plugin must not stop the app booting — worst case the splash
-    // lingers, which is visible and harmless.
-    console.warn('native chrome setup skipped:', e?.message ?? e)
+    console.warn('splash hide skipped:', e?.message ?? e)
   }
 }

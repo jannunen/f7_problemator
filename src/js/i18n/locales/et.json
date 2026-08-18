@@ -381,8 +381,7 @@
     "help_me": "Aita mind",
     "no_ticks_hint": "Muidu kaob see teade pärast seda, kui hakkad probleeme tikkima. Leiad selle hiljem Seadete menüüst.",
     "show_problem_list": "Näita probleemide nimekirja",
-    "open_problem_map": "Ava probleemide kaart",
-    "if_that_does_not_help": "või kui see ei aita, proovi:"
+    "open_problem_map": "Ava probleemide kaart"
   },
   "gymmap": {
     "title": "Saali kaart",

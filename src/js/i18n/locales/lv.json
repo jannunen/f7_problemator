@@ -381,8 +381,7 @@
     "help_me": "Palīdziet man",
     "no_ticks_hint": "Citādi šis paziņojums pazudīs, kad sāksiet atzīmēt problēmas. Vēlāk to atradīsiet Iestatījumu izvēlnē.",
     "show_problem_list": "Rādīt problēmu sarakstu",
-    "open_problem_map": "Atvērt problēmu karti",
-    "if_that_does_not_help": "vai, ja tas nepalīdz, mēģiniet:"
+    "open_problem_map": "Atvērt problēmu karti"
   },
   "gymmap": {
     "title": "Zāles karte",

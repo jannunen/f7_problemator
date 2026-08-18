@@ -410,9 +410,7 @@
     "select_gym_prompt": "Select a gym above to see your dashboard, problems, and stats.",
     "no_ticks_message": "It seems that you have no ticks. If you should have, click here for instructions.",
     "help_me": "Help me",
-    "no_ticks_hint": "Otherwise this message will disappear after you start ticking problems. You can find this later from Settings-menu.",
-    "loading_stuck": "If the app does not load, If you have added the app to your home page, remove and re-add to make Problemator work again.",
-    "reload_app": "reload app"
+    "no_ticks_hint": "Otherwise this message will disappear after you start ticking problems. You can find this later from Settings-menu."
   },
   "gymmap": {
     "title": "Gym Map",
