@@ -70,9 +70,16 @@ const getActiveProblemsByGrade = computed(() => {
       const gradeId = prob.grade.id
       gradeMap.set(gradeId, gradeMap.get(gradeId) + 1)
 
-      const hasTick = ticks.value.find(x => x.id == prob.id)
+      // Was `x.id == prob.id`, comparing a TICK's own id against a PROBLEM
+      // id — so a tick only counted by coincidence, and a freshly added one
+      // never did. Every other place in the app matches on problemid.
+      const hasTick = ticks.value.find(x => x.problemid == prob.id)
       if (hasTick != null) {
-        tickedGradeMap.set(hasTick.gradeid, tickedGradeMap.get(hasTick.gradeid) + 1)
+        // Count against the PROBLEM's grade, the same bucket the denominator
+        // above used. The tick carries its own gradeid, which can differ when
+        // a climber has given a grade opinion, and counting it there put the
+        // numerator and denominator in different rows.
+        tickedGradeMap.set(gradeId, tickedGradeMap.get(gradeId) + 1)
       }
     })
     return grades.value.map(g => {

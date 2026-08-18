@@ -310,7 +310,22 @@
     "search_for_problems": "Search for problems",
     "read_qr": "Read QR",
     "hits": "{n} hits",
-    "no_hits": "No problem(s) found"
+    "no_hits": "No problem(s) found",
+    "try_again": "Try again",
+    "qr_not_recognised_title": "That code isn't a Problemator code",
+    "qr_not_recognised_hint": "Scan the QR code on the problem tag by the wall.",
+    "qr_err_denied_title": "Camera access is off",
+    "qr_err_denied_hint": "Allow camera access for Problemator in your device settings, then try again.",
+    "qr_err_nocamera_title": "No camera found",
+    "qr_err_nocamera_hint": "This device has no camera available for scanning.",
+    "qr_err_insecure_title": "Scanning needs a secure connection",
+    "qr_err_insecure_hint": "Open Problemator over https and try again.",
+    "qr_err_inuse_title": "The camera is busy",
+    "qr_err_inuse_hint": "Another app or tab is using the camera. Close it, then try again.",
+    "qr_err_unsupported_title": "This browser cannot scan",
+    "qr_err_unsupported_hint": "Try a different browser, or search for the problem by its tag.",
+    "qr_err_generic_title": "The camera could not start",
+    "qr_err_generic_hint": "Try again, or search for the problem by its tag instead."
   },
   "showcomments": {
     "title": "Problem comments",
