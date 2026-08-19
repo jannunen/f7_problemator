@@ -5,8 +5,8 @@
       </template>
   
       <template #after>
-        <strong class="text-white font-bold mr-2" v-if="item.problem.c_like > 0">
-          {{ item.problem.c_like }}
+        <strong class="text-white font-bold mr-2" v-if="likeCount(item.problem) > 0">
+          {{ likeCount(item.problem) }}
           <Icon name="heart" class="text-red-500 inline-block align-baseline" />
         </strong>
       </template>
@@ -46,6 +46,7 @@
       </template>
     </f7-list-item></template>
   <script setup>
+import { likeCount } from '@helpers/likes.js'
 import Icon from '@/components/ui/Icon.vue'
   import RoundBadge from '@components/ui/RoundBadge.vue'
   import PBadge from '@components/PBadge.vue'

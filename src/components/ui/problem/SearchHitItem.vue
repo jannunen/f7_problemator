@@ -20,8 +20,8 @@
     </template>
 
     <template #after>
-      <strong class="hit-likes" v-if="problem.c_like > 0">
-        {{ problem.c_like }}
+      <strong class="hit-likes" v-if="likeCount(problem) > 0">
+        {{ likeCount(problem) }}
         <span class="material-icons" style="font-size: 14px; color: #ef4444; vertical-align: middle;">favorite</span>
       </strong>
     </template>
@@ -93,6 +93,7 @@ import relativeTime from "dayjs/plugin/relativeTime"
 import { toaster, alert } from '@js/helpers/notifications.js'
 import { ref,computed } from 'vue'
 import store from '@js/store.js'
+import { likeCount } from '@helpers/likes.js'
 
 dayjs.extend(relativeTime)
 export default {
@@ -191,6 +192,7 @@ export default {
       return grade.toLowerCase()
     }
     return {
+      likeCount,
       swipingout,
       quickTick,
       onClick,

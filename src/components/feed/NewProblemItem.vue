@@ -8,8 +8,8 @@
       </template>
   
       <template #after>
-        <strong class="text-white font-bold  mr-2 " v-if="problem.c_like > 0">
-          {{ problem.c_like }}
+        <strong class="text-white font-bold  mr-2 " v-if="likeCount(problem) > 0">
+          {{ likeCount(problem) }}
           <f7-icon size="16" color="red" md="material:heart_fill" aurora="f7:heart_fill" ios="f7:heart_fill" />
         </strong>
       </template>
@@ -72,6 +72,7 @@
   import { toaster, alert } from '@js/helpers/notifications.js'
   import { ref,computed } from 'vue'
   import store from '@js/store.js'
+import { likeCount } from '@helpers/likes.js'
   
   dayjs.extend(relativeTime)
   export default {
@@ -165,6 +166,7 @@
         return grade.toLowerCase()
       }
       return {
+        likeCount,
         swipingout,
         quickTick,
         onClick,

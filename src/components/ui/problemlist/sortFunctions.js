@@ -1,3 +1,4 @@
+import { likeCount } from '@helpers/likes.js'
 import dayjs from 'dayjs'
 
 const sortFunctions = {
@@ -42,11 +43,14 @@ const sortFunctions = {
     'least_ticks': (a, b) => {
         return parseInt(a.ascents_count) - parseInt(b.ascents_count)
     },
+    // c_like is a dead legacy column — nothing has written it in years, so it
+    // reads zero on every active route and these two sorts did nothing at all.
+    // likeCount reads the count the API now sends.
     'best': (a, b) => {
-        return parseInt(b.c_like)-parseInt(a.c_like)
+        return likeCount(b) - likeCount(a)
     },
     'worst': (a, b) => {
-        return parseInt(a.c_like)-parseInt(b.c_like)
+        return likeCount(a) - likeCount(b)
     },
 }
 
