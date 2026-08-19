@@ -17,16 +17,30 @@
             <ul class="list-disc my-2 mx-4 p-2">
               <li class="list-none mt-2 text-green-400">Done</li>
               <li>See what other climber's have climbed.</li>
+              <li>Problem commenting</li>
+              <li>Spray wall — build your own routes from a photo</li>
+              <li>Reporting a route as dirty or dangerous</li>
+              <li>Badges</li>
               <li class="list-none mt-2 text-green-500">Soon</li>
               <li>Jatsin orjat (Slaves of Yahtzee)</li>
-              <li>Reporting dirty/dangerous</li>
-              <li>Problem commenting</li>
+              <li>Problemator on the App Store and Google Play</li>
               <li class="list-none mt-2 text-orange-500">Some day</li>
-              <li>Spray wall</li>
-              <li>Messaging</li>
+              <li>Messaging between climbers and routesetters</li>
+              <li>Push notifications</li>
             </ul>
           </f7-tab>
           <f7-tab id="tab-2" class="mt-2">
+            <release-note
+              title="1.5.0"
+              :notes="[
+                'Badges — earn them for what you climb, and see the whole set your gym offers',
+                'Bottom navigation, so the route list is always one tap away',
+                'Report a route as dirty or dangerous, with an optional note for the routesetters',
+                'A new look throughout the app',
+                'The sign-in screen no longer waits on a gym list it cannot load',
+                'Your location is only checked if you ask for the nearest gym'
+              ]"
+            ></release-note>
             <release-note title="1.0.1" :notes="['Added gym map for showing boulders']"></release-note>
             <release-note title="0.9.21" :notes="['Enhanced UI styles, changed to email OTP.']"></release-note>
             <release-note title="0.9.20" :notes="['Added grade pyramid and re-added styles radar-charts']"></release-note>
