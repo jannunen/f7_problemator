@@ -416,7 +416,8 @@
     "select_gym_prompt": "Select a gym above to see your dashboard, problems, and stats.",
     "no_ticks_message": "It seems that you have no ticks. If you should have, click here for instructions.",
     "help_me": "Help me",
-    "no_ticks_hint": "Otherwise this message will disappear after you start ticking problems. You can find this later from Settings-menu."
+    "no_ticks_hint": "Otherwise this message will disappear after you start ticking problems. You can find this later from Settings-menu.",
+    "start_by_clicking_a_wall": "Start by clicking a wall"
   },
   "gymmap": {
     "title": "Gym Map",
