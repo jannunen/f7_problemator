@@ -18,6 +18,15 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+            <!-- The way back in from social sign-in. Must match redirectTo in
+                 src/js/supabase.js and the redirect URL list in Supabase. -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="fi.problemator.app" android:host="auth-callback" />
+            </intent-filter>
         </activity>
 
         <provider

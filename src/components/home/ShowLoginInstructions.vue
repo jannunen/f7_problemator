@@ -42,6 +42,37 @@
         </div>
       </Transition>
 
+      <!-- Social sign-in.
+           Above the email form, not below it: Apple's guidelines require Sign
+           in with Apple to be at least as prominent as any other option, and
+           on a phone "further up" is what prominence means. -->
+      <div v-if="socialAuthAvailable && authStep === 'idle'" class="social-section">
+        <button
+          v-for="p in PROVIDERS"
+          :key="p"
+          class="social-btn"
+          :class="[`social-btn--${p}`, { 'is-loading': busyProvider === p }]"
+          :disabled="busyProvider !== null"
+          @click="signIn(p)"
+        >
+          <svg v-if="busyProvider === p" class="spinner" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" fill="none" stroke-dasharray="31.4 31.4" stroke-linecap="round" />
+          </svg>
+          <svg v-else-if="p === 'apple'" class="social-mark" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M17.05 12.54c-.02-2.2 1.8-3.26 1.88-3.31-1.02-1.5-2.62-1.7-3.19-1.72-1.36-.14-2.65.8-3.34.8-.69 0-1.75-.78-2.87-.76-1.48.02-2.84.86-3.6 2.18-1.53 2.66-.39 6.6 1.1 8.76.73 1.06 1.6 2.25 2.74 2.2 1.1-.04 1.52-.71 2.85-.71 1.33 0 1.71.71 2.87.69 1.19-.02 1.94-1.08 2.66-2.14.84-1.23 1.19-2.42 1.21-2.48-.03-.01-2.32-.89-2.34-3.51zM14.9 5.6c.6-.74 1.01-1.76.9-2.78-.87.04-1.93.58-2.56 1.31-.56.65-1.05 1.69-.92 2.69.97.07 1.97-.49 2.58-1.22z" />
+          </svg>
+          <svg v-else class="social-mark" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="#4285F4" d="M23.52 12.27c0-.82-.07-1.6-.21-2.36H12v4.47h6.46a5.52 5.52 0 01-2.4 3.62v3h3.88c2.27-2.09 3.58-5.17 3.58-8.83z" />
+            <path fill="#34A853" d="M12 24c3.24 0 5.96-1.08 7.94-2.91l-3.88-3.01c-1.08.72-2.45 1.15-4.06 1.15-3.13 0-5.78-2.11-6.73-4.95H1.26v3.11A12 12 0 0012 24z" />
+            <path fill="#FBBC05" d="M5.27 14.28a7.2 7.2 0 010-4.56V6.61H1.26a12 12 0 000 10.78l4.01-3.11z" />
+            <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.44-3.44C17.95 1.18 15.24 0 12 0 7.31 0 3.26 2.69 1.26 6.61l4.01 3.11C6.22 6.86 8.87 4.75 12 4.75z" />
+          </svg>
+          <span>{{ t(`auth.continue_with_${p}`) }}</span>
+        </button>
+
+        <div class="social-divider"><span>{{ t('auth.or_with_email') }}</span></div>
+      </div>
+
       <!-- Step 1: Email input -->
       <Transition name="step-fade" mode="out-in">
         <div v-if="authStep === 'idle'" key="idle" class="form-section">
@@ -191,6 +222,8 @@ import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { ref, computed, reactive, watch, nextTick } from 'vue'
 import logo from '../../assets/images/logo.png'
+import { PROVIDERS } from '@helpers/socialAuth.js'
+import { socialAuthAvailable } from '@js/supabase.js'
 
 const { t } = useI18n()
 const store = useStore()
@@ -200,6 +233,9 @@ const sukunimi = ref('')
 const otpDigits = reactive(['', '', '', '', '', ''])
 const otpRefs = reactive([])
 const sending = ref(false)
+// Which provider is mid-flight, so its own button spins and the other is
+// disabled rather than both showing the same indeterminate state.
+const busyProvider = ref(null)
 
 const authStep = computed(() => store.state.authStep)
 const authEmail = computed(() => store.state.authEmail)
@@ -275,6 +311,12 @@ const verifyCode = async () => {
     payload.sukunimi = sukunimi.value
   }
   await store.dispatch('verifyOtp', payload)
+}
+
+const signIn = async (provider) => {
+  busyProvider.value = provider
+  await store.dispatch('socialLogin', provider)
+  busyProvider.value = null
 }
 
 const goBack = () => {
@@ -403,6 +445,72 @@ watch(authStep, (val) => {
 
 
 
+
+/* ─── Social sign-in ─── */
+.social-section {
+  margin-bottom: 1.25rem;
+}
+
+/* The brand marks are the only colour here. Both providers permit a dark
+   button, which is what lets these sit in the app's own surface language
+   instead of two white slabs punched through it. */
+.social-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  margin-bottom: 0.6rem;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--p-text);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.social-btn:not(:disabled):hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.16);
+  transform: translateY(-1px);
+}
+
+.social-btn:not(:disabled):active {
+  transform: translateY(0);
+}
+
+.social-btn:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.social-mark {
+  width: 1.15rem;
+  height: 1.15rem;
+  flex-shrink: 0;
+}
+
+.social-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0 0.25rem;
+  font-size: 0.72rem;
+  color: var(--p-text-dark);
+  letter-spacing: 0.04em;
+}
+
+.social-divider::before,
+.social-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+}
 
 /* ─── Form ─── */
 .form-section {

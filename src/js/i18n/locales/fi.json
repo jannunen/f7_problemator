@@ -489,7 +489,10 @@
     "verify_code": "Vahvista koodi",
     "use_different_email": "Käytä toista sähköpostia",
     "cookie_notice": "Kirjautumalla hyväksyt evästeiden käytön kiipeilyedistymisesi seuraamiseen.",
-    "enter_name_error": "Syötä etu- ja sukunimesi."
+    "enter_name_error": "Syötä etu- ja sukunimesi.",
+    "continue_with_apple": "Jatka Applella",
+    "continue_with_google": "Jatka Googlella",
+    "or_with_email": "tai käytä sähköpostia"
   },
   "attribute_radar": {
     "title": "Kiipeilytyylien profiili",

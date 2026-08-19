@@ -27,6 +27,14 @@ const api = {
     const ret = await axios.post(endpoint + '/auth/otp/refresh')
     return ret.data
   },
+  // Trades a Supabase token for ours. Everything after this call is ordinary
+  // authenticated API traffic — Supabase is not involved again.
+  async socialExchange(accessToken) {
+    const ret = await axios.post(endpoint + '/auth/social/exchange', {
+      access_token: accessToken
+    })
+    return ret.data
+  },
   async newProblems(payload) {
     const ret = await axios.get(endpoint+"/gym/"+payload+"/problems/new")
     return ret.data

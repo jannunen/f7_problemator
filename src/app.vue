@@ -44,7 +44,8 @@
 import routes from './js/routes.js'
 import BottomTabBar from '@components/ui/BottomTabBar.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
-import { registerBackButton, setupChrome } from '@js/native.js'
+import { registerBackButton, setupChrome, registerDeepLinks } from '@js/native.js'
+import { pendingWebSession } from '@helpers/socialAuth.js'
 import { useBrowserHistory } from '@js/platform.js'
 import { useI18n } from 'vue-i18n'
 import {  watch, computed, ref, onMounted } from 'vue'
@@ -135,6 +136,15 @@ export default {
     // Framework7 stack instead of exiting the app.
     setupChrome()
     registerBackButton(f7)
+    // Let a social sign-in back in after its trip to the system browser.
+    registerDeepLinks()
+
+    // The web equivalent: the provider redirected back onto our own origin and
+    // supabase-js consumed the URL before this ran, so any session it left is
+    // waiting to be traded for our JWT. Resolves to null on an ordinary load.
+    pendingWebSession().then((token) => {
+      if (token) store.dispatch('completeSocialLogin', token)
+    })
     // Save tip showing status in localStorage.
     const tipShowStatus = JSON.parse(localStorage.getItem('tipShowStatus'))
     const access_token = computed(() => store.state.access_token)

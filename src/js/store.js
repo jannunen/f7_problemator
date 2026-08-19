@@ -1,4 +1,5 @@
 import { createStore } from "vuex";
+import { signInWith, clearSupabaseSession } from '@helpers/socialAuth.js'
 import api from './api'
 import home from "./store/home.store.js"
 import climbers from './store/climber.store.js'
@@ -488,6 +489,63 @@ export default createStore({
         commit('setAuthError', err.response?.data?.error || 'Verification failed.')
       }
     },
+    /**
+     * Apple / Google sign-in.
+     *
+     * Ends in exactly the same state as verifyOtp — same token, same user, same
+     * flags — because it ends at the same API contract. The only extra step is
+     * dropping the Supabase session afterwards, so nothing in the app has two
+     * competing answers to whether someone is signed in.
+     */
+    async socialLogin({ commit }, provider) {
+      commit('setAuthError', null)
+      commit('setAuthStep', 'verifying')
+      try {
+        const supabaseToken = await signInWith(provider)
+
+        // Web only: the page is navigating away to the provider. There is no
+        // token yet and nothing to fail — completion happens on the way back.
+        if (!supabaseToken) return null
+
+        const ret = await api.socialExchange(supabaseToken)
+        commit('setToken', ret.access_token)
+        commit('user', ret.user)
+        commit('setIsAuthenticated', true)
+        commit('setAuthStep', 'idle')
+        await clearSupabaseSession()
+        return ret
+      } catch (err) {
+        commit('setAuthStep', 'idle')
+        commit(
+          'setAuthError',
+          err.response?.data?.error || err.message || 'Sign-in failed.'
+        )
+        await clearSupabaseSession()
+        return null
+      }
+    },
+    /**
+     * Finish a sign-in that started before a redirect or a trip out to the
+     * system browser. Safe to call on every launch: with nothing pending it
+     * does nothing.
+     */
+    async completeSocialLogin({ commit }, supabaseToken) {
+      if (!supabaseToken) return null
+      try {
+        const ret = await api.socialExchange(supabaseToken)
+        commit('setToken', ret.access_token)
+        commit('user', ret.user)
+        commit('setIsAuthenticated', true)
+        commit('setAuthStep', 'idle')
+        await clearSupabaseSession()
+        return ret
+      } catch (err) {
+        commit('setAuthStep', 'idle')
+        commit('setAuthError', err.response?.data?.error || 'Sign-in failed.')
+        await clearSupabaseSession()
+        return null
+      }
+    },
     logout({ commit }) {
       localStorage.removeItem('token')
       localStorage.removeItem('gymid')
@@ -501,6 +559,7 @@ export default createStore({
       commit('setAuthEmail', '')
       commit('setAuthError', null)
       commit('setReady', true)
+      clearSupabaseSession()
     },
     setUser({  commit}, payload) {
       commit('user' , payload)

@@ -1,4 +1,5 @@
 import { isNative, isAndroid } from '@js/platform.js'
+import { handleNativeRedirect } from '@helpers/socialAuth.js'
 
 /**
  * Native shell behaviour.
@@ -64,4 +65,20 @@ export async function setupChrome() {
   } catch (e) {
     console.warn('splash hide skipped:', e?.message ?? e)
   }
+}
+
+/**
+ * Deep links back into the app.
+ *
+ * Social sign-in leaves the app for the system browser and has to be let back
+ * in; the URL scheme that carries it is registered in the iOS and Android
+ * projects. Links we do not recognise are ignored rather than swallowed, so
+ * adding another one later is a matter of adding a handler here.
+ */
+export async function registerDeepLinks() {
+  if (!isNative) return
+  const { App } = await import('@capacitor/app')
+  App.addListener('appUrlOpen', async ({ url }) => {
+    await handleNativeRedirect(url)
+  })
 }

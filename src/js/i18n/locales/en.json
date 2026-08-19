@@ -512,7 +512,10 @@
     "verify_code": "Verify code",
     "use_different_email": "Use a different email",
     "cookie_notice": "By signing in you accept our use of cookies for tracking your climbing progress.",
-    "enter_name_error": "Please enter your first and last name."
+    "enter_name_error": "Please enter your first and last name.",
+    "continue_with_apple": "Continue with Apple",
+    "continue_with_google": "Continue with Google",
+    "or_with_email": "or use your email"
   },
   "attribute_radar": {
     "title": "Climbing style profile",
