@@ -1,0 +1,33 @@
+name: CI
+
+# Lint and build only. Deployment lives in main.yml and is untouched by this.
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      # No .env in CI, so VITE_* are undefined. That is fine for a build check:
+      # it proves the bundle compiles, which is what breaks. Whether it points
+      # at the right API is a deploy-time question, not a build-time one.
+      - name: Build
+        run: npm run build
