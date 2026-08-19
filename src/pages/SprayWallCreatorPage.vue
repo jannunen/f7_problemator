@@ -238,9 +238,14 @@ const ROLE_FILLS = {
 
 const { photoFilter, useWall } = usePhotoAdjust()
 
-// On by default: rings are what make a hold findable at a glance, and someone
-// who prefers the bare photo can turn them off.
-const showCircles = ref(true)
+// Off by default when setting a problem. Every hold on the wall is ringed,
+// so the photo arrives already covered in them and the ones you have picked
+// are the hardest thing on screen to see. Starting from the bare photo means
+// the only marks are your own. The toggle is right there for anyone who wants
+// help finding a hold to tap.
+//
+// The viewer keeps its rings on — there the marks ARE the problem.
+const showCircles = ref(false)
 
 const MAX_ZOOM = 4
 const zoom = ref(1)
