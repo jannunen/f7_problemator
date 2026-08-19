@@ -619,5 +619,12 @@
     "comment_prompt": "Kommentit ovat julkisia. Mitä haluat sanoa?",
     "comment_thanks": "Kiitos. Kommentti näkyy, kun valvoja on hyväksynyt sen.",
     "comment_failed": "Kommenttia ei voitu tallentaa. Yritä uudelleen."
+  },
+  "tabbar": {
+    "home": "Etusivu",
+    "problems": "Reitit",
+    "map": "Kartta",
+    "feed": "Syöte",
+    "menu": "Valikko"
   }
 }

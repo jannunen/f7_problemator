@@ -688,6 +688,13 @@
   padding-bottom: calc(60px + env(safe-area-inset-bottom, 0) + 8px);
 }
 
+/* The bar is fixed, so every scrolling page needs to end above it or its last
+   row sits underneath. Applied from the app root rather than page by page —
+   there are twenty-odd pages and any one missed would hide content. */
+.has-tabbar .page-content {
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0) + 8px);
+}
+
 /* Filter disclosure button.
    Lived in ProblemList.vue's scoped block, so any other page using the class
    got an unstyled browser button. It belongs here with the rest of the shared

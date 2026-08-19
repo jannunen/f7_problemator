@@ -642,5 +642,12 @@
     "comment_prompt": "Comments are public. What is your comment?",
     "comment_thanks": "Thanks. Your comment appears once a moderator approves it.",
     "comment_failed": "Could not save your comment. Try again."
+  },
+  "tabbar": {
+    "home": "Home",
+    "problems": "Routes",
+    "map": "Map",
+    "feed": "Feed",
+    "menu": "Menu"
   }
 }
