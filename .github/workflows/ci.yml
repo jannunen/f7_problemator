@@ -31,3 +31,62 @@ jobs:
       # at the right API is a deploy-time question, not a build-time one.
       - name: Build
         run: npm run build
+
+  deploy:
+    name: Deploy to app.problemator.fi
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    concurrency:
+      group: deploy-app
+      cancel-in-progress: false
+
+    env:
+      TARGET: server/sites_mounted/problemator_app
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      - run: npm ci
+
+      # The build bakes VITE_* in, so a build without them ships an app that
+      # points at nothing. The file is gitignored, so it arrives as one secret
+      # holding the whole thing rather than a secret per key.
+      - name: Write production environment
+        run: |
+          if [ -z "${{ secrets.ENV_PRODUCTION }}" ]; then
+            echo "::error::ENV_PRODUCTION is not set. Without it the build ships with no API host."
+            exit 1
+          fi
+          printf '%s\n' "${{ secrets.ENV_PRODUCTION }}" > .env.production
+
+      - name: Build
+        run: npm run build
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          printf '%s\n' "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_deploy
+          chmod 600 ~/.ssh/id_deploy
+          ssh-keyscan -p "${{ secrets.DEPLOY_PORT || 22 }}" -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      # No --delete, deliberately. Asset filenames are content-hashed, so old
+      # ones are inert — but a tab still running the previous build will ask for
+      # its own chunks, and deleting them turns a background deploy into a blank
+      # screen for anyone mid-session. Stale files cost disk; missing ones cost
+      # a climber their tick.
+      - name: Upload
+        run: |
+          rsync -az \
+            -e "ssh -i ~/.ssh/id_deploy -p ${{ secrets.DEPLOY_PORT || 22 }}" \
+            www/ "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:${TARGET}/"
+
+      - name: Remove deploy key and environment
+        if: always()
+        run: rm -f ~/.ssh/id_deploy .env.production
