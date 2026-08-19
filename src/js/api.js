@@ -211,8 +211,11 @@ const api = {
     const ret = await axios.delete(url, payload)
     return ret.data
   },
-  async getBadges() {
-    const ret = await axios.get(endpoint + "/my/badges")
+  async getBadges(gymid) {
+    // gymid is required, not optional: the endpoint has no other way to know
+    // which gym's badges to answer with, and silently returns an empty set
+    // without it.
+    const ret = await axios.get(endpoint + "/my/badges", { params: { gymid } })
     return ret.data
   },
   async saveTick(payload,prefix='') {

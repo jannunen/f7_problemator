@@ -181,7 +181,9 @@
   },
   "badges": {
     "title": "Merkit",
-    "more": "+ {n} lisää"
+    "more": "+ {n} lisää",
+    "earned_on": "Ansaittu {date}",
+    "not_earned": "Ei vielä ansaittu"
   },
   "gymselector": {
     "active_gym": "Aktiivinen halli",

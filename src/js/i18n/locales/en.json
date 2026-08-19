@@ -189,7 +189,9 @@
   },
   "badges": {
     "title": "Badges",
-    "more": "+ {n} more"
+    "more": "+ {n} more",
+    "earned_on": "Earned {date}",
+    "not_earned": "Not earned yet"
   },
   "gymselector": {
     "active_gym": "Active gym",

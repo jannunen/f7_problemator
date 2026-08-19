@@ -77,6 +77,8 @@
             </div>
           </div>
 
+          <badge-section />
+
           <!-- Section: Gym overview -->
           <div class="home-section">
             <expiring-problems-alert />
@@ -152,6 +154,7 @@ import { performUpdate } from '@js/helpers/update.js'
 import { isUpdateAvailable } from '@js/version.js'
 import SearchProblemsSheetVue from '@components/ui/problem/SearchProblemsSheet.vue'
 import GymSelector from '@components/GymSelector.vue'
+import BadgeSection from '@components/badges/BadgeSection.vue'
 import MyLogs from '@components/home/MyLogs.vue'
 import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
