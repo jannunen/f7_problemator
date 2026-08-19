@@ -27,7 +27,7 @@
       </template>
     </template>
 
-    <badge-detail-sheet v-model:opened="sheetOpen" :badge="selected" :earned-at="earnedAt" :level="selectedLevel" />
+    <badge-detail-sheet v-model:opened="sheetOpen" :badge="selected" :earned-at="earnedAt" :level="selectedLevel" :levels="selectedLevels" />
   </f7-page>
 </template>
 
@@ -70,6 +70,15 @@ const locked = computed(() => ladders.value.map((g) => g.next).filter(Boolean))
 
 // "Level 3 of 14" in the sheet, so the ladder above and below is discoverable
 // even though only one rung is on screen.
+// Every rung of the selected badge's ladder, so the sheet can show what the
+// next level asks for rather than only which number this one is.
+const selectedLevels = computed(() => {
+  if (!selected.value) return []
+  const group = ladders.value.find((g) => g.rungs.some((r) => r.id === selected.value.id))
+  if (!group || group.total < 2) return []
+  return group.rungs.map((r) => ({ ...r, earned: earnedIds.value.has(r.id) }))
+})
+
 const selectedLevel = computed(() => {
   if (!selected.value) return null
   const group = ladders.value.find((g) => g.rungs.some((r) => r.id === selected.value.id))

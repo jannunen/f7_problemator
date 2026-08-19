@@ -27,7 +27,13 @@
       />
     </div>
 
-    <badge-detail-sheet v-model:opened="sheetOpen" :badge="selected" :earned-at="earnedAt" />
+    <badge-detail-sheet
+      v-model:opened="sheetOpen"
+      :badge="selected"
+      :earned-at="earnedAt"
+      :level="selectedLevel"
+      :levels="selectedLevels"
+    />
   </div>
 </template>
 
@@ -45,7 +51,7 @@ import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import BadgeMedal from './BadgeMedal.vue'
-import { collapsedBadges } from '@helpers/badgeTiers.js'
+import { collapsedBadges, groupTiers } from '@helpers/badgeTiers.js'
 import BadgeDetailSheet from './BadgeDetailSheet.vue'
 import { f7 } from 'framework7-vue'
 
@@ -86,6 +92,27 @@ const earnedAt = computed(() => {
 })
 
 
+
+// The shelf opens the same sheet as the full page, so it explains a ladder
+// the same way — otherwise the same badge would say different things
+// depending on which screen you tapped it from.
+const ladders = computed(() => groupTiers(badges.value.definitions ?? [], earnedIds.value))
+
+const selectedGroup = computed(() =>
+  selected.value ? ladders.value.find((g) => g.rungs.some((r) => r.id === selected.value.id)) : null
+)
+
+const selectedLevel = computed(() => {
+  const group = selectedGroup.value
+  if (!group || group.total < 2) return null
+  return { level: group.levelOf(selected.value), total: group.total }
+})
+
+const selectedLevels = computed(() => {
+  const group = selectedGroup.value
+  if (!group || group.total < 2) return []
+  return group.rungs.map((r) => ({ ...r, earned: earnedIds.value.has(r.id) }))
+})
 
 function openAll() {
   f7?.views?.main?.router?.navigate('/badges')

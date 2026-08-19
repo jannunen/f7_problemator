@@ -12,6 +12,25 @@
       <p v-if="level" class="badge-detail__level">
         {{ t('badges.level_of', { level: level.level, total: level.total }) }}
       </p>
+
+      <!-- The whole ladder, because only one rung is ever on screen and
+           "level 3 of 9" does not say what 4 asks for or what 2 was. -->
+      <ol v-if="levels.length > 1" class="ladder">
+        <li
+          v-for="rung in levels"
+          :key="rung.id"
+          class="ladder__rung"
+          :class="{
+            'ladder__rung--earned': rung.earned,
+            'ladder__rung--current': rung.id === badge?.id
+          }"
+        >
+          <span class="ladder__mark material-icons">
+            {{ rung.earned ? 'check_circle' : 'radio_button_unchecked' }}
+          </span>
+          <span class="ladder__name">{{ rung.name }}</span>
+        </li>
+      </ol>
       <p v-if="earnedAt" class="badge-detail__earned">{{ t('badges.earned_on', { date: earnedAt }) }}</p>
       <p v-else class="badge-detail__locked">{{ t('badges.not_earned') }}</p>
     </div>
@@ -35,7 +54,10 @@ const props = defineProps({
   earnedAt: { type: String, default: null },
   // { level, total } when this badge is one rung of a ladder — the page shows
   // only one rung, so this is how the rest of the ladder stays discoverable.
-  level: { type: Object, default: null }
+  level: { type: Object, default: null },
+  // Every rung of this badge's ladder, earned flag included. Empty or a
+  // single entry for a badge that has no levels.
+  levels: { type: Array, default: () => [] }
 })
 
 defineEmits(['update:opened'])
@@ -104,6 +126,56 @@ const iconStyle = computed(() =>
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--p-text-dim);
+}
+
+/* Compact enough that a fourteen rung ladder does not push the date off
+   the bottom of the sheet, and scrollable when it does. */
+.ladder {
+  width: 100%;
+  max-width: 18rem;
+  max-height: 11rem;
+  overflow-y: auto;
+  margin: 0.9rem 0 0.2rem;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.ladder__rung {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: var(--p-radius-sm);
+  font-size: 0.78rem;
+  color: var(--p-text-dark);
+}
+
+.ladder__rung--earned {
+  color: var(--p-text-secondary);
+}
+
+/* The one being explained, so the list has a "you are here". */
+.ladder__rung--current {
+  background: rgba(var(--p-accent-rgb), 0.1);
+  color: var(--p-text);
+  font-weight: 600;
+}
+
+.ladder__mark {
+  font-size: 15px;
+  flex: none;
+  color: var(--p-text-dark);
+}
+
+.ladder__rung--earned .ladder__mark {
+  color: var(--p-success);
+}
+
+.ladder__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .badge-detail__earned {
