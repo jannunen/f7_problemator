@@ -319,8 +319,13 @@
      lets the side panel and every modal cover the bar, which is what should
      happen when one opens. */
   z-index: 5200;
-  height: 60px;
-  padding-bottom: env(safe-area-inset-bottom, 0);
+  /* The height has to include the home-indicator inset. Tailwind's preflight
+     sets box-sizing: border-box on everything, so `height: 60px` with a
+     padding-bottom of the inset left a 26px content box on this device — and
+     a 28px pill plus its label overflowed upward, out of the painted
+     background. Hence the bar looked shorter than its own icons. */
+  height: calc(60px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: rgba(15, 21, 38, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -693,14 +698,14 @@
 
 /* Ensure page has room for bottom tab bar */
 .p-page-with-tabbar {
-  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0) + 8px);
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 8px);
 }
 
 /* The bar is fixed, so every scrolling page needs to end above it or its last
    row sits underneath. Applied from the app root rather than page by page —
    there are twenty-odd pages and any one missed would hide content. */
 .has-tabbar .page-content {
-  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0) + 8px);
+  padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px) + 8px);
 }
 
 /* Filter disclosure button.
