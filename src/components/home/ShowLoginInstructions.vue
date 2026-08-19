@@ -1,16 +1,9 @@
 <template>
   <div class="login-wrapper">
-    <!-- Decorative background shapes -->
-    <div class="bg-shapes" aria-hidden="true">
-      <div class="shape shape-1"></div>
-      <div class="shape shape-2"></div>
-      <div class="shape shape-3"></div>
-    </div>
-
     <div class="login-card">
       <!-- Logo & brand -->
       <div class="brand-section">
-        <div class="logo-ring">
+        <div class="p-ring logo-ring">
           <img :src="logo" alt="Problemator logo" class="logo-img" />
         </div>
         <h1 class="brand-title">Problemator</h1>
@@ -18,21 +11,21 @@
       </div>
 
       <!-- Tab switcher with sliding indicator -->
-      <div class="tab-switcher">
+      <div class="p-segmented tab-switcher">
         <div
-          class="tab-indicator"
-          :class="{ 'tab-right': authType === 'signup' }"
+          class="p-segmented__indicator"
+          :class="{ 'p-segmented__indicator--right': authType === 'signup' }"
         ></div>
         <button
-          class="tab-btn"
-          :class="{ active: authType === 'signin' }"
+          class="p-segmented__btn"
+          :class="{ 'p-segmented__btn--active': authType === 'signin' }"
           @click="switchTab('signin')"
         >
           {{ t('auth.sign_in') }}
         </button>
         <button
-          class="tab-btn"
-          :class="{ active: authType === 'signup' }"
+          class="p-segmented__btn"
+          :class="{ 'p-segmented__btn--active': authType === 'signup' }"
           @click="switchTab('signup')"
         >
           {{ t('auth.sign_up') }}
@@ -312,54 +305,22 @@ watch(authStep, (val) => {
   justify-content: center;
   padding: clamp(1rem, 6vh, 4rem) 1.5rem 1.5rem;
   overflow: hidden;
-  background: linear-gradient(145deg, #0c1220 0%, #162032 50%, #0e1a2a 100%);
+  /* No background of its own: the gradient and the wells of colour this
+     screen used to paint for itself are now the ground under every page. */
 }
 
-.bg-shapes {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
+/* .p-segmented supplies the control; the gap to the form below it is this
+   screen's own rhythm, so it stays here. */
+.tab-switcher {
+  margin-bottom: 1.5rem;
 }
 
-.shape {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.06;
+/* Only the ring's contents need sizing; .p-ring supplies the circle. */
+.logo-ring {
+  margin-bottom: 0.75rem;
+  animation: p-scale-in 0.8s var(--p-ease) both;
 }
 
-.shape-1 {
-  width: 400px;
-  height: 400px;
-  background: #38bdf8;
-  top: -120px;
-  right: -80px;
-  animation: float-slow 20s ease-in-out infinite;
-}
-
-.shape-2 {
-  width: 300px;
-  height: 300px;
-  background: #22d3ee;
-  bottom: -60px;
-  left: -100px;
-  animation: float-slow 25s ease-in-out infinite reverse;
-}
-
-.shape-3 {
-  width: 200px;
-  height: 200px;
-  background: #a78bfa;
-  top: 40%;
-  left: 60%;
-  animation: float-slow 18s ease-in-out infinite 3s;
-}
-
-@keyframes float-slow {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  33% { transform: translate(30px, -20px) scale(1.05); }
-  66% { transform: translate(-20px, 15px) scale(0.95); }
-}
 
 /* ─── Card ─── */
 .login-card {
@@ -375,18 +336,6 @@ watch(authStep, (val) => {
   margin-bottom: 2rem;
 }
 
-.logo-ring {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: rgba(56, 189, 248, 0.08);
-  border: 2px solid rgba(56, 189, 248, 0.15);
-  margin-bottom: 0.75rem;
-  animation: logo-enter 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
 
 .logo-img {
   width: 52px;
@@ -397,25 +346,20 @@ watch(authStep, (val) => {
 .brand-title {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #f1f5f9;
+  color: var(--p-text);
   letter-spacing: -0.02em;
   line-height: 1;
   margin: 0;
-  animation: text-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  animation: text-enter 0.6s var(--p-ease) 0.1s both;
 }
 
 .brand-subtitle {
   font-size: 0.85rem;
-  color: #64748b;
+  color: var(--p-text-dim);
   margin-top: 0.35rem;
   font-weight: 400;
   letter-spacing: 0.02em;
-  animation: text-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both;
-}
-
-@keyframes logo-enter {
-  from { opacity: 0; transform: scale(0.8); }
-  to { opacity: 1; transform: scale(1); }
+  animation: text-enter 0.6s var(--p-ease) 0.2s both;
 }
 
 @keyframes text-enter {
@@ -455,51 +399,10 @@ watch(authStep, (val) => {
 }
 
 /* ─── Tab Switcher ─── */
-.tab-switcher {
-  position: relative;
-  display: flex;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 10px;
-  padding: 3px;
-  margin-bottom: 1.5rem;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
 
-.tab-indicator {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: calc(50% - 3px);
-  height: calc(100% - 6px);
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 8px;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
 
-.tab-indicator.tab-right {
-  transform: translateX(100%);
-}
 
-.tab-btn {
-  flex: 1;
-  position: relative;
-  z-index: 1;
-  padding: 0.6rem 0;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #64748b;
-  background: none;
-  border: none;
-  cursor: pointer;
-  transition: color 0.25s ease;
-  border-radius: 8px;
-  letter-spacing: 0.01em;
-}
 
-.tab-btn.active {
-  color: #e2e8f0;
-}
 
 /* ─── Form ─── */
 .form-section {
@@ -516,7 +419,7 @@ watch(authStep, (val) => {
   display: block;
   font-size: 0.78rem;
   font-weight: 500;
-  color: #94a3b8;
+  color: var(--p-text-muted);
   margin-bottom: 0.4rem;
   letter-spacing: 0.02em;
 }
@@ -537,13 +440,13 @@ watch(authStep, (val) => {
   transform: translateY(-50%);
   width: 1rem;
   height: 1rem;
-  color: #475569;
+  color: var(--p-text-dark);
   pointer-events: none;
   transition: color 0.2s ease;
 }
 
 .input-wrapper:focus-within .input-icon {
-  color: #38bdf8;
+  color: var(--p-accent);
 }
 
 .text-input {
@@ -552,20 +455,20 @@ watch(authStep, (val) => {
   border-radius: 10px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
-  color: #f1f5f9;
+  color: var(--p-text);
   font-size: 0.9rem;
   transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
   outline: none;
 }
 
 .text-input::placeholder {
-  color: #475569;
+  color: var(--p-text-dark);
 }
 
 .text-input:focus {
-  border-color: rgba(56, 189, 248, 0.4);
-  background: rgba(56, 189, 248, 0.04);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.08);
+  border-color: rgba(var(--p-accent-rgb), 0.4);
+  background: rgba(var(--p-accent-rgb), 0.04);
+  box-shadow: 0 0 0 3px rgba(var(--p-accent-rgb), 0.08);
 }
 
 /* ─── OTP Digits ─── */
@@ -582,25 +485,25 @@ watch(authStep, (val) => {
   border-radius: 10px;
   border: 1.5px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
-  color: #f1f5f9;
+  color: var(--p-text);
   font-size: 1.4rem;
   font-weight: 600;
   text-align: center;
   outline: none;
   transition: all 0.2s ease;
-  caret-color: #38bdf8;
+  caret-color: var(--p-accent);
 }
 
 .otp-box:focus {
-  border-color: rgba(56, 189, 248, 0.5);
-  background: rgba(56, 189, 248, 0.06);
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.1);
+  border-color: rgba(var(--p-accent-rgb), 0.5);
+  background: rgba(var(--p-accent-rgb), 0.06);
+  box-shadow: 0 0 0 3px rgba(var(--p-accent-rgb), 0.1);
   transform: translateY(-1px);
 }
 
 .otp-box.filled {
-  border-color: rgba(56, 189, 248, 0.25);
-  background: rgba(56, 189, 248, 0.04);
+  border-color: rgba(var(--p-accent-rgb), 0.25);
+  background: rgba(var(--p-accent-rgb), 0.04);
 }
 
 /* ─── Submit Button ─── */
@@ -616,7 +519,7 @@ watch(authStep, (val) => {
 
 .submit-btn:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(56, 189, 248, 0.2);
+  box-shadow: 0 4px 16px rgba(var(--p-accent-rgb), 0.2);
 }
 
 .submit-btn:not(:disabled):active {
@@ -649,7 +552,7 @@ watch(authStep, (val) => {
   margin-top: 1rem;
   padding: 0.5rem;
   font-size: 0.82rem;
-  color: #64748b;
+  color: var(--p-text-dim);
   background: none;
   border: none;
   cursor: pointer;
@@ -658,7 +561,7 @@ watch(authStep, (val) => {
 }
 
 .back-link:hover {
-  color: #94a3b8;
+  color: var(--p-text-muted);
 }
 
 .back-icon {
@@ -675,7 +578,7 @@ watch(authStep, (val) => {
   border-radius: 10px;
   background: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.2);
-  color: #fca5a5;
+  color: var(--p-danger-tint);
   font-size: 0.85rem;
   margin-bottom: 1.25rem;
 }
@@ -686,9 +589,9 @@ watch(authStep, (val) => {
   gap: 0.6rem;
   padding: 0.75rem 1rem;
   border-radius: 10px;
-  background: rgba(56, 189, 248, 0.08);
-  border: 1px solid rgba(56, 189, 248, 0.15);
-  color: #7dd3fc;
+  background: rgba(var(--p-accent-rgb), 0.08);
+  border: 1px solid rgba(var(--p-accent-rgb), 0.15);
+  color: var(--p-accent-tint);
   font-size: 0.85rem;
   margin-bottom: 1.25rem;
 }
@@ -708,7 +611,7 @@ watch(authStep, (val) => {
   padding-top: 1.25rem;
   border-top: 1px solid rgba(255, 255, 255, 0.04);
   font-size: 0.72rem;
-  color: #475569;
+  color: var(--p-text-dark);
   line-height: 1.5;
 }
 
@@ -723,7 +626,7 @@ watch(authStep, (val) => {
 /* ─── Transitions ─── */
 .step-fade-enter-active,
 .step-fade-leave-active {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.3s var(--p-ease);
 }
 
 .step-fade-enter-from {
@@ -748,7 +651,7 @@ watch(authStep, (val) => {
 }
 
 .field-stagger-enter-active {
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.35s var(--p-ease);
   transition-delay: calc(var(--delay, 0) * 0.06s);
 }
 

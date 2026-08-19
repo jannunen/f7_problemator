@@ -8,6 +8,7 @@
   --p-accent:        #38bdf8;
   --p-accent-rgb:    56, 189, 248;
   --p-accent-hover:  #22d3ee;
+  --p-accent-tint:   #7dd3fc;
   --p-purple:        #a78bfa;
   --p-purple-rgb:    167, 139, 250;
 
@@ -29,6 +30,7 @@
 
   --p-success:       #3bb273;
   --p-danger:        #ef4444;
+  --p-danger-tint:   #fca5a5;
   --p-warning:       #f59e0b;
 
   /* ---- Spacing ---- */
@@ -823,8 +825,9 @@
   position: relative;
   display: flex;
   padding: 3px;
-  border-radius: var(--p-radius-sm);
-  background: var(--p-bg-card-hover);
+  border-radius: var(--p-radius);
+  background: var(--p-bg-card);
+  border: 1px solid var(--p-border);
 }
 
 .p-segmented__indicator {
@@ -833,9 +836,10 @@
   bottom: 3px;
   left: 3px;
   width: calc(50% - 3px);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.12);
-  transition: transform var(--p-duration) var(--p-ease);
+  border-radius: var(--p-radius-sm);
+  background: rgba(var(--p-accent-rgb), 0.12);
+  border: 1px solid rgba(var(--p-accent-rgb), 0.2);
+  transition: transform var(--p-duration-slow) var(--p-ease);
   pointer-events: none;
 }
 
@@ -862,5 +866,5 @@
 }
 
 .p-segmented__btn--active {
-  color: var(--p-text);
+  color: var(--p-text-secondary);
 }
