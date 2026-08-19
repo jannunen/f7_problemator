@@ -160,7 +160,9 @@
     "title": "Ongelma/Reitin suoritustilanne",
     "of_boulders": "{n} Boulderista",
     "of_routes": "{n} Reitistä",
-    "open_details": "Avaa lisätiedot"
+    "open_details": "Avaa lisätiedot",
+    "boulders": "Boulderia",
+    "routes": "Reittiä"
   },
   "grade_pyramid": {
     "title": "Greidipyramidi",

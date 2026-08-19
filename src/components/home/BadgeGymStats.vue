@@ -4,11 +4,16 @@
     <div class="grid grid-cols-2 gap-4 my-3">
       <div class="p-stat">
         <div class="p-stat__value">{{ percentageBoulders }}<span class="p-stat__unit">%</span></div>
-        <div class="p-stat__label">{{ t('gym_stats.of_boulders', { n: totalBoulders }) }}</div>
+        <!-- The count as well as the share: "3%" does not tell you whether
+             three more sends would move it, and the number climbed is the
+             thing a climber is actually keeping track of. -->
+        <div class="p-stat__count num">{{ tickedAmountBoulders }} / {{ totalBoulders }}</div>
+        <div class="p-stat__label">{{ t('gym_stats.boulders') }}</div>
       </div>
       <div class="p-stat">
         <div class="p-stat__value">{{ percentageRoutes }}<span class="p-stat__unit">%</span></div>
-        <div class="p-stat__label">{{ t('gym_stats.of_routes', { n: totalRoutes }) }}</div>
+        <div class="p-stat__count num">{{ tickedAmountRoutes }} / {{ totalRoutes }}</div>
+        <div class="p-stat__label">{{ t('gym_stats.routes') }}</div>
       </div>
     </div>
     <div class="text-center mt-2">
@@ -18,7 +23,7 @@
 </template>
 <script setup>
 import { f7  } from 'framework7-vue'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import store from '@js/store.js'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
@@ -26,55 +31,52 @@ const { t } = useI18n()
 const props = defineProps({
     gym: Object,
 })
-const problems = computed(() => store.state.gym.problems)
-const ticks = computed(() => store.state.alltime.ticks)
+const problems = computed(() => store.state.gym.problems ?? [])
+const ticks = computed(() => store.state.alltime.ticks ?? [])
 
-const percentageRoutes = ref(0)
-const totalRoutes = ref(0)
-const tickedAmountRoutes = ref(0)
+// Computed rather than calculated once in setup. This card used to read its
+// numbers at mount and never again, so ticking a boulder left the percentage
+// showing what it was when the screen was built.
+const totals = computed(() =>
+    problems.value.reduce((acc, item) => {
+        if (item.routetype == 'boulder') acc.boulders += 1
+        else if (item.routetype == 'sport') acc.routes += 1
+        return acc
+    }, { routes: 0, boulders: 0 })
+)
 
-const percentageBoulders = ref(0)
-const totalBoulders = ref(0)
-const tickedAmountBoulders = ref(0)
+const ticked = computed(() => {
+    // Distinct: a problem climbed three times is still one problem climbed.
+    const seen = new Set(ticks.value.map((tick) => tick.problemid))
+    const byId = new Map(problems.value.map((p) => [String(p.id), p]))
+    return [...seen].reduce((acc, pid) => {
+        const problem = byId.get(String(pid))
+        if (!problem) return acc
+        if (problem.routetype == 'boulder') acc.boulders += 1
+        else if (problem.routetype == 'sport') acc.routes += 1
+        return acc
+    }, { routes: 0, boulders: 0 })
+})
 
-const amounts = problems.value.reduce((acc, item) => {
-    if (item.routetype == 'boulder') {
-        acc.totalBoulders = acc.totalBoulders + 1
-    } else if (item.routetype == 'sport') {
-        acc.totalRoutes = acc.totalRoutes + 1
-    }
-    return acc
-}, { totalRoutes: 0, totalBoulders: 0 })
+const totalBoulders = computed(() => totals.value.boulders)
+const totalRoutes = computed(() => totals.value.routes)
+const tickedAmountBoulders = computed(() => ticked.value.boulders)
+const tickedAmountRoutes = computed(() => ticked.value.routes)
 
-totalRoutes.value = amounts.totalRoutes
-totalBoulders.value = amounts.totalBoulders
-
-const problemsids = ticks.value.map((tick) => tick.problemid)
-
-// Calulate ticked problems/routes amounts
-const distinctProblems = [...new Set(problemsids)]
-
-const ret = distinctProblems.reduce((acc, pid) => {
-    const problem = problems.value.find(item => item.id == pid)
-    if (problem != null) {
-        if (problem.routetype == 'boulder') {
-            acc.boulders = acc.boulders + 1
-        } else if (problem.routetype == 'sport') {
-            acc.routes = acc.routes + 1
-        }
-        acc.total = acc.total + 1
-    }
-    return acc
-}, { routes: 0, boulders: 0, total: 0 })
-tickedAmountBoulders.value = ret.boulders
-tickedAmountRoutes.value = ret.routes
-
-if (totalRoutes.value > 0) {
-    percentageRoutes.value = Math.round((tickedAmountRoutes.value / totalRoutes.value) * 1000) / 10
-}
-
-if (totalBoulders.value > 0) {
-    percentageBoulders.value = Math.round((tickedAmountBoulders.value / totalBoulders.value) * 1000) / 10
-}
+const share = (done, total) => (total > 0 ? Math.round((done / total) * 1000) / 10 : 0)
+const percentageBoulders = computed(() => share(tickedAmountBoulders.value, totalBoulders.value))
+const percentageRoutes = computed(() => share(tickedAmountRoutes.value, totalRoutes.value))
 
 </script>
+
+<style scoped>
+/* Between the percentage and its label: smaller than the headline number,
+   brighter than the label, because it is the detail you check second. */
+.p-stat__count {
+  margin-top: 2px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--p-text-secondary);
+}
+</style>
+

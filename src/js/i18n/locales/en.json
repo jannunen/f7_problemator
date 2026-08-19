@@ -168,7 +168,9 @@
     "title": "Problem/Route completion status",
     "of_boulders": "of {n} Boulders",
     "of_routes": "of {n} Routes",
-    "open_details": "Open more details"
+    "open_details": "Open more details",
+    "boulders": "Boulders",
+    "routes": "Routes"
   },
   "grade_pyramid": {
     "title": "Grade Pyramid",
