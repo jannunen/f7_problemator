@@ -8,9 +8,14 @@
       </template>
   
       <template #after>
-        <strong class="text-white font-bold  mr-2 " v-if="likeCount(problem) > 0">
+        <!-- Always shown here, unlike the route list. These are the newest
+             routes in the gym, so almost all of them have no likes yet — a
+             count that only appears once someone has liked something would
+             leave this feed permanently blank and the affordance invisible.
+             Zero is dimmed so it reads as "none yet" rather than shouting. -->
+        <strong class="likes" :class="{ 'likes--none': likeCount(problem) === 0 }">
           {{ likeCount(problem) }}
-          <f7-icon size="16" color="red" md="material:heart_fill" aurora="f7:heart_fill" ios="f7:heart_fill" />
+          <f7-icon size="13" md="material:heart_fill" aurora="f7:heart_fill" ios="f7:heart_fill" />
         </strong>
       </template>
   
