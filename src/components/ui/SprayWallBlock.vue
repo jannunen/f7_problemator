@@ -39,6 +39,7 @@ import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import { f7 } from 'framework7-vue'
 import api from '@js/api'
 
@@ -50,8 +51,7 @@ const gymid = computed(() => store.state.gymid)
 // Keyed by gym so switching gyms refetches rather than showing the previous
 // gym's walls, and disabled until a gym is actually chosen.
 const { data: sprayWalls } = useQuery({
-  queryKey: computed(() => ['spray-walls', gymid.value]),
-  queryFn: () => api.getSprayWalls(gymid.value),
+  ...queries.sprayWalls(gymid),
   enabled: computed(() => !!gymid.value),
   initialData: [],
 })

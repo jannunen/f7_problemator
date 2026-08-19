@@ -110,6 +110,7 @@ import { ref, computed, nextTick } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import api from '@js/api'
 import GymMapSelector from './GymMapSelector.vue'
 
@@ -123,8 +124,7 @@ const searchQuery = ref('')
 const userLocation = ref(null)
 
 const { data: gyms } = useQuery({
-  queryKey: ['gyms'],
-  queryFn: () => api.getGyms(),
+  ...queries.gyms(),
   select: (data) => data.gyms,
   initialData: { gyms: [] },
 })

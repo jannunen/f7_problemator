@@ -140,6 +140,7 @@ import { useStore } from 'vuex'
 import { right } from '@js/helpers'
 import { estimateGrade, toLocalTime, calculatePoints } from '@/js/helpers'
 import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import api from '@js/api'
 
 
@@ -186,13 +187,11 @@ const filteredProblems = computed(() => {
 })
 
 const { data: rankingtop10, isLoading: loading } = useQuery({
-  queryKey: computed(() => ['rankingTop10', climber.value, props.ranking.ranking.id, props.country]),
-  queryFn: () => api.rankingtop10({
-    climber_id: climber.value,
-    country: props.country,
-    ranking_id: props.ranking.ranking.id,
-  }),
-  enabled: computed(() => climber.value != null),
+  ...queries.rankingTop10(
+    climber,
+    computed(() => props.ranking.ranking.id),
+    computed(() => props.country)
+  ),
 })
 
 const openTop10 = (row) => {

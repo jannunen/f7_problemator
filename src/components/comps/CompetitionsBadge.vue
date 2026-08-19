@@ -17,12 +17,12 @@
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import api from '@js/api'
 
 const { t } = useI18n()
 const { data: comps } = useQuery({
-  queryKey: ['upcomingCompetitions'],
-  queryFn: () => api.getUpcomingCompetitions(),
+  ...queries.competitions(),
   select: (data) => ({ upcoming: data.upcoming || [], ongoing: data.ongoing || [], past: data.past || [] }),
 })
 const upcomingCount = computed(() => comps.value?.upcoming.length || 0)

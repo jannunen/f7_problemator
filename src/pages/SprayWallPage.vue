@@ -188,6 +188,7 @@
 import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import { useStore } from 'vuex'
 import { f7 } from 'framework7-vue'
 import api from '@js/api'
@@ -295,8 +296,7 @@ const query = computed(() => ({
 }))
 
 const { data: problems, isLoading, isError, refetch } = useQuery({
-  queryKey: computed(() => ['spray-wall-problems', props.wallId, query.value]),
-  queryFn: () => api.getSprayWallProblems(props.wallId, query.value),
+  ...queries.sprayWallProblems(computed(() => props.wallId), query),
   enabled,
   initialData: [],
   keepPreviousData: true,
@@ -305,8 +305,7 @@ const { data: problems, isLoading, isError, refetch } = useQuery({
 // Fetched here too so the empty state can show the wall, and so "add" is only
 // offered when there is actually something to build from.
 const { data: image } = useQuery({
-  queryKey: computed(() => ['spray-wall-image', props.wallId]),
-  queryFn: () => api.getSprayWallImage(props.wallId),
+  ...queries.sprayWallImage(computed(() => props.wallId)),
   enabled,
   retry: false,
 })

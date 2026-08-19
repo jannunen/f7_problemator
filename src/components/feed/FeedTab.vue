@@ -50,6 +50,7 @@
 import { f7 } from 'framework7-vue'
 import { ref } from 'vue'
 import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import FeedItem from '@components/feed/FeedItem.vue'
 import NewProblems from '@components/feed/NewProblems.vue'
 import api from '@js/api'
@@ -59,8 +60,7 @@ import api from '@js/api'
 const activeTab = ref('new')
 
 const { data: feed, isLoading: feedLoading } = useQuery({
-  queryKey: ['feed'],
-  queryFn: () => api.getFeed(),
+  ...queries.feed(),
   refetchInterval: 600000,
   select: (data) => data.feed,
 })

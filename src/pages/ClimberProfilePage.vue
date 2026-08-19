@@ -113,8 +113,10 @@
         <social-buttons :profile="profile" />
       </div>
 
-      <!-- Badges -->
-      <climber-badges />
+      <!-- Own profile only. This reads /my/badges, so on someone else's
+           profile it showed the viewer their own badges under that person's
+           name. Empty payloads had been hiding it. -->
+      <climber-badges v-if="isOwnProfile" />
 
       <!-- Settings hint -->
       <div class="profile-hint">
@@ -160,6 +162,7 @@ const props = defineProps({
 
 const profile = computed(() => store.state.climbers.profile)
 const climber = computed(() => store.state.climber)
+const isOwnProfile = computed(() => String(props.id) === String(climber.value?.id))
 const grades = computed(() => store.state.grades)
 const loading = ref(true)
 

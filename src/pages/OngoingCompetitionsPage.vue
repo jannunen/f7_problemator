@@ -56,6 +56,7 @@ import dayjs from 'dayjs'
 import { isRegistrationPossible, toLocalTime } from '@helpers/component.helpers'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import api from '@js/api'
 const store = useStore()
 const climber = computed(() => store.state.climber)
@@ -89,8 +90,7 @@ const getLink = (comp) => {
     }
 }
 const { data: comps } = useQuery({
-  queryKey: ['upcomingCompetitions'],
-  queryFn: () => api.getUpcomingCompetitions(),
+  ...queries.competitions(),
   select: (data) => ({ upcoming: data.upcoming || [], ongoing: data.ongoing || [], past: data.past || [], loaded: true }),
   initialData: { upcoming: [], ongoing: [], past: [], loaded: false },
 })

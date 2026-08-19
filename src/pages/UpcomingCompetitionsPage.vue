@@ -41,6 +41,7 @@ import { ref } from 'vue'
 import dayjs from 'dayjs'
 import { isRegistrationPossible, toLocalTime } from '../js/helpers/component.helpers'
 import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import api from '@js/api'
 const { t } = useI18n()
 const isFull = (comp) => (comp.maxcontenders != 0 && comp.paidregistrations_count >= comp.maxcontenders)
@@ -64,8 +65,7 @@ const getLink = (comp) => {
         return `/competitions/`+comp.id
 }
 const { data: comps } = useQuery({
-  queryKey: ['upcomingCompetitions'],
-  queryFn: () => api.getUpcomingCompetitions(),
+  ...queries.competitions(),
   select: (data) => ({ upcoming: data.upcoming || [], ongoing: data.ongoing || [], past: data.past || [], loaded: true }),
   initialData: { upcoming: [], ongoing: [], past: [], loaded: false },
 })

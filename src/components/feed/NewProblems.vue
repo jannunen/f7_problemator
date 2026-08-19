@@ -33,13 +33,13 @@ import { f7 } from 'framework7-vue'
 import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import NewProblemItem from '@components/feed/NewProblemItem.vue'
 import api from '@js/api'
 const store = useStore()
 const gym = computed(() => store.state.gym)
 const { data: gymsData } = useQuery({
-  queryKey: ['gyms'],
-  queryFn: () => api.getGyms(),
+  ...queries.gyms(),
   select: (data) => data.gyms,
   initialData: { gyms: [] },
 })
@@ -50,8 +50,7 @@ watch(gym, (val) => {
 })
 
 const { data: problems } = useQuery({
-  queryKey: computed(() => ['newProblems', selectedGym.value]),
-  queryFn: () => api.newProblems(selectedGym.value),
+  ...queries.newProblems(selectedGym),
   enabled: computed(() => selectedGym.value != null),
   initialData: [],
 })

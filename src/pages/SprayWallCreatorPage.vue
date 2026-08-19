@@ -203,6 +203,7 @@ import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
+import { queries, invalidate } from '@js/queryKeys.js'
 import { f7 } from 'framework7-vue'
 import api from '@js/api'
 import PhotoAdjustControls from '@components/ui/PhotoAdjustControls.vue'
@@ -261,8 +262,7 @@ const saveError = ref(null)
 const explainOpen = ref(false)
 
 const { data: image, isLoading, isError, refetch } = useQuery({
-  queryKey: computed(() => ['spray-wall-image', props.wallId]),
-  queryFn: () => api.getSprayWallImage(props.wallId),
+  ...queries.sprayWallImage(computed(() => props.wallId)),
   enabled: computed(() => !!props.wallId),
 })
 
@@ -490,8 +490,8 @@ const save = async () => {
     })
 
     // The wall's problem list and the gym's wall counts both just changed.
-    queryClient.invalidateQueries({ queryKey: ['spray-wall-problems', props.wallId] })
-    queryClient.invalidateQueries({ queryKey: ['spray-walls'] })
+    queryClient.invalidateQueries({ queryKey: invalidate.sprayWallProblems() })
+    queryClient.invalidateQueries({ queryKey: invalidate.sprayWalls() })
     f7.views.main.router.back()
   } catch (e) {
     const body = e?.response?.data

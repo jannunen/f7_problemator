@@ -91,6 +91,7 @@ import { computed } from 'vue'
 import { right } from '@js/helpers'
 import { useStore } from 'vuex'
 import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import { estimateGrade, toLocalTime, calculatePoints } from '@/js/helpers'
 import api from '@js/api'
 const { t } = useI18n()
@@ -108,12 +109,11 @@ const emit = defineEmits(['close', 'update:opened'])
 const store = useStore()
 
 const { data: ranking, isLoading: loading } = useQuery({
-  queryKey: ['rankingTop10', props.climber_id, props.ranking_id, props.country],
-  queryFn: () => api.rankingtop10({
-    climber_id: props.climber_id,
-    country: props.country,
-    ranking_id: props.ranking_id,
-  }),
+  ...queries.rankingTop10(
+    computed(() => props.climber_id),
+    computed(() => props.ranking_id),
+    computed(() => props.country)
+  ),
 })
 
 const grades = computed(() => store.state.grades)

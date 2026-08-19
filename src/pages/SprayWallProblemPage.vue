@@ -296,6 +296,7 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import api from '@js/api'
 import ShowComments from '@components/problem/ShowComments.vue'
 import GradeOpinions from '@components/ui/problem/GradeOpinions.vue'
@@ -412,8 +413,7 @@ const resetZoom = () => {
 }
 
 const { data: problem, isLoading, isError, refetch } = useQuery({
-  queryKey: computed(() => ['spray-wall-problem', props.problemId]),
-  queryFn: () => api.getSprayWallProblem(props.problemId),
+  ...queries.sprayWallProblem(computed(() => props.problemId)),
   enabled: computed(() => !!props.problemId),
 })
 
