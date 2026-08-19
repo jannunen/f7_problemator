@@ -21,6 +21,12 @@
     main 
     ></f7-view>
 
+    <!-- The side panel is app furniture, not part of the home screen. It used
+         to be mounted inside Home, so on every other page it simply did not
+         exist and the Valikko tab opened nothing. Framework7 panels belong
+         beside the view anyway. -->
+    <left-sidepanel v-if="isAuthenticated" />
+
     <!-- Outside the view so it survives navigation, and only once signed in:
          there is nowhere to go from the sign-in screen. Climbers kept asking
          where the route list was, and the honest answer was that it had no
@@ -37,6 +43,7 @@
 <script>
 import routes from './js/routes.js'
 import BottomTabBar from '@components/ui/BottomTabBar.vue'
+import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import { registerBackButton, setupChrome } from '@js/native.js'
 import { useBrowserHistory } from '@js/platform.js'
 import { useI18n } from 'vue-i18n'
@@ -46,7 +53,7 @@ import $ from 'dom7'
 import { f7, f7ready } from 'framework7-vue'
 
 export default {
-  components: { BottomTabBar },
+  components: { BottomTabBar, LeftSidepanel },
   props: {
     f7router: Object,
   },

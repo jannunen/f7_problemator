@@ -36,7 +36,6 @@
       <div v-if="profileLoaded">
         <complete-profile-popup />
         <show-tick-help :opened="showTickHelpDialog" />
-        <left-sidepanel />
 
         <!-- Version update banner -->
         <div v-if="updateAvailable" class="px-4 mt-2">
@@ -159,7 +158,6 @@ import MyLogs from '@components/home/MyLogs.vue'
 import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import ExpiringProblemsAlert from '@components/ExpiringProblemsAlert.vue'
-import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import Ranking from '@components/home/Ranking.vue'
 import GradePyramid from '@components/home/GradePyramid.vue'
 import AttributeRadar from '@components/home/AttributeRadar.vue'
