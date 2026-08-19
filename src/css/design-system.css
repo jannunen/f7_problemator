@@ -310,7 +310,15 @@
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 100;
+  /* Above Framework7's view layer, below its panel.
+     .views carries z-index 5000 and so opens a stacking context that the
+     whole app paints inside; a sibling at the z-index: 100 this started with
+     was in the DOM, correctly sized and positioned, and painted underneath
+     every page — invisible. F7's own layers run views 5000, panel 5500,
+     backdrop 5999, popup 10500, sheet 12500. 5200 clears the views and still
+     lets the side panel and every modal cover the bar, which is what should
+     happen when one opens. */
+  z-index: 5200;
   height: 60px;
   padding-bottom: env(safe-area-inset-bottom, 0);
   background: rgba(15, 21, 38, 0.92);

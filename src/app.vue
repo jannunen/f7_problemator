@@ -5,7 +5,6 @@
     id="fi.problemator.v2"
     :routes="routes"
     theme="aurora"
-    :class="{ 'has-tabbar': isAuthenticated }"
   >
     <!-- initial page is specified in routes.js -->
 
@@ -83,6 +82,13 @@ export default {
       const match = TABS.find((tab) => tab.path && tab.path !== '/' && url.startsWith(tab.path))
       activeTab.value = match ? match.id : url === '/' || url.startsWith('/home') ? 'home' : activeTab.value
     }
+
+    // Set on <html> rather than bound on <f7-app>: Framework7's App component
+    // does not forward a class binding to its root element, so the class was
+    // silently dropped and every page's last row sat under the bar.
+    watch(isAuthenticated, (on) => {
+      document.documentElement.classList.toggle('has-tabbar', !!on)
+    }, { immediate: true })
 
     f7ready(() => {
       const router = f7?.views?.main?.router
