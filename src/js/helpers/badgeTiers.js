@@ -54,3 +54,41 @@ export function collapsedBadges(definitions, earnedIds) {
     .map((g) => g.current ?? g.next)
     .filter(Boolean)
 }
+
+/**
+ * The short version of what a rung asks for.
+ *
+ * Names carry the theme, not the requirement — "Content creator" and "Route
+ * factory" say nothing about 1 versus 50, and "Slabmaster" says nothing about
+ * which grade. This is what goes beside each rung in the explainer so the
+ * ladder can be read without opening every level.
+ *
+ * Deliberately terse: it sits in a narrow column next to the name.
+ */
+export function rungRequirement(badge, t) {
+  if (!badge) return ''
+
+  const n = Number(badge.required_count ?? 0)
+  const bands = String(badge.grade_bands || '').replace(/,/g, ', ')
+
+  switch (badge.rule_type) {
+    case 'grade_threshold':
+      return badge.grade_name ?? ''
+    case 'weekly_streak':
+      return t('badges.req_weeks', { n })
+    case 'qualifying_years':
+    case 'comeback':
+      return t('badges.req_years', { n })
+    case 'tick_before_year':
+      // The number is a year, not a count.
+      return String(n)
+    case 'grade_spread':
+      return t('badges.req_each', { n, bands })
+    case 'count_per_day':
+      return t('badges.req_in_a_day', { n })
+    default:
+      // count_total, projecting, authored_spray_walls: a plain tally, and the
+      // grade or style it applies to is already in the description.
+      return String(n)
+  }
+}

@@ -190,7 +190,11 @@
     "earned": "Ansaitut",
     "locked": "Vielä ansaitsematta",
     "none_defined": "Tällä salilla ei ole vielä merkkejä.",
-    "level_of": "Taso {level} / {total}"
+    "level_of": "Taso {level} / {total}",
+    "req_weeks": "{n} vk",
+    "req_years": "{n} v",
+    "req_each": "{n} × {bands}",
+    "req_in_a_day": "{n}/pv"
   },
   "gymselector": {
     "active_gym": "Aktiivinen halli",

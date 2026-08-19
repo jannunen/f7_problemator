@@ -198,7 +198,11 @@
     "earned": "Earned",
     "locked": "Not yet earned",
     "none_defined": "This gym has no badges yet.",
-    "level_of": "Level {level} of {total}"
+    "level_of": "Level {level} of {total}",
+    "req_weeks": "{n} wks",
+    "req_years": "{n} yrs",
+    "req_each": "{n} × {bands}",
+    "req_in_a_day": "{n}/day"
   },
   "gymselector": {
     "active_gym": "Active gym",

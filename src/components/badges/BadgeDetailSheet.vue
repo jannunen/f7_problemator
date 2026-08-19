@@ -29,6 +29,7 @@
             {{ rung.earned ? 'check_circle' : 'radio_button_unchecked' }}
           </span>
           <span class="ladder__name">{{ rung.name }}</span>
+          <span class="ladder__req num">{{ rungRequirement(rung, t) }}</span>
         </li>
       </ol>
       <p v-if="earnedAt" class="badge-detail__earned">{{ t('badges.earned_on', { date: earnedAt }) }}</p>
@@ -46,6 +47,7 @@
  * spelled out in words.
  */
 import { computed } from 'vue'
+import { rungRequirement } from '@helpers/badgeTiers.js'
 import { useI18n } from 'vue-i18n'
 
 const props = defineProps({
@@ -173,9 +175,23 @@ const iconStyle = computed(() =>
 }
 
 .ladder__name {
+  flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* The requirement, right-aligned so the numbers form a column you can scan
+   down rather than hunting for them after each name. */
+.ladder__req {
+  flex: none;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--p-text-dim);
+}
+
+.ladder__rung--earned .ladder__req {
+  color: var(--p-text-muted);
 }
 
 .badge-detail__earned {
