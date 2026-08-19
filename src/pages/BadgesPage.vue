@@ -2,7 +2,7 @@
   <f7-page name="badges">
     <f7-navbar :title="t('badges.title')" back-link>
       <template #right>
-        <span class="badges-page__count num">{{ earnedList.length }}/{{ allBadges.length }}</span>
+        <span class="badges-page__count num">{{ earned.length }}/{{ ladders.length }}</span>
       </template>
     </f7-navbar>
 
@@ -27,7 +27,7 @@
       </template>
     </template>
 
-    <badge-detail-sheet v-model:opened="sheetOpen" :badge="selected" :earned-at="earnedAt" />
+    <badge-detail-sheet v-model:opened="sheetOpen" :badge="selected" :earned-at="earnedAt" :level="selectedLevel" />
   </f7-page>
 </template>
 
@@ -45,6 +45,7 @@ import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import BadgeMedal from '@components/badges/BadgeMedal.vue'
 import BadgeDetailSheet from '@components/badges/BadgeDetailSheet.vue'
+import { groupTiers } from '@helpers/badgeTiers.js'
 
 const { t } = useI18n()
 const store = useStore()
@@ -59,8 +60,22 @@ const earnedList = computed(() => badges.value.earned ?? [])
 const earnedIds = computed(() => new Set(earnedList.value.map((e) => e.badge_id)))
 const allBadges = computed(() => badges.value.definitions ?? [])
 
-const earned = computed(() => allBadges.value.filter((d) => earnedIds.value.has(d.id)))
-const locked = computed(() => allBadges.value.filter((d) => !earnedIds.value.has(d.id)))
+// Ladders rather than rungs. A group shows at most twice: the highest level
+// reached under Earned, and the next one to reach under Not yet. Every rung
+// in between is a level of the same award and only crowds the page.
+const ladders = computed(() => groupTiers(allBadges.value, earnedIds.value))
+
+const earned = computed(() => ladders.value.map((g) => g.current).filter(Boolean))
+const locked = computed(() => ladders.value.map((g) => g.next).filter(Boolean))
+
+// "Level 3 of 14" in the sheet, so the ladder above and below is discoverable
+// even though only one rung is on screen.
+const selectedLevel = computed(() => {
+  if (!selected.value) return null
+  const group = ladders.value.find((g) => g.rungs.some((r) => r.id === selected.value.id))
+  if (!group || group.total < 2) return null
+  return { level: group.levelOf(selected.value), total: group.total }
+})
 
 const earnedAt = computed(() => {
   if (!selected.value) return null

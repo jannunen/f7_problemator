@@ -5,7 +5,9 @@
       <div class="badges__meta">
         <!-- Shown even at zero: "0/7" says there are seven things to chase,
              which is the entire point of showing an empty cabinet. -->
-        <span class="badges__count num">{{ earnedList.length }}/{{ allBadges.length }}</span>
+        <!-- Ladders, not rungs: "2/9 awards" is a truer picture than
+             "14/29 badges" when half of those are levels of the same thing. -->
+        <span class="badges__count num">{{ earnedGroups }}/{{ allBadges.length }}</span>
         <button type="button" class="badges__all" @click="openAll">
           {{ t('badges.show_all') }}
         </button>
@@ -43,6 +45,7 @@ import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import BadgeMedal from './BadgeMedal.vue'
+import { collapsedBadges } from '@helpers/badgeTiers.js'
 import BadgeDetailSheet from './BadgeDetailSheet.vue'
 import { f7 } from 'framework7-vue'
 
@@ -61,17 +64,20 @@ const gymid = computed(() => store.state.gymid)
 const earnedList = computed(() => badges.value.earned ?? [])
 const earnedIds = computed(() => new Set(earnedList.value.map((e) => e.badge_id)))
 
+// One medal per ladder: the highest level earned, or the next one to chase.
+// Without this a climber with ten years in the gym would see ten near
+// identical medals for the same award.
+const collapsed = computed(() => collapsedBadges(badges.value.definitions ?? [], earnedIds.value))
+
 // Earned first, then the rest — both already in the gym's sort order.
-const allBadges = computed(() => {
-  const defs = badges.value.definitions ?? []
-  return [
-    ...defs.filter((d) => earnedIds.value.has(d.id)),
-    ...defs.filter((d) => !earnedIds.value.has(d.id))
-  ]
-})
+const allBadges = computed(() => [
+  ...collapsed.value.filter((d) => earnedIds.value.has(d.id)),
+  ...collapsed.value.filter((d) => !earnedIds.value.has(d.id))
+])
 
 const visible = computed(() => allBadges.value.slice(0, COLLAPSED_COUNT))
 const hasAnything = computed(() => allBadges.value.length > 0)
+const earnedGroups = computed(() => allBadges.value.filter((b) => earnedIds.value.has(b.id)).length)
 
 const earnedAt = computed(() => {
   if (!selected.value) return null

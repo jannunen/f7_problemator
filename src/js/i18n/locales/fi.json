@@ -189,7 +189,8 @@
     "show_all": "Näytä kaikki",
     "earned": "Ansaitut",
     "locked": "Vielä ansaitsematta",
-    "none_defined": "Tällä salilla ei ole vielä merkkejä."
+    "none_defined": "Tällä salilla ei ole vielä merkkejä.",
+    "level_of": "Taso {level} / {total}"
   },
   "gymselector": {
     "active_gym": "Aktiivinen halli",

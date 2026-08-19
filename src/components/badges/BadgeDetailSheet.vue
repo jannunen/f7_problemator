@@ -9,6 +9,9 @@
       </span>
       <h2 class="badge-detail__name">{{ badge.name }}</h2>
       <p v-if="badge.description" class="badge-detail__desc">{{ badge.description }}</p>
+      <p v-if="level" class="badge-detail__level">
+        {{ t('badges.level_of', { level: level.level, total: level.total }) }}
+      </p>
       <p v-if="earnedAt" class="badge-detail__earned">{{ t('badges.earned_on', { date: earnedAt }) }}</p>
       <p v-else class="badge-detail__locked">{{ t('badges.not_earned') }}</p>
     </div>
@@ -29,7 +32,10 @@ import { useI18n } from 'vue-i18n'
 const props = defineProps({
   opened: { type: Boolean, default: false },
   badge: { type: Object, default: null },
-  earnedAt: { type: String, default: null }
+  earnedAt: { type: String, default: null },
+  // { level, total } when this badge is one rung of a ladder — the page shows
+  // only one rung, so this is how the rest of the ladder stays discoverable.
+  level: { type: Object, default: null }
 })
 
 defineEmits(['update:opened'])
@@ -89,6 +95,15 @@ const iconStyle = computed(() =>
   font-size: 0.85rem;
   line-height: 1.45;
   color: var(--p-text-muted);
+}
+
+.badge-detail__level {
+  margin: 0.1rem 0 0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--p-text-dim);
 }
 
 .badge-detail__earned {

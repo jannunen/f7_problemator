@@ -197,7 +197,8 @@
     "show_all": "Show all",
     "earned": "Earned",
     "locked": "Not yet earned",
-    "none_defined": "This gym has no badges yet."
+    "none_defined": "This gym has no badges yet.",
+    "level_of": "Level {level} of {total}"
   },
   "gymselector": {
     "active_gym": "Active gym",
