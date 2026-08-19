@@ -59,6 +59,7 @@ export default createStore({
     pointEntryKey : null,
     access_token : null,
     authStep: 'idle', // idle, otp_sent, verifying
+    debugOtp: null, // dev-only: the code, when the API is running with debug on
     authEmail: '',
     authType: 'signin',
     authError: null,
@@ -215,6 +216,9 @@ export default createStore({
     },
     setIsAuthenticated (state, payload) {
       state.isAuthenticated = payload
+    },
+    setDebugOtp(state, payload) {
+      state.debugOtp = payload
     },
     setAuthStep(state, payload) {
       state.authStep = payload
@@ -424,7 +428,10 @@ export default createStore({
       commit('setAuthEmail', payload.email)
       commit('setAuthType', payload.type)
       try {
-        await api.requestOtp(payload)
+        const ret = await api.requestOtp(payload)
+        // Only ever present when the API runs with debug on outside
+        // production; in every real build this is undefined.
+        commit('setDebugOtp', ret?.debug_code ?? null)
         commit('setAuthStep', 'otp_sent')
       } catch (err) {
         commit('setAuthError', err.response?.data?.error || 'Failed to send code.')

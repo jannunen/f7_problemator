@@ -127,6 +127,15 @@
             <span>{{ t('auth.code_sent_to') }} <strong>{{ authEmail }}</strong></span>
           </div>
 
+          <!-- Never reaches a real build: the API only returns debug_code with
+               debug on and outside production. Labelled loudly so that if it
+               ever does show up somewhere it shouldn't, it is obvious rather
+               than mistaken for a feature. -->
+          <div v-if="debugOtp" class="otp-debug">
+            <span class="otp-debug__tag">DEBUG</span>
+            <span class="otp-debug__code">{{ debugOtp }}</span>
+          </div>
+
           <label class="input-label text-center">{{ t('auth.enter_code') }}</label>
 
           <!-- Individual OTP digit boxes -->
@@ -201,6 +210,7 @@ const sending = ref(false)
 
 const authStep = computed(() => store.state.authStep)
 const authEmail = computed(() => store.state.authEmail)
+const debugOtp = computed(() => store.state.debugOtp)
 const authType = computed(() => store.state.authType)
 const authError = computed(() => store.state.authError)
 
@@ -411,6 +421,37 @@ watch(authStep, (val) => {
 @keyframes text-enter {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Debug OTP ─── */
+.otp-debug {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  margin: 0.75rem 0 0.25rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--p-radius-sm);
+  /* Warning colours on purpose. This is not part of the design — it is a
+     development affordance, and it should never look at home here. */
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px dashed rgba(245, 158, 11, 0.4);
+}
+
+.otp-debug__tag {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--p-warning);
+}
+
+.otp-debug__code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  color: var(--p-text);
+  user-select: all;
 }
 
 /* ─── Tab Switcher ─── */
