@@ -54,7 +54,9 @@ import FeedItem from '@components/feed/FeedItem.vue'
 import NewProblems from '@components/feed/NewProblems.vue'
 import api from '@js/api'
 
-const activeTab = ref('follow')
+// New problems is what people open the feed for — the follow feed is empty
+// for anyone who has not followed climbers yet, which is most of them.
+const activeTab = ref('new')
 
 const { data: feed, isLoading: feedLoading } = useQuery({
   queryKey: ['feed'],

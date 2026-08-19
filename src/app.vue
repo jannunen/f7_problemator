@@ -94,7 +94,14 @@ export default {
 
     f7ready(() => {
       const router = f7?.views?.main?.router
-      syncFromUrl(router?.currentRoute?.url)
+      // currentRoute is not necessarily populated when f7ready fires, so fall
+      // back to the router's own history. Without this the bar highlighted
+      // Home on any start route other than '/'.
+      syncFromUrl(router?.currentRoute?.url ?? router?.history?.[router.history.length - 1])
+      // routeChange fires as navigation begins, routeChanged once it lands.
+      // Listening to both keeps the highlight right whether a page resolves
+      // immediately or after an async component loads.
+      f7.on('routeChange', (newRoute) => syncFromUrl(newRoute?.url))
       f7.on('routeChanged', (newRoute) => syncFromUrl(newRoute?.url))
     })
 

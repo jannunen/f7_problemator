@@ -17,7 +17,8 @@
 .theme-dark {
   background: var(--f7-page-bg-color);
   --f7-stepper-fill-button-bg-color: var(--f7-theme-color);
-  &.ios {
+  &.ios,
+  &.aurora {
     --f7-bars-border-color: rgba(255, 255, 255, 0.06);
     --f7-searchbar-input-bg-color: rgba(255, 255, 255, 0.04);
     --f7-searchbar-placeholder-color: var(--light-color);
@@ -32,8 +33,15 @@
       --f7-searchbar-input-extra-padding-left: 8px;
     }
   }
+  /* aurora is in this list because the app runs theme="aurora" — see
+     app.vue. Every override below was scoped to .ios and .md only, so all
+     35 of them were inert and Framework7's stock aurora values won instead.
+     That is why lists painted an opaque rgb(28,28,29) over the page and read
+     as a block of some older app: --f7-list-bg-color: transparent was here
+     all along, addressed to a theme that was never running. */
   &.ios,
-  &.md {
+  &.md,
+  &.aurora {
     --f7-text-color: #f1f5f9;
     --f7-tabbar-link-inactive-color: #64748b;
     --f7-bars-bg-color: rgba(15, 21, 38, 0.92);
