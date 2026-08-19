@@ -223,7 +223,7 @@
    ========================================================== */
 .p-toggle-group {
   display: flex;
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--p-bg-card);
   border: 1px solid var(--p-border);
   border-radius: var(--p-radius);
   padding: 3px;
@@ -250,9 +250,14 @@
 }
 .p-toggle-group__btn--active,
 .p-toggle-group__btn.active {
-  background: rgba(var(--p-accent-rgb), 0.2);
+  /* Matched to the sign-in screen's segmented control, which is the look the
+     app is standardising on: a soft accent wash held by a hairline. The
+     hairline is an inset shadow rather than a border so adding it cannot
+     shift the row by a pixel, and the old drop shadow is gone — this design
+     gets its depth from light and edges, not from things casting shadows. */
+  background: rgba(var(--p-accent-rgb), 0.12);
   color: var(--p-accent);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  box-shadow: inset 0 0 0 1px rgba(var(--p-accent-rgb), 0.2);
 }
 
 /* ==========================================================

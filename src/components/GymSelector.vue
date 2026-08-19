@@ -27,18 +27,22 @@
           </template>
         </f7-navbar>
 
-        <div class="gym-selector-tabs">
+        <div class="p-segmented gym-selector-tabs">
+          <div
+            class="p-segmented__indicator"
+            :class="{ 'p-segmented__indicator--right': mode === 'list' }"
+          ></div>
           <button
-            class="gym-selector-tab"
-            :class="{ 'gym-selector-tab--active': mode === 'map' }"
+            class="p-segmented__btn"
+            :class="{ 'p-segmented__btn--active': mode === 'map' }"
             @click="mode = 'map'"
           >
             <span class="material-icons" style="font-size: 16px;">map</span>
             {{ t('gymselector.map') }}
           </button>
           <button
-            class="gym-selector-tab"
-            :class="{ 'gym-selector-tab--active': mode === 'list' }"
+            class="p-segmented__btn"
+            :class="{ 'p-segmented__btn--active': mode === 'list' }"
             @click="mode = 'list'"
           >
             <span class="material-icons" style="font-size: 16px;">list</span>
@@ -233,34 +237,6 @@ const onGymSelected = async (id) => {
   color: var(--p-text);
   font-weight: 600;
 }
-.gym-selector-tabs {
-  display: flex;
-  gap: 4px;
-  margin: 12px 16px 8px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  padding: 3px;
-}
-.gym-selector-tab {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 8px 0;
-  border: none;
-  background: transparent;
-  color: var(--p-text-muted);
-  font-size: 0.85rem;
-  font-weight: 500;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s, color 0.2s;
-}
-.gym-selector-tab--active {
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--p-text);
-}
 .gym-locate {
   margin: 0 16px 10px;
 }
@@ -298,6 +274,11 @@ const onGymSelected = async (id) => {
   font-size: 0.75rem;
   color: var(--p-text-muted);
 }
+/* Placement only — .p-segmented supplies the control itself. */
+.gym-selector-tabs {
+  margin: 12px 16px 8px;
+}
+
 .gym-map-container {
   padding: 0 8px;
 }

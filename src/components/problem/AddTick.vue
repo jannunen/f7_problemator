@@ -226,12 +226,12 @@ const formatDate = (date) => {
 
 <style scoped>
 .grade-circle--required {
-  border-color: var(--p-warning, #f59e0b);
-  color: var(--p-warning, #f59e0b);
+  border-color: var(--p-warning, var(--p-warning));
+  color: var(--p-warning, var(--p-warning));
 }
 
 .grade-required-mark {
-  color: var(--p-warning, #f59e0b);
+  color: var(--p-warning, var(--p-warning));
   margin-left: 2px;
 }
 </style>

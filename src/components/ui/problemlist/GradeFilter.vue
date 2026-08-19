@@ -121,8 +121,8 @@ export default {
 <style scoped>
 .grade-filter :deep(.range-slider) {
   --f7-range-bar-bg-color: rgba(255, 255, 255, 0.1);
-  --f7-range-bar-active-bg-color: #38bdf8;
-  --f7-range-knob-color: #38bdf8;
+  --f7-range-bar-active-bg-color: var(--p-accent);
+  --f7-range-knob-color: var(--p-accent);
   --f7-range-knob-size: 24px;
 }
 </style>

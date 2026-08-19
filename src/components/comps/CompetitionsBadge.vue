@@ -42,10 +42,10 @@ const pastCount = computed(() => comps.value?.past.length || 0)
 }
 .comp-badge--red {
   background: rgba(239, 68, 68, 0.2);
-  color: #fca5a5;
+  color: var(--p-danger-tint);
 }
 .comp-badge--blue {
   background: rgba(56, 189, 248, 0.15);
-  color: #7dd3fc;
+  color: var(--p-accent-tint);
 }
 </style>

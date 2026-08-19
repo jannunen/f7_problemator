@@ -1040,7 +1040,7 @@ function onTouchEnd(event) {
   left: 0;
   right: 0;
   bottom: env(safe-area-inset-bottom, 0);
-  background: #f1f5f9;
+  background: var(--p-text);
   touch-action: none;
   overflow: hidden;
 }
@@ -1162,7 +1162,7 @@ function onTouchEnd(event) {
 }
 
 .gym-map-popup-label {
-  color: #94a3b8;
+  color: var(--p-text-muted);
   font-size: 11px;
   font-weight: 500;
   white-space: nowrap;
@@ -1171,7 +1171,7 @@ function onTouchEnd(event) {
 }
 
 .gym-map-popup-dark .gym-map-popup-label {
-  color: #64748b;
+  color: var(--p-text-dim);
 }
 
 .gym-map-popup-value {
@@ -1181,7 +1181,7 @@ function onTouchEnd(event) {
 }
 
 .gym-map-popup-dark .gym-map-popup-value {
-  color: #e2e8f0;
+  color: var(--p-text-secondary);
 }
 
 .gym-map-popup-color {
@@ -1198,7 +1198,7 @@ function onTouchEnd(event) {
 }
 
 .gym-map-popup-removal {
-  color: #ef4444;
+  color: var(--p-danger);
 }
 
 .gym-map-popup-dark .gym-map-popup-removal {
@@ -1273,7 +1273,7 @@ function onTouchEnd(event) {
 }
 
 .gym-map-filter-panel-dark .gym-map-filter-title {
-  color: #e2e8f0;
+  color: var(--p-text-secondary);
 }
 
 .gym-map-filter-clear {
@@ -1294,14 +1294,14 @@ function onTouchEnd(event) {
 .gym-map-filter-label {
   font-size: 11px;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--p-text-muted);
   margin-bottom: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
 .gym-map-filter-panel-dark .gym-map-filter-label {
-  color: #64748b;
+  color: var(--p-text-dim);
 }
 
 .gym-map-filter-chips {
@@ -1317,8 +1317,8 @@ function onTouchEnd(event) {
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--p-text);
+  color: var(--p-text-dark);
   border: 1px solid transparent;
   user-select: none;
   white-space: nowrap;
@@ -1350,7 +1350,7 @@ function onTouchEnd(event) {
   justify-content: space-between;
   font-size: 12px;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--p-text-muted);
   margin-bottom: 2px;
 }
 
@@ -1442,11 +1442,11 @@ function onTouchEnd(event) {
 }
 
 .gym-map-filter-panel-dark .gym-map-range-input::-webkit-slider-thumb {
-  background: #e2e8f0;
+  background: var(--p-text-secondary);
 }
 
 .gym-map-filter-panel-dark .gym-map-range-input::-moz-range-thumb {
-  background: #e2e8f0;
+  background: var(--p-text-secondary);
 }
 
 .gym-map-chip-color {
@@ -1491,7 +1491,7 @@ function onTouchEnd(event) {
   gap: 4px;
   font-size: 11px;
   font-weight: 500;
-  color: #475569;
+  color: var(--p-text-dark);
   background: rgba(255, 255, 255, 0.75);
   padding: 3px 8px;
   border-radius: 10px;

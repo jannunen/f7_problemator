@@ -189,7 +189,7 @@ const pyramidRows = computed(() => {
   text-align: right;
   font-size: 11px;
   font-weight: 600;
-  color: var(--p-text-secondary, #94a3b8);
+  color: var(--p-text-secondary, var(--p-text-muted));
   padding-right: 6px;
 }
 
@@ -216,7 +216,7 @@ const pyramidRows = computed(() => {
 }
 
 .pyramid-onsight {
-  background: #f59e0b;
+  background: var(--p-warning);
 }
 
 .pyramid-redpoint {
@@ -248,7 +248,7 @@ const pyramidRows = computed(() => {
 }
 
 .legend-onsight {
-  background: #f59e0b;
+  background: var(--p-warning);
 }
 
 .legend-redpoint {

@@ -242,7 +242,7 @@ export default {
   font-size: 0.6rem;
   font-weight: 600;
   vertical-align: middle;
-  color: var(--p-warning, #f59e0b);
+  color: var(--p-warning, var(--p-warning));
   border: 1px solid currentColor;
 }
 .hit-sub {
