@@ -21,6 +21,7 @@
   --p-bg-mid:        #162032;
   --p-bg-card:       rgba(255, 255, 255, 0.04);
   --p-bg-card-hover: rgba(255, 255, 255, 0.06);
+  --p-bg-low:        #0e1a2a;
 
   --p-border:        rgba(255, 255, 255, 0.06);
   --p-border-light:  rgba(255, 255, 255, 0.08);
@@ -720,4 +721,146 @@
 }
 .filter-toggle-btn__chevron--open {
   transform: rotate(180deg);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   Ambient ground
+
+   The sign-in screen's atmosphere, promoted to every page.
+
+   Three wells of colour over a diagonal gradient, as background layers
+   rather than DOM — so no page needs markup for it and nothing animates.
+   The original drifted on 18-25s loops; three always-running animations
+   behind a long problem list costs battery and makes scrolling feel busy,
+   so the depth stays and the motion goes.
+
+   Painted on .page, not .page-content. In Framework7 the page is the
+   fixed container and page-content scrolls inside it, so the ground holds
+   still while content moves over it — the same reason the login screen
+   could get away with absolutely-positioned shapes.
+   ═══════════════════════════════════════════════════════════════════════ */
+.theme-dark .page {
+  background-color: var(--p-bg-deep);
+  background-image:
+    radial-gradient(46rem 46rem at 108% -6%, rgba(var(--p-accent-rgb), 0.07), transparent 60%),
+    radial-gradient(34rem 34rem at -12% 104%, rgba(34, 211, 238, 0.06), transparent 60%),
+    radial-gradient(24rem 24rem at 62% 40%, rgba(var(--p-purple-rgb), 0.05), transparent 60%),
+    linear-gradient(145deg, var(--p-bg-deep) 0%, var(--p-bg-mid) 50%, var(--p-bg-low) 100%);
+  background-repeat: no-repeat;
+}
+
+/* Pages that own their canvas — a wall photo, a floor plan, a map — opt out
+   by carrying this class, so the ground never tints an image. */
+.theme-dark .page.p-page--plain {
+  background-image: none;
+}
+
+/* ═══ Accent ring ═══
+   The signature element: a mark held in a circle of thin accent light.
+   Sized in em so it scales with whatever it wraps. */
+.p-ring {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--p-radius-full);
+  background: rgba(var(--p-accent-rgb), 0.08);
+  border: 2px solid var(--p-border-accent);
+}
+
+.p-ring--sm {
+  width: 48px;
+  height: 48px;
+  border-width: 1px;
+}
+
+.p-ring--lg {
+  width: 104px;
+  height: 104px;
+}
+
+/* ═══ Entrance ═══
+   Content assembles instead of appearing. Delays are small and the stagger
+   is short — this should read as the screen settling, not as a sequence you
+   wait through. */
+@keyframes p-rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes p-scale-in {
+  from { opacity: 0; transform: scale(0.8); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+.p-enter {
+  animation: p-rise var(--p-duration-slow) var(--p-ease) both;
+}
+
+.p-enter--scale {
+  animation: p-scale-in 0.8s var(--p-ease) both;
+}
+
+.p-enter--d1 { animation-delay: 0.1s; }
+.p-enter--d2 { animation-delay: 0.2s; }
+.p-enter--d3 { animation-delay: 0.3s; }
+
+/* Someone who has asked the OS for less motion gets the end state directly.
+   Nothing here carries meaning that the animation is required to convey. */
+@media (prefers-reduced-motion: reduce) {
+  .p-enter,
+  .p-enter--scale {
+    animation: none;
+  }
+}
+
+/* ═══ Segmented control ═══
+   Two or three exclusive choices, with a single indicator that slides
+   between them rather than two buttons that light up independently. */
+.p-segmented {
+  position: relative;
+  display: flex;
+  padding: 3px;
+  border-radius: var(--p-radius-sm);
+  background: var(--p-bg-card-hover);
+}
+
+.p-segmented__indicator {
+  position: absolute;
+  top: 3px;
+  bottom: 3px;
+  left: 3px;
+  width: calc(50% - 3px);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  transition: transform var(--p-duration) var(--p-ease);
+  pointer-events: none;
+}
+
+.p-segmented__indicator--right {
+  transform: translateX(100%);
+}
+
+.p-segmented__btn {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 0;
+  border: none;
+  background: transparent;
+  color: var(--p-text-dim);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color var(--p-duration) var(--p-ease);
+}
+
+.p-segmented__btn--active {
+  color: var(--p-text);
 }
