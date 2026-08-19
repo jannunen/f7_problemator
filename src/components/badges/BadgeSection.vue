@@ -2,9 +2,14 @@
   <div v-if="hasAnything" class="badges">
     <div class="badges__head">
       <h3 class="badges__title">{{ t('badges.title') }}</h3>
-      <!-- Shown even at zero: "0/7" says there are seven things to chase,
-           which is the entire point of showing an empty cabinet. -->
-      <span class="badges__count num">{{ earnedList.length }}/{{ allBadges.length }}</span>
+      <div class="badges__meta">
+        <!-- Shown even at zero: "0/7" says there are seven things to chase,
+             which is the entire point of showing an empty cabinet. -->
+        <span class="badges__count num">{{ earnedList.length }}/{{ allBadges.length }}</span>
+        <button type="button" class="badges__all" @click="openAll">
+          {{ t('badges.show_all') }}
+        </button>
+      </div>
     </div>
 
     <!-- Earned first, then what is still out there. A climber should be able
@@ -18,24 +23,9 @@
         :earned="earnedIds.has(b.id)"
         @open="open"
       />
-      <button v-if="hiddenCount > 0" type="button" class="badges__more" @click="expanded = true">
-        {{ t('badges.more', { n: hiddenCount }) }}
-      </button>
     </div>
 
-    <f7-sheet v-model:opened="sheetOpen" style="height: auto" close-by-outside-click swipe-to-close>
-      <div v-if="selected" class="badge-detail">
-        <span class="p-ring badge-detail__ring" :style="detailRing">
-          <span class="material-icons badge-detail__icon" :style="detailIcon">
-            {{ selected.icon || 'military_tech' }}
-          </span>
-        </span>
-        <h2 class="badge-detail__name">{{ selected.name }}</h2>
-        <p v-if="selected.description" class="badge-detail__desc">{{ selected.description }}</p>
-        <p v-if="earnedAt" class="badge-detail__earned">{{ t('badges.earned_on', { date: earnedAt }) }}</p>
-        <p v-else class="badge-detail__locked">{{ t('badges.not_earned') }}</p>
-      </div>
-    </f7-sheet>
+    <badge-detail-sheet v-model:opened="sheetOpen" :badge="selected" :earned-at="earnedAt" />
   </div>
 </template>
 
@@ -53,13 +43,14 @@ import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import BadgeMedal from './BadgeMedal.vue'
+import BadgeDetailSheet from './BadgeDetailSheet.vue'
+import { f7 } from 'framework7-vue'
 
 const COLLAPSED_COUNT = 8
 
 const { t } = useI18n()
 const store = useStore()
 
-const expanded = ref(false)
 const selected = ref(null)
 const sheetOpen = ref(false)
 
@@ -79,10 +70,7 @@ const allBadges = computed(() => {
   ]
 })
 
-const visible = computed(() =>
-  expanded.value ? allBadges.value : allBadges.value.slice(0, COLLAPSED_COUNT)
-)
-const hiddenCount = computed(() => allBadges.value.length - visible.value.length)
+const visible = computed(() => allBadges.value.slice(0, COLLAPSED_COUNT))
 const hasAnything = computed(() => allBadges.value.length > 0)
 
 const earnedAt = computed(() => {
@@ -91,20 +79,11 @@ const earnedAt = computed(() => {
   return row?.earned_at ? dayjs(row.earned_at).format('YYYY-MM-DD') : null
 })
 
-const rgbOf = (hex) => {
-  const h = String(hex || '').replace('#', '')
-  if (h.length !== 6) return null
-  const n = parseInt(h, 16)
-  return Number.isNaN(n) ? null : `${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}`
-}
 
-const detailRing = computed(() => {
-  const rgb = selected.value && earnedAt.value ? rgbOf(selected.value.color) : null
-  return rgb ? { background: `rgba(${rgb}, 0.12)`, borderColor: `rgba(${rgb}, 0.45)` } : {}
-})
-const detailIcon = computed(() =>
-  selected.value && earnedAt.value ? { color: selected.value.color } : {}
-)
+
+function openAll() {
+  f7?.views?.main?.router?.navigate('/badges')
+}
 
 function open(badge) {
   selected.value = badge
@@ -137,6 +116,23 @@ watch(gymid, (id) => id && store.dispatch('loadBadges', id), { immediate: true }
   color: var(--p-text-muted);
 }
 
+.badges__meta {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+}
+
+.badges__all {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--p-accent);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
 .badges__count {
   font-size: 0.75rem;
   font-weight: 600;
@@ -158,19 +154,6 @@ watch(gymid, (id) => id && store.dispatch('loadBadges', id), { immediate: true }
   display: none;
 }
 
-.badges__more {
-  flex: none;
-  align-self: flex-start;
-  margin-top: 14px;
-  padding: 0.45rem 0.7rem;
-  border-radius: var(--p-radius-full);
-  background: var(--p-bg-card);
-  border: 1px solid var(--p-border-light);
-  color: var(--p-text-muted);
-  font-size: 0.72rem;
-  font-weight: 600;
-  cursor: pointer;
-}
 
 /* ─── Detail sheet ─── */
 .badge-detail {

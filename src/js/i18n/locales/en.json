@@ -191,7 +191,11 @@
     "title": "Badges",
     "more": "+ {n} more",
     "earned_on": "Earned {date}",
-    "not_earned": "Not earned yet"
+    "not_earned": "Not earned yet",
+    "show_all": "Show all",
+    "earned": "Earned",
+    "locked": "Not yet earned",
+    "none_defined": "This gym has no badges yet."
   },
   "gymselector": {
     "active_gym": "Active gym",

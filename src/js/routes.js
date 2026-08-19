@@ -18,6 +18,7 @@ import PublicSingleCompetitionPage from '../pages/PublicSingleCompetitionPage.vu
 import SprayWallPage from '../pages/SprayWallPage.vue';
 import SprayWallCreatorPage from '../pages/SprayWallCreatorPage.vue';
 import SprayWallProblemPage from '../pages/SprayWallProblemPage.vue';
+import BadgesPage from '../pages/BadgesPage.vue';
 const routes = [
   {
     path: '/',
@@ -28,6 +29,10 @@ const routes = [
     path: '/home',
     component: Home,
     //beforeEnter: authGuard,
+  },
+  {
+    path: '/badges',
+    component: BadgesPage,
   },
   {
     path: '/settings',

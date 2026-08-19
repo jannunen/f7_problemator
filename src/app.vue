@@ -67,7 +67,9 @@ export default {
     const TABS = [
       { id: 'home', icon: 'home', path: '/' },
       { id: 'problems', icon: 'format_list_bulleted', path: '/problems' },
-      { id: 'map', icon: 'map', path: '/gym-map' },
+      // The side panel opened the map with these options before it was moved
+      // here; the map needs a fresh page rather than a cached one.
+      { id: 'map', icon: 'map', path: '/gym-map', options: { ignoreCache: true, force: true } },
       { id: 'feed', icon: 'dynamic_feed', path: '/feed' },
       { id: 'menu', icon: 'menu', path: null },
     ]
@@ -109,7 +111,7 @@ export default {
       // reloadCurrent on the same destination avoids stacking duplicates of a
       // page a climber taps twice.
       if (router.currentRoute?.url === tab.path) return
-      router.navigate(tab.path, { reloadCurrent: false, animate: true })
+      router.navigate(tab.path, { animate: true, ...(tab.options ?? {}) })
     }
 
     store.dispatch('version')

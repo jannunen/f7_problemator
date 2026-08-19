@@ -183,7 +183,11 @@
     "title": "Merkit",
     "more": "+ {n} lisää",
     "earned_on": "Ansaittu {date}",
-    "not_earned": "Ei vielä ansaittu"
+    "not_earned": "Ei vielä ansaittu",
+    "show_all": "Näytä kaikki",
+    "earned": "Ansaitut",
+    "locked": "Vielä ansaitsematta",
+    "none_defined": "Tällä salilla ei ole vielä merkkejä."
   },
   "gymselector": {
     "active_gym": "Aktiivinen halli",

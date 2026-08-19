@@ -20,16 +20,6 @@
             <span class="p-nav-item__label">{{ t('sidepanel.home') }}</span>
           </button>
 
-          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'feed' }" @click="openFeed">
-            <span class="material-icons p-nav-item__icon">dynamic_feed</span>
-            <span class="p-nav-item__label">{{ t('sidepanel.feed') }}</span>
-          </button>
-
-          <button v-if="hasGymMap" class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'gymmap' }" @click="openGymMap">
-            <span class="material-icons p-nav-item__icon">map</span>
-            <span class="p-nav-item__label">{{ t('sidepanel.open_map') }}</span>
-          </button>
-
           <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'settings' }" @click="openSettings">
             <span class="material-icons p-nav-item__icon">settings</span>
             <span class="p-nav-item__label">{{ t('sidepanel.settings') }}</span>
@@ -171,19 +161,6 @@ watch(currentLocale, (newLocale) => {
   localStorage.setItem('locale', newLocale)
 })
 
-const walls = computed(() => store.state.walls || [])
-const hasGymMap = computed(() => walls.value.some(w => w.shape_data && w.shape_data.length > 0))
-
-const openFeed = () => {
-  store.commit('setSelectedLeftPanelItem', 'feed')
-  store.commit('setSidePanel', false)
-  f7.views.main.router.navigate("/feed")
-}
-const openGymMap = () => {
-  store.commit('setSelectedLeftPanelItem', 'gymmap')
-  store.commit('setSidePanel', false)
-  f7.views.main.router.navigate("/gym-map", { ignoreCache: true, force: true })
-}
 const openSettings = () => {
   store.commit('setSelectedLeftPanelItem', 'settings')
   store.commit('setSidePanel', false)
