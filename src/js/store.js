@@ -427,6 +427,16 @@ export default createStore({
       const problem = state.problems[pid]
       commit('problems' , { ...state.problems, [pid]: {...problem, ['messages'] : ret.messages, ['messageCount'] : ret.messages.length } })
     },
+    async reportProblem({ state, commit }, payload) {
+      const ret = await api.reportProblem(payload)
+      // Keep the counts on the cached problem, so leaving the page and coming
+      // back does not show the report as un-made.
+      const problem = state.problems[payload.id]
+      if (problem) {
+        commit('problems', { ...state.problems, [payload.id]: { ...problem, reports: ret.reports } })
+      }
+      return ret.reports
+    },
     async loadBadges({ commit, state }, gymid) {
       const gym = gymid ?? state.gymid
       if (!gym) return

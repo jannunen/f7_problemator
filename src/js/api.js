@@ -211,6 +211,10 @@ const api = {
     const ret = await axios.delete(url, payload)
     return ret.data
   },
+  async reportProblem({ id, type, note }) {
+    const ret = await axios.post(endpoint + `/problem/${id}/report`, { type, note })
+    return ret.data
+  },
   async getBadges(gymid) {
     // gymid is required, not optional: the endpoint has no other way to know
     // which gym's badges to answer with, and silently returns an empty set

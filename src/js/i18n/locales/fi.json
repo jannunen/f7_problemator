@@ -630,5 +630,13 @@
     "map": "Kartta",
     "feed": "Syöte",
     "menu": "Valikko"
+  },
+  "report": {
+    "title": "Onko reitissä jotain vialla?",
+    "dirty": "Likaiset otteet",
+    "dangerous": "Vaarallinen",
+    "reported": "Ilmoitettu",
+    "thanks": "Kiitos — reitintekijät saivat tiedon.",
+    "failed": "Ilmoitusta ei voitu lähettää. Yritä myöhemmin uudelleen."
   }
 }

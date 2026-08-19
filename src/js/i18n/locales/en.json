@@ -653,5 +653,13 @@
     "map": "Map",
     "feed": "Feed",
     "menu": "Menu"
+  },
+  "report": {
+    "title": "Something wrong with this route?",
+    "dirty": "Dirty holds",
+    "dangerous": "Dangerous",
+    "reported": "Reported",
+    "thanks": "Thanks — the routesetters have been told.",
+    "failed": "Could not send the report. Try again later."
   }
 }

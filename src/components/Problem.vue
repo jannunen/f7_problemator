@@ -6,6 +6,7 @@ import LeftDetails from '@components/problem/LeftDetails.vue'
 import RightDetails from '@components/problem/RightDetails.vue'
 import ShowPublicAscents from '@components/problem/ShowPublicAscents.vue'
 import ShowComments from '@components/problem/ShowComments.vue'
+import ReportProblem from '@components/problem/ReportProblem.vue'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
@@ -87,6 +88,10 @@ const openAddTick = () => {
       <left-details :problem="problem" @show-comments="onShowComments" @show-public-ascents="onShowPublicAscents"></left-details>
       <right-details :problem="problem"></right-details>
     </div>
+
+    <!-- Reporting sits below the tick box: logging a climb is why people open
+         a route, flagging it is the exception. -->
+    <report-problem v-if="isAuthenticated" :problem="problem" class="mt-2" />
 
     <!-- Add tick section -->
     <div v-if="isAuthenticated" class="px-4 py-2">
