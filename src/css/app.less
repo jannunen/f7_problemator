@@ -47,6 +47,16 @@
     --f7-bars-bg-color: rgba(15, 21, 38, 0.92);
     --f7-bars-bg-color-rgb: 15, 21, 38;
     --f7-page-bg-color: #0c1220;
+    /* Wall / setter / grade headers inside a list. Framework7's stock values
+       are a warm neutral slab (#232323 with white text) which reads as brown
+       against this palette and hides the page behind it. Set as variables
+       rather than as a rule, because F7's own .list-group-title selector ties
+       on specificity with a component's scoped one and wins on source order —
+       the page-level styling for these was being overridden. */
+    --f7-list-group-title-bg-color: transparent;
+    --f7-list-group-title-text-color: var(--p-text-muted);
+    --f7-list-group-title-font-weight: 600;
+
     --f7-block-title-text-color: var(--light-color);
     --f7-block-title-medium-text-color: var(--light-color);
     --f7-block-title-large-text-color: var(--light-color);
