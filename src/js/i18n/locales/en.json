@@ -660,6 +660,11 @@
     "dangerous": "Dangerous",
     "reported": "Reported",
     "thanks": "Thanks — the routesetters have been told.",
-    "failed": "Could not send the report. Try again later."
+    "failed": "Could not send the report. Try again later.",
+    "note_label": "Add a note (optional)",
+    "note_placeholder": "e.g. second bolt is loose, holds greasy near the top",
+    "send": "Send report",
+    "sending": "Sending…",
+    "cancel": "Cancel"
   }
 }

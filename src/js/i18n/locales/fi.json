@@ -637,6 +637,11 @@
     "dangerous": "Vaarallinen",
     "reported": "Ilmoitettu",
     "thanks": "Kiitos — reitintekijät saivat tiedon.",
-    "failed": "Ilmoitusta ei voitu lähettää. Yritä myöhemmin uudelleen."
+    "failed": "Ilmoitusta ei voitu lähettää. Yritä myöhemmin uudelleen.",
+    "note_label": "Lisää viesti (vapaaehtoinen)",
+    "note_placeholder": "esim. toinen pultti on löysä, otteet liukkaat ylhäällä",
+    "send": "Lähetä ilmoitus",
+    "sending": "Lähetetään…",
+    "cancel": "Peruuta"
   }
 }
