@@ -725,6 +725,7 @@
     "card_invite_sub": "Tap to accept or decline",
     "card_invite_generic": "{n} coaching invitation | {n} coaching invitations",
     "card_progress": "{done} of {total} sessions done",
-    "how_was_it": "How was it?"
+    "how_was_it": "How was it?",
+    "section_title": "Training programs"
   }
 }

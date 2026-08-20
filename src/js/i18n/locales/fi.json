@@ -702,6 +702,7 @@
     "card_invite_sub": "Hyväksy tai kieltäydy",
     "card_invite_generic": "{n} valmennuskutsu | {n} valmennuskutsua",
     "card_progress": "{done}/{total} treeniä tehty",
-    "how_was_it": "Miten meni?"
+    "how_was_it": "Miten meni?",
+    "section_title": "Treeniohjelmat"
   }
 }

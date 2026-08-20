@@ -60,6 +60,17 @@ export function actual(item, t) {
  * with three hard sessions.
  */
 export function progress(assignment) {
+  // Two shapes reach this. The list endpoints send counts, because a home
+  // card needs two integers and not seventy session rows; the detail endpoint
+  // sends the sessions themselves, because the page draws every one of them.
+  // Reading only `sessions` meant every list view reported "0 of 0".
+  if (assignment?.sessions_count != null) {
+    return {
+      done: assignment.completed_sessions_count ?? 0,
+      total: assignment.sessions_count
+    }
+  }
+
   const sessions = assignment?.sessions ?? []
   const done = sessions.filter((s) => s.completed_at).length
   return { done, total: sessions.length }

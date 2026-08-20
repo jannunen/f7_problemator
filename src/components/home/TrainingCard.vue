@@ -1,7 +1,13 @@
 <template>
   <!-- Nothing at all for the climbers who have no coach, which is nearly all
        of them. This appears only when there is something to act on. -->
-  <div v-if="invitations.length || active" class="mx-4 my-2">
+  <div v-if="invitations.length || active" class="tsec">
+    <!-- The same section header the badges row uses. Without it the card
+         floated between the badge cabinet and the expiring-problems alert
+         with nothing saying what it was. -->
+    <div class="tsec__head">
+      <h3 class="tsec__title">{{ t('training.section_title') }}</h3>
+    </div>
     <!-- An invitation outranks a programme: someone is waiting on an answer. -->
     <button v-if="invitations.length" class="tcard tcard--invite" @click="open">
       <span class="material-icons tcard__icon">person_add</span>
@@ -70,6 +76,26 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.tsec {
+  margin: 0 16px 1rem;
+}
+
+.tsec__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.tsec__title {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--p-text-muted);
+}
+
 .tcard {
   display: flex;
   align-items: center;
