@@ -720,6 +720,9 @@
     "effort_label": "Rasitus (RPE 1–10)",
     "how_was_this": "Miltä tämä tuntui?",
     "coach_said": "Valmentajasi sanoi",
-    "legend_feedback": "Valmentajan palaute"
+    "legend_feedback": "Valmentajan palaute",
+    "mark_read": "Merkitse luetuksi",
+    "mark_unread": "Pidä merkintä",
+    "clear_marks_on_open": "Poista palautemerkintä, kun avaan päivän"
   }
 }

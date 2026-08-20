@@ -743,6 +743,9 @@
     "effort_label": "Effort (RPE 1–10)",
     "how_was_this": "How did this one feel?",
     "coach_said": "Your coach said",
-    "legend_feedback": "Coach feedback"
+    "legend_feedback": "Coach feedback",
+    "mark_read": "Mark as read",
+    "mark_unread": "Keep the mark",
+    "clear_marks_on_open": "Clear feedback marks when I open a day"
   }
 }

@@ -32,6 +32,14 @@
         </button>
       </div>
 
+      <label class="prefrow">
+        <input
+          v-model="clearMarksOnOpen"
+          type="checkbox"
+        >
+        <span>{{ t('training.clear_marks_on_open') }}</span>
+      </label>
+
       <training-calendar
         v-if="mode === 'calendar'"
         :assignment="assignment"
@@ -61,7 +69,7 @@
             <span class="day__when">{{ dayName(s.day) }}</span>
             <span class="day__title">{{ s.title || t('training.session') }}</span>
             <span
-              v-if="s.coach_notes"
+              v-if="unread(s)"
               class="day__alert"
               :title="t('training.coach_said')"
             />
@@ -78,6 +86,7 @@
       :session="peeked"
       :starts-on="assignment?.starts_on ?? null"
       @open="goToSession"
+      @read="toggleRead"
     />
   </f7-page>
 </template>
@@ -90,6 +99,7 @@ import api from '@js/api.js'
 import { dayName, progress } from '@helpers/trainingFormat.js'
 import TrainingCalendar from '@components/training/TrainingCalendar.vue'
 import TrainingDaySheet from '@components/training/TrainingDaySheet.vue'
+import { clearMarksOnOpen } from '@helpers/trainingPrefs.js'
 
 const props = defineProps({ f7route: { type: Object, default: () => ({}) } })
 
@@ -110,6 +120,10 @@ const byWeek = computed(() => {
 const done = computed(() => progress(assignment.value).done)
 const total = computed(() => progress(assignment.value).total)
 
+// Feedback that has arrived and not been cleared. Read notes keep their
+// words but lose their flag.
+const unread = (s) => !!s.coach_notes && !s.coach_notes_read_at
+
 const doneIn = (sessions) => sessions.filter((s) => s.completed_at).length
 const toggle = (week) => (open[week] = !open[week])
 
@@ -122,6 +136,24 @@ const openSession = (session) => {
 const peek = (session) => {
   peeked.value = session
   sheetOpen.value = true
+
+  // For climbers who asked for it, opening the day is reading it. Off by
+  // default, so a flag never clears while someone is scrolling past.
+  if (clearMarksOnOpen.value && session.coach_notes && !session.coach_notes_read_at) {
+    toggleRead(session)
+  }
+}
+
+// Marked from inside the sheet. Refetch quietly and re-point at the same day:
+// `peeked` holds the object from the previous fetch, so the sheet would
+// otherwise keep showing the flag the climber just cleared.
+const toggleRead = async (session) => {
+  await api.markTrainingFeedbackRead({
+    id: session.id,
+    read: !session.coach_notes_read_at
+  })
+  await load({ quiet: true })
+  peeked.value = (assignment.value?.sessions ?? []).find((s) => s.id === session.id) ?? null
 }
 
 // Close before navigating, so the sheet's own animation does not race the
@@ -131,8 +163,11 @@ const goToSession = (session) => {
   openSession(session)
 }
 
-const load = async () => {
-  loading.value = true
+// `quiet` refetches without flipping `loading`: clearing a mark inside the
+// sheet should update the dots behind it, not blank the month for the length
+// of a request.
+const load = async ({ quiet = false } = {}) => {
+  if (!quiet) loading.value = true
   try {
     assignment.value = await api.trainingAssignment(props.f7route.params.id)
 
@@ -142,14 +177,23 @@ const load = async () => {
     const next = weeks.find((w) => byWeek.value[w].some((s) => !s.completed_at)) ?? weeks[0]
     if (next) open[next] = true
   } finally {
-    loading.value = false
+    if (!quiet) loading.value = false
   }
 }
 
-onMounted(load)
+onMounted(() => load())
 </script>
 
 <style scoped>
+.prefrow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.35rem 16px 0.6rem;
+  font-size: 0.75rem;
+  color: var(--p-text-muted);
+}
+
 /* Feedback on this day. Small and red: it is a flag, not a message. */
 .day__alert {
   flex: none;

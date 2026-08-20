@@ -49,10 +49,19 @@
       <!-- Past the step: the coach's words for the day, and the way through to
            logging it. Reading is a glance; recording needs the room of a page. -->
       <div class="daysheet__more">
-        <p v-if="session.coach_notes" class="daysheet__coach">
+        <div
+          v-if="session.coach_notes"
+          class="daysheet__coach"
+          :class="{ 'daysheet__coach--read': session.coach_notes_read_at }"
+        >
           <span class="daysheet__coachlabel">{{ t('training.coach_said') }}</span>
           {{ session.coach_notes }}
-        </p>
+          <!-- Clearing it where you read it, rather than making you open the
+               page to put down a flag you have already answered. -->
+          <button class="daysheet__mark" @click.stop="$emit('read', session)">
+            {{ session.coach_notes_read_at ? t('training.mark_unread') : t('training.mark_read') }}
+          </button>
+        </div>
 
         <p v-if="session.notes" class="daysheet__notes">{{ session.notes }}</p>
 
@@ -87,7 +96,7 @@ const props = defineProps({
   startsOn: { type: String, default: null }
 })
 
-defineEmits(['update:opened', 'open'])
+defineEmits(['update:opened', 'open', 'read'])
 
 const { t, locale } = useI18n()
 
@@ -244,6 +253,24 @@ const whenLabel = computed(() => {
   font-size: 0.85rem;
   line-height: 1.5;
   color: var(--p-text);
+}
+
+.daysheet__coach--read {
+  border-color: var(--p-border);
+  background: none;
+}
+
+.daysheet__coach--read .daysheet__coachlabel { color: var(--p-text-muted); }
+
+.daysheet__mark {
+  display: block;
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: none;
+  color: var(--p-text-muted);
+  font-size: 0.74rem;
 }
 
 .daysheet__coachlabel {

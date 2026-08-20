@@ -4,9 +4,19 @@
 
     <!-- Your coach read this one and said something. It leads, because it is
          the only part of the page written to you personally. -->
-    <div v-if="session.coach_notes" class="coachsays">
+    <div
+      v-if="session.coach_notes"
+      class="coachsays"
+      :class="{ 'coachsays--read': session.coach_notes_read_at }"
+    >
       <span class="coachsays__label">{{ t('training.coach_said') }}</span>
       <p class="coachsays__text">{{ session.coach_notes }}</p>
+
+      <!-- Cleared by hand. Nothing here marks itself read, so the flag on the
+           home screen means what it says. -->
+      <button class="coachsays__mark" :disabled="marking" @click="toggleRead">
+        {{ session.coach_notes_read_at ? t('training.mark_unread') : t('training.mark_read') }}
+      </button>
     </div>
 
     <div
@@ -150,11 +160,12 @@
  * Recording is the parent's cue to refetch: this component does not own the
  * assignment, so it reports `changed` rather than mutating what it was given.
  */
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import api from '@js/api.js'
 import { actual, prescribed } from '@helpers/trainingFormat.js'
+import { clearMarksOnOpen } from '@helpers/trainingPrefs.js'
 
 const props = defineProps({
   session: { type: Object, required: true }
@@ -173,6 +184,29 @@ const form = reactive({})
 
 const prescribedOf = (item) => prescribed(item, t)
 const actualOf = (item) => actual(item, t)
+
+const marking = ref(false)
+
+const toggleRead = async () => {
+  marking.value = true
+  try {
+    await api.markTrainingFeedbackRead({
+      id: props.session.id,
+      read: !props.session.coach_notes_read_at
+    })
+    emit('changed')
+  } finally {
+    marking.value = false
+  }
+}
+
+// Opening the day counts as reading it, but only for climbers who asked for
+// that. Off by default — see trainingPrefs.
+onMounted(() => {
+  if (clearMarksOnOpen.value && props.session.coach_notes && !props.session.coach_notes_read_at) {
+    toggleRead()
+  }
+})
 
 const edit = (item) => {
   editing.value = item.id
@@ -227,6 +261,25 @@ const toggleComplete = async () => {
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--p-accent);
+}
+
+/* Read: the panel stays, because the words still matter — it just stops
+   asking for attention. */
+.coachsays--read {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.coachsays--read .coachsays__label { color: var(--p-text-muted); }
+
+.coachsays__mark {
+  margin-top: 0.5rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: none;
+  color: var(--p-text-muted);
+  font-size: 0.74rem;
 }
 
 .coachsays__text {

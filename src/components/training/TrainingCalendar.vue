@@ -134,7 +134,7 @@ const months = computed(() => {
         n: i + 1,
         session,
         state: session ? stateOf(session) : null,
-        feedback: !!session?.coach_notes,
+        feedback: !!session?.coach_notes && !session?.coach_notes_read_at,
         isToday: key === todayKey
       }
     })

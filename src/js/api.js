@@ -43,6 +43,10 @@ const api = {
     const ret = await axios.get(endpoint + '/training/assignments')
     return ret.data
   },
+  async markTrainingFeedbackRead({ id, read = true }) {
+    const ret = await axios.post(endpoint + `/training/sessions/${id}/feedback-read`, { read })
+    return ret.data
+  },
   async trainingAssignment(id) {
     const ret = await axios.get(endpoint + `/training/assignments/${id}`)
     return ret.data
