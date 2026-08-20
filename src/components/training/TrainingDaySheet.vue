@@ -49,6 +49,11 @@
       <!-- Past the step: the coach's words for the day, and the way through to
            logging it. Reading is a glance; recording needs the room of a page. -->
       <div class="daysheet__more">
+        <p v-if="session.coach_notes" class="daysheet__coach">
+          <span class="daysheet__coachlabel">{{ t('training.coach_said') }}</span>
+          {{ session.coach_notes }}
+        </p>
+
         <p v-if="session.notes" class="daysheet__notes">{{ session.notes }}</p>
 
         <p v-if="session.completed_at" class="daysheet__done">
@@ -228,6 +233,26 @@ const whenLabel = computed(() => {
 
 .daysheet__more {
   padding: 0 1rem 1.5rem;
+}
+
+.daysheet__coach {
+  margin: 0.7rem 0 0;
+  padding: 0.6rem 0.8rem;
+  border-radius: 10px;
+  border: 1px solid rgba(var(--p-accent-rgb), 0.35);
+  background: rgba(var(--p-accent-rgb), 0.07);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--p-text);
+}
+
+.daysheet__coachlabel {
+  display: block;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--p-accent);
 }
 
 .daysheet__done {

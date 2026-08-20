@@ -741,6 +741,7 @@
     "week_day": "Week {week}, day {day}",
     "open_session": "Open session",
     "effort_label": "Effort (RPE 1–10)",
-    "how_was_this": "How did this one feel?"
+    "how_was_this": "How did this one feel?",
+    "coach_said": "Your coach said"
   }
 }

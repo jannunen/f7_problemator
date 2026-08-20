@@ -2,6 +2,13 @@
   <div class="sbody">
     <p v-if="session.notes" class="sess__notes">{{ session.notes }}</p>
 
+    <!-- Your coach read this one and said something. It leads, because it is
+         the only part of the page written to you personally. -->
+    <div v-if="session.coach_notes" class="coachsays">
+      <span class="coachsays__label">{{ t('training.coach_said') }}</span>
+      <p class="coachsays__text">{{ session.coach_notes }}</p>
+    </div>
+
     <div
       v-for="item in session.items ?? []"
       :key="item.id"
@@ -204,6 +211,32 @@ const toggleComplete = async () => {
 </script>
 
 <style scoped>
+.coachsays {
+  margin: 0 1rem 0.9rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 12px;
+  border: 1px solid rgba(var(--p-accent-rgb), 0.35);
+  background: rgba(var(--p-accent-rgb), 0.07);
+}
+
+.coachsays__label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--p-accent);
+}
+
+.coachsays__text {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  color: var(--p-text);
+}
+
 .log__feel {
   margin-top: 0.7rem;
 }

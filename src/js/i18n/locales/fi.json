@@ -718,6 +718,7 @@
     "week_day": "Viikko {week}, päivä {day}",
     "open_session": "Avaa treeni",
     "effort_label": "Rasitus (RPE 1–10)",
-    "how_was_this": "Miltä tämä tuntui?"
+    "how_was_this": "Miltä tämä tuntui?",
+    "coach_said": "Valmentajasi sanoi"
   }
 }
