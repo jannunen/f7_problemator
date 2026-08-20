@@ -137,4 +137,32 @@
     box-shadow: 0px 0px 0px 4px var(--f7-toast-bg-color);
   }
 }
+/* A long navbar title must not become a lid over the back button.
+   Framework7 centres the title across the whole bar, so "70 päivän
+   Thaimaa-blokki" grows out over the left area and swallows every tap meant
+   for the arrow. Two guards, because either alone leaves a gap: the title is
+   clipped so it stops short visually, and it never takes a pointer event so
+   the controls beneath it stay reachable even mid-transition, when the title
+   is animating across the bar. */
+.navbar {
+  .title {
+    /* min-width:0 is what actually lets a flex child shrink below its
+       content; without it the ellipsis never triggers and the title just
+       pushes the bar wider. */
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    pointer-events: none;
+  }
+
+  /* Anything a finger is actually aiming at sits above the title. */
+  .left,
+  .right {
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+  }
+}
+
 @import './scroll-block.less';
