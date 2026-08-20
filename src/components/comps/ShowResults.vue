@@ -19,18 +19,20 @@
           <th>{{ t('results.points')}}</th>
         </tr>
       </thead>
-        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-1" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+result.id">
-          <td class="w-1/12">{{result.standing}}</td>
-          <td class="w-4/12">{{ result.climber.etunimi }} {{ result.climber.sukunimi }}</td>
-          <td class="w-3/12">{{ result.climber.team }} </td>
-<!--
+      <tbody>
+          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-1" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+result.id">
+            <td class="w-1/12">{{result.standing}}</td>
+            <td class="w-4/12">{{ result.climber.etunimi }} {{ result.climber.sukunimi }}</td>
+            <td class="w-3/12">{{ result.climber.team }} </td>
+  <!--
 
-          <td class="w-2/12">{{ result.climber.height }} </td>
-          <td class="w-2/12">{{ result.climber.apeindex }} </td>
-          -->
-                  <td class="w-1/12"> {{ result.amountTops }}</td>
-          <td class="w-1/12">{{ result.points}} </td>
-        </tr>
+            <td class="w-2/12">{{ result.climber.height }} </td>
+            <td class="w-2/12">{{ result.climber.apeindex }} </td>
+            -->
+                    <td class="w-1/12"> {{ result.amountTops }}</td>
+            <td class="w-1/12">{{ result.points}} </td>
+          </tr>
+      </tbody>
       </table>
     </div>
   </div>
@@ -50,16 +52,18 @@
             <div class="w-full" v-for="serie in results.qualification.total" :key="serie.category.id">
               <div class="font-bold my-1">{{ serie.category.nimi }}</div>
               <table width="100%" class="text-gray-500 dark:text-gray-400 ">
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results) " :key="serie.category.id+'_'+result.id">
-                  <td class="w-1/12">{{result.standing}}</td>
-                  <td class="w-4/12">{{ result.climber.etunimi }} {{ result.climber.sukunimi }}</td>
-                  <td class="w-3/12">{{ result.climber.team }} </td>
+                <tbody>
+                  <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results) " :key="serie.category.id+'_'+result.id">
+                    <td class="w-1/12">{{result.standing}}</td>
+                    <td class="w-4/12">{{ result.climber.etunimi }} {{ result.climber.sukunimi }}</td>
+                    <td class="w-3/12">{{ result.climber.team }} </td>
 
-                  <td class="w-1/12" v-for="route in result.routes" :key="result.climber.id+'_'+route.id">
-                  <span class="font-bold" v-if="route.sport_points==1000">TOP</span>
-                  <span v-else>{{route.sport_points}}</span>
-                  </td>
-                </tr>
+                    <td class="w-1/12" v-for="route in result.routes" :key="result.climber.id+'_'+route.id">
+                    <span class="font-bold" v-if="route.sport_points==1000">TOP</span>
+                    <span v-else>{{route.sport_points}}</span>
+                    </td>
+                  </tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -74,15 +78,17 @@
             <div class="w-full" v-for="serie in results.semifinal" :key="serie.category.id">
               <div class="font-bold my-1">{{ serie.category.nimi }}</div>
               <table width="100%" class="text-gray-500 dark:text-gray-400 ">
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results) " :key="serie.category.id+'_'+result.id">
-                  <td class="w-1/12">{{result.standing}}</td>
-                  <td class="w-4/12">{{ result.climber.etunimi }} {{ result.climber.sukunimi }}</td>
-                  <td class="w-3/12">{{ result.climber.team }} </td>
-                  <td class="w-1/12">
-                  <span class="font-bold" v-if="result.sport_points==1000">TOP</span>
-                  <span v-else>{{result.sport_points}}</span>
-                  </td>
-                </tr>
+                <tbody>
+                  <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results) " :key="serie.category.id+'_'+result.id">
+                    <td class="w-1/12">{{result.standing}}</td>
+                    <td class="w-4/12">{{ result.climber.etunimi }} {{ result.climber.sukunimi }}</td>
+                    <td class="w-3/12">{{ result.climber.team }} </td>
+                    <td class="w-1/12">
+                    <span class="font-bold" v-if="result.sport_points==1000">TOP</span>
+                    <span v-else>{{result.sport_points}}</span>
+                    </td>
+                  </tr>
+                </tbody>
               </table>
             </div>
           </div>
@@ -100,17 +106,19 @@
             <div class="w-full" v-for="serie in results.final" :key="serie.category.id">
               <div class="font-bold my-1">{{ serie.category.nimi }}</div>
               <table width="100%" class="text-gray-500 dark:text-gray-400 ">
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" 
-                v-for="(result,idx) in sortResults(serie.results) " 
-                :key="serie.category.id+'_'+result.id">
-                  <td class="w-1/12">{{result.standing}}</td>
-                  <td class="w-4/12">{{ result.climber.etunimi }} {{ result.climber.sukunimi }}</td>
-                  <td class="w-3/12">{{ result.climber.team }} </td>
-                  <td class="w-1/12">
-                  <span class="font-bold" v-if="result.sport_points==1000">TOP</span>
-                  <span v-else>{{result.sport_points}}</span>
-                  </td>
-                </tr>
+                <tbody>
+                  <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" 
+                  v-for="(result,idx) in sortResults(serie.results) " 
+                  :key="serie.category.id+'_'+result.id">
+                    <td class="w-1/12">{{result.standing}}</td>
+                    <td class="w-4/12">{{ result.climber.etunimi }} {{ result.climber.sukunimi }}</td>
+                    <td class="w-3/12">{{ result.climber.team }} </td>
+                    <td class="w-1/12">
+                    <span class="font-bold" v-if="result.sport_points==1000">TOP</span>
+                    <span v-else>{{result.sport_points}}</span>
+                    </td>
+                  </tr>
+                </tbody>
               </table>
             </div>
           </div>

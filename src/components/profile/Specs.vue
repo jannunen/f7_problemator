@@ -2,22 +2,24 @@
   <div class="flex justify-between -mt-36">
     <div>
       <table class="w-32">
-        <tr>
-          <td>Weight</td>
-          <td>{{ profile.weight }}kg</td>
-        </tr>
-        <tr>
-          <td>Height</td>
-          <td>{{ profile.height }}cm</td>
-        </tr>
-        <tr>
-          <td>Ape index</td>
-          <td>{{ profile.apeindex }}cm</td>
-        </tr>
-        <tr>
-          <td>Age</td>
-          <td>{{ profile.age }}</td>
-        </tr>
+        <tbody>
+          <tr>
+            <td>Weight</td>
+            <td>{{ profile.weight }}kg</td>
+          </tr>
+          <tr>
+            <td>Height</td>
+            <td>{{ profile.height }}cm</td>
+          </tr>
+          <tr>
+            <td>Ape index</td>
+            <td>{{ profile.apeindex }}cm</td>
+          </tr>
+          <tr>
+            <td>Age</td>
+            <td>{{ profile.age }}</td>
+          </tr>
+        </tbody>
       </table>
     </div>
     <div>

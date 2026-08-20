@@ -136,46 +136,48 @@
       <!-- Problem info popup -->
       <div v-if="selectedProblem && popupPos" ref="popupRef" class="gym-map-popup" :class="{ 'gym-map-popup-dark': isDark }" :style="popupStyle" @click.stop @mousedown.stop @touchstart.stop>
         <table class="gym-map-popup-table">
-          <tr>
-            <td class="gym-map-popup-label">{{ t('gymmap.grade') }}</td>
-            <td class="gym-map-popup-value" style="font-size: 15px; font-weight: 700;">{{ displayGrade(selectedProblem) }}</td>
-          </tr>
-          <tr>
-            <td class="gym-map-popup-label">{{ t('gymmap.colour') }}</td>
-            <td class="gym-map-popup-value"><span class="gym-map-popup-color" :style="{ background: selectedProblem.color }"></span></td>
-          </tr>
-          <tr v-if="selectedProblem.tag">
-            <td class="gym-map-popup-label">{{ t('gymmap.tag') }}</td>
-            <td class="gym-map-popup-value">{{ shortTag(selectedProblem.tag) }}</td>
-          </tr>
-          <tr v-if="selectedProblem.wallName">
-            <td class="gym-map-popup-label">{{ t('gymmap.wall') }}</td>
-            <td class="gym-map-popup-value">{{ selectedProblem.wallName }}</td>
-          </tr>
-          <tr v-if="selectedProblem.author">
-            <td class="gym-map-popup-label">{{ t('gymmap.setter') }}</td>
-            <td class="gym-map-popup-value">{{ setterName(selectedProblem) }}</td>
-          </tr>
-          <tr v-if="selectedProblem.added">
-            <td class="gym-map-popup-label">{{ t('gymmap.set_date') }}</td>
-            <td class="gym-map-popup-value">{{ formatDate(selectedProblem.added) }}</td>
-          </tr>
-          <tr v-if="selectedProblem.removal_date">
-            <td class="gym-map-popup-label">{{ t('gymmap.removal') }}</td>
-            <td class="gym-map-popup-value gym-map-popup-removal">{{ formatDate(selectedProblem.removal_date) }}</td>
-          </tr>
-          <tr v-if="selectedProblem.total_ascents != null">
-            <td class="gym-map-popup-label">{{ t('gymmap.ascents') }}</td>
-            <td class="gym-map-popup-value">{{ selectedProblem.total_ascents }}</td>
-          </tr>
-          <tr v-if="likeCount(selectedProblem) > 0">
-            <td class="gym-map-popup-label">{{ t('gymmap.likes') }}</td>
-            <td class="gym-map-popup-value">{{ likeCount(selectedProblem) }}</td>
-          </tr>
-          <tr v-if="selectedProblem.circuits && selectedProblem.circuits.length > 0">
-            <td class="gym-map-popup-label">{{ t('gymmap.circuit') }}</td>
-            <td class="gym-map-popup-value"><span class="gym-map-popup-color" :style="{ background: selectedProblem.circuits[0].color?.code || '#888' }"></span> {{ selectedProblem.circuits[0].circuitname || selectedProblem.circuits[0].circuitshortname }}</td>
-          </tr>
+          <tbody>
+            <tr>
+              <td class="gym-map-popup-label">{{ t('gymmap.grade') }}</td>
+              <td class="gym-map-popup-value" style="font-size: 15px; font-weight: 700;">{{ displayGrade(selectedProblem) }}</td>
+            </tr>
+            <tr>
+              <td class="gym-map-popup-label">{{ t('gymmap.colour') }}</td>
+              <td class="gym-map-popup-value"><span class="gym-map-popup-color" :style="{ background: selectedProblem.color }"></span></td>
+            </tr>
+            <tr v-if="selectedProblem.tag">
+              <td class="gym-map-popup-label">{{ t('gymmap.tag') }}</td>
+              <td class="gym-map-popup-value">{{ shortTag(selectedProblem.tag) }}</td>
+            </tr>
+            <tr v-if="selectedProblem.wallName">
+              <td class="gym-map-popup-label">{{ t('gymmap.wall') }}</td>
+              <td class="gym-map-popup-value">{{ selectedProblem.wallName }}</td>
+            </tr>
+            <tr v-if="selectedProblem.author">
+              <td class="gym-map-popup-label">{{ t('gymmap.setter') }}</td>
+              <td class="gym-map-popup-value">{{ setterName(selectedProblem) }}</td>
+            </tr>
+            <tr v-if="selectedProblem.added">
+              <td class="gym-map-popup-label">{{ t('gymmap.set_date') }}</td>
+              <td class="gym-map-popup-value">{{ formatDate(selectedProblem.added) }}</td>
+            </tr>
+            <tr v-if="selectedProblem.removal_date">
+              <td class="gym-map-popup-label">{{ t('gymmap.removal') }}</td>
+              <td class="gym-map-popup-value gym-map-popup-removal">{{ formatDate(selectedProblem.removal_date) }}</td>
+            </tr>
+            <tr v-if="selectedProblem.total_ascents != null">
+              <td class="gym-map-popup-label">{{ t('gymmap.ascents') }}</td>
+              <td class="gym-map-popup-value">{{ selectedProblem.total_ascents }}</td>
+            </tr>
+            <tr v-if="likeCount(selectedProblem) > 0">
+              <td class="gym-map-popup-label">{{ t('gymmap.likes') }}</td>
+              <td class="gym-map-popup-value">{{ likeCount(selectedProblem) }}</td>
+            </tr>
+            <tr v-if="selectedProblem.circuits && selectedProblem.circuits.length > 0">
+              <td class="gym-map-popup-label">{{ t('gymmap.circuit') }}</td>
+              <td class="gym-map-popup-value"><span class="gym-map-popup-color" :style="{ background: selectedProblem.circuits[0].color?.code || '#888' }"></span> {{ selectedProblem.circuits[0].circuitname || selectedProblem.circuits[0].circuitshortname }}</td>
+            </tr>
+          </tbody>
         </table>
         <button class="gym-map-popup-btn" @click.stop="openProblemDetails">
           {{ t('gymmap.open_details') }}
