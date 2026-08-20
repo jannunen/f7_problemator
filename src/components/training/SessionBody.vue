@@ -109,10 +109,26 @@
         </div>
       </div>
 
-      <button v-else class="item__log" @click="edit(item)">
-        {{ item.result ? t('training.edit_log') : t('training.log_it') }}
-      </button>
+      <div v-else class="item__buttons">
+        <button class="item__log" @click="edit(item)">
+          {{ item.result ? t('training.edit_log') : t('training.log_it') }}
+        </button>
+
+        <!-- Only where there is something to time. A timer on "easy long rope
+             day" is a button that can do nothing. -->
+        <button
+          v-if="timeable(item)"
+          class="item__log item__timer"
+          :title="t('training.timer_title')"
+          @click="openTimer(item)"
+        >
+          <i class="material-icons item__timericon">timer</i>
+          {{ timerSummary(item) }}
+        </button>
+      </div>
     </div>
+
+    <training-timer-sheet v-model:opened="timerOpen" :item="timed" />
 
     <!-- Completing the day is separate from logging each item: a climber may
          do the session and never fill a single number, and that is still a
@@ -166,6 +182,7 @@ import { useStore } from 'vuex'
 import api from '@js/api.js'
 import { actual, prescribed } from '@helpers/trainingFormat.js'
 import { clearMarksOnOpen } from '@helpers/trainingPrefs.js'
+import TrainingTimerSheet from '@components/training/TrainingTimerSheet.vue'
 
 const props = defineProps({
   session: { type: Object, required: true }
@@ -186,6 +203,27 @@ const prescribedOf = (item) => prescribed(item, t)
 const actualOf = (item) => actual(item, t)
 
 const marking = ref(false)
+const timerOpen = ref(false)
+const timed = ref(null)
+
+// Timeable means the prescription carries a clock: a hang length, or a rest
+// worth counting. Sets alone is a number of somethings, not a duration.
+const timeable = (item) => !!(item.duration_seconds || item.rest_seconds)
+
+const timerSummary = (item) => {
+  const sets = item.sets ?? 1
+  const work = item.duration_seconds
+  const rest = item.rest_seconds
+  const bits = []
+  if (work) bits.push(`${sets}×${work}s`)
+  if (rest) bits.push(rest >= 60 ? `${Math.round(rest / 60)}min` : `${rest}s`)
+  return bits.join(' / ')
+}
+
+const openTimer = (item) => {
+  timed.value = item
+  timerOpen.value = true
+}
 
 const toggleRead = async () => {
   marking.value = true
@@ -245,6 +283,25 @@ const toggleComplete = async () => {
 </script>
 
 <style scoped>
+.item__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.7rem;
+}
+
+/* Carries the prescription on its face — "5×7s / 3min" — so the button says
+   what pressing it will do rather than making you open it to find out. */
+.item__timer {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  border-color: rgba(var(--p-accent-rgb), 0.4);
+  color: var(--p-accent);
+}
+
+.item__timericon { font-size: 0.95rem; }
+
 .coachsays {
   margin: 0 1rem 0.9rem;
   padding: 0.7rem 0.9rem;
@@ -411,7 +468,6 @@ const toggleComplete = async () => {
 }
 
 .item__log {
-  margin-top: 0.7rem;
   padding: 0.45rem 0.8rem;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.12);

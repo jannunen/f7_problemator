@@ -746,6 +746,17 @@
     "legend_feedback": "Coach feedback",
     "mark_read": "Mark as read",
     "mark_unread": "Keep the mark",
-    "clear_marks_on_open": "Clear feedback marks when I open a day"
+    "clear_marks_on_open": "Clear feedback marks when I open a day",
+    "timer_title": "Timer",
+    "timer_sets": "Sets",
+    "timer_work": "Work (s)",
+    "timer_rest": "Rest (s)",
+    "timer_start": "Start",
+    "timer_pause": "Pause",
+    "timer_resume": "Resume",
+    "timer_reset": "Reset",
+    "timer_round": "Set {n} of {of}",
+    "timer_ready_to_start": "Ready",
+    "timer_hint": "Keep this screen open — it stays awake while the timer runs. Sound needs one tap to unlock, which Start does."
   }
 }

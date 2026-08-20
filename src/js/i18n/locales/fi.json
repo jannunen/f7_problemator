@@ -723,6 +723,17 @@
     "legend_feedback": "Valmentajan palaute",
     "mark_read": "Merkitse luetuksi",
     "mark_unread": "Pidä merkintä",
-    "clear_marks_on_open": "Poista palautemerkintä, kun avaan päivän"
+    "clear_marks_on_open": "Poista palautemerkintä, kun avaan päivän",
+    "timer_title": "Ajastin",
+    "timer_sets": "Sarjat",
+    "timer_work": "Työ (s)",
+    "timer_rest": "Palautus (s)",
+    "timer_start": "Aloita",
+    "timer_pause": "Tauko",
+    "timer_resume": "Jatka",
+    "timer_reset": "Nollaa",
+    "timer_round": "Sarja {n}/{of}",
+    "timer_ready_to_start": "Valmiina",
+    "timer_hint": "Pidä tämä näkymä auki — näyttö pysyy hereillä ajastimen ajan. Ääni vaatii yhden napautuksen, jonka Aloita hoitaa."
   }
 }
