@@ -75,6 +75,21 @@
            do the session and never fill a single number, and that is still a
            session done. -->
       <div class="finish">
+        <!-- One tap, five options, no labels to read. Asking how it went at the
+             moment of finishing is the only time anyone will answer. -->
+        <div v-if="!session.completed_at" class="feeling">
+          <span class="feeling__label">{{ t('training.how_was_it') }}</span>
+          <div class="feeling__row">
+            <button
+              v-for="n in 5"
+              :key="n"
+              class="feeling__btn"
+              :class="{ 'feeling__btn--on': feeling === n }"
+              @click="feeling = feeling === n ? null : n"
+            >{{ FACES[n - 1] }}</button>
+          </div>
+        </div>
+
         <button
           class="finish__btn"
           :class="{ 'finish__btn--undo': session.completed_at }"
@@ -93,12 +108,19 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useStore } from 'vuex'
 import api from '@js/api.js'
 import { prescribed, actual } from '@helpers/trainingFormat.js'
 
 const props = defineProps({ f7route: { type: Object, default: () => ({}) } })
 
 const { t } = useI18n()
+const store = useStore()
+
+// Faces rather than numbers: 1-5 means nothing without a legend, and nobody
+// reads a legend at the end of a hard session.
+const FACES = ['😞', '😕', '😐', '🙂', '😃']
+const feeling = ref(null)
 const session = ref(null)
 const loading = ref(true)
 const editing = ref(null)
@@ -144,7 +166,11 @@ const skip = (item) => save(item, { skipped: true })
 const toggleComplete = async () => {
   await api.completeTrainingSession({
     id: session.value.id,
-    completed: !session.value.completed_at
+    completed: !session.value.completed_at,
+    // Without the gym the logged session has no location, and every
+    // gym-scoped view of a climber's history quietly misses it.
+    gymid: store.state.gymid ?? store.state.gym?.id ?? null,
+    feeling: feeling.value
   })
   await load()
 }
@@ -153,6 +179,43 @@ onMounted(load)
 </script>
 
 <style scoped>
+.feeling { margin-bottom: 0.9rem; }
+
+.feeling__label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--p-text-dark);
+  text-align: center;
+}
+
+.feeling__row {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.feeling__btn {
+  flex: 1;
+  padding: 0.5rem 0;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: none;
+  font-size: 1.25rem;
+  filter: grayscale(1);
+  opacity: 0.5;
+}
+
+/* The chosen one comes into colour; the rest stay grey. Colour alone carries
+   the selection, so nothing needs a border to shout. */
+.feeling__btn--on {
+  filter: none;
+  opacity: 1;
+  border-color: rgba(var(--p-accent-rgb), 0.4);
+  background: rgba(var(--p-accent-rgb), 0.08);
+}
+
 .sess__note, .sess__notes {
   margin: 1rem;
   font-size: 0.9rem;

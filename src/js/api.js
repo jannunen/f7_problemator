@@ -47,10 +47,15 @@ const api = {
     const ret = await axios.get(endpoint + `/training/assignments/${id}`)
     return ret.data
   },
-  async completeTrainingSession({ id, completed = true, trainingsessionId = null }) {
+  async completeTrainingSession({ id, completed = true, trainingsessionId = null, gymid = null, feeling = null, notes = null }) {
     const ret = await axios.post(endpoint + `/training/sessions/${id}/complete`, {
       completed,
-      trainingsession_id: trainingsessionId
+      trainingsession_id: trainingsessionId,
+      // The gym and how it felt go into the climber's own training log, which
+      // is where a completed session actually lives.
+      gymid,
+      feeling,
+      notes
     })
     return ret.data
   },

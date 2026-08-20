@@ -698,6 +698,10 @@
     "cancel": "Peruuta",
     "mark_done": "Merkitse tehdyksi",
     "mark_not_done": "Ei sittenkään tehty",
-    "completed_on": "Tehty {date}"
+    "completed_on": "Tehty {date}",
+    "card_invite_sub": "Hyväksy tai kieltäydy",
+    "card_invite_generic": "{n} valmennuskutsu | {n} valmennuskutsua",
+    "card_progress": "{done}/{total} treeniä tehty",
+    "how_was_it": "Miten meni?"
   }
 }
