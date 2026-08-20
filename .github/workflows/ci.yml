@@ -20,8 +20,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Lint is a gate, not a report. Any eslint *error* fails the job and so
+      # blocks the deploy, because the deploy job needs: this one.
+      #
+      # eslint is invoked directly rather than through `npm run lint` so the
+      # gate cannot be weakened by editing a package.json script — adding
+      # --fix or --quiet there would quietly turn this back into a report.
+      #
+      # --max-warnings is a ratchet at today's count, not a target. Warnings
+      # may fall, never rise; drop the number as they are cleaned up, and set
+      # it to 0 once they are gone.
       - name: Lint
-        run: npm run lint
+        run: npx eslint . --ext .vue,.js,.jsx,.cjs,.mjs --max-warnings=181
 
       - name: Test
         run: npm test
