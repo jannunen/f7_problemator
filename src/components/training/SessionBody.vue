@@ -22,8 +22,13 @@
       <p v-if="item.notes" class="item__words">{{ item.notes }}</p>
       <p v-if="prescribedOf(item)" class="item__numbers">{{ prescribedOf(item) }}</p>
 
-      <p v-if="actualOf(item)" class="item__actual">
-        {{ t('training.you_did') }} {{ actualOf(item) }}
+      <p v-if="actualOf(item) || item.result?.feeling" class="item__actual">
+        <span v-if="item.result?.feeling" class="item__face">
+          {{ FACES[item.result.feeling - 1] }}
+        </span>
+        <template v-if="actualOf(item)">
+          {{ t('training.you_did') }} {{ actualOf(item) }}
+        </template>
       </p>
 
       <div v-if="editing === item.id" class="log">
@@ -46,10 +51,25 @@
             <span>{{ t('training.count_short') }}</span>
             <input v-model.number="form.actual_count" type="number" inputmode="numeric">
           </label>
-          <label class="log__field">
-            <span>RPE</span>
+          <label class="log__field log__field--wide">
+            <span>{{ t('training.effort_label') }}</span>
             <input v-model.number="form.rpe" type="number" inputmode="numeric" min="1" max="10">
           </label>
+        </div>
+
+        <div class="log__feel">
+          <span class="log__feellabel">{{ t('training.how_was_this') }}</span>
+          <div class="feeling__row">
+            <button
+              v-for="n in 5"
+              :key="n"
+              class="feeling__btn"
+              :class="{ 'feeling__btn--on': form.feeling === n }"
+              @click="form.feeling = form.feeling === n ? null : n"
+            >
+              {{ FACES[n - 1] }}
+            </button>
+          </div>
         </div>
 
         <input
@@ -157,6 +177,7 @@ const edit = (item) => {
     actual_load_kg: item.result?.actual_load_kg ?? item.load_kg ?? null,
     actual_count: item.result?.actual_count ?? item.target_count ?? null,
     rpe: item.result?.rpe ?? null,
+    feeling: item.result?.feeling ?? null,
     notes: item.result?.notes ?? ''
   })
 }
@@ -183,6 +204,29 @@ const toggleComplete = async () => {
 </script>
 
 <style scoped>
+.log__feel {
+  margin-top: 0.7rem;
+}
+
+.log__feellabel {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--p-text-dark);
+}
+
+/* Wider basis than the number fields: the label is words, not a unit. */
+.log__field--wide {
+  flex: 1 1 7rem;
+}
+
+.item__face {
+  margin-right: 0.3rem;
+  font-size: 0.95rem;
+}
+
 .feeling { margin-bottom: 0.9rem; }
 
 .feeling__label {

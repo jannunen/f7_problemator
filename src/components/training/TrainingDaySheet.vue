@@ -31,11 +31,17 @@
             <span v-if="prescribedOf(item)" class="dsitem__numbers num">
               {{ prescribedOf(item) }}
             </span>
-            <i
-              v-if="item.result"
-              class="material-icons dsitem__state"
-              :class="{ 'dsitem__state--skipped': item.result.skipped }"
-            >{{ item.result.skipped ? 'remove_circle' : 'check_circle' }}</i>
+            <!-- One column for both marks, so the face and the tick sit side
+                 by side rather than on top of each other. -->
+            <span v-if="item.result" class="dsitem__marks">
+              <span v-if="item.result.feeling" class="dsitem__face">
+                {{ FACES[item.result.feeling - 1] }}
+              </span>
+              <i
+                class="material-icons dsitem__state"
+                :class="{ 'dsitem__state--skipped': item.result.skipped }"
+              >{{ item.result.skipped ? 'remove_circle' : 'check_circle' }}</i>
+            </span>
           </li>
         </ul>
       </div>
@@ -79,6 +85,10 @@ const props = defineProps({
 defineEmits(['update:opened', 'open'])
 
 const { t, locale } = useI18n()
+
+// Same five faces the log form offers, so a mark means one thing wherever it
+// appears.
+const FACES = ['😞', '😕', '😐', '🙂', '😃']
 
 const prescribedOf = (item) => prescribed(item, t)
 const rest = computed(() => isRest(props.session))
@@ -195,16 +205,26 @@ const whenLabel = computed(() => {
   color: var(--p-text-dim);
 }
 
-/* Spans the rows so the mark sits against the whole exercise, not its kind. */
-.dsitem__state {
+/* Spans the rows so the marks sit against the whole exercise, not its kind. */
+.dsitem__marks {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
   grid-column: 2;
   grid-row: 1 / -1;
   align-self: center;
+}
+
+.dsitem__state {
   font-size: 1.1rem;
   color: var(--p-success, #4ade80);
 }
 
 .dsitem__state--skipped { color: var(--p-text-dark); }
+
+.dsitem__face {
+  font-size: 0.95rem;
+}
 
 .daysheet__more {
   padding: 0 1rem 1.5rem;
