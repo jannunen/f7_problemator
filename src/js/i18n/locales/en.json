@@ -734,6 +734,10 @@
     "legend_training": "Training day",
     "legend_rest": "Rest day",
     "legend_done": "Done",
-    "no_dates": "This programme has no start date, so it has no calendar — the weeks run in order from whenever you begin."
+    "no_dates": "This programme has no start date, so it has no calendar — the weeks run in order from whenever you begin.",
+    "rest_explainer": "A rest day. Nothing prescribed — recovery is the training.",
+    "log_session": "Log this session",
+    "view_session": "Open this session",
+    "week_day": "Week {week}, day {day}"
   }
 }

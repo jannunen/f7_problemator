@@ -35,7 +35,7 @@
       <training-calendar
         v-if="mode === 'calendar'"
         :assignment="assignment"
-        @open="openSession"
+        @open="peek"
       />
 
       <template v-else>
@@ -67,6 +67,13 @@
       </div>
       </template>
     </template>
+
+    <training-day-sheet
+      v-model:opened="sheetOpen"
+      :session="peeked"
+      :starts-on="assignment?.starts_on ?? null"
+      @open="goToSession"
+    />
   </f7-page>
 </template>
 
@@ -77,6 +84,7 @@ import { useI18n } from 'vue-i18n'
 import api from '@js/api.js'
 import { dayName, progress } from '@helpers/trainingFormat.js'
 import TrainingCalendar from '@components/training/TrainingCalendar.vue'
+import TrainingDaySheet from '@components/training/TrainingDaySheet.vue'
 
 const props = defineProps({ f7route: { type: Object, default: () => ({}) } })
 
@@ -85,6 +93,8 @@ const assignment = ref(null)
 const loading = ref(true)
 const open = reactive({})
 const mode = ref('list')
+const sheetOpen = ref(false)
+const peeked = ref(null)
 
 const byWeek = computed(() => {
   const groups = {}
@@ -100,6 +110,19 @@ const toggle = (week) => (open[week] = !open[week])
 
 const openSession = (session) => {
   f7.views.main.router.navigate(`/training/${assignment.value.id}/session/${session.id}`)
+}
+
+// A tap on the calendar is usually a question, not a commitment: show the day
+// over the month rather than replacing it.
+const peek = (session) => {
+  peeked.value = session
+  sheetOpen.value = true
+}
+
+// Closing first, so the page transition does not race the sheet's own.
+const goToSession = (session) => {
+  sheetOpen.value = false
+  openSession(session)
 }
 
 const load = async () => {
