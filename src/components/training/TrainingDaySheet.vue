@@ -1,39 +1,40 @@
 <template>
   <f7-sheet
+    class="daysheet-modal"
     :opened="opened"
-    style="height: auto"
+    style="height: auto; max-height: 88vh"
+    backdrop
     close-by-outside-click
+    close-by-backdrop-click
     swipe-to-close
     @sheet:closed="$emit('update:opened', false)"
   >
-    <div v-if="session" class="daysheet">
+    <!-- The stripe: a sheet that can be swiped away should look like it can.
+         Without it the gesture is a secret, and the only way out is the
+         backdrop. -->
+    <div class="swipe-handler">
+      <span class="daysheet__grip" />
+    </div>
+
+    <div v-if="session" class="page-content daysheet">
       <p class="daysheet__when">{{ whenLabel }}</p>
       <h2 class="daysheet__title">
         {{ session.title || t('training.session') }}
         <i v-if="session.completed_at" class="material-icons daysheet__tick">check_circle</i>
       </h2>
 
-      <p v-if="session.notes" class="daysheet__notes">{{ session.notes }}</p>
-
-      <!-- A rest day has nothing to list, and a list of one item reading
-           "rest" is worse than the sentence. -->
+      <!-- A rest day has nothing to prescribe, and a form asking for reps on
+           it is how a form gets abandoned — but it is still a day you tick
+           off, so the finish control stays. -->
       <p v-if="rest" class="daysheet__rest">{{ t('training.rest_explainer') }}</p>
 
-      <ul v-else class="daysheet__items">
-        <li v-for="item in session.items ?? []" :key="item.id" class="dsitem">
-          <span class="dsitem__kind">{{ t('training.kind_' + item.kind) }}</span>
-          <span v-if="prescribedOf(item)" class="dsitem__numbers num">
-            {{ prescribedOf(item) }}
-          </span>
-          <span v-if="item.notes" class="dsitem__words">{{ item.notes }}</span>
-        </li>
-      </ul>
-
-      <!-- The sheet is for reading; logging what you actually did needs the
-           room of a full page. -->
-      <button class="daysheet__go" @click="$emit('open', session)">
-        {{ session.completed_at ? t('training.view_session') : t('training.log_session') }}
-      </button>
+      <!-- The same body the full page renders: reaching a day through the
+           calendar should not give you less to do with it. -->
+      <session-body
+        :session="session"
+        :hide-items="rest"
+        @changed="$emit('changed')"
+      />
     </div>
   </f7-sheet>
 </template>
@@ -48,7 +49,8 @@
  */
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { isRest, prescribed, sessionDate } from '@helpers/trainingFormat.js'
+import { isRest, sessionDate } from '@helpers/trainingFormat.js'
+import SessionBody from '@components/training/SessionBody.vue'
 
 const props = defineProps({
   opened: { type: Boolean, default: false },
@@ -56,11 +58,10 @@ const props = defineProps({
   startsOn: { type: String, default: null }
 })
 
-defineEmits(['update:opened', 'open'])
+defineEmits(['update:opened', 'changed'])
 
 const { t, locale } = useI18n()
 
-const prescribedOf = (item) => prescribed(item, t)
 const rest = computed(() => isRest(props.session))
 
 const whenLabel = computed(() => {
@@ -82,7 +83,31 @@ const whenLabel = computed(() => {
 
 <style scoped>
 .daysheet {
-  padding: 1.25rem 1rem 1.5rem;
+  padding: 1rem 0 1.5rem;
+  overflow-y: auto;
+}
+
+/* The grip, sized like every other sheet's in the app so it reads as the
+   same affordance. */
+.swipe-handler {
+  display: flex;
+  justify-content: center;
+  padding: 0.6rem 0 0.2rem;
+  cursor: grab;
+}
+
+.daysheet__grip {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: var(--p-text-dark);
+  opacity: 0.5;
+}
+
+.daysheet__when,
+.daysheet__title,
+.daysheet__rest {
+  padding-inline: 1rem;
 }
 
 .daysheet__when {
@@ -116,48 +141,15 @@ const whenLabel = computed(() => {
   color: var(--p-text-secondary);
 }
 
-.daysheet__items {
-  margin: 0.9rem 0 0;
-  padding: 0;
-  list-style: none;
-}
 
-.dsitem {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 0.6rem 0;
-  border-top: 1px solid var(--p-border);
-}
 
-.dsitem__kind {
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--p-text-muted);
-}
 
-.dsitem__numbers {
-  font-size: 0.9rem;
-  color: var(--p-text);
-}
 
-.dsitem__words {
-  font-size: 0.82rem;
-  line-height: 1.45;
-  color: var(--p-text-secondary);
-}
 
-.daysheet__go {
-  width: 100%;
-  margin-top: 1.1rem;
-  padding: 0.7rem;
-  border: none;
-  border-radius: var(--p-radius-sm, 6px);
-  background: var(--p-accent);
-  color: var(--p-text-dark);
-  font-size: 0.9rem;
-  font-weight: 600;
-}
+
+
+
+
+
+
 </style>
