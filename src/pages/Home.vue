@@ -80,6 +80,9 @@
 
           <!-- Section: Gym overview -->
           <div class="home-section">
+            <!-- Above the expiring-problems alert: an invitation is a
+                 person waiting on you, which outranks a wall being stripped. -->
+            <training-card />
             <expiring-problems-alert />
             <spray-wall-block />
             <floor-map-block :f7router="props.f7router" />
@@ -157,6 +160,7 @@ import MyLogs from '@components/home/MyLogs.vue'
 import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import ExpiringProblemsAlert from '@components/ExpiringProblemsAlert.vue'
+import TrainingCard from '@components/home/TrainingCard.vue'
 import Ranking from '@components/home/Ranking.vue'
 import GradePyramid from '@components/home/GradePyramid.vue'
 import AttributeRadar from '@components/home/AttributeRadar.vue'

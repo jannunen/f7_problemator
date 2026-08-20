@@ -721,6 +721,10 @@
     "cancel": "Cancel",
     "mark_done": "Mark session done",
     "mark_not_done": "Not done after all",
-    "completed_on": "Completed {date}"
+    "completed_on": "Completed {date}",
+    "card_invite_sub": "Tap to accept or decline",
+    "card_invite_generic": "{n} coaching invitation | {n} coaching invitations",
+    "card_progress": "{done} of {total} sessions done",
+    "how_was_it": "How was it?"
   }
 }
