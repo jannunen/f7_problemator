@@ -11,6 +11,35 @@
     <template v-else-if="assignment">
       <p v-if="assignment.description" class="prog__desc">{{ assignment.description }}</p>
 
+      <!-- Two questions, two shapes. The list answers "what is next"; the
+           calendar answers "what does my month look like". -->
+      <div class="modes">
+        <button
+          class="modes__btn"
+          :class="{ 'modes__btn--on': mode === 'list' }"
+          @click="mode = 'list'"
+        >
+          <i class="material-icons modes__icon">view_list</i>
+          {{ t('training.view_list') }}
+        </button>
+        <button
+          class="modes__btn"
+          :class="{ 'modes__btn--on': mode === 'calendar' }"
+          @click="mode = 'calendar'"
+        >
+          <i class="material-icons modes__icon">calendar_month</i>
+          {{ t('training.view_calendar') }}
+        </button>
+      </div>
+
+      <training-calendar
+        v-if="mode === 'calendar'"
+        :assignment="assignment"
+        @open="openSession"
+      />
+
+      <template v-else>
+
       <!-- Grouped by week, because that is how it was written and how it will
            be lived. Today's session is worth finding fast, so the first
            unfinished week opens and the rest stay shut. -->
@@ -36,6 +65,7 @@
           </button>
         </div>
       </div>
+      </template>
     </template>
   </f7-page>
 </template>
@@ -46,6 +76,7 @@ import { f7 } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
 import api from '@js/api.js'
 import { dayName, progress } from '@helpers/trainingFormat.js'
+import TrainingCalendar from '@components/training/TrainingCalendar.vue'
 
 const props = defineProps({ f7route: { type: Object, default: () => ({}) } })
 
@@ -53,6 +84,7 @@ const { t } = useI18n()
 const assignment = ref(null)
 const loading = ref(true)
 const open = reactive({})
+const mode = ref('list')
 
 const byWeek = computed(() => {
   const groups = {}
@@ -89,6 +121,36 @@ onMounted(load)
 </script>
 
 <style scoped>
+.modes {
+  display: flex;
+  gap: 6px;
+  margin: 0.5rem 16px 0.25rem;
+}
+
+.modes__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex: 1;
+  justify-content: center;
+  padding: 0.45rem 0.6rem;
+  border: 1px solid var(--p-border);
+  border-radius: var(--p-radius-sm, 6px);
+  background: none;
+  color: var(--p-text-muted);
+  font-size: 0.78rem;
+}
+
+.modes__btn--on {
+  background: var(--p-bg-card);
+  border-color: var(--p-accent);
+  color: var(--p-text);
+}
+
+.modes__icon {
+  font-size: 1rem;
+}
+
 .prog__note, .prog__desc {
   margin: 1rem;
   font-size: 0.9rem;

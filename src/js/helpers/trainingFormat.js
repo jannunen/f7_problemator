@@ -75,3 +75,41 @@ export function progress(assignment) {
   const done = sessions.filter((s) => s.completed_at).length
   return { done, total: sessions.length }
 }
+
+/**
+ * Is this session a rest day?
+ *
+ * Structural rather than textual: the importer marks rest items `kind: 'rest'`,
+ * so this holds for a programme written in Finnish ("Lepo"), English, or
+ * anything else. Matching the title would have been a language trap.
+ */
+export function isRest(session) {
+  const items = session?.items ?? []
+  return items.length > 0 && items.every((i) => i.kind === 'rest')
+}
+
+/**
+ * The real calendar date a session falls on, or null when the programme has
+ * no start date — an assignment can be given without one, and then week/day
+ * are a running order rather than a schedule.
+ */
+export function sessionDate(startsOn, session) {
+  if (!startsOn || !session) return null
+  const start = new Date(String(startsOn).slice(0, 10) + 'T00:00:00')
+  if (Number.isNaN(start.getTime())) return null
+
+  const week = Number(session.week ?? 1)
+  const day = Number(session.day ?? 1)
+  const offset = (week - 1) * 7 + (day - 1)
+
+  const d = new Date(start)
+  d.setDate(d.getDate() + offset)
+  return d
+}
+
+/** `YYYY-MM-DD` in local time — the key both the grid and the lookup use. */
+export function dateKey(d) {
+  if (!d) return null
+  const pad = (n) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
+}

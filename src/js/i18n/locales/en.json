@@ -728,6 +728,12 @@
     "card_invite_generic": "{n} coaching invitation | {n} coaching invitations",
     "card_progress": "{done} of {total} sessions done",
     "how_was_it": "How was it?",
-    "section_title": "Training programs"
+    "section_title": "Training programs",
+    "view_list": "List",
+    "view_calendar": "Calendar",
+    "legend_training": "Training day",
+    "legend_rest": "Rest day",
+    "legend_done": "Done",
+    "no_dates": "This programme has no start date, so it has no calendar — the weeks run in order from whenever you begin."
   }
 }

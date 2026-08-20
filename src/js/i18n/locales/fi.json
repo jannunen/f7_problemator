@@ -705,6 +705,12 @@
     "card_invite_generic": "{n} valmennuskutsu | {n} valmennuskutsua",
     "card_progress": "{done}/{total} treeniä tehty",
     "how_was_it": "Miten meni?",
-    "section_title": "Treeniohjelmat"
+    "section_title": "Treeniohjelmat",
+    "view_list": "Lista",
+    "view_calendar": "Kalenteri",
+    "legend_training": "Treenipäivä",
+    "legend_rest": "Lepopäivä",
+    "legend_done": "Tehty",
+    "no_dates": "Ohjelmalla ei ole aloituspäivää, joten kalenteria ei ole — viikot etenevät järjestyksessä siitä, kun aloitat."
   }
 }
