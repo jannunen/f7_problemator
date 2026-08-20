@@ -1,12 +1,12 @@
 <template>
-  <!-- height:auto is required by swipe-to-step, not a style choice: the step
-       height is measured from the content inside .sheet-modal-swipe-step. -->
+  <!-- One state: open. A tall session scrolls inside the sheet rather than
+       resting at a step, so there is nothing to discover by swiping up and
+       only one gesture to know — swipe down to dismiss. -->
   <f7-sheet
     class="daysheet-modal"
     :opened="opened"
-    style="height: auto"
+    style="height: auto; max-height: 85vh"
     swipe-to-close
-    swipe-to-step
     backdrop
     @sheet:closed="$emit('update:opened', false)"
   >
@@ -14,15 +14,8 @@
       <span class="daysheet__grip" />
     </div>
 
-    <!-- .sheet-modal-swipe-step is a direct child of the sheet, as the docs
-         have it: Framework7 measures this element to decide where the sheet
-         rests, and burying it inside a padded wrapper makes that measurement
-         a guess. -->
-    <template v-if="session">
-      <!-- Step one: what this day asks of you. This is the whole answer to
-           the tap most of the time — "what is Thursday?" — so it is what you
-           get without swiping any further. -->
-      <div class="sheet-modal-swipe-step daysheet__step">
+    <div v-if="session" class="daysheet">
+      <div class="daysheet__main">
         <p class="daysheet__when">{{ whenLabel }}</p>
         <h2 class="daysheet__title">
           {{ session.title || t('training.session') }}
@@ -60,7 +53,7 @@
           {{ t('training.open_session') }}
         </button>
       </div>
-    </template>
+    </div>
   </f7-sheet>
 </template>
 
@@ -68,10 +61,10 @@
 /**
  * One day of a programme, opened from the calendar.
  *
- * A swipe-to-step sheet: the step shows what the day asks of you, which is
- * what most taps are actually asking. Swiping further reveals the coach's
- * notes and the way through to the session page — the same page a weekday in
- * the list view opens, so both routes end in one place that can log.
+ * It opens in one piece and closes with a swipe. Inside: what the day asks of
+ * you, the coach's notes for it, and the way through to the session page — the
+ * same page a weekday in the list view opens, so both routes end in one place
+ * that can log.
  */
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
@@ -123,7 +116,14 @@ const whenLabel = computed(() => {
   opacity: 0.5;
 }
 
-.daysheet__step {
+/* The sheet itself is capped; the content scrolls inside it, so a long
+   session is reachable without the sheet growing past the screen. */
+.daysheet {
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.daysheet__main {
   padding: 0.25rem 1rem 0.75rem;
 }
 
