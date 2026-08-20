@@ -738,6 +738,7 @@
     "rest_explainer": "A rest day. Nothing prescribed — recovery is the training.",
     "log_session": "Log this session",
     "view_session": "Open this session",
-    "week_day": "Week {week}, day {day}"
+    "week_day": "Week {week}, day {day}",
+    "open_session": "Open session"
   }
 }

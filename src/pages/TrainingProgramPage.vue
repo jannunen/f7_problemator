@@ -72,7 +72,7 @@
       v-model:opened="sheetOpen"
       :session="peeked"
       :starts-on="assignment?.starts_on ?? null"
-      @changed="refresh"
+      @open="goToSession"
     />
   </f7-page>
 </template>
@@ -119,22 +119,15 @@ const peek = (session) => {
   sheetOpen.value = true
 }
 
-// Something was logged in the sheet. Refetch, then re-point at the same day:
-// `peeked` holds the object from the previous fetch, so without this the sheet
-// would keep rendering the results the climber just replaced.
-const refresh = async () => {
-  const id = peeked.value?.id
-  await load({ quiet: true })
-  if (id) {
-    peeked.value = (assignment.value?.sessions ?? []).find((s) => s.id === id) ?? null
-  }
+// Close before navigating, so the sheet's own animation does not race the
+// page transition.
+const goToSession = (session) => {
+  sheetOpen.value = false
+  openSession(session)
 }
 
-// `quiet` refetches without flipping `loading`. A save made inside the day
-// sheet should update the dots behind it, not blank the whole month for the
-// length of a request.
-const load = async ({ quiet = false } = {}) => {
-  if (!quiet) loading.value = true
+const load = async () => {
+  loading.value = true
   try {
     assignment.value = await api.trainingAssignment(props.f7route.params.id)
 
@@ -144,11 +137,11 @@ const load = async ({ quiet = false } = {}) => {
     const next = weeks.find((w) => byWeek.value[w].some((s) => !s.completed_at)) ?? weeks[0]
     if (next) open[next] = true
   } finally {
-    if (!quiet) loading.value = false
+    loading.value = false
   }
 }
 
-onMounted(() => load())
+onMounted(load)
 </script>
 
 <style scoped>

@@ -3,7 +3,7 @@
     <p v-if="session.notes" class="sess__notes">{{ session.notes }}</p>
 
     <div
-      v-for="item in hideItems ? [] : (session.items ?? [])"
+      v-for="item in session.items ?? []"
       :key="item.id"
       class="item"
       :class="{ 'item--done': item.result }"
@@ -130,11 +130,7 @@ import api from '@js/api.js'
 import { actual, prescribed } from '@helpers/trainingFormat.js'
 
 const props = defineProps({
-  session: { type: Object, required: true },
-  // A rest day has nothing to prescribe, but it is still a day you finish:
-  // rest days count toward the programme's total, so without the finish
-  // control a 70-day block could never reach 70 of 70.
-  hideItems: { type: Boolean, default: false }
+  session: { type: Object, required: true }
 })
 const emit = defineEmits(['changed'])
 

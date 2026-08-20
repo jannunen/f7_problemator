@@ -715,6 +715,7 @@
     "rest_explainer": "Lepopäivä. Ei ohjelmaa — palautuminen on osa treeniä.",
     "log_session": "Kirjaa tämä treeni",
     "view_session": "Avaa tämä treeni",
-    "week_day": "Viikko {week}, päivä {day}"
+    "week_day": "Viikko {week}, päivä {day}",
+    "open_session": "Avaa treeni"
   }
 }
