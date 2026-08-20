@@ -18,7 +18,10 @@ import PublicSingleCompetitionPage from '../pages/PublicSingleCompetitionPage.vu
 import SprayWallPage from '../pages/SprayWallPage.vue';
 import SprayWallCreatorPage from '../pages/SprayWallCreatorPage.vue';
 import SprayWallProblemPage from '../pages/SprayWallProblemPage.vue';
-import BadgesPage from '../pages/BadgesPage.vue';
+import BadgesPage from '../pages/BadgesPage.vue'
+import TrainingPage from '../pages/TrainingPage.vue'
+import TrainingProgramPage from '../pages/TrainingProgramPage.vue'
+import TrainingSessionPage from '../pages/TrainingSessionPage.vue';
 const routes = [
   {
     path: '/',
@@ -33,6 +36,18 @@ const routes = [
   {
     path: '/badges',
     component: BadgesPage,
+  },
+  {
+    path: '/training',
+    component: TrainingPage,
+  },
+  {
+    path: '/training/:id',
+    component: TrainingProgramPage,
+  },
+  {
+    path: '/training/:id/session/:sessionId',
+    component: TrainingSessionPage,
   },
   {
     path: '/settings',

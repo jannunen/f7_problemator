@@ -29,6 +29,35 @@ const api = {
   },
   // Trades a Supabase token for ours. Everything after this call is ordinary
   // authenticated API traffic — Supabase is not involved again.
+  // Training: coaching invitations, the programme a coach set, and recording
+  // what was actually done.
+  async coachInvitations() {
+    const ret = await axios.get(endpoint + '/training/invitations')
+    return ret.data
+  },
+  async respondToCoachInvitation({ id, accept, reason }) {
+    const ret = await axios.post(endpoint + `/training/invitations/${id}`, { accept, reason })
+    return ret.data
+  },
+  async myTrainingAssignments() {
+    const ret = await axios.get(endpoint + '/training/assignments')
+    return ret.data
+  },
+  async trainingAssignment(id) {
+    const ret = await axios.get(endpoint + `/training/assignments/${id}`)
+    return ret.data
+  },
+  async completeTrainingSession({ id, completed = true, trainingsessionId = null }) {
+    const ret = await axios.post(endpoint + `/training/sessions/${id}/complete`, {
+      completed,
+      trainingsession_id: trainingsessionId
+    })
+    return ret.data
+  },
+  async recordTrainingResult({ itemId, ...values }) {
+    const ret = await axios.post(endpoint + `/training/items/${itemId}/result`, values)
+    return ret.data
+  },
   async socialExchange(accessToken) {
     const ret = await axios.post(endpoint + '/auth/social/exchange', {
       access_token: accessToken
