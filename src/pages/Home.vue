@@ -31,6 +31,11 @@
            lock. Signing in is the only thing that changes isAuthenticated. -->
       <div v-if="isAuthenticated" class="home-section">
         <gym-selector />
+        <!-- Against the gym it is about. Problems expire from one gym, so the
+             warning belongs to the line naming that gym rather than sitting
+             six blocks down among things you browse at leisure — by then a
+             climber has scrolled past the one item with a deadline on it. -->
+        <expiring-problems-alert />
       </div>
 
       <div v-if="profileLoaded">
@@ -80,10 +85,7 @@
 
           <!-- Section: Gym overview -->
           <div class="home-section">
-            <!-- Above the expiring-problems alert: an invitation is a
-                 person waiting on you, which outranks a wall being stripped. -->
             <training-card />
-            <expiring-problems-alert />
             <spray-wall-block />
             <floor-map-block :f7router="props.f7router" />
             <badge-gym-stats :gym="gym" />
