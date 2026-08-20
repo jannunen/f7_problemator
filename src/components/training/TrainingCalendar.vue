@@ -32,6 +32,12 @@
               class="cal__dot"
               :class="`cal__dot--${d.state}`"
             />
+            <!-- Feedback on this day, corner-pinned so it never displaces the
+                 dot that says what the day is. -->
+            <span
+              v-if="d.feedback"
+              class="cal__alert"
+            />
           </component>
         </div>
       </div>
@@ -46,6 +52,9 @@
         </span>
         <span class="cal__key">
           <span class="cal__dot cal__dot--done" />{{ t('training.legend_done') }}
+        </span>
+        <span class="cal__key">
+          <span class="cal__dot cal__dot--feedback" />{{ t('training.legend_feedback') }}
         </span>
       </div>
     </template>
@@ -125,6 +134,7 @@ const months = computed(() => {
         n: i + 1,
         session,
         state: session ? stateOf(session) : null,
+        feedback: !!session?.coach_notes,
         isToday: key === todayKey
       }
     })
@@ -187,6 +197,7 @@ const months = computed(() => {
 /* Every cell is the same box whether or not it holds a session, so the grid
    stays square and the dots line up down the column. */
 .cal__day {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -223,9 +234,20 @@ const months = computed(() => {
   background: var(--p-text-muted);
 }
 
+.cal__alert {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--p-danger, #ef4444);
+}
+
 .cal__dot--training { background: var(--p-accent); }
 .cal__dot--rest { background: var(--p-text-muted); }
 .cal__dot--done { background: var(--p-success); }
+.cal__dot--feedback { background: var(--p-danger, #ef4444); }
 
 .cal__legend {
   display: flex;

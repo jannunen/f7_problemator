@@ -19,7 +19,13 @@
     </button>
 
     <button v-else class="tcard" @click="open">
-      <span class="material-icons tcard__icon">fitness_center</span>
+      <span class="tcard__iconwrap">
+        <span class="material-icons tcard__icon">fitness_center</span>
+        <!-- Feedback waiting. Red because it is the one thing here addressed
+             to this climber by a person, and it would otherwise sit unread
+             inside a session they had no reason to reopen. -->
+        <span v-if="feedback" class="tcard__alert" />
+      </span>
       <span class="tcard__body">
         <span class="tcard__title">{{ active.name }}</span>
         <!-- Where they are in it, which is the one thing worth knowing from
@@ -48,6 +54,7 @@ const assignments = ref([])
 const isAuthenticated = computed(() => store.state.isAuthenticated)
 
 const active = computed(() => assignments.value.find((a) => a.status === 'active') ?? null)
+const feedback = computed(() => (active.value?.coach_notes_count ?? 0) > 0)
 
 const inviteTitle = computed(() => {
   const first = invitations.value[0]
@@ -76,6 +83,22 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.tcard__iconwrap {
+  position: relative;
+  display: inline-flex;
+  flex: none;
+}
+
+.tcard__alert {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--p-danger, #ef4444);
+}
+
 .tsec {
   margin: 0 16px 1rem;
 }

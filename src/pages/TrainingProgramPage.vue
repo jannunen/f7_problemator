@@ -60,6 +60,11 @@
           >
             <span class="day__when">{{ dayName(s.day) }}</span>
             <span class="day__title">{{ s.title || t('training.session') }}</span>
+            <span
+              v-if="s.coach_notes"
+              class="day__alert"
+              :title="t('training.coach_said')"
+            />
             <i v-if="s.completed_at" class="material-icons day__tick">check_circle</i>
             <i v-else class="material-icons day__go">chevron_right</i>
           </button>
@@ -145,6 +150,16 @@ onMounted(load)
 </script>
 
 <style scoped>
+/* Feedback on this day. Small and red: it is a flag, not a message. */
+.day__alert {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-left: 0.35rem;
+  border-radius: 50%;
+  background: var(--p-danger, #ef4444);
+}
+
 .modes {
   display: flex;
   gap: 6px;
