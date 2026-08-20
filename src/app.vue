@@ -48,7 +48,7 @@ import { registerBackButton, setupChrome, registerDeepLinks } from '@js/native.j
 import { pendingWebSession } from '@helpers/socialAuth.js'
 import { useBrowserHistory } from '@js/platform.js'
 import { useI18n } from 'vue-i18n'
-import {  watch, computed, ref, onMounted } from 'vue'
+import { watch, computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import $ from 'dom7'
 import { f7, f7ready } from 'framework7-vue'

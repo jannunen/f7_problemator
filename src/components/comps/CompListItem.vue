@@ -17,7 +17,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import dayjs from 'dayjs'
 const store = useStore()
 const { t } = useI18n()

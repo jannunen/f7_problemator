@@ -1,6 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref } from 'vue'
 import AddTick from '@components/problem/AddTick.vue'
 import LeftDetails from '@components/problem/LeftDetails.vue'
 import RightDetails from '@components/problem/RightDetails.vue'
@@ -12,7 +12,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 
 import { useStore } from 'vuex'
-import { f7, f7ready } from 'framework7-vue'
+import { f7 } from 'framework7-vue'
 const store = useStore()
 const showPublicAscentsDialog = ref(false)
 const showCommentsDialog = ref(false)
@@ -39,7 +39,6 @@ if (props.id != null) {
   })
 
 }
-const problems = computed(() => store.state.problems)
 const isAuthenticated = computed(() => store.state.isAuthenticated)
 
 const onLoginClick = () => {
@@ -51,10 +50,6 @@ const onShowPublicAscents = (pid) => {
 }
 const onShowComments = (pid) => {
     showCommentsDialog.value = true
-}
-const openAddTick = () => {
-  const url = `/problem/${problem.value?.id}/addtick`
-  props.f7router.navigate(url)
 }
 </script>
 <template>

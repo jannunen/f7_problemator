@@ -33,7 +33,6 @@ import {  computed, ref } from 'vue'
 import { date_format, right } from '@js/helpers'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 
-const { t } = useI18n()
 const store = useStore()
 const problems = computed(() => store.state.problems)
 const showDetails = ref(false)
