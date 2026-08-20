@@ -194,7 +194,9 @@
     "req_weeks": "{n} vk",
     "req_years": "{n} v",
     "req_each": "{n} × {bands}",
-    "req_in_a_day": "{n}/pv"
+    "req_in_a_day": "{n}/pv",
+    "gym_scoped": "Merkit ovat salikohtaisia. Nämä kuuluvat tälle salille, ja ansaitset ne siitä, mitä kiipeät täällä.",
+    "gym_scoped_named": "Merkit ovat salikohtaisia. Nämä ovat salin {gym} merkkejä, ja ansaitset ne siitä, mitä kiipeät täällä."
   },
   "gymselector": {
     "active_gym": "Aktiivinen halli",

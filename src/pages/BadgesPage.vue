@@ -6,6 +6,13 @@
       </template>
     </f7-navbar>
 
+    <!-- Which gym these belong to is not cosmetic: a climber who earned
+         "7a" at one gym and sees it locked at another needs to know that is
+         the design and not a bug. -->
+    <p class="badges-page__lede">
+      {{ gymName ? t('badges.gym_scoped_named', { gym: gymName }) : t('badges.gym_scoped') }}
+    </p>
+
     <p v-if="!allBadges.length" class="badges-page__empty">{{ t('badges.none_defined') }}</p>
 
     <template v-else>
@@ -55,6 +62,7 @@ const sheetOpen = ref(false)
 
 const badges = computed(() => store.state.badges)
 const gymid = computed(() => store.state.gymid)
+const gymName = computed(() => store.state.gym?.name ?? '')
 
 const earnedList = computed(() => badges.value.earned ?? [])
 const earnedIds = computed(() => new Set(earnedList.value.map((e) => e.badge_id)))
@@ -106,6 +114,13 @@ watch(gymid, (id) => id && store.dispatch('loadBadges', id), { immediate: true }
   font-size: 0.8rem;
   font-weight: 600;
   color: var(--p-text-dim);
+}
+
+.badges-page__lede {
+  margin: 0.75rem 16px 0.25rem;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  color: var(--p-text-muted);
 }
 
 .badges-page__empty {

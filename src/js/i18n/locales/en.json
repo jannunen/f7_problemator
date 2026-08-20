@@ -202,7 +202,9 @@
     "req_weeks": "{n} wks",
     "req_years": "{n} yrs",
     "req_each": "{n} × {bands}",
-    "req_in_a_day": "{n}/day"
+    "req_in_a_day": "{n}/day",
+    "gym_scoped": "Badges are gym-specific. These belong to this gym, and you earn them for what you climb here.",
+    "gym_scoped_named": "Badges are gym-specific. These are {gym}’s, and you earn them for what you climb here."
   },
   "gymselector": {
     "active_gym": "Active gym",
