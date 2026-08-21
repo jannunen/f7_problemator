@@ -90,7 +90,7 @@
                 <text v-if="showLabel"
                       :x="p.cx" :y="p.cy"
                       font-size="0.0056"
-                      fill="#fff"
+                      :fill="labelColor(p)"
                       text-anchor="middle"
                       dominant-baseline="central"
                       style="pointer-events: none; user-select: none; font-weight: 600">{{ displayGrade(p) }}</text>
@@ -122,7 +122,7 @@
             <!-- Pulse ring -->
             <path :d="circlePath(selectedProblem.cx, selectedProblem.cy, 0.012)" fill="none" stroke="#fff" stroke-width="0.002" opacity="0.6" />
             <path :d="circlePath(selectedProblem.cx, selectedProblem.cy, 0.008)" :fill="getColor(selectedProblem)" stroke="#fff" stroke-width="0.003" @click.stop="onProblemTap(selectedProblem)" />
-            <text :x="selectedProblem.cx" :y="selectedProblem.cy" font-size="0.0056" fill="#fff" text-anchor="middle" dominant-baseline="central" style="pointer-events: none; user-select: none; font-weight: 600">{{ displayGrade(selectedProblem) }}</text>
+            <text :x="selectedProblem.cx" :y="selectedProblem.cy" font-size="0.0056" :fill="labelColor(selectedProblem)" text-anchor="middle" dominant-baseline="central" style="pointer-events: none; user-select: none; font-weight: 600">{{ displayGrade(selectedProblem) }}</text>
             <!-- Expiring overlay -->
             <rect v-if="selectedProblem.soontoberemoved == 1"
                   :x="selectedProblem.cx - 0.012" :y="selectedProblem.cy - 0.012"
@@ -684,9 +684,44 @@ function getWallProblems(wall) {
   })
 }
 
+/**
+ * The part of a route tag a setter would say out loud.
+ *
+ * Tags carry a gym-and-season prefix — TKK2023S5002, POR2024G6 — and only the
+ * section letter and its number identify the problem on the wall. slice(7)
+ * was doing this by counting characters, which is right only for prefixes
+ * that happen to be seven long: on a real tag it left a stray letter from the
+ * middle, and on a shorter prefix it ate the section letter.
+ */
 function shortTag(tag) {
   if (!tag) return ''
-  return tag.length > 7 ? tag.slice(7) : tag
+
+  // The last letter that runs into the trailing digits, plus those digits.
+  const m = String(tag).match(/([A-Za-z])(\d+)$/)
+  if (m) return m[1] + m[2]
+
+  // No trailing number to anchor on: better a whole tag than a guessed slice.
+  return tag
+}
+
+/**
+ * Black or white, whichever can be read on this problem's colour.
+ *
+ * The label was hardcoded white, which is fine on black and purple and
+ * invisible on yellow — and the circle wears the problem's own colour, so no
+ * single choice works and the theme cannot answer it either.
+ */
+function labelColor(problem) {
+  const hex = getColor(problem)
+  const m = /^#?([0-9a-f]{6})$/i.exec(hex.trim())
+  if (!m) return '#fff'
+
+  const n = parseInt(m[1], 16)
+  // Rec. 601 luma: green dominates perceived brightness, which is why a mid
+  // green needs dark text while a mid blue of the same hex sum does not.
+  const luma = (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255
+
+  return luma > 0.6 ? '#111827' : '#fff'
 }
 
 function displayGrade(p) {
