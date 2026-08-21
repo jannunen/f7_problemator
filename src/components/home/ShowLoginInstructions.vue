@@ -162,25 +162,22 @@
 
           <label class="input-label text-center">{{ t('auth.enter_code') }}</label>
 
-          <!-- Individual OTP digit boxes -->
-          <div class="otp-digits">
-            <input
-              v-for="(_, i) in 6"
-              :key="i"
-              :ref="el => { if (el) otpRefs[i] = el }"
-              type="text"
-              inputmode="numeric"
-              maxlength="1"
-              class="otp-box"
-              :class="{ filled: otpDigits[i] }"
-              :value="otpDigits[i]"
-              autocomplete="one-time-code"
-              @input="handleOtpInput(i, $event)"
-              @keydown="handleOtpKeydown(i, $event)"
-              @paste="handleOtpPaste($event)"
-              @focus="$event.target.select()"
-            />
-          </div>
+          <!-- One field. Six boxes look neat and fight everything that helps:
+               a password manager fills the first and stops, autofill from the
+               notification bar lands one digit, and correcting a typo means
+               finding which box holds it. -->
+          <input
+            ref="otpInput"
+            v-model="otpCode"
+            type="text"
+            inputmode="numeric"
+            maxlength="6"
+            class="otp-field"
+            autocomplete="one-time-code"
+            placeholder="000000"
+            @input="onOtpInput"
+            @keyup.enter="verifyCode"
+          />
 
           <p-button
             class="btn-primary w-full submit-btn"
@@ -220,7 +217,7 @@
 import PButton from '@components/PButton.vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
-import { ref, computed, reactive, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import logo from '../../assets/images/logo.png'
 import { PROVIDERS } from '@helpers/socialAuth.js'
 import { socialAuthAvailable } from '@js/supabase.js'
@@ -230,8 +227,8 @@ const store = useStore()
 const email = ref('')
 const etunimi = ref('')
 const sukunimi = ref('')
-const otpDigits = reactive(['', '', '', '', '', ''])
-const otpRefs = reactive([])
+const otpCode = ref('')
+const otpInput = ref(null)
 const sending = ref(false)
 // Which provider is mid-flight, so its own button spins and the other is
 // disabled rather than both showing the same indeterminate state.
@@ -243,7 +240,7 @@ const debugOtp = computed(() => store.state.debugOtp)
 const authType = computed(() => store.state.authType)
 const authError = computed(() => store.state.authError)
 
-const otpCode = computed(() => otpDigits.join(''))
+
 
 const switchTab = (type) => {
   store.commit('setAuthType', type)
@@ -253,38 +250,21 @@ const switchTab = (type) => {
 }
 
 const clearOtp = () => {
-  for (let i = 0; i < 6; i++) otpDigits[i] = ''
+  otpCode.value = ''
 }
 
-const handleOtpInput = (index, event) => {
-  const val = event.target.value.replace(/\D/g, '')
-  otpDigits[index] = val.slice(-1)
-  event.target.value = otpDigits[index]
-  if (val && index < 5) {
-    nextTick(() => otpRefs[index + 1]?.focus())
-  }
+/**
+ * Digits only, and submit once six are in.
+ *
+ * Stripping here rather than with a pattern means a pasted code carrying
+ * spaces or a stray dash still works — which is what a code copied out of an
+ * email usually looks like.
+ */
+const onOtpInput = () => {
+  otpCode.value = otpCode.value.replace(/\D/g, '').slice(0, 6)
+
   if (otpCode.value.length === 6) {
     verifyCode()
-  }
-}
-
-const handleOtpKeydown = (index, event) => {
-  if (event.key === 'Backspace' && !otpDigits[index] && index > 0) {
-    otpDigits[index - 1] = ''
-    nextTick(() => otpRefs[index - 1]?.focus())
-  }
-}
-
-const handleOtpPaste = (event) => {
-  event.preventDefault()
-  const text = (event.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6)
-  for (let i = 0; i < 6; i++) {
-    otpDigits[i] = text[i] || ''
-  }
-  const focusIndex = Math.min(text.length, 5)
-  nextTick(() => otpRefs[focusIndex]?.focus())
-  if (text.length === 6) {
-    nextTick(() => verifyCode())
   }
 }
 
@@ -328,7 +308,7 @@ const goBack = () => {
 // Auto-focus first OTP box when entering OTP step
 watch(authStep, (val) => {
   if (val === 'otp_sent') {
-    nextTick(() => otpRefs[0]?.focus())
+    nextTick(() => otpInput.value?.focus())
   }
 })
 </script>
@@ -580,38 +560,37 @@ watch(authStep, (val) => {
 }
 
 /* ─── OTP Digits ─── */
-.otp-digits {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-bottom: 1.5rem;
-}
-
-.otp-box {
-  width: 48px;
+.otp-field {
+  width: 100%;
   height: 56px;
+  margin-bottom: 1.5rem;
   border-radius: 10px;
   border: 1.5px solid rgba(255, 255, 255, 0.08);
   background: rgba(255, 255, 255, 0.03);
   color: var(--p-text);
+  /* Wide tracking and a centred, tabular face: the six-box look was doing
+     the real work of making a code scannable, and a plain field can keep
+     that without fighting autofill. */
   font-size: 1.4rem;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5em;
+  text-indent: 0.5em;
   text-align: center;
   outline: none;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, background 0.2s ease;
   caret-color: var(--p-accent);
 }
 
-.otp-box:focus {
+.otp-field::placeholder {
+  color: var(--p-text-dark);
+  letter-spacing: 0.5em;
+}
+
+.otp-field:focus {
   border-color: rgba(var(--p-accent-rgb), 0.5);
   background: rgba(var(--p-accent-rgb), 0.06);
   box-shadow: 0 0 0 3px rgba(var(--p-accent-rgb), 0.1);
-  transform: translateY(-1px);
-}
-
-.otp-box.filled {
-  border-color: rgba(var(--p-accent-rgb), 0.25);
-  background: rgba(var(--p-accent-rgb), 0.04);
 }
 
 /* ─── Submit Button ─── */
