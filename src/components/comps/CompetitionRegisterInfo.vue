@@ -120,6 +120,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { webendpoint } from '@js/api'
 import PButton from '@components/PButton.vue'
 import { ref, computed} from 'vue'
 import { confirm, toaster } from '@helpers/notifications.js'
@@ -130,10 +131,8 @@ const nowUTC = ref(dayjs().utc())
 setInterval(() => nowUTC.value = dayjs().utc(),1000*30)
 import dayjs from 'dayjs'
 const store = useStore()
-const getResultsLink = computed(() => {
-    return  `https://api3.problemator.fi/comps/${props.comp.id}/results`
-
-  })
+// Same host every other call uses, so this cannot drift away from it again.
+const getResultsLink = computed(() => `${webendpoint}/comps/${props.comp.id}/results`)
 
 const isRegistering = ref(false)
 const { t } = useI18n()

@@ -37,13 +37,14 @@ import dayjs from 'dayjs'
 import { toLocalTime } from '../js/helpers/component.helpers'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
-import api from '@js/api'
+import api, { webendpoint } from '@js/api'
 const { t } = useI18n()
 dayjs.extend(relativeTime)
 
-const getLink = (comp) => {
-  return `https://api3.problemator.fi/comps/` + comp.id+ '/results'
-}
+// Built from the configured host rather than written out. As a literal this
+// said api3 and kept saying it through every environment change, because a
+// hardcoded URL is invisible to VITE_API_HOST.
+const getLink = (comp) => `${webendpoint}/comps/${comp.id}/results`
 const { data: comps } = useQuery({
   ...queries.competitions(),
   initialData: { upcoming: [], ongoing: [], past: [] },
