@@ -189,11 +189,11 @@ const serverVersion = computed(() => store.state.server_version)
 // Same fix as LeftSidepanel: a string inequality that was permanently true,
 // so this banner never went away.
 const updateAvailable = computed(() => isUpdateAvailable(version.value, serverVersion.value))
-const updateVersion = () => {
+const updateVersion = async () => {
   // On the web, a cache-busting navigation. In a shipped binary that just
   // reloads the same bundled app, so performUpdate sends it to the store
   // instead — see src/js/helpers/update.js.
-  performUpdate({
+  await performUpdate({
     reload: () => {
       window.location.href = '/?forceReload=' + Math.random() * 1000000
     },
