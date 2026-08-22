@@ -145,14 +145,27 @@ if [ -d "ios" ]; then git add ios/App/App.xcodeproj/project.pbxproj; fi
 git commit -m "chore: $NEW_VERSION"
 git tag -a "v$NEW_VERSION" -m "Problemator mobile $NEW_VERSION (build $BUILD_NUMBER)"
 
-echo "==> Deploy web"
-rsync -avzh --delete www/ api3.problemator.fi:mobile/www
+# Deliberately no deploy step. The web app is deployed by CI on push to main,
+# using DEPLOY_HOST / DEPLOY_USER / TARGET from repository secrets — which are
+# not in this repo, so nothing here can address the right server anyway.
+#
+# What used to be here was:
+#
+#   rsync -avzh --delete www/ api3.problemator.fi:mobile/www
+#
+# wrong in three ways. It named api3, which has not served the app since the
+# move to app.problemator.fi. It used --delete, which the CI workflow avoids on
+# purpose: asset names are content-hashed so old ones are inert, but a tab
+# still running the previous build asks for its own chunks, and deleting them
+# turns a background deploy into a blank screen mid-session. And it reported
+# "live now" for an upload nobody was reading, which is how a release can look
+# done and reach no one.
 
 cat <<DONE
 
 Released $NEW_VERSION.
 
-  web     live now
+  web     push to deploy — CI builds and uploads on main
   stores  build $BUILD_NUMBER is staged in www/; submit when you choose
 
 Not pushed. When you are ready:
