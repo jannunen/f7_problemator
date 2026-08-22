@@ -119,7 +119,18 @@
     "ticked": "tikattu",
     "you_are_a_judge": "Olet tuomari tässä kilpailussa",
     "comp_type": "Kilpailutyyppi",
-    "the_comp_has_not_started_yet": "Kilpailuaika ei ole vielä alkanut tai on jo päättynyt"
+    "the_comp_has_not_started_yet": "Kilpailuaika ei ole vielä alkanut tai on jo päättynyt",
+    "open_results": "Tulokset",
+    "show_more": "Näytä lisää",
+    "show_less": "Näytä vähemmän",
+    "full": "Täynnä",
+    "closed": "Suljettu",
+    "registering": "Ilmoittaudutaan…",
+    "unlimited_spots": "Ei rajaa",
+    "spots_left": "{n} paikkaa jäljellä",
+    "registered_count": "{n} ilmoittautunutta",
+    "special_price_hint": "Erikoishinnan aktivoi järjestäjä — pyydä sitä heiltä.",
+    "paid": "Maksettu"
   },
   "settings": {
     "settings_title": "Asetukset",
