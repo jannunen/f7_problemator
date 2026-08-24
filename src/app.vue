@@ -13,13 +13,15 @@
          pages, and nothing but the dark theme's black. On the web the URL
          still decides, so `url` is left undefined there and deep links keep
          working. -->
-    <f7-view 
+    <ErrorBoundary>
+      <f7-view 
     :url="useBrowserHistory ? undefined : '/'"
     :push-state="useBrowserHistory"
     :browser-history="useBrowserHistory"
     :browser-history-root="historyRoot"
     main 
     ></f7-view>
+    </ErrorBoundary>
 
     <!-- The side panel is app furniture, not part of the home screen. It used
          to be mounted inside Home, so on every other page it simply did not
@@ -42,6 +44,7 @@
 </template>
 <script>
 import routes from './js/routes.js'
+import ErrorBoundary from '@/components/ui/ErrorBoundary.vue'
 import BottomTabBar from '@components/ui/BottomTabBar.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import { registerBackButton, setupChrome, registerDeepLinks } from '@js/native.js'
