@@ -127,7 +127,18 @@
     "ticked": "ticked",
     "you_are_a_judge": "You are a judge in this competition",
     "comp_type": "Competition type",
-    "the_comp_has_not_started_yet": "The competition time is either not started or has already ended"
+    "the_comp_has_not_started_yet": "The competition time is either not started or has already ended",
+    "open_results": "Results",
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "full": "Full",
+    "closed": "Closed",
+    "registering": "Registering…",
+    "unlimited_spots": "No limit",
+    "spots_left": "{n} spots left",
+    "registered_count": "{n} registered",
+    "special_price_hint": "The special price is arranged by the organiser — ask them to activate it for you.",
+    "paid": "Paid"
   },
   "settings": {
     "settings_title": "Settings",
