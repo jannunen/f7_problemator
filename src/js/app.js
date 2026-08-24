@@ -13,6 +13,7 @@ import Framework7 from 'framework7/lite-bundle'
 import Framework7Vue, { registerComponents } from 'framework7-vue/bundle'
 import store from "./store.js";
 import { VueQueryPlugin } from '@tanstack/vue-query'
+import { queryClient } from '@js/queryClient'
 
 
 
@@ -41,7 +42,10 @@ const app = createApp(App);
 // Register all Framework7 Vue components
 registerComponents(app);
 app.use(store);
-app.use(VueQueryPlugin);
+// Explicit client: the bare plugin call meant staleTime 0 and refetch on
+// every window focus, which re-asked for everything constantly to cover for
+// writes that invalidated nothing. See queryClient.js.
+app.use(VueQueryPlugin, { queryClient });
 
 const supportedLocales = Object.keys(messages)
 const savedLocale = localStorage.getItem('locale')
