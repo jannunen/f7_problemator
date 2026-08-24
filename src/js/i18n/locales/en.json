@@ -758,5 +758,12 @@
     "timer_round": "Set {n} of {of}",
     "timer_ready_to_start": "Ready",
     "timer_hint": "Keep this screen open — it stays awake while the timer runs. Sound needs one tap to unlock, which Start does."
+  },
+  "errors": {
+    "screen_failed_title": "This screen didn't load",
+    "screen_failed_body": "Something in it went wrong. The rest of the app still works.",
+    "try_again": "Try again",
+    "go_home": "Go to home",
+    "screen_is_broken": "Retrying failed the same way, so this is a bug rather than a blip. Please report it with the message above."
   }
 }
