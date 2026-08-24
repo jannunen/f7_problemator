@@ -1,4 +1,5 @@
 import { createStore } from "vuex";
+import { invalidateAfter } from '@js/queryClient'
 import { signInWith, clearSupabaseSession } from '@helpers/socialAuth.js'
 import api from './api'
 import home from "./store/home.store.js"
@@ -367,6 +368,7 @@ export default createStore({
     async deleteProject({ commit, state}, payload) {
       const ret = await api.deleteProject(payload)
       commit('problems', {...state.problems,[ret.problem.id] : ret.problem})
+      invalidateAfter('deleteProject')
     },
      async getCompResults({ state, commit }, payload) {
       const ret = await api.getCompResults(payload)
@@ -382,12 +384,14 @@ export default createStore({
       const ret = await api.deleteTickByProblem(payload)
       commit('removeTick',payload.problemid)
       commit('removeTickFromCompetition',payload.problemid)
+      invalidateAfter('deleteTickByProblem')
       return ret
     },
     async deleteTick({ state, commit, dispatch}, payload) {
       const ret = await api.deleteTick(payload)
       commit('problems', {...state.problems,[ret.problem.id] : ret.problem})
       dispatch('rankings', { country: state.rankingTarget })
+      invalidateAfter('deleteTick')
 
       return ret
     },
@@ -405,6 +409,7 @@ export default createStore({
         commit('addTriesAllTime',ret.tick)
       }
       dispatch('rankings', { country: state.rankingTarget })
+      invalidateAfter('saveTick')
       return ret
     },
     async likeProblem({ state , commit}, payload) {
@@ -413,6 +418,7 @@ export default createStore({
       // Update problem likes
       const problem = state.problems[pid]
       commit('problems' , { ...state.problems, [pid]: {...problem,['c_like'] : ret.likeCount, ['likeCount'] : ret.likeCount, ['c_dislike'] : ret.dislikeCount, ['dislikeCount'] : ret.dislikeCount } })
+      invalidateAfter('likeProblem')
     },
     async dislikeProblem({ state , commit}, payload) {
       const pid = payload.id
@@ -420,6 +426,7 @@ export default createStore({
       // Update problem dislikes
       const problem = state.problems[pid]
       commit('problems' , { ...state.problems, [pid]: {...problem,['likeCount'] : ret.likeCount, ['dislikeCount'] : ret.dislikeCount } })
+      invalidateAfter('dislikeProblem')
     },
     async commentProblem({ state , commit}, payload) {
       const pid = payload.id

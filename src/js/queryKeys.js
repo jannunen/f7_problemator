@@ -119,21 +119,4 @@ export const queries = {
   }),
 }
 
-/**
- * Keys only, for invalidation after a mutation.
- *
- * Partial keys match by prefix, so invalidating ['badges'] clears every
- * gym's badges — which is what you want after earning one, since you do not
- * know which gym's set it belonged to.
- */
-export const invalidate = {
-  gyms: () => ['gyms'],
-  badges: () => ['badges'],
-  competitions: () => ['competitions'],
-  feed: () => ['feed'],
-  newProblems: () => ['new-problems'],
-  publicAscents: (problemId) => (problemId ? ['public-ascents', problemId] : ['public-ascents']),
-  rankings: () => ['ranking-top10'],
-  sprayWalls: () => ['spray-walls'],
-  sprayWallProblems: () => ['spray-wall-problems'],
-}
+export { invalidate } from '@js/queryKeyNames'
