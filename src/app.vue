@@ -47,6 +47,7 @@ import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import { registerBackButton, setupChrome, registerDeepLinks } from '@js/native.js'
 import { pendingWebSession } from '@helpers/socialAuth.js'
 import { useBrowserHistory } from '@js/platform.js'
+import { readStoredToken } from '@js/authToken.js'
 import { useI18n } from 'vue-i18n'
 import { watch, computed, ref } from 'vue'
 import { useStore } from 'vuex'
@@ -183,9 +184,11 @@ export default {
       store.commit('setInitializing', false)
     })
 
-    // Bootstrap from localStorage token (after watch is registered)
-    const existingToken = localStorage.getItem('token')
-    if (existingToken && existingToken !== 'null') {
+    // Bootstrap from the stored token (after watch is registered). The
+    // "is it really a token" question lives in readStoredToken, so this is
+    // not a third place that has to remember about the string "null".
+    const existingToken = readStoredToken()
+    if (existingToken) {
       store.commit('setToken', existingToken)
     } else {
       store.commit('setReady', true)

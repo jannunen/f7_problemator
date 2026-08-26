@@ -1,6 +1,7 @@
 import { createStore } from "vuex";
 import { signInWith, clearSupabaseSession } from '@helpers/socialAuth.js'
 import api from './api'
+import { setAuthToken, readStoredToken } from './authToken.js'
 import home from "./store/home.store.js"
 import climbers from './store/climber.store.js'
 
@@ -45,7 +46,7 @@ export default createStore({
     selectedLeftPanelItem : 'home',
     backlog: getFromLocalStorage('backlog', []),
     wishlist: getFromLocalStorage('wishlist', []),
-    isAuthenticated : false,
+    isAuthenticated : !!readStoredToken(),
     gymid : null,
     profile : {
       settings : null,
@@ -58,7 +59,10 @@ export default createStore({
     user : null,
     climber : null,
     pointEntryKey : null,
-    access_token : null,
+    // Seeded from storage, not null. The request interceptor has always read
+    // localStorage directly, so a returning user was signed in as far as the
+    // API was concerned while this said otherwise.
+    access_token : readStoredToken(),
     authStep: 'idle', // idle, otp_sent, verifying
     debugOtp: null, // dev-only: the code, when the API is running with debug on
     badges: { earned: [], definitions: [], loading: false, gymid: null },
@@ -180,7 +184,10 @@ export default createStore({
     },
     setToken( state  , payload) {
       state.access_token = payload
-      localStorage.setItem('token', payload)
+      // Through setAuthToken, not localStorage directly: it is what anything
+      // waiting on sign-in is watching, and it refuses to store the string
+      // "null" the way this used to on logout.
+      setAuthToken(payload)
     },
     setSidePanel (state, payload) {
       state.sidePanelOpen = payload
@@ -547,7 +554,6 @@ export default createStore({
       }
     },
     logout({ commit }) {
-      localStorage.removeItem('token')
       localStorage.removeItem('gymid')
       commit('setToken', null)
       commit('user', null)
