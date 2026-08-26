@@ -1,5 +1,6 @@
 import { computed, unref } from 'vue'
 import api from '@js/api'
+import { isAuthenticated } from './authToken.js'
 
 /**
  * Every server query the app makes, in one place.
@@ -37,10 +38,19 @@ const key = (...parts) => computed(() => parts.map((p) => unref(p)))
 const needs = (...vals) => computed(() => vals.every((v) => !!unref(v)))
 
 export const queries = {
-  /** Every gym, for the picker. Not gym-scoped by nature. */
+  /**
+   * Every gym, for the picker. Not gym-scoped — but not ungated either.
+   *
+   * GET /gym is behind auth:api. Firing it before sign-in gets a 401 the
+   * interceptor cannot recover (there is no token to refresh), and after
+   * three retries the query settles in error with nothing to refetch it —
+   * the empty gym list. Gating on the token means TanStack starts it itself
+   * the moment sign-in lands, so the order the two happen in stops mattering.
+   */
   gyms: () => ({
     queryKey: key('gyms'),
     queryFn: () => api.getGyms(),
+    enabled: isAuthenticated,
   }),
 
   /** This climber's badges, and every badge the gym defines. */
@@ -54,12 +64,15 @@ export const queries = {
   competitions: () => ({
     queryKey: key('competitions'),
     queryFn: () => api.getUpcomingCompetitions(),
+    // Behind auth:api, like the gym list — same gate, same reason.
+    enabled: isAuthenticated,
   }),
 
   /** Latest climbs from the people this climber follows. */
   feed: () => ({
     queryKey: key('feed'),
     queryFn: () => api.getFeed(),
+    enabled: isAuthenticated,
   }),
 
   /** The newest routes set in a gym. */
