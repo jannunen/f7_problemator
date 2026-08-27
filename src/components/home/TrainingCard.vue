@@ -1,7 +1,9 @@
 <template>
   <!-- Nothing at all for the climbers who have no coach, which is nearly all
-       of them. This appears only when there is something to act on. -->
-  <div v-if="invitations.length || active" class="tsec">
+       of them. This appears only when there is something to act on — an
+       invitation, a programme, or now an unread message with neither: a
+       finished programme does not end the coaching relationship. -->
+  <div v-if="invitations.length || active || unreadTotal(threads) > 0" class="tsec">
     <!-- The same section header the badges row uses. Without it the card
          floated between the badge cabinet and the expiring-problems alert
          with nothing saying what it was. -->
@@ -18,7 +20,7 @@
       <span class="material-icons tcard__go">chevron_right</span>
     </button>
 
-    <button v-else class="tcard" @click="open">
+    <button v-else-if="active" class="tcard" @click="open">
       <span class="tcard__iconwrap">
         <span class="material-icons tcard__icon">fitness_center</span>
         <!-- Feedback waiting. Red because it is the one thing here addressed
@@ -31,6 +33,21 @@
         <!-- Where they are in it, which is the one thing worth knowing from
              the home screen. -->
         <span class="tcard__sub">{{ t('training.card_progress', progressOf(active)) }}</span>
+      </span>
+      <span class="material-icons tcard__go">chevron_right</span>
+    </button>
+
+    <!-- No invitation, no programme, but a coach has messaged: the coaching
+         relationship outlives any one programme, so this still needs a row,
+         not a blank section. The tap target stays /training, unchanged. -->
+    <button v-else class="tcard" @click="open">
+      <span class="tcard__iconwrap">
+        <span class="material-icons tcard__icon">chat</span>
+        <span class="tcard__alert" />
+      </span>
+      <span class="tcard__body">
+        <span class="tcard__title">{{ t('training.card_messages_title') }}</span>
+        <span class="tcard__sub">{{ t('training.card_messages_sub') }}</span>
       </span>
       <span class="material-icons tcard__go">chevron_right</span>
     </button>

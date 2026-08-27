@@ -46,6 +46,7 @@
     "open_map": "Avaa kartta",
     "settings": "Asetukset",
     "tick_archive": "Tikkiarkisto",
+    "messages": "Viestit",
     "import_ticks": "Tuo tikkejä",
     "tips": "Vinkit",
     "roadmap_changes": "Tiekartta ja muutokset",
@@ -704,6 +705,8 @@
     "card_invite_sub": "Hyväksy tai kieltäydy",
     "card_invite_generic": "{n} valmennuskutsu | {n} valmennuskutsua",
     "card_progress": "{done}/{total} treeniä tehty",
+    "card_messages_title": "Valmentajasi lähetti viestin",
+    "card_messages_sub": "Avaa treenit napauttamalla",
     "how_was_it": "Miten meni?",
     "section_title": "Treeniohjelmat",
     "view_list": "Lista",
@@ -735,5 +738,15 @@
     "timer_round": "Sarja {n}/{of}",
     "timer_ready_to_start": "Valmiina",
     "timer_hint": "Pidä tämä näkymä auki — näyttö pysyy hereillä ajastimen ajan. Ääni vaatii yhden napautuksen, jonka Aloita hoitaa."
+  },
+  "messages": {
+    "title": "Viestit",
+    "someone": "Joku",
+    "loading": "Ladataan…",
+    "nothing_yet": "Ei vielä keskusteluja.",
+    "no_messages": "Ei vielä viestejä.",
+    "write_hint": "Kirjoita viesti…",
+    "send": "Lähetä",
+    "ended": "Tämä valmennus on päättynyt, joten et voi enää lähettää viestejä täällä."
   }
 }
