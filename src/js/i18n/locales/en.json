@@ -758,5 +758,15 @@
     "timer_round": "Set {n} of {of}",
     "timer_ready_to_start": "Ready",
     "timer_hint": "Keep this screen open — it stays awake while the timer runs. Sound needs one tap to unlock, which Start does."
+  },
+  "messages": {
+    "title": "Messages",
+    "someone": "Someone",
+    "loading": "Loading…",
+    "nothing_yet": "No conversations yet.",
+    "no_messages": "No messages yet.",
+    "write_hint": "Write a message…",
+    "send": "Send",
+    "ended": "This coaching has ended, so you can no longer send messages here."
   }
 }

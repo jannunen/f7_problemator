@@ -22,6 +22,7 @@ import BadgesPage from '../pages/BadgesPage.vue'
 import TrainingPage from '../pages/TrainingPage.vue'
 import TrainingProgramPage from '../pages/TrainingProgramPage.vue'
 import TrainingSessionPage from '../pages/TrainingSessionPage.vue';
+import MessagesPage from '../pages/MessagesPage.vue';
 const routes = [
   {
     path: '/',
@@ -48,6 +49,10 @@ const routes = [
   {
     path: '/training/:id/session/:sessionId',
     component: TrainingSessionPage,
+  },
+  {
+    path: '/messages',
+    component: MessagesPage,
   },
   {
     path: '/settings',

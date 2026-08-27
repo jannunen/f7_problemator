@@ -44,17 +44,22 @@ import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import api from '@js/api.js'
 import { progress } from '@helpers/trainingFormat.js'
+import { unreadTotal } from '@helpers/threads.js'
 
 const { t } = useI18n()
 const store = useStore()
 
 const invitations = ref([])
 const assignments = ref([])
+const threads = ref([])
 
 const isAuthenticated = computed(() => store.state.isAuthenticated)
 
 const active = computed(() => assignments.value.find((a) => a.status === 'active') ?? null)
-const feedback = computed(() => (active.value?.coach_notes_count ?? 0) > 0)
+// There is no push notification here, so this dot is the only thing that
+// tells a climber anything is waiting — session feedback or an unread
+// message both light the same one rather than competing for a second spot.
+const feedback = computed(() => (active.value?.coach_notes_count ?? 0) > 0 || unreadTotal(threads.value) > 0)
 
 const inviteTitle = computed(() => {
   const first = invitations.value[0]
@@ -72,9 +77,14 @@ onMounted(async () => {
   if (!isAuthenticated.value) return
 
   try {
-    const [invites, mine] = await Promise.all([api.coachInvitations(), api.myTrainingAssignments()])
+    const [invites, mine, mineThreads] = await Promise.all([
+      api.coachInvitations(),
+      api.myTrainingAssignments(),
+      api.messageThreads()
+    ])
     invitations.value = invites
     assignments.value = mine
+    threads.value = mineThreads
   } catch {
     // A climber with no coach is the normal case and not worth a banner. The
     // card simply does not appear.
