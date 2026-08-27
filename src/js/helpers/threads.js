@@ -22,6 +22,12 @@ export function unreadTotal(threads) {
  * until that phase decides otherwise.
  */
 export function threadTitle(thread, myClimberId) {
+  // Called with store.state.climber?.id, which is undefined before the
+  // climber has loaded. Filtering "!== undefined" against a real climber_id
+  // is always true, so nobody gets excluded and the reader's own name would
+  // otherwise print right along with the other participants'.
+  if (myClimberId == null) return ''
+
   const others = (thread?.participants ?? []).filter((p) => p?.climber_id !== myClimberId)
   return others.map((p) => p?.name ?? '').filter(Boolean).join(', ')
 }

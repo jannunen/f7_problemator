@@ -39,8 +39,11 @@
 
     <!-- No invitation, no programme, but a coach has messaged: the coaching
          relationship outlives any one programme, so this still needs a row,
-         not a blank section. The tap target stays /training, unchanged. -->
-    <button v-else class="tcard" @click="open">
+         not a blank section. Unlike the other two branches, the tap target
+         here goes to /messages, not /training — there is no programme to
+         send it to, and /training never marks anything read, which made
+         this the one alert-dotted surface that led nowhere. -->
+    <button v-else class="tcard" @click="openMessages">
       <span class="tcard__iconwrap">
         <span class="material-icons tcard__icon">chat</span>
         <span class="tcard__alert" />
@@ -89,6 +92,7 @@ const inviteTitle = computed(() => {
 const progressOf = (a) => progress(a)
 
 const open = () => f7.views.main.router.navigate('/training')
+const openMessages = () => f7.views.main.router.navigate('/messages')
 
 onMounted(async () => {
   if (!isAuthenticated.value) return
