@@ -10,9 +10,9 @@
             <option v-for="(name, code) in localeNames" :key="code" :value="code">{{ name }}</option>
           </select>
         </div>
-        <f7-link @click.prevent="store.commit('setSidePanel', true)">
-          <span class="material-icons" style="font-size: 28px; line-height: 1;">menu</span>
-        </f7-link>
+        <!-- No menu button here. The bottom tab bar's Valikko tab opens the
+             same side panel, and two controls for one panel in opposite
+             corners reads as two different menus. -->
       </f7-nav-right>
     </f7-navbar>
 
