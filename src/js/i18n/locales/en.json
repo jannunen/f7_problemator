@@ -757,6 +757,11 @@
     "timer_reset": "Reset",
     "timer_round": "Set {n} of {of}",
     "timer_ready_to_start": "Ready",
-    "timer_hint": "Keep this screen open — it stays awake while the timer runs. Sound needs one tap to unlock, which Start does."
+    "timer_hint": "Keep this screen open — it stays awake while the timer runs. Sound needs one tap to unlock, which Start does.",
+    "open_program_list": "Open program list",
+    "filter_active": "Active",
+    "filter_inactive": "Finished",
+    "filter_all": "All",
+    "none_match_filter": "No programs here. Try another tab."
   }
 }
