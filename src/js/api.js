@@ -67,6 +67,22 @@ const api = {
     const ret = await axios.post(endpoint + `/training/items/${itemId}/result`, values)
     return ret.data
   },
+  async messageThreads() {
+    const ret = await axios.get(endpoint + '/training/messages')
+    return ret.data
+  },
+  async messageThread(id) {
+    const ret = await axios.get(endpoint + `/training/messages/${id}`)
+    return ret.data
+  },
+  async sendMessage(id, body) {
+    const ret = await axios.post(endpoint + `/training/messages/${id}`, { body })
+    return ret.data
+  },
+  async markThreadRead(id) {
+    const ret = await axios.post(endpoint + `/training/messages/${id}/read`)
+    return ret.data
+  },
   async socialExchange(accessToken) {
     const ret = await axios.post(endpoint + '/auth/social/exchange', {
       access_token: accessToken

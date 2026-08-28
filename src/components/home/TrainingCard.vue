@@ -1,7 +1,9 @@
 <template>
   <!-- Nothing at all for the climbers who have no coach, which is nearly all
-       of them. This appears only when there is something to act on. -->
-  <div v-if="invitations.length || active" class="tsec">
+       of them. This appears only when there is something to act on — an
+       invitation, a programme, or now an unread message with neither: a
+       finished programme does not end the coaching relationship. -->
+  <div v-if="invitations.length || active || unreadTotal(threads) > 0" class="tsec">
     <!-- The same section header the badges row uses. Without it the card
          floated between the badge cabinet and the expiring-problems alert
          with nothing saying what it was. -->
@@ -18,7 +20,7 @@
       <span class="material-icons tcard__go">chevron_right</span>
     </button>
 
-    <button v-else class="tcard" @click="open">
+    <button v-else-if="active" class="tcard" @click="open">
       <span class="tcard__iconwrap">
         <span class="material-icons tcard__icon">fitness_center</span>
         <!-- Feedback waiting. Red because it is the one thing here addressed
@@ -34,6 +36,24 @@
       </span>
       <span class="material-icons tcard__go">chevron_right</span>
     </button>
+
+    <!-- No invitation, no programme, but a coach has messaged: the coaching
+         relationship outlives any one programme, so this still needs a row,
+         not a blank section. Unlike the other two branches, the tap target
+         here goes to /messages, not /training — there is no programme to
+         send it to, and /training never marks anything read, which made
+         this the one alert-dotted surface that led nowhere. -->
+    <button v-else class="tcard" @click="openMessages">
+      <span class="tcard__iconwrap">
+        <span class="material-icons tcard__icon">chat</span>
+        <span class="tcard__alert" />
+      </span>
+      <span class="tcard__body">
+        <span class="tcard__title">{{ t('training.card_messages_title') }}</span>
+        <span class="tcard__sub">{{ t('training.card_messages_sub') }}</span>
+      </span>
+      <span class="material-icons tcard__go">chevron_right</span>
+    </button>
   </div>
 </template>
 
@@ -44,17 +64,22 @@ import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import api from '@js/api.js'
 import { progress } from '@helpers/trainingFormat.js'
+import { unreadTotal } from '@helpers/threads.js'
 
 const { t } = useI18n()
 const store = useStore()
 
 const invitations = ref([])
 const assignments = ref([])
+const threads = ref([])
 
 const isAuthenticated = computed(() => store.state.isAuthenticated)
 
 const active = computed(() => assignments.value.find((a) => a.status === 'active') ?? null)
-const feedback = computed(() => (active.value?.coach_notes_count ?? 0) > 0)
+// There is no push notification here, so this dot is the only thing that
+// tells a climber anything is waiting — session feedback or an unread
+// message both light the same one rather than competing for a second spot.
+const feedback = computed(() => (active.value?.coach_notes_count ?? 0) > 0 || unreadTotal(threads.value) > 0)
 
 const inviteTitle = computed(() => {
   const first = invitations.value[0]
@@ -67,14 +92,20 @@ const inviteTitle = computed(() => {
 const progressOf = (a) => progress(a)
 
 const open = () => f7.views.main.router.navigate('/training')
+const openMessages = () => f7.views.main.router.navigate('/messages')
 
 onMounted(async () => {
   if (!isAuthenticated.value) return
 
   try {
-    const [invites, mine] = await Promise.all([api.coachInvitations(), api.myTrainingAssignments()])
+    const [invites, mine, mineThreads] = await Promise.all([
+      api.coachInvitations(),
+      api.myTrainingAssignments(),
+      api.messageThreads()
+    ])
     invitations.value = invites
     assignments.value = mine
+    threads.value = mineThreads
   } catch {
     // A climber with no coach is the normal case and not worth a banner. The
     // card simply does not appear.
