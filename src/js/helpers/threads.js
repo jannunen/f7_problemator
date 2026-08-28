@@ -31,3 +31,32 @@ export function threadTitle(thread, myClimberId) {
   const others = (thread?.participants ?? []).filter((p) => p?.climber_id !== myClimberId)
   return others.map((p) => p?.name ?? '').filter(Boolean).join(', ')
 }
+
+/**
+ * Coaches this climber could start a conversation with.
+ *
+ * Only those they do not already have a thread with — a second "Message
+ * Ville" button beside an existing Ville thread invites a climber to create
+ * a duplicate that the server would hand straight back anyway.
+ *
+ * `relationships` is what GET /training/coaches returns: the climber's active
+ * coaching relationships, each carrying its coach. Nothing here is offered
+ * for an ended one, because the server refuses those with 403 and a button
+ * that can only fail is worse than no button.
+ */
+export function coachesToStartWith(relationships, threads) {
+  const already = new Set(
+    (threads ?? [])
+      .map((t) => t?.coach_climber_id)
+      .filter((id) => id != null)
+  )
+
+  return (relationships ?? [])
+    .map((r) => ({
+      climberId: r?.coach_climber_id ?? r?.coach?.id ?? null,
+      name: r?.coach
+        ? `${r.coach.etunimi ?? ''} ${r.coach.sukunimi ?? ''}`.trim()
+        : '',
+    }))
+    .filter((c) => c.climberId != null && !already.has(c.climberId))
+}

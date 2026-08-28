@@ -770,6 +770,8 @@
     "no_messages": "No messages yet.",
     "write_hint": "Write a message…",
     "send": "Send",
-    "ended": "This coaching has ended, so you can no longer send messages here."
+    "ended": "This coaching has ended, so you can no longer send messages here.",
+    "start_with": "Message {name}",
+    "no_coach": "Messaging is between you and your coach. You do not have one yet."
   }
 }
