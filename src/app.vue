@@ -49,7 +49,7 @@ import BottomTabBar from '@components/ui/BottomTabBar.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import { registerBackButton, setupChrome, registerDeepLinks } from '@js/native.js'
 import { pendingWebSession } from '@helpers/socialAuth.js'
-import { useBrowserHistory } from '@js/platform.js'
+import { useBrowserHistory, browserHistoryRoot } from '@js/platform.js'
 import { readStoredToken } from '@js/authToken.js'
 import { useI18n } from 'vue-i18n'
 import { watch, computed, ref } from 'vue'
@@ -67,10 +67,10 @@ export default {
     const store = useStore()
     const allTime = computed(() => store.state.alltime)
     const profile = computed(() => store.state.profile)
-    // Despite the name, VITE_REDIRECT_URI is not an auth redirect — auth is
-    // OTP with a JWT in localStorage. It is Framework7's history root, and it
-    // only means anything on the web.
-    const historyRoot = import.meta.env.VITE_REDIRECT_URI
+    // Read from where the page is actually served rather than configured, so
+    // it cannot disagree with the origin pushState will check it against.
+    // See platform.js for what that disagreement costs.
+    const historyRoot = browserHistoryRoot
     const isAuthenticated = computed(() => store.state.isAuthenticated)
 
     // Five destinations, one of which is the route list — the thing climbers
