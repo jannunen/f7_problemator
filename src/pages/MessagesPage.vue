@@ -1,5 +1,5 @@
 <template>
-  <f7-page name="messages" :class="{ 'messages--thread': openThread }">
+  <f7-page name="messages">
     <!-- Back-link pops the router when the list is showing, but inside a
          thread it should only step back to the list — the thread is not a
          separate route, so the router has nothing to pop there. -->
@@ -70,7 +70,6 @@
     <!-- A chat, laid out like one: the messages scroll, the composer does not
          move, and the newest message is the one you land on. -->
     <template v-else>
-      <div class="chat">
       <p v-if="threadLoading" class="msgs__note">{{ t('messages.loading') }}</p>
 
       <!-- Oldest first, like any chat — the paginator itself sends newest
@@ -107,7 +106,6 @@
         </button>
       </div>
       <p v-else class="msgs__ended">{{ t('messages.ended') }}</p>
-      </div>
     </template>
   </f7-page>
 </template>
@@ -284,12 +282,6 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  /* The scroller. Takes the slack the composer does not, so the newest
-     message can be scrolled to and the composer never moves. */
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  -webkit-overflow-scrolling: touch;
 }
 
 .msg {
@@ -387,20 +379,4 @@ onMounted(async () => {
   width: fit-content;
 }
 
-/* Framework7's .page-content is the scroller by default. For a thread we want
-   the opposite: the page holds still and the message list scrolls inside it,
-   so the composer cannot drift off the bottom. Scoped to the thread view —
-   the list view keeps ordinary page scrolling. */
-.messages--thread :deep(.page-content) {
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-}
-
-.chat {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-height: 0;
-}
 </style>

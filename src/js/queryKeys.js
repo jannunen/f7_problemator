@@ -37,6 +37,16 @@ const key = (...parts) => computed(() => parts.map((p) => unref(p)))
 // that needs it.
 const needs = (...vals) => computed(() => vals.every((v) => !!unref(v)))
 
+/**
+ * For lists that are effectively static within a session.
+ *
+ * Note this survives navigation and remounting, not a genuine reload —
+ * TanStack's cache lives in memory, so restarting the app starts it empty.
+ * Persisting across reloads needs a storage persister, which is a separate
+ * decision with its own trade-offs about stale data on first paint.
+ */
+const A_DAY = 24 * 60 * 60 * 1000
+
 export const queries = {
   /**
    * Every gym, for the picker. Not gym-scoped — but not ungated either.
@@ -51,6 +61,18 @@ export const queries = {
     queryKey: key('gyms'),
     queryFn: () => api.getGyms(),
     enabled: isAuthenticated,
+
+    // A day. The list of gyms changes when a gym opens or closes, which is
+    // not something a climber needs to see within thirty seconds — and the
+    // 30s default meant every return to a screen holding the picker re-asked
+    // for a list that had not moved.
+    staleTime: A_DAY,
+
+    // gcTime must not be shorter than staleTime, or the point is lost: an
+    // unused query is evicted after the default five minutes, and the next
+    // mount refetches however fresh the data was considered. Keeping the
+    // entry for the same day is what actually stops the request.
+    gcTime: A_DAY,
   }),
 
   /** This climber's badges, and every badge the gym defines. */
