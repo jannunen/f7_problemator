@@ -125,7 +125,11 @@ const userLocation = ref(null)
 const { data: gyms } = useQuery({
   ...queries.gyms(),
   select: (data) => data.gyms,
-  initialData: { gyms: [] },
+  // placeholderData, not initialData: initialData is cached AS the answer, so
+  // with the gym list's long staleTime an empty list counted as a fresh,
+  // correct result and the query never ran — the picker sat on "Loading
+  // gyms..." forever. placeholderData is only what to show while finding out.
+  placeholderData: { gyms: [] },
 })
 
 const gymid = computed(() => store.state.gymid)
