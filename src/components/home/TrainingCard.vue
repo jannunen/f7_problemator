@@ -11,7 +11,7 @@
       <h3 class="tsec__title">{{ t('training.section_title') }}</h3>
     </div>
     <!-- An invitation outranks a programme: someone is waiting on an answer. -->
-    <button v-if="invitations.length" class="tcard tcard--invite" @click="open">
+    <button v-if="invitations.length" class="tcard tcard--invite" @click="openList">
       <span class="material-icons tcard__icon">person_add</span>
       <span class="tcard__body">
         <span class="tcard__title">{{ inviteTitle }}</span>
@@ -54,6 +54,17 @@
       </span>
       <span class="material-icons tcard__go">chevron_right</span>
     </button>
+
+    <!-- Only when more than one programme is actually being trained. With a
+         single one there is nothing to choose between, and the link would be
+         a second route to the page you are already on. -->
+    <button
+      v-if="hasOtherPrograms"
+      class="tcard__more"
+      @click="openList"
+    >
+      {{ t('training.open_program_list') }}
+    </button>
   </div>
 </template>
 
@@ -64,6 +75,7 @@ import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import api from '@js/api.js'
 import { progress } from '@helpers/trainingFormat.js'
+import { trainingCardTarget, shouldOfferList } from '@helpers/trainingNav.js'
 import { unreadTotal } from '@helpers/threads.js'
 
 const { t } = useI18n()
@@ -91,8 +103,17 @@ const inviteTitle = computed(() => {
 
 const progressOf = (a) => progress(a)
 
-const open = () => f7.views.main.router.navigate('/training')
+// Straight into the programme the card is showing. It used to navigate to
+// the list, so you arrived to pick the thing you had just been looking at.
+const open = () => f7.views.main.router.navigate(trainingCardTarget(active.value))
+
+// Invitations live on the list page, so that tap still belongs there.
+const openList = () => f7.views.main.router.navigate('/training')
+
+// The message-only branch has no programme to open, so it goes to messages.
 const openMessages = () => f7.views.main.router.navigate('/messages')
+
+const hasOtherPrograms = computed(() => shouldOfferList(assignments.value))
 
 onMounted(async () => {
   if (!isAuthenticated.value) return
@@ -112,6 +133,22 @@ onMounted(async () => {
   }
 })
 </script>
+
+<style scoped>
+.tcard__more {
+  display: block;
+  width: 100%;
+  margin-top: 0.4rem;
+  padding: 0.5rem;
+  border: 0;
+  background: none;
+  color: var(--f7-theme-color, #b5651d);
+  font-size: 0.82rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+}
+</style>
 
 <style scoped>
 .tcard__iconwrap {

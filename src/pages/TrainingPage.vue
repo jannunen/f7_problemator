@@ -41,14 +41,33 @@
 
     <h2 v-if="assignments.length" class="training__section">{{ t('training.your_programs') }}</h2>
 
+    <!-- Only worth offering when there is something to filter. With two
+         programmes the segmented control costs more room than it saves. -->
+    <div v-if="assignments.length > 2" class="training__filter">
+      <button
+        v-for="f in FILTERS"
+        :key="f"
+        class="training__filterbtn"
+        :class="{ 'training__filterbtn--on': filter === f }"
+        @click="filter = f"
+      >
+        {{ t(`training.filter_${f}`) }}
+      </button>
+    </div>
+
     <p v-if="loading" class="training__note">{{ t('training.loading') }}</p>
     <p v-else-if="!assignments.length && !invitations.length" class="training__note">
       {{ t('training.nothing_yet') }}
     </p>
+    <!-- The list is not empty, this filter is. Saying so keeps a climber from
+         reading "no programmes" when they have several under another tab. -->
+    <p v-else-if="assignments.length && !shown.length" class="training__note">
+      {{ t('training.none_match_filter') }}
+    </p>
 
-    <f7-list v-if="assignments.length" media-list class="training__list">
+    <f7-list v-if="shown.length" media-list class="training__list">
       <f7-list-item
-        v-for="a in assignments"
+        v-for="a in shown"
         :key="a.id"
         link="#"
         :title="a.name"
@@ -64,17 +83,24 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { f7 } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
 import api from '@js/api.js'
 import { progress } from '@helpers/trainingFormat.js'
+import { FILTERS, DEFAULT_FILTER, filterAssignments } from '@helpers/trainingNav.js'
 
 const { t } = useI18n()
 
 const invitations = ref([])
 const assignments = ref([])
 const loading = ref(true)
+// Active first: it is what a climber opens this page to find. The others
+// stay one tap away rather than hidden — a finished block is worth looking
+// back at.
+const filter = ref(DEFAULT_FILTER)
+const shown = computed(() => filterAssignments(assignments.value, filter.value))
+
 const decliningId = ref(null)
 const declineReason = ref('')
 
@@ -118,6 +144,32 @@ const open = (assignment) => {
 
 onMounted(load)
 </script>
+
+<style scoped>
+.training__filter {
+  display: flex;
+  gap: 0.25rem;
+  margin: 0 1rem 0.5rem;
+}
+
+.training__filterbtn {
+  flex: 1;
+  padding: 0.4rem 0.2rem;
+  border: 1px solid rgb(128 128 128 / 25%);
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.training__filterbtn--on {
+  border-color: transparent;
+  background: var(--f7-theme-color, #b5651d);
+  color: #fff;
+}
+</style>
 
 <style scoped>
 .training__section {

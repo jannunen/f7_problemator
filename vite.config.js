@@ -46,6 +46,11 @@ export default defineConfig(({ command, mode }) => {
       host: true,
       https: true,
       port : 3002,
+      // Fail rather than quietly move to 3003 when 3002 is taken — usually by
+      // a dev server left running from yesterday. A second instance on
+      // another port used to start fine and then break on first navigation,
+      // which is a much worse way to find out.
+      strictPort: true,
     },
     esbuild: {
       jsxFactory: '$jsx',
