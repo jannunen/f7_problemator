@@ -51,6 +51,12 @@ const routes = [
     component: TrainingSessionPage,
   },
   {
+    // Deep link to one conversation. Without it, anything that opens a thread
+    // could only drop you on the list to find it again yourself.
+    path: '/messages/:threadId',
+    component: MessagesPage,
+  },
+  {
     path: '/messages',
     component: MessagesPage,
   },

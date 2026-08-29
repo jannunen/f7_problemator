@@ -156,8 +156,11 @@ const messageCoach = async () => {
   if (messaging.value || coachId.value == null) return
   messaging.value = true
   try {
-    await api.openDirectThread(coachId.value)
-    f7.views.main.router.navigate('/messages')
+    // Straight into the conversation, not the list. openDirectThread hands
+    // back the thread whether it already existed or was just made, so there
+    // is always an id to land on.
+    const thread = await api.openDirectThread(coachId.value)
+    f7.views.main.router.navigate(thread?.id ? `/messages/${thread.id}` : '/messages')
   } catch {
     // The relationship ended between loading this page and tapping. Drop the
     // button rather than explaining a failure.
