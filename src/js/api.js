@@ -294,6 +294,11 @@ const api = {
   },
 };
 
-window.api = api;
+// A debugging convenience, not part of the module's contract. Guarded so
+// importing this file outside a browser — a test runner, for one — does not
+// throw on the way past.
+if (typeof window !== 'undefined') {
+  window.api = api;
+}
 
 export default api;

@@ -120,7 +120,18 @@
     "ticked": "tikattu",
     "you_are_a_judge": "Olet tuomari tässä kilpailussa",
     "comp_type": "Kilpailutyyppi",
-    "the_comp_has_not_started_yet": "Kilpailuaika ei ole vielä alkanut tai on jo päättynyt"
+    "the_comp_has_not_started_yet": "Kilpailuaika ei ole vielä alkanut tai on jo päättynyt",
+    "open_results": "Tulokset",
+    "show_more": "Näytä lisää",
+    "show_less": "Näytä vähemmän",
+    "full": "Täynnä",
+    "closed": "Suljettu",
+    "registering": "Ilmoittaudutaan…",
+    "unlimited_spots": "Ei rajaa",
+    "spots_left": "{n} paikkaa jäljellä",
+    "registered_count": "{n} ilmoittautunutta",
+    "special_price_hint": "Erikoishinnan aktivoi järjestäjä — pyydä sitä heiltä.",
+    "paid": "Maksettu"
   },
   "settings": {
     "settings_title": "Asetukset",
@@ -748,5 +759,12 @@
     "write_hint": "Kirjoita viesti…",
     "send": "Lähetä",
     "ended": "Tämä valmennus on päättynyt, joten et voi enää lähettää viestejä täällä."
+  },
+  "errors": {
+    "screen_failed_title": "Näkymä ei latautunut",
+    "screen_failed_body": "Jokin meni pieleen. Muu sovellus toimii normaalisti.",
+    "try_again": "Yritä uudelleen",
+    "go_home": "Etusivulle",
+    "screen_is_broken": "Uudelleenyritys epäonnistui samalla tavalla, joten kyseessä on virhe eikä hetkellinen häiriö. Ilmoitathan siitä yllä olevan viestin kanssa."
   }
 }
