@@ -753,7 +753,9 @@
     "filter_active": "Aktiiviset",
     "filter_inactive": "Päättyneet",
     "filter_all": "Kaikki",
-    "none_match_filter": "Ei ohjelmia täällä. Kokeile toista välilehteä."
+    "none_match_filter": "Ei ohjelmia täällä. Kokeile toista välilehteä.",
+    "message_coach": "Viesti valmentajalle",
+    "message_coach_named": "Viesti valmentajalle {name}"
   },
   "messages": {
     "title": "Viestit",

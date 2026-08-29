@@ -776,7 +776,9 @@
     "filter_active": "Active",
     "filter_inactive": "Finished",
     "filter_all": "All",
-    "none_match_filter": "No programs here. Try another tab."
+    "none_match_filter": "No programs here. Try another tab.",
+    "message_coach": "Message your coach",
+    "message_coach_named": "Message coach {name}"
   },
   "messages": {
     "title": "Messages",

@@ -1,5 +1,5 @@
 <template>
-  <f7-page name="messages">
+  <f7-page name="messages" :class="{ 'messages--thread': openThread }">
     <!-- Back-link pops the router when the list is showing, but inside a
          thread it should only step back to the list — the thread is not a
          separate route, so the router has nothing to pop there. -->
@@ -67,7 +67,10 @@
       </f7-list>
     </template>
 
+    <!-- A chat, laid out like one: the messages scroll, the composer does not
+         move, and the newest message is the one you land on. -->
     <template v-else>
+      <div class="chat">
       <p v-if="threadLoading" class="msgs__note">{{ t('messages.loading') }}</p>
 
       <!-- Oldest first, like any chat — the paginator itself sends newest
@@ -104,17 +107,20 @@
         </button>
       </div>
       <p v-else class="msgs__ended">{{ t('messages.ended') }}</p>
+      </div>
     </template>
   </f7-page>
 </template>
 
 <script setup>
-import { computed, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import api from '@js/api.js'
 import { showAgo } from '@helpers'
 import { threadTitle, coachesToStartWith, isCoach } from '@helpers/threads.js'
+
+const props = defineProps({ f7route: { type: Object, default: () => ({}) } })
 
 const { t } = useI18n()
 const store = useStore()
@@ -185,6 +191,18 @@ const load = async () => {
   }
 }
 
+/**
+ * Land on the newest message, the way every chat app does.
+ *
+ * Without this a thread with any history opens at its oldest message, and the
+ * thing you came to read is somewhere below the fold.
+ */
+const scrollToNewest = async () => {
+  await nextTick()
+  const el = document.querySelector('.thread')
+  if (el) el.scrollTop = el.scrollHeight
+}
+
 const open = async (thread) => {
   openThread.value = thread
   threadLoading.value = true
@@ -199,6 +217,8 @@ const open = async (thread) => {
     // Opening a thread is reading it. Marked quietly and not awaited into the
     // loading state: a failed mark should not stop the messages from showing.
     api.markThreadRead(thread.id).then(load).catch(() => {})
+
+    await scrollToNewest()
   } finally {
     threadLoading.value = false
   }
@@ -219,12 +239,23 @@ const send = async () => {
     const sent = await api.sendMessage(openThread.value.id, body)
     messages.value.push(sent)
     draft.value = ''
+    await scrollToNewest()
   } finally {
     sending.value = false
   }
 }
 
-onMounted(load)
+onMounted(async () => {
+  await load()
+
+  // Arrived at a specific conversation rather than the list — open it, so
+  // whatever sent us here does not dump the reader on a list to find it.
+  const wanted = Number(props.f7route?.params?.threadId)
+  if (!wanted) return
+
+  const thread = threads.value.find((t) => Number(t.id) === wanted)
+  if (thread) await open(thread)
+})
 </script>
 
 <style scoped>
@@ -253,6 +284,12 @@ onMounted(load)
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  /* The scroller. Takes the slack the composer does not, so the newest
+     message can be scrolled to and the composer never moves. */
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .msg {
@@ -348,5 +385,22 @@ onMounted(load)
   margin: 0 0 0.15rem;
   display: block;
   width: fit-content;
+}
+
+/* Framework7's .page-content is the scroller by default. For a thread we want
+   the opposite: the page holds still and the message list scrolls inside it,
+   so the composer cannot drift off the bottom. Scoped to the thread view —
+   the list view keeps ordinary page scrolling. */
+.messages--thread :deep(.page-content) {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.chat {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 </style>
