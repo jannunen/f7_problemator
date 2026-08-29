@@ -783,7 +783,8 @@
     "send": "Send",
     "ended": "This coaching has ended, so you can no longer send messages here.",
     "start_with": "Message {name}",
-    "no_coach": "Messaging is between you and your coach. You do not have one yet."
+    "no_coach": "Messaging is between you and your coach. You do not have one yet.",
+    "coach_tag": "Coach"
   },
   "errors": {
     "screen_failed_title": "This screen didn't load",

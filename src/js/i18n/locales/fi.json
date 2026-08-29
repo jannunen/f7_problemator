@@ -760,7 +760,8 @@
     "send": "Lähetä",
     "ended": "Tämä valmennus on päättynyt, joten et voi enää lähettää viestejä täällä.",
     "start_with": "Viesti valmentajalle {name}",
-    "no_coach": "Viestit kulkevat sinun ja valmentajasi välillä. Sinulla ei ole vielä valmentajaa."
+    "no_coach": "Viestit kulkevat sinun ja valmentajasi välillä. Sinulla ei ole vielä valmentajaa.",
+    "coach_tag": "Valmentaja"
   },
   "errors": {
     "screen_failed_title": "Näkymä ei latautunut",
