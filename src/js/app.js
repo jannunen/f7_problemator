@@ -1,4 +1,6 @@
 import 'framework7/framework7-bundle.css';
+import { installErrorReporting } from '@js/helpers/reportError'
+import { f7 } from 'framework7-vue'
 import '../css/icons.css';
 import '../css/app.less';
 import '../css/tailwind.css';
@@ -13,6 +15,7 @@ import Framework7 from 'framework7/lite-bundle'
 import Framework7Vue, { registerComponents } from 'framework7-vue/bundle'
 import store from "./store.js";
 import { VueQueryPlugin } from '@tanstack/vue-query'
+import { queryClient } from '@js/queryClient'
 
 
 
@@ -41,7 +44,10 @@ const app = createApp(App);
 // Register all Framework7 Vue components
 registerComponents(app);
 app.use(store);
-app.use(VueQueryPlugin);
+// Explicit client: the bare plugin call meant staleTime 0 and refetch on
+// every window focus, which re-asked for everything constantly to cover for
+// writes that invalidated nothing. See queryClient.js.
+app.use(VueQueryPlugin, { queryClient });
 
 const supportedLocales = Object.keys(messages)
 const savedLocale = localStorage.getItem('locale')
@@ -59,4 +65,15 @@ const i18n = createI18n({
 app.use(i18n);
 
 // Mount Vue App
+// Last net: errors outside a component's render, and unhandled promise
+// rejections, which no boundary sees. On a phone a silent failure is worse
+// than anywhere else — there is no address bar to reload from.
+installErrorReporting(app, (msg) => {
+  try {
+    f7.toast.create({ text: msg, closeTimeout: 4000, position: 'bottom' }).open()
+  } catch {
+    // Framework7 may not be ready during early startup; the console still has it.
+  }
+});
+
 app.mount('#app');
