@@ -351,7 +351,13 @@ onMounted(() => load())
 .day__tick { font-size: 1.15rem; color: var(--p-success, #4ade80); }
 .day__go { font-size: 1.15rem; color: var(--p-text-dark); }
 
+/* No fill, and the app's muted tokens rather than the theme accent. The
+   accent is #38bdf8 — loud enough on a full-width button to read as a
+   warning, when this is just a quiet way to ask your coach something. */
 .prog__msg {
   margin: 0.2rem 1rem 1rem;
+  background: transparent;
+  border-color: var(--p-border-light);
+  color: var(--p-text-secondary);
 }
 </style>

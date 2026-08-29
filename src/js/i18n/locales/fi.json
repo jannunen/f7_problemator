@@ -749,8 +749,8 @@
     "timer_round": "Sarja {n}/{of}",
     "timer_ready_to_start": "Valmiina",
     "timer_hint": "Pidä tämä näkymä auki — näyttö pysyy hereillä ajastimen ajan. Ääni vaatii yhden napautuksen, jonka Aloita hoitaa.",
-    "message_coach": "Viesti",
-    "message_coach_named": "Viesti {name}"
+    "message_coach": "Viesti valmentajalle",
+    "message_coach_named": "Viesti valmentajalle {name}"
   },
   "messages": {
     "title": "Viestit",

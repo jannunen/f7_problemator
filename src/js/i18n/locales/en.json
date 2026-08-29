@@ -772,8 +772,8 @@
     "timer_round": "Set {n} of {of}",
     "timer_ready_to_start": "Ready",
     "timer_hint": "Keep this screen open — it stays awake while the timer runs. Sound needs one tap to unlock, which Start does.",
-    "message_coach": "Message",
-    "message_coach_named": "Message {name}"
+    "message_coach": "Message your coach",
+    "message_coach_named": "Message coach {name}"
   },
   "messages": {
     "title": "Messages",
