@@ -11,6 +11,20 @@
     <template v-else-if="assignment">
       <p v-if="assignment.description" class="prog__desc">{{ assignment.description }}</p>
 
+      <!-- The coach who set this programme is the obvious person to ask about
+           it, and finding them via the side panel means knowing the menu holds
+           messages at all. Below the description rather than in the navbar:
+           it is an action about this programme, not chrome. -->
+      <f7-button
+        v-if="canMessageCoach"
+        outline
+        class="prog__msg"
+        :disabled="messaging"
+        @click="messageCoach"
+      >
+        {{ coachName ? t('training.message_coach_named', { name: coachName }) : t('training.message_coach') }}
+      </f7-button>
+
       <!-- Two questions, two shapes. The list answers "what is next"; the
            calendar answers "what does my month look like". -->
       <div class="modes">
@@ -117,6 +131,42 @@ const byWeek = computed(() => {
   return groups
 })
 
+// The coach's own id and name ride along on the assignment already, so the
+// button knows who it writes to without asking.
+const coaches = ref([])
+const messaging = ref(false)
+
+const coachId = computed(() => assignment.value?.coach_climber_id ?? null)
+const coachName = computed(() => assignment.value?.coach?.etunimi ?? '')
+
+/**
+ * Only while the coaching is live.
+ *
+ * A finished programme stays readable — that is deliberate — but the server
+ * refuses a message once the relationship has ended, and a button that can
+ * only produce a 403 is worse than no button.
+ */
+const canMessageCoach = computed(() =>
+  coachId.value != null &&
+  coaches.value.some((r) => (r?.coach_climber_id ?? r?.coach?.id) === coachId.value)
+)
+
+/** Open-or-get, so this never makes a second thread with the same coach. */
+const messageCoach = async () => {
+  if (messaging.value || coachId.value == null) return
+  messaging.value = true
+  try {
+    await api.openDirectThread(coachId.value)
+    f7.views.main.router.navigate('/messages')
+  } catch {
+    // The relationship ended between loading this page and tapping. Drop the
+    // button rather than explaining a failure.
+    coaches.value = []
+  } finally {
+    messaging.value = false
+  }
+}
+
 const done = computed(() => progress(assignment.value).done)
 const total = computed(() => progress(assignment.value).total)
 
@@ -170,6 +220,9 @@ const load = async ({ quiet = false } = {}) => {
   if (!quiet) loading.value = true
   try {
     assignment.value = await api.trainingAssignment(props.f7route.params.id)
+    // Who still coaches this climber, which decides whether the message
+    // button is offered. A failure here costs the button, not the page.
+    coaches.value = await api.myCoaches().catch(() => [])
 
     // Open the first week with work left in it. Scrolling past finished weeks
     // to find today is the thing that would make this tedious.
@@ -297,4 +350,8 @@ onMounted(() => load())
 
 .day__tick { font-size: 1.15rem; color: var(--p-success, #4ade80); }
 .day__go { font-size: 1.15rem; color: var(--p-text-dark); }
+
+.prog__msg {
+  margin: 0.2rem 1rem 1rem;
+}
 </style>

@@ -748,7 +748,9 @@
     "timer_reset": "Nollaa",
     "timer_round": "Sarja {n}/{of}",
     "timer_ready_to_start": "Valmiina",
-    "timer_hint": "Pidä tämä näkymä auki — näyttö pysyy hereillä ajastimen ajan. Ääni vaatii yhden napautuksen, jonka Aloita hoitaa."
+    "timer_hint": "Pidä tämä näkymä auki — näyttö pysyy hereillä ajastimen ajan. Ääni vaatii yhden napautuksen, jonka Aloita hoitaa.",
+    "message_coach": "Viesti",
+    "message_coach_named": "Viesti {name}"
   },
   "messages": {
     "title": "Viestit",
