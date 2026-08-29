@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { endpoint } from '@js/api.js'
+import { authToken, setAuthToken } from '@js/authToken.js'
 
 let logoutHandler = null
 let tokenRefreshHandler = null
@@ -29,7 +30,9 @@ export async function jwtInterceptor() {
     axios.interceptors.request.use(async (request) => {
         // add auth header with jwt if account is logged in and request is to the api url
         const isApiUrl = request.url.startsWith(endpoint);
-        const access_token = localStorage.getItem('token')
+        // The same ref every auth-gated query waits on, so a request can
+        // never be sent with a token the rest of the app does not know about.
+        const access_token = authToken.value
 
         const isLoggedIn = access_token != null
 
@@ -46,8 +49,9 @@ export async function jwtInterceptor() {
             const originalRequest = error.config
 
             if (error.response && error.response.status === 401 && !originalRequest._retry) {
-                const token = localStorage.getItem('token')
-                if (!token || token === 'null') {
+                // Nothing to refresh: this 401 is an unauthenticated request,
+                // not an expired session.
+                if (!authToken.value) {
                     return Promise.reject(error)
                 }
 
@@ -70,7 +74,7 @@ export async function jwtInterceptor() {
                     const response = await axios.post(endpoint + '/auth/otp/refresh')
                     const newToken = response.data.access_token
 
-                    localStorage.setItem('token', newToken)
+                    setAuthToken(newToken)
                     if (tokenRefreshHandler) {
                         tokenRefreshHandler(newToken)
                     }
@@ -86,7 +90,7 @@ export async function jwtInterceptor() {
                     if (logoutHandler) {
                         logoutHandler()
                     } else {
-                        localStorage.removeItem('token')
+                        setAuthToken(null)
                         window.location.reload()
                     }
                     return Promise.reject(refreshError)

@@ -30,6 +30,11 @@
             <span class="p-nav-item__label">{{ t('sidepanel.tick_archive') }}</span>
           </button>
 
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'messages' }" @click="openMessages">
+            <span class="material-icons p-nav-item__icon">chat</span>
+            <span class="p-nav-item__label">{{ t('sidepanel.messages') }}</span>
+          </button>
+
           <!--
           <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'import_ticks' }" @click="showTickHelpDialog=true">
             <span class="material-icons p-nav-item__icon">merge</span>
@@ -170,6 +175,11 @@ const openArchive = () => {
   store.commit('setSelectedLeftPanelItem', 'archive')
   store.commit('setSidePanel', false)
   f7.views.main.router.navigate("/archive")
+}
+const openMessages = () => {
+  store.commit('setSelectedLeftPanelItem', 'messages')
+  store.commit('setSidePanel', false)
+  f7.views.main.router.navigate("/messages")
 }
 const updateVersion = () => {
   // On the web this reloads and picks up the new service worker. In a shipped
