@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { unreadTotal, threadTitle, coachesToStartWith } from '../src/js/helpers/threads.js'
+import { unreadTotal, threadTitle, coachesToStartWith, isCoach } from '../src/js/helpers/threads.js'
 
 describe('unreadTotal', () => {
   it('adds up what is waiting across threads', () => {
@@ -105,3 +105,34 @@ describe('coachesToStartWith', () => {
       .toEqual([{ climberId: 9, name: 'Ville K' }])
   })
 })
+
+describe('isCoach', () => {
+  const thread = { coach_climber_id: 9 }
+
+  it('recognises the coach', () => {
+    expect(isCoach(9, thread)).toBe(true)
+  })
+
+  it('does not label a climber a coach', () => {
+    expect(isCoach(4, thread)).toBe(false)
+  })
+
+  // The ids cross a JSON boundary and arrive as either, so a string 9 and a
+  // number 9 are the same person.
+  it('does not care whether the ids are strings or numbers', () => {
+    expect(isCoach('9', thread)).toBe(true)
+    expect(isCoach(9, { coach_climber_id: '9' })).toBe(true)
+  })
+
+  /**
+   * Both guards matter. An absent coach_climber_id would otherwise make
+   * everyone a coach, and two absent ids would match each other.
+   */
+  it('labels nobody when either id is missing', () => {
+    expect(isCoach(9, {})).toBe(false)
+    expect(isCoach(9, null)).toBe(false)
+    expect(isCoach(null, thread)).toBe(false)
+    expect(isCoach(undefined, { coach_climber_id: undefined })).toBe(false)
+  })
+})
+

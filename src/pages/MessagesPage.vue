@@ -47,10 +47,19 @@
           v-for="thread in threads"
           :key="thread.id"
           link="#"
-          :title="threadTitle(thread, myClimberId) || t('messages.someone')"
           :subtitle="thread.last_message?.body ?? ''"
           @click="open(thread)"
         >
+          <template #title>
+            {{ threadTitle(thread, myClimberId) || t('messages.someone') }}
+            <!-- Which of these people coaches you. Obvious in a one-to-one and
+                 the whole point in a phase 2 group, where several people are
+                 in the thread and only one set the session. -->
+            <span
+              v-if="coachAmong(thread)"
+              class="msgs__coach"
+            >{{ t('messages.coach_tag') }}</span>
+          </template>
           <template #after>
             <span v-if="thread.unread_count" class="msgs__badge">{{ thread.unread_count }}</span>
           </template>
@@ -70,6 +79,10 @@
           class="msg"
           :class="{ 'msg--mine': m.sender_climber_id === myClimberId }"
         >
+          <span
+            v-if="isCoach(m.sender_climber_id, openThread) && m.sender_climber_id !== myClimberId"
+            class="msg__coach"
+          >{{ t('messages.coach_tag') }}</span>
           <p class="msg__body">{{ m.body }}</p>
           <span class="msg__when">{{ showAgo(m.created_at) }}</span>
         </div>
@@ -101,7 +114,7 @@ import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import api from '@js/api.js'
 import { showAgo } from '@helpers'
-import { threadTitle, coachesToStartWith } from '@helpers/threads.js'
+import { threadTitle, coachesToStartWith, isCoach } from '@helpers/threads.js'
 
 const { t } = useI18n()
 const store = useStore()
@@ -123,6 +136,12 @@ const starting = ref(false)
 
 // Only coaches there is no thread with yet — see coachesToStartWith.
 const startable = computed(() => coachesToStartWith(coaches.value, threads.value))
+
+/** True when someone other than the reader is the coach of this thread. */
+const coachAmong = (thread) =>
+  (thread?.participants ?? []).some(
+    (p) => p?.climber_id !== myClimberId.value && isCoach(p?.climber_id, thread)
+  )
 
 /**
  * Open-or-get, then step straight into the thread. The server hands back an
@@ -307,5 +326,27 @@ onMounted(load)
   font-size: 0.82rem;
   color: var(--p-text-dim);
   text-align: center;
+}
+
+/* Quiet: it labels a role, it is not an alert. The unread badge is the only
+   thing on this screen that should pull the eye. */
+.msgs__coach,
+.msg__coach {
+  display: inline-block;
+  margin-left: 0.35rem;
+  padding: 0 0.3rem;
+  border-radius: 3px;
+  background: rgb(128 128 128 / 18%);
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.msg__coach {
+  margin: 0 0 0.15rem;
+  display: block;
+  width: fit-content;
 }
 </style>

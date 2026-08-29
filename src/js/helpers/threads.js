@@ -60,3 +60,21 @@ export function coachesToStartWith(relationships, threads) {
     }))
     .filter((c) => c.climberId != null && !already.has(c.climberId))
 }
+
+/**
+ * Whether this climber is the coach in this thread.
+ *
+ * Used for both a participant in the list and the sender of a message, which
+ * is why the thread carries one coach_climber_id rather than a boolean on
+ * each participant.
+ *
+ * Guarded on both sides: an absent coach_climber_id must not make everyone a
+ * coach, and an absent climber id must not match an absent coach id.
+ */
+export function isCoach(climberId, thread) {
+  const coachId = thread?.coach_climber_id
+  if (coachId == null || climberId == null) return false
+
+  return Number(climberId) === Number(coachId)
+}
+
