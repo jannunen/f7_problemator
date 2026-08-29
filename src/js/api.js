@@ -79,6 +79,18 @@ const api = {
     const ret = await axios.post(endpoint + `/training/messages/${id}`, { body })
     return ret.data
   },
+  // Who this climber is actually coached by. Needed before they can start a
+  // conversation: a climber has no other way to learn their coach's id.
+  async myCoaches() {
+    const ret = await axios.get(endpoint + '/training/coaches')
+    return ret.data
+  },
+  // Open-or-get. The server decides whether the relationship allows it, and
+  // hands back the existing thread when there already is one.
+  async openDirectThread(coachClimberId) {
+    const ret = await axios.post(endpoint + '/training/messages/direct', { climber_id: coachClimberId })
+    return ret.data
+  },
   async markThreadRead(id) {
     const ret = await axios.post(endpoint + `/training/messages/${id}/read`)
     return ret.data

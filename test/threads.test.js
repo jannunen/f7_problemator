@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { unreadTotal, threadTitle } from '../src/js/helpers/threads.js'
+import { unreadTotal, threadTitle, coachesToStartWith } from '../src/js/helpers/threads.js'
 
 describe('unreadTotal', () => {
   it('adds up what is waiting across threads', () => {
@@ -58,5 +58,50 @@ describe('threadTitle', () => {
   it('does not include everyone when the reader\'s own id is not known yet', () => {
     expect(threadTitle(thread, undefined)).toBe('')
     expect(threadTitle(thread, null)).toBe('')
+  })
+})
+
+describe('coachesToStartWith', () => {
+  const rel = (coachId, first, last) => ({
+    coach_climber_id: coachId,
+    coach: { id: coachId, etunimi: first, sukunimi: last },
+  })
+
+  it('offers a coach the climber has no thread with yet', () => {
+    expect(coachesToStartWith([rel(9, 'Ville', 'K')], [])).toEqual([
+      { climberId: 9, name: 'Ville K' },
+    ])
+  })
+
+  /**
+   * The whole point of the filter: a second "Message Ville" button beside an
+   * existing Ville thread invites a duplicate the server would hand straight
+   * back anyway.
+   */
+  it('does not offer a coach there is already a thread with', () => {
+    expect(coachesToStartWith([rel(9, 'Ville', 'K')], [{ coach_climber_id: 9 }])).toEqual([])
+  })
+
+  it('offers the second coach while hiding the first', () => {
+    const out = coachesToStartWith(
+      [rel(9, 'Ville', 'K'), rel(12, 'Sanna', 'R')],
+      [{ coach_climber_id: 9 }]
+    )
+    expect(out).toEqual([{ climberId: 12, name: 'Sanna R' }])
+  })
+
+  // Relations arrive absent rather than null from this API, and an unguarded
+  // read here would break the one screen that offers a way in.
+  it('survives absent coaches, absent threads, and missing name parts', () => {
+    expect(coachesToStartWith(null, null)).toEqual([])
+    expect(coachesToStartWith([], [])).toEqual([])
+    expect(coachesToStartWith([{}], [])).toEqual([])
+    expect(coachesToStartWith([{ coach_climber_id: 4, coach: { id: 4, etunimi: 'Aino' } }], []))
+      .toEqual([{ climberId: 4, name: 'Aino' }])
+  })
+
+  it('ignores a thread row with no coach id rather than dropping everyone', () => {
+    expect(coachesToStartWith([rel(9, 'Ville', 'K')], [{}, { coach_climber_id: null }]))
+      .toEqual([{ climberId: 9, name: 'Ville K' }])
   })
 })

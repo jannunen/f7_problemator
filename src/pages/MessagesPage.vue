@@ -13,9 +13,36 @@
 
     <template v-if="!openThread">
       <p v-if="loading" class="msgs__note">{{ t('messages.loading') }}</p>
-      <p v-else-if="!threads.length" class="msgs__note">{{ t('messages.nothing_yet') }}</p>
 
-      <f7-list v-else media-list class="msgs__list">
+      <!-- A way in. Without this a climber could only ever reply to a thread
+           somebody else had started, so a new coach — or one who has not
+           reviewed a session yet — could not be reached at all. -->
+      <f7-list v-if="!loading && startable.length" class="msgs__start">
+        <f7-list-item
+          v-for="c in startable"
+          :key="c.climberId"
+          link="#"
+          :title="t('messages.start_with', { name: c.name })"
+          :disabled="starting"
+          @click="start(c)"
+        >
+          <template #media>
+            <i class="material-icons">chat_bubble_outline</i>
+          </template>
+        </f7-list-item>
+      </f7-list>
+
+      <!-- Two different empty states. A climber with no coach cannot message
+           anyone, and telling them "no messages yet" would leave them looking
+           for a button that should not exist. -->
+      <p v-if="!loading && !threads.length && startable.length" class="msgs__note">
+        {{ t('messages.nothing_yet') }}
+      </p>
+      <p v-else-if="!loading && !threads.length" class="msgs__note">
+        {{ t('messages.no_coach') }}
+      </p>
+
+      <f7-list v-if="threads.length" media-list class="msgs__list">
         <f7-list-item
           v-for="thread in threads"
           :key="thread.id"
@@ -74,7 +101,7 @@ import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import api from '@js/api.js'
 import { showAgo } from '@helpers'
-import { threadTitle } from '@helpers/threads.js'
+import { threadTitle, coachesToStartWith } from '@helpers/threads.js'
 
 const { t } = useI18n()
 const store = useStore()
@@ -91,6 +118,33 @@ const sending = ref(false)
 
 const myClimberId = computed(() => store.state.climber?.id)
 
+const coaches = ref([])
+const starting = ref(false)
+
+// Only coaches there is no thread with yet — see coachesToStartWith.
+const startable = computed(() => coachesToStartWith(coaches.value, threads.value))
+
+/**
+ * Open-or-get, then step straight into the thread. The server hands back an
+ * existing one if there is any, so a double tap cannot make two.
+ */
+const start = async (coach) => {
+  if (starting.value) return
+  starting.value = true
+  try {
+    const thread = await api.openDirectThread(coach.climberId)
+    await load()
+    const fresh = threads.value.find((t) => t.id === thread.id)
+    if (fresh) await open(fresh)
+  } catch {
+    // A relationship that ended between loading the page and tapping. The
+    // list reloads and the button goes with it.
+    await load()
+  } finally {
+    starting.value = false
+  }
+}
+
 const pageTitle = computed(() =>
   openThread.value ? threadTitle(openThread.value, myClimberId.value) || t('messages.someone') : t('messages.title')
 )
@@ -98,7 +152,15 @@ const pageTitle = computed(() =>
 const load = async () => {
   loading.value = true
   try {
-    threads.value = await api.messageThreads()
+    // Both together: which conversations exist, and which coaches could be
+    // started with. The second is what makes this screen reachable ground
+    // rather than a list that can only ever be empty.
+    const [mine, myCoaches] = await Promise.all([
+      api.messageThreads(),
+      api.myCoaches().catch(() => []),
+    ])
+    threads.value = mine
+    coaches.value = myCoaches
   } finally {
     loading.value = false
   }

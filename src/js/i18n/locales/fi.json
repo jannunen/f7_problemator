@@ -758,7 +758,9 @@
     "no_messages": "Ei vielä viestejä.",
     "write_hint": "Kirjoita viesti…",
     "send": "Lähetä",
-    "ended": "Tämä valmennus on päättynyt, joten et voi enää lähettää viestejä täällä."
+    "ended": "Tämä valmennus on päättynyt, joten et voi enää lähettää viestejä täällä.",
+    "start_with": "Viesti valmentajalle {name}",
+    "no_coach": "Viestit kulkevat sinun ja valmentajasi välillä. Sinulla ei ole vielä valmentajaa."
   },
   "errors": {
     "screen_failed_title": "Näkymä ei latautunut",
