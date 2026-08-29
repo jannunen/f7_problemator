@@ -748,7 +748,12 @@
     "timer_reset": "Nollaa",
     "timer_round": "Sarja {n}/{of}",
     "timer_ready_to_start": "Valmiina",
-    "timer_hint": "Pidä tämä näkymä auki — näyttö pysyy hereillä ajastimen ajan. Ääni vaatii yhden napautuksen, jonka Aloita hoitaa."
+    "timer_hint": "Pidä tämä näkymä auki — näyttö pysyy hereillä ajastimen ajan. Ääni vaatii yhden napautuksen, jonka Aloita hoitaa.",
+    "open_program_list": "Avaa ohjelmalista",
+    "filter_active": "Aktiiviset",
+    "filter_inactive": "Päättyneet",
+    "filter_all": "Kaikki",
+    "none_match_filter": "Ei ohjelmia täällä. Kokeile toista välilehteä."
   },
   "messages": {
     "title": "Viestit",
@@ -768,6 +773,11 @@
     "screen_failed_body": "Jokin meni pieleen. Muu sovellus toimii normaalisti.",
     "try_again": "Yritä uudelleen",
     "go_home": "Etusivulle",
-    "screen_is_broken": "Uudelleenyritys epäonnistui samalla tavalla, joten kyseessä on virhe eikä hetkellinen häiriö. Ilmoitathan siitä yllä olevan viestin kanssa."
+    "screen_is_broken": "Uudelleenyritys epäonnistui samalla tavalla, joten kyseessä on virhe eikä hetkellinen häiriö. Ilmoitathan siitä yllä olevan viestin kanssa.",
+    "open_program_list": "Avaa ohjelmalista",
+    "filter_active": "Aktiiviset",
+    "filter_inactive": "Päättyneet",
+    "filter_all": "Kaikki",
+    "none_match_filter": "Ei ohjelmia täällä. Kokeile toista välilehteä."
   }
 }
