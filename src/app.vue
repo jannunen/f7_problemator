@@ -13,13 +13,15 @@
          pages, and nothing but the dark theme's black. On the web the URL
          still decides, so `url` is left undefined there and deep links keep
          working. -->
-    <f7-view 
+    <ErrorBoundary>
+      <f7-view 
     :url="useBrowserHistory ? undefined : '/'"
     :push-state="useBrowserHistory"
     :browser-history="useBrowserHistory"
     :browser-history-root="historyRoot"
     main 
     ></f7-view>
+    </ErrorBoundary>
 
     <!-- The side panel is app furniture, not part of the home screen. It used
          to be mounted inside Home, so on every other page it simply did not
@@ -42,11 +44,13 @@
 </template>
 <script>
 import routes from './js/routes.js'
+import ErrorBoundary from '@/components/ui/ErrorBoundary.vue'
 import BottomTabBar from '@components/ui/BottomTabBar.vue'
 import LeftSidepanel from '@components/home/LeftSidepanel.vue'
 import { registerBackButton, setupChrome, registerDeepLinks } from '@js/native.js'
 import { pendingWebSession } from '@helpers/socialAuth.js'
 import { useBrowserHistory, browserHistoryRoot } from '@js/platform.js'
+import { readStoredToken } from '@js/authToken.js'
 import { useI18n } from 'vue-i18n'
 import { watch, computed, ref } from 'vue'
 import { useStore } from 'vuex'
@@ -183,9 +187,11 @@ export default {
       store.commit('setInitializing', false)
     })
 
-    // Bootstrap from localStorage token (after watch is registered)
-    const existingToken = localStorage.getItem('token')
-    if (existingToken && existingToken !== 'null') {
+    // Bootstrap from the stored token (after watch is registered). The
+    // "is it really a token" question lives in readStoredToken, so this is
+    // not a third place that has to remember about the string "null".
+    const existingToken = readStoredToken()
+    if (existingToken) {
       store.commit('setToken', existingToken)
     } else {
       store.commit('setReady', true)

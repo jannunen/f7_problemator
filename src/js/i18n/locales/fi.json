@@ -46,6 +46,7 @@
     "open_map": "Avaa kartta",
     "settings": "Asetukset",
     "tick_archive": "Tikkiarkisto",
+    "messages": "Viestit",
     "import_ticks": "Tuo tikkejä",
     "tips": "Vinkit",
     "roadmap_changes": "Tiekartta ja muutokset",
@@ -119,7 +120,18 @@
     "ticked": "tikattu",
     "you_are_a_judge": "Olet tuomari tässä kilpailussa",
     "comp_type": "Kilpailutyyppi",
-    "the_comp_has_not_started_yet": "Kilpailuaika ei ole vielä alkanut tai on jo päättynyt"
+    "the_comp_has_not_started_yet": "Kilpailuaika ei ole vielä alkanut tai on jo päättynyt",
+    "open_results": "Tulokset",
+    "show_more": "Näytä lisää",
+    "show_less": "Näytä vähemmän",
+    "full": "Täynnä",
+    "closed": "Suljettu",
+    "registering": "Ilmoittaudutaan…",
+    "unlimited_spots": "Ei rajaa",
+    "spots_left": "{n} paikkaa jäljellä",
+    "registered_count": "{n} ilmoittautunutta",
+    "special_price_hint": "Erikoishinnan aktivoi järjestäjä — pyydä sitä heiltä.",
+    "paid": "Maksettu"
   },
   "settings": {
     "settings_title": "Asetukset",
@@ -704,6 +716,8 @@
     "card_invite_sub": "Hyväksy tai kieltäydy",
     "card_invite_generic": "{n} valmennuskutsu | {n} valmennuskutsua",
     "card_progress": "{done}/{total} treeniä tehty",
+    "card_messages_title": "Valmentajasi lähetti viestin",
+    "card_messages_sub": "Avaa treenit napauttamalla",
     "how_was_it": "Miten meni?",
     "section_title": "Treeniohjelmat",
     "view_list": "Lista",
@@ -735,5 +749,25 @@
     "timer_round": "Sarja {n}/{of}",
     "timer_ready_to_start": "Valmiina",
     "timer_hint": "Pidä tämä näkymä auki — näyttö pysyy hereillä ajastimen ajan. Ääni vaatii yhden napautuksen, jonka Aloita hoitaa."
+  },
+  "messages": {
+    "title": "Viestit",
+    "someone": "Joku",
+    "loading": "Ladataan…",
+    "nothing_yet": "Ei vielä keskusteluja.",
+    "no_messages": "Ei vielä viestejä.",
+    "write_hint": "Kirjoita viesti…",
+    "send": "Lähetä",
+    "ended": "Tämä valmennus on päättynyt, joten et voi enää lähettää viestejä täällä.",
+    "start_with": "Viesti valmentajalle {name}",
+    "no_coach": "Viestit kulkevat sinun ja valmentajasi välillä. Sinulla ei ole vielä valmentajaa.",
+    "coach_tag": "Valmentaja"
+  },
+  "errors": {
+    "screen_failed_title": "Näkymä ei latautunut",
+    "screen_failed_body": "Jokin meni pieleen. Muu sovellus toimii normaalisti.",
+    "try_again": "Yritä uudelleen",
+    "go_home": "Etusivulle",
+    "screen_is_broken": "Uudelleenyritys epäonnistui samalla tavalla, joten kyseessä on virhe eikä hetkellinen häiriö. Ilmoitathan siitä yllä olevan viestin kanssa."
   }
 }

@@ -54,6 +54,7 @@
     "open_map": "Open map",
     "settings": "Settings",
     "tick_archive": "Tick archive",
+    "messages": "Messages",
     "import_ticks": "Import ticks",
     "tips": "Tips",
     "roadmap_changes": "Roadmap & Changes",
@@ -127,7 +128,18 @@
     "ticked": "ticked",
     "you_are_a_judge": "You are a judge in this competition",
     "comp_type": "Competition type",
-    "the_comp_has_not_started_yet": "The competition time is either not started or has already ended"
+    "the_comp_has_not_started_yet": "The competition time is either not started or has already ended",
+    "open_results": "Results",
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "full": "Full",
+    "closed": "Closed",
+    "registering": "Registering…",
+    "unlimited_spots": "No limit",
+    "spots_left": "{n} spots left",
+    "registered_count": "{n} registered",
+    "special_price_hint": "The special price is arranged by the organiser — ask them to activate it for you.",
+    "paid": "Paid"
   },
   "settings": {
     "settings_title": "Settings",
@@ -727,6 +739,8 @@
     "card_invite_sub": "Tap to accept or decline",
     "card_invite_generic": "{n} coaching invitation | {n} coaching invitations",
     "card_progress": "{done} of {total} sessions done",
+    "card_messages_title": "Your coach messaged you",
+    "card_messages_sub": "Tap to open training",
     "how_was_it": "How was it?",
     "section_title": "Training programs",
     "view_list": "List",
@@ -758,5 +772,25 @@
     "timer_round": "Set {n} of {of}",
     "timer_ready_to_start": "Ready",
     "timer_hint": "Keep this screen open — it stays awake while the timer runs. Sound needs one tap to unlock, which Start does."
+  },
+  "messages": {
+    "title": "Messages",
+    "someone": "Someone",
+    "loading": "Loading…",
+    "nothing_yet": "No conversations yet.",
+    "no_messages": "No messages yet.",
+    "write_hint": "Write a message…",
+    "send": "Send",
+    "ended": "This coaching has ended, so you can no longer send messages here.",
+    "start_with": "Message {name}",
+    "no_coach": "Messaging is between you and your coach. You do not have one yet.",
+    "coach_tag": "Coach"
+  },
+  "errors": {
+    "screen_failed_title": "This screen didn't load",
+    "screen_failed_body": "Something in it went wrong. The rest of the app still works.",
+    "try_again": "Try again",
+    "go_home": "Go to home",
+    "screen_is_broken": "Retrying failed the same way, so this is a bug rather than a blip. Please report it with the message above."
   }
 }
