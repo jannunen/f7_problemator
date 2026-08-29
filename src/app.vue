@@ -185,6 +185,14 @@ export default {
         }
       }
       store.commit('setInitializing', false)
+    }, {
+      // immediate, because access_token no longer starts null. It is seeded
+      // from storage, so a reload with a stored token commits the value it
+      // already holds — an assignment, not a change, which Vue's watch does
+      // not fire on. The profile was never loaded and setReady never ran, so
+      // the home screen sat on its skeletons forever. Signing in fresh worked
+      // the whole time, because there the token genuinely changes.
+      immediate: true,
     })
 
     // Bootstrap from the stored token (after watch is registered). The
