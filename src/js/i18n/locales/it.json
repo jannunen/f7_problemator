@@ -523,6 +523,13 @@
     "hire_pending": "Avvio in corso…",
     "hire_error": "Si è verificato un errore nell'avvio della prova. Riprova.",
     "trial_used_error": "La tua prova gratuita con Ada è già terminata. Abbonati per continuare ad allenarti con lei.",
-    "loading": "Caricamento…"
+    "loading": "Caricamento…",
+    "subscribe_button": "Abbonati — {price} / {period}",
+    "subscribe_pending": "Apertura del pagamento…",
+    "checkout_error": "Impossibile aprire il pagamento. Riprova.",
+    "manage_subscription": "Gestisci abbonamento",
+    "manage_pending": "Apertura…",
+    "manage_error": "Impossibile aprire il portale di fatturazione. Riprova.",
+    "manage_unavailable": "Niente da gestire per ora."
   }
 }

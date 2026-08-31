@@ -108,6 +108,19 @@ const api = {
     const ret = await axios.post(endpoint + '/coaching/virtual/hire')
     return ret.data
   },
+  // Both Stripe-hosted: a checkout page to start paying (returns { url }),
+  // and a billing portal to manage an existing subscription (returns { url },
+  // or a 422 the caller must handle — nothing to manage before a first
+  // payment). Neither is ever rendered here; the client's only job is to
+  // fetch the URL and leave for it. No card data reaches this app.
+  async checkoutVirtualCoach() {
+    const ret = await axios.post(endpoint + '/coaching/virtual/checkout')
+    return ret.data
+  },
+  async virtualCoachPortal() {
+    const ret = await axios.post(endpoint + '/coaching/virtual/portal')
+    return ret.data
+  },
   async socialExchange(accessToken) {
     const ret = await axios.post(endpoint + '/auth/social/exchange', {
       access_token: accessToken

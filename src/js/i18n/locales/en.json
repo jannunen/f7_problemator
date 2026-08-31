@@ -829,6 +829,13 @@
     "hire_pending": "Starting…",
     "hire_error": "Something went wrong starting your trial. Try again.",
     "trial_used_error": "Your free trial with Ada is already over. Subscribe to keep training with her.",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "subscribe_button": "Subscribe — {price} / {period}",
+    "subscribe_pending": "Opening checkout…",
+    "checkout_error": "Couldn't open checkout. Try again.",
+    "manage_subscription": "Manage subscription",
+    "manage_pending": "Opening…",
+    "manage_error": "Couldn't open the billing portal. Try again.",
+    "manage_unavailable": "Nothing to manage yet."
   }
 }

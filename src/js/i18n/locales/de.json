@@ -523,6 +523,13 @@
     "hire_pending": "Wird gestartet…",
     "hire_error": "Beim Start der Testphase ist etwas schiefgelaufen. Versuch es erneut.",
     "trial_used_error": "Deine kostenlose Testphase mit Ada ist bereits vorbei. Abonniere, um weiter mit ihr zu trainieren.",
-    "loading": "Lädt…"
+    "loading": "Lädt…",
+    "subscribe_button": "Abonnieren — {price} / {period}",
+    "subscribe_pending": "Zahlung wird geöffnet…",
+    "checkout_error": "Zahlung konnte nicht geöffnet werden. Versuch es erneut.",
+    "manage_subscription": "Abo verwalten",
+    "manage_pending": "Wird geöffnet…",
+    "manage_error": "Das Rechnungsportal konnte nicht geöffnet werden. Versuch es erneut.",
+    "manage_unavailable": "Noch nichts zu verwalten."
   }
 }

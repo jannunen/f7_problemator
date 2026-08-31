@@ -806,6 +806,13 @@
     "hire_pending": "Aloitetaan…",
     "hire_error": "Kokeilun aloittaminen epäonnistui. Yritä uudelleen.",
     "trial_used_error": "Ilmainen kokeilujaksosi Adan kanssa on jo käytetty. Tilaa jatkaaksesi harjoittelua hänen kanssaan.",
-    "loading": "Ladataan…"
+    "loading": "Ladataan…",
+    "subscribe_button": "Tilaa — {price} / {period}",
+    "subscribe_pending": "Avataan maksua…",
+    "checkout_error": "Maksun avaaminen epäonnistui. Yritä uudelleen.",
+    "manage_subscription": "Hallitse tilausta",
+    "manage_pending": "Avataan…",
+    "manage_error": "Laskutuksen hallinnan avaaminen epäonnistui. Yritä uudelleen.",
+    "manage_unavailable": "Ei vielä mitään hallittavaa."
   }
 }

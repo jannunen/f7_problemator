@@ -523,6 +523,13 @@
     "hire_pending": "Rozpoczynanie…",
     "hire_error": "Nie udało się rozpocząć okresu próbnego. Spróbuj ponownie.",
     "trial_used_error": "Twój darmowy okres próbny z Adą już się zakończył. Subskrybuj, aby kontynuować trening z nią.",
-    "loading": "Ładowanie…"
+    "loading": "Ładowanie…",
+    "subscribe_button": "Subskrybuj — {price} / {period}",
+    "subscribe_pending": "Otwieranie płatności…",
+    "checkout_error": "Nie udało się otworzyć płatności. Spróbuj ponownie.",
+    "manage_subscription": "Zarządzaj subskrypcją",
+    "manage_pending": "Otwieranie…",
+    "manage_error": "Nie udało się otworzyć portalu rozliczeniowego. Spróbuj ponownie.",
+    "manage_unavailable": "Na razie nie ma czym zarządzać."
   }
 }
