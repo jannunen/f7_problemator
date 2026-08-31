@@ -498,5 +498,31 @@
     "loading": "Laster...",
     "save": "Lagre",
     "cancel": "Avbryt"
+  },
+  "ada": {
+    "card_title": "Prøve en AI-coach?",
+    "card_body": "Ada lager og justerer treningsprogrammet ditt basert på klatrehistorikken din.",
+    "card_cta": "Les mer",
+    "card_dismiss": "Ikke nå",
+    "explainer_title": "Møt Ada",
+    "disclosure": "Ada er en AI, ikke en person.",
+    "does_title": "Hva hun gjør",
+    "does_programme": "Skriver et treningsprogram til deg basert på klatrehistorikken din.",
+    "does_adjusts": "Justerer det når livet kommer i veien — en tapt økt, en travel uke.",
+    "does_reviews": "Leser hvordan de loggførte øktene dine gikk, og endrer planen.",
+    "not_title": "Hva hun ikke gjør",
+    "not_physio": "Hun er ikke fysioterapeut og stiller ingen diagnoser.",
+    "not_weight": "Hun gir ingen råd om vekt.",
+    "trial_title": "Prøv gratis",
+    "trial_body": "{days} dager gratis, ingen kort nødvendig.",
+    "price_body": "Deretter {price} / {period}.",
+    "period_month": "måned",
+    "period_year": "år",
+    "decline": "Ikke nå",
+    "hire": "Start gratis prøveperiode",
+    "hire_pending": "Starter…",
+    "hire_error": "Noe gikk galt ved start av prøveperioden. Prøv igjen.",
+    "trial_used_error": "Den gratis prøveperioden din med Ada er allerede over. Abonner for å fortsette å trene med henne.",
+    "loading": "Laster…"
   }
 }

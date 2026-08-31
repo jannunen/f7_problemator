@@ -498,5 +498,31 @@
     "loading": "Chargement...",
     "save": "Enregistrer",
     "cancel": "Annuler"
+  },
+  "ada": {
+    "card_title": "Essayer un coach IA ?",
+    "card_body": "Ada crée et ajuste ton programme d'entraînement à partir de ton historique d'escalade.",
+    "card_cta": "En savoir plus",
+    "card_dismiss": "Pas maintenant",
+    "explainer_title": "Découvre Ada",
+    "disclosure": "Ada est une IA, pas une personne.",
+    "does_title": "Ce qu'elle fait",
+    "does_programme": "Elle t'écrit un programme d'entraînement à partir de ton historique d'escalade.",
+    "does_adjusts": "Elle l'ajuste quand la vie s'en mêle — une séance manquée, une semaine chargée.",
+    "does_reviews": "Elle relit comment se sont passées tes séances enregistrées et modifie le plan.",
+    "not_title": "Ce qu'elle ne fait pas",
+    "not_physio": "Elle n'est pas kinésithérapeute et ne diagnostique pas de blessures.",
+    "not_weight": "Elle ne donne pas de conseils sur le poids.",
+    "trial_title": "Essaie gratuitement",
+    "trial_body": "{days} jours gratuits, sans carte bancaire.",
+    "price_body": "Ensuite {price} / {period}.",
+    "period_month": "mois",
+    "period_year": "an",
+    "decline": "Pas maintenant",
+    "hire": "Démarrer l'essai gratuit",
+    "hire_pending": "Démarrage…",
+    "hire_error": "Une erreur est survenue au démarrage de l'essai. Réessaie.",
+    "trial_used_error": "Ton essai gratuit avec Ada est déjà terminé. Abonne-toi pour continuer à t'entraîner avec elle.",
+    "loading": "Chargement…"
   }
 }

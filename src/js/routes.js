@@ -23,6 +23,7 @@ import TrainingPage from '../pages/TrainingPage.vue'
 import TrainingProgramPage from '../pages/TrainingProgramPage.vue'
 import TrainingSessionPage from '../pages/TrainingSessionPage.vue';
 import MessagesPage from '../pages/MessagesPage.vue';
+import AdaExplainerPage from '../pages/AdaExplainerPage.vue';
 const routes = [
   {
     path: '/',
@@ -59,6 +60,10 @@ const routes = [
   {
     path: '/messages',
     component: MessagesPage,
+  },
+  {
+    path: '/coach/ada',
+    component: AdaExplainerPage,
   },
   {
     path: '/settings',

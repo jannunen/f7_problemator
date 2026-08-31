@@ -138,7 +138,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { f7 } from 'framework7-vue'
 
 import { onUnmounted,  computed, ref } from 'vue'
 import PButton from '@components/PButton.vue'
@@ -182,7 +181,6 @@ const getPointsPerProblem = (num) => {
   return rule.points
 }
 const store = useStore()
-const ticks = computed(() => store.state.alltime.ticks)
 const pointRules = computed(() => {
   const comp = store.state.competition
   if (comp.pointsharingobj == null) {
@@ -220,6 +218,11 @@ const isJudge = computed(() => {
   const judgeids = comp.judges.map(jobj => jobj.id)
   return judgeids.includes(climber.value.id)
 })
+// Competition payment: builds the real payment URL, but nothing in the
+// template calls this yet — not wired to a button or shown conditionally on
+// isPaymentForced/isPaidAndPriceIsSet. Left in place rather than removed so
+// the feature can be finished deliberately instead of rebuilt from scratch.
+// eslint-disable-next-line no-unused-vars
 const openPaymentWindow = () => {
   const link = document.createElement("a")
   link.href = `${webendpoint}/comps/${props.comp.id}/contender/${climber.value.id}/payment`
@@ -241,6 +244,10 @@ const getJudgingLink = computed(() => {
   // No competition yet: say so, rather than returning undefined.
   return null
 })
+// Same as openPaymentWindow above: reads a real field (comp.forcepayment)
+// but nothing in the template checks it yet. Part of the same unfinished
+// competition-payment feature.
+// eslint-disable-next-line no-unused-vars
 const isPaymentForced = computed(() => props.comp.forcepayment == 1)
 const isPaidAndPriceIsSet = computed(() => {
   if (climber.value == null) {

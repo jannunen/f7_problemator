@@ -498,5 +498,31 @@
     "loading": "Ładowanie...",
     "save": "Zapisz",
     "cancel": "Anuluj"
+  },
+  "ada": {
+    "card_title": "Wypróbować trenera AI?",
+    "card_body": "Ada tworzy i dostosowuje twój program treningowy na podstawie historii wspinaczki.",
+    "card_cta": "Dowiedz się więcej",
+    "card_dismiss": "Nie teraz",
+    "explainer_title": "Poznaj Adę",
+    "disclosure": "Ada jest sztuczną inteligencją, nie osobą.",
+    "does_title": "Co robi",
+    "does_programme": "Pisze dla ciebie program treningowy na podstawie historii wspinaczki.",
+    "does_adjusts": "Dostosowuje go, gdy życie wchodzi w drogę — opuszczony trening, zapracowany tydzień.",
+    "does_reviews": "Sprawdza, jak poszły zapisane treningi, i zmienia plan.",
+    "not_title": "Czego nie robi",
+    "not_physio": "Nie jest fizjoterapeutką i nie stawia diagnoz.",
+    "not_weight": "Nie doradza w kwestii wagi.",
+    "trial_title": "Wypróbuj za darmo",
+    "trial_body": "{days} dni za darmo, karta niepotrzebna.",
+    "price_body": "Potem {price} / {period}.",
+    "period_month": "miesiąc",
+    "period_year": "rok",
+    "decline": "Nie teraz",
+    "hire": "Rozpocznij darmowy okres próbny",
+    "hire_pending": "Rozpoczynanie…",
+    "hire_error": "Nie udało się rozpocząć okresu próbnego. Spróbuj ponownie.",
+    "trial_used_error": "Twój darmowy okres próbny z Adą już się zakończył. Subskrybuj, aby kontynuować trening z nią.",
+    "loading": "Ładowanie…"
   }
 }

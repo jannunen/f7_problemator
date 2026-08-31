@@ -86,6 +86,10 @@
           <!-- Section: Gym overview -->
           <div class="home-section">
             <training-card />
+            <!-- The front door for Ada: the backend already gates should_offer
+                 to a climber with no coach at all and enough tick history, so
+                 nothing here re-checks that — see AdaOfferCard.vue. -->
+            <ada-offer-card />
             <spray-wall-block />
             <floor-map-block :f7router="props.f7router" />
             <badge-gym-stats :gym="gym" />
@@ -163,6 +167,7 @@ import CompetitionsBadge from '@components/comps/CompetitionsBadge.vue'
 import BadgeGymStats from '@components/home/BadgeGymStats.vue'
 import ExpiringProblemsAlert from '@components/ExpiringProblemsAlert.vue'
 import TrainingCard from '@components/home/TrainingCard.vue'
+import AdaOfferCard from '@components/home/AdaOfferCard.vue'
 import Ranking from '@components/home/Ranking.vue'
 import GradePyramid from '@components/home/GradePyramid.vue'
 import AttributeRadar from '@components/home/AttributeRadar.vue'

@@ -498,5 +498,31 @@
     "loading": "Ielādē...",
     "save": "Saglabāt",
     "cancel": "Atcelt"
+  },
+  "ada": {
+    "card_title": "Izmēģināt MI treneri?",
+    "card_body": "Ada izveido un pielāgo tavu treniņu programmu, balstoties uz tavu kāpšanas vēsturi.",
+    "card_cta": "Uzzināt vairāk",
+    "card_dismiss": "Ne tagad",
+    "explainer_title": "Iepazīsti Adu",
+    "disclosure": "Ada ir mākslīgais intelekts, nevis cilvēks.",
+    "does_title": "Ko viņa dara",
+    "does_programme": "Uzraksta tev treniņu programmu, balstoties uz tavu kāpšanas vēsturi.",
+    "does_adjusts": "Pielāgo to, kad dzīve iejaucas — nokavēts treniņš, aizņemta nedēļa.",
+    "does_reviews": "Izlasa, kā gāja tavi reģistrētie treniņi, un maina plānu.",
+    "not_title": "Ko viņa nedara",
+    "not_physio": "Viņa nav fizioterapeite un nediagnosticē traumas.",
+    "not_weight": "Viņa nedod padomus par svaru.",
+    "trial_title": "Izmēģini bez maksas",
+    "trial_body": "{days} dienas bez maksas, karte nav vajadzīga.",
+    "price_body": "Pēc tam {price} / {period}.",
+    "period_month": "mēnesis",
+    "period_year": "gads",
+    "decline": "Ne tagad",
+    "hire": "Sākt bezmaksas izmēģinājumu",
+    "hire_pending": "Sākas…",
+    "hire_error": "Neizdevās sākt izmēģinājuma periodu. Mēģini vēlreiz.",
+    "trial_used_error": "Tavs bezmaksas izmēģinājuma periods ar Adu jau ir beidzies. Abonē, lai turpinātu treniņus ar viņu.",
+    "loading": "Ielādē…"
   }
 }

@@ -498,5 +498,31 @@
     "loading": "Laddar...",
     "save": "Spara",
     "cancel": "Avbryt"
+  },
+  "ada": {
+    "card_title": "Prova en AI-coach?",
+    "card_body": "Ada skapar och justerar ditt träningsprogram utifrån din klättrhistorik.",
+    "card_cta": "Läs mer",
+    "card_dismiss": "Inte nu",
+    "explainer_title": "Möt Ada",
+    "disclosure": "Ada är en AI, inte en person.",
+    "does_title": "Vad hon gör",
+    "does_programme": "Skriver ett träningsprogram åt dig utifrån din klättrhistorik.",
+    "does_adjusts": "Justerar det när livet kommer i vägen — ett missat pass, en upptagen vecka.",
+    "does_reviews": "Läser hur dina loggade pass gick och ändrar planen.",
+    "not_title": "Vad hon inte gör",
+    "not_physio": "Hon är ingen fysioterapeut och ställer inga diagnoser.",
+    "not_weight": "Hon ger inga råd om vikt.",
+    "trial_title": "Prova gratis",
+    "trial_body": "{days} dagar gratis, inget kort krävs.",
+    "price_body": "Sedan {price} / {period}.",
+    "period_month": "månad",
+    "period_year": "år",
+    "decline": "Inte just nu",
+    "hire": "Starta gratis provperiod",
+    "hire_pending": "Startar…",
+    "hire_error": "Något gick fel när provperioden skulle starta. Försök igen.",
+    "trial_used_error": "Din gratis provperiod med Ada är redan slut. Prenumerera för att fortsätta träna med henne.",
+    "loading": "Laddar…"
   }
 }

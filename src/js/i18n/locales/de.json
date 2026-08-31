@@ -498,5 +498,31 @@
     "loading": "Laden...",
     "save": "Speichern",
     "cancel": "Abbrechen"
+  },
+  "ada": {
+    "card_title": "KI-Coach ausprobieren?",
+    "card_body": "Ada erstellt und passt deinen Trainingsplan anhand deiner Kletterhistorie an.",
+    "card_cta": "Mehr erfahren",
+    "card_dismiss": "Jetzt nicht",
+    "explainer_title": "Lerne Ada kennen",
+    "disclosure": "Ada ist eine KI, keine Person.",
+    "does_title": "Was sie tut",
+    "does_programme": "Erstellt dir einen Trainingsplan anhand deiner Kletterhistorie.",
+    "does_adjusts": "Passt ihn an, wenn das Leben dazwischenkommt — eine verpasste Einheit, eine stressige Woche.",
+    "does_reviews": "Liest, wie deine protokollierten Einheiten liefen, und ändert den Plan.",
+    "not_title": "Was sie nicht tut",
+    "not_physio": "Sie ist keine Physiotherapeutin und stellt keine Diagnosen.",
+    "not_weight": "Sie berät nicht zum Gewicht.",
+    "trial_title": "Kostenlos testen",
+    "trial_body": "{days} Tage kostenlos, keine Karte nötig.",
+    "price_body": "Danach {price} / {period}.",
+    "period_month": "Monat",
+    "period_year": "Jahr",
+    "decline": "Jetzt nicht",
+    "hire": "Kostenlose Testphase starten",
+    "hire_pending": "Wird gestartet…",
+    "hire_error": "Beim Start der Testphase ist etwas schiefgelaufen. Versuch es erneut.",
+    "trial_used_error": "Deine kostenlose Testphase mit Ada ist bereits vorbei. Abonniere, um weiter mit ihr zu trainieren.",
+    "loading": "Lädt…"
   }
 }

@@ -159,6 +159,21 @@ export const queries = {
     queryFn: () => api.getSprayWallProblem(unref(problemId)),
     enabled: needs(problemId),
   }),
+
+  /**
+   * Ada, the virtual coach: hired state, trial status and pricing.
+   *
+   * Not gym-scoped — coaching is a relationship between two climbers, and
+   * Ada does not vary by which gym is currently selected. Behind auth:api,
+   * like the gym list, so the same isAuthenticated gate applies: an
+   * unauthenticated call gets a 401 the interceptor cannot recover, and
+   * would otherwise settle in error with nothing left to refetch it.
+   */
+  virtualCoach: () => ({
+    queryKey: key('virtual-coach'),
+    queryFn: () => api.getVirtualCoach(),
+    enabled: isAuthenticated,
+  }),
 }
 
 export { invalidate } from '@js/queryKeyNames'

@@ -498,5 +498,31 @@
     "loading": "Laadimine...",
     "save": "Salvesta",
     "cancel": "Tühista"
+  },
+  "ada": {
+    "card_title": "Proovi tehisintellekti treenerit?",
+    "card_body": "Ada koostab ja kohandab sinu treeningkava sinu ronimisajaloo põhjal.",
+    "card_cta": "Loe lähemalt",
+    "card_dismiss": "Mitte praegu",
+    "explainer_title": "Tutvu Adaga",
+    "disclosure": "Ada on tehisintellekt, mitte inimene.",
+    "does_title": "Mida ta teeb",
+    "does_programme": "Koostab sulle treeningkava sinu ronimisajaloo põhjal.",
+    "does_adjusts": "Kohandab kava, kui elu tuleb vahele — vahelejäänud trenn, kiire nädal.",
+    "does_reviews": "Loeb, kuidas sinu logitud trennid läksid, ja muudab plaani.",
+    "not_title": "Mida ta ei tee",
+    "not_physio": "Ta ei ole füsioterapeut ega diagnoosi vigastusi.",
+    "not_weight": "Ta ei anna nõu kaalu kohta.",
+    "trial_title": "Proovi tasuta",
+    "trial_body": "{days} päeva tasuta, krediitkaarti pole vaja.",
+    "price_body": "Pärast seda {price} / {period}.",
+    "period_month": "kuu",
+    "period_year": "aasta",
+    "decline": "Mitte praegu",
+    "hire": "Alusta tasuta prooviperioodi",
+    "hire_pending": "Alustamine…",
+    "hire_error": "Prooviperioodi alustamine ebaõnnestus. Proovi uuesti.",
+    "trial_used_error": "Sinu tasuta prooviperiood Adaga on juba läbi. Telli, et jätkata temaga treenimist.",
+    "loading": "Laadimine…"
   }
 }

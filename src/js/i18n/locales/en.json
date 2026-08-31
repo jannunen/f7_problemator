@@ -804,5 +804,31 @@
     "filter_inactive": "Finished",
     "filter_all": "All",
     "none_match_filter": "No programs here. Try another tab."
+  },
+  "ada": {
+    "card_title": "Try an AI coach?",
+    "card_body": "Ada builds and adjusts a training programme from your climbing history.",
+    "card_cta": "Learn more",
+    "card_dismiss": "Not now",
+    "explainer_title": "Meet Ada",
+    "disclosure": "Ada is an AI, not a person.",
+    "does_title": "What she does",
+    "does_programme": "Writes you a training programme from your climbing history.",
+    "does_adjusts": "Adjusts it when life gets in the way — a missed session, a busy week.",
+    "does_reviews": "Reads how your logged sessions went and changes the plan.",
+    "not_title": "What she does not do",
+    "not_physio": "She is not a physiotherapist and will not diagnose an injury.",
+    "not_weight": "She will not advise on weight.",
+    "trial_title": "Try her free",
+    "trial_body": "{days} days free, no card needed.",
+    "price_body": "Then {price} / {period}.",
+    "period_month": "month",
+    "period_year": "year",
+    "decline": "Not right now",
+    "hire": "Start free trial",
+    "hire_pending": "Starting…",
+    "hire_error": "Something went wrong starting your trial. Try again.",
+    "trial_used_error": "Your free trial with Ada is already over. Subscribe to keep training with her.",
+    "loading": "Loading…"
   }
 }
