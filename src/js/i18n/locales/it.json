@@ -498,5 +498,31 @@
     "loading": "Caricamento...",
     "save": "Salva",
     "cancel": "Annulla"
+  },
+  "ada": {
+    "card_title": "Provare un coach IA?",
+    "card_body": "Ada crea e adatta il tuo programma di allenamento in base alla tua cronologia di arrampicata.",
+    "card_cta": "Scopri di più",
+    "card_dismiss": "Non ora",
+    "explainer_title": "Conosci Ada",
+    "disclosure": "Ada è un'IA, non una persona.",
+    "does_title": "Cosa fa",
+    "does_programme": "Ti scrive un programma di allenamento basato sulla tua cronologia di arrampicata.",
+    "does_adjusts": "Lo adatta quando la vita si mette in mezzo — una sessione saltata, una settimana impegnativa.",
+    "does_reviews": "Legge come sono andate le tue sessioni registrate e modifica il piano.",
+    "not_title": "Cosa non fa",
+    "not_physio": "Non è una fisioterapista e non diagnostica infortuni.",
+    "not_weight": "Non dà consigli sul peso.",
+    "trial_title": "Provala gratis",
+    "trial_body": "{days} giorni gratis, senza carta.",
+    "price_body": "Poi {price} / {period}.",
+    "period_month": "mese",
+    "period_year": "anno",
+    "decline": "Non ora",
+    "hire": "Avvia prova gratuita",
+    "hire_pending": "Avvio in corso…",
+    "hire_error": "Si è verificato un errore nell'avvio della prova. Riprova.",
+    "trial_used_error": "La tua prova gratuita con Ada è già terminata. Abbonati per continuare ad allenarti con lei.",
+    "loading": "Caricamento…"
   }
 }

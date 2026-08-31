@@ -27,4 +27,5 @@ export const invalidate = {
   rankings: () => ['ranking-top10'],
   sprayWalls: () => ['spray-walls'],
   sprayWallProblems: () => ['spray-wall-problems'],
+  virtualCoach: () => ['virtual-coach'],
 }

@@ -498,5 +498,31 @@
     "loading": "Kraunama...",
     "save": "Išsaugoti",
     "cancel": "Atšaukti"
+  },
+  "ada": {
+    "card_title": "Išbandyti DI trenerį?",
+    "card_body": "Ada sudaro ir koreguoja tavo treniruočių programą pagal tavo lipimo istoriją.",
+    "card_cta": "Sužinoti daugiau",
+    "card_dismiss": "Ne dabar",
+    "explainer_title": "Susipažink su Ada",
+    "disclosure": "Ada yra dirbtinis intelektas, o ne žmogus.",
+    "does_title": "Ką ji daro",
+    "does_programme": "Parašo tau treniruočių programą pagal tavo lipimo istoriją.",
+    "does_adjusts": "Koreguoja ją, kai gyvenimas sutrukdo — praleista treniruotė, užimta savaitė.",
+    "does_reviews": "Peržiūri, kaip sekėsi tavo užregistruotos treniruotės, ir keičia planą.",
+    "not_title": "Ko ji nedaro",
+    "not_physio": "Ji nėra fizioterapeutė ir nediagnozuoja traumų.",
+    "not_weight": "Ji nepataria dėl svorio.",
+    "trial_title": "Išbandyk nemokamai",
+    "trial_body": "{days} d. nemokamai, kortelė nereikalinga.",
+    "price_body": "Po to {price} / {period}.",
+    "period_month": "mėn.",
+    "period_year": "metai",
+    "decline": "Ne dabar",
+    "hire": "Pradėti nemokamą bandomąjį laikotarpį",
+    "hire_pending": "Pradedama…",
+    "hire_error": "Nepavyko pradėti bandomojo laikotarpio. Bandyk dar kartą.",
+    "trial_used_error": "Tavo nemokamas bandomasis laikotarpis su Ada jau baigėsi. Užsiprenumeruok, kad galėtum tęsti treniruotes su ja.",
+    "loading": "Kraunama…"
   }
 }

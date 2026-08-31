@@ -781,5 +781,31 @@
     "filter_inactive": "Päättyneet",
     "filter_all": "Kaikki",
     "none_match_filter": "Ei ohjelmia täällä. Kokeile toista välilehteä."
+  },
+  "ada": {
+    "card_title": "Kokeiletko tekoälyvalmentajaa?",
+    "card_body": "Ada laatii ja säätää harjoitusohjelman kiipeilyhistoriasi perusteella.",
+    "card_cta": "Lue lisää",
+    "card_dismiss": "Ei nyt",
+    "explainer_title": "Tutustu Adaan",
+    "disclosure": "Ada on tekoäly, ei ihminen.",
+    "does_title": "Mitä hän tekee",
+    "does_programme": "Laatii sinulle harjoitusohjelman kiipeilyhistoriasi perusteella.",
+    "does_adjusts": "Säätää ohjelmaa, kun elämä tulee väliin — väliin jäänyt treeni, kiireinen viikko.",
+    "does_reviews": "Lukee, miten kirjatut treenisi sujuivat, ja muuttaa suunnitelmaa sen mukaan.",
+    "not_title": "Mitä hän ei tee",
+    "not_physio": "Hän ei ole fysioterapeutti eikä diagnosoi vammoja.",
+    "not_weight": "Hän ei anna neuvoja painosta.",
+    "trial_title": "Kokeile ilmaiseksi",
+    "trial_body": "{days} päivää ilmaiseksi, ei vaadi korttia.",
+    "price_body": "Sen jälkeen {price} / {period}.",
+    "period_month": "kuukausi",
+    "period_year": "vuosi",
+    "decline": "Ei kiitos",
+    "hire": "Aloita ilmainen kokeilu",
+    "hire_pending": "Aloitetaan…",
+    "hire_error": "Kokeilun aloittaminen epäonnistui. Yritä uudelleen.",
+    "trial_used_error": "Ilmainen kokeilujaksosi Adan kanssa on jo käytetty. Tilaa jatkaaksesi harjoittelua hänen kanssaan.",
+    "loading": "Ladataan…"
   }
 }

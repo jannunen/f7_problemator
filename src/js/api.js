@@ -95,6 +95,19 @@ const api = {
     const ret = await axios.post(endpoint + `/training/messages/${id}/read`)
     return ret.data
   },
+  // Ada, the virtual coach: whether this climber has her, whether to offer
+  // her, and what hiring costs. One payload for all of it — see
+  // queries.virtualCoach in queryKeys.js for why it is not gym-scoped.
+  async getVirtualCoach() {
+    const ret = await axios.get(endpoint + '/coaching/virtual')
+    return ret.data
+  },
+  // Same response shape as getVirtualCoach, refreshed after the hire takes
+  // effect — including thread_id, which is null until now.
+  async hireVirtualCoach() {
+    const ret = await axios.post(endpoint + '/coaching/virtual/hire')
+    return ret.data
+  },
   async socialExchange(accessToken) {
     const ret = await axios.post(endpoint + '/auth/social/exchange', {
       access_token: accessToken

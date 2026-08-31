@@ -498,5 +498,31 @@
     "loading": "Cargando...",
     "save": "Guardar",
     "cancel": "Cancelar"
+  },
+  "ada": {
+    "card_title": "¿Probar un entrenador con IA?",
+    "card_body": "Ada crea y ajusta tu programa de entrenamiento a partir de tu historial de escalada.",
+    "card_cta": "Más información",
+    "card_dismiss": "Ahora no",
+    "explainer_title": "Conoce a Ada",
+    "disclosure": "Ada es una IA, no una persona.",
+    "does_title": "Qué hace",
+    "does_programme": "Te escribe un programa de entrenamiento a partir de tu historial de escalada.",
+    "does_adjusts": "Lo ajusta cuando la vida se interpone — una sesión perdida, una semana ocupada.",
+    "does_reviews": "Lee cómo fueron tus sesiones registradas y cambia el plan.",
+    "not_title": "Qué no hace",
+    "not_physio": "No es fisioterapeuta y no diagnostica lesiones.",
+    "not_weight": "No aconseja sobre el peso.",
+    "trial_title": "Pruébala gratis",
+    "trial_body": "{days} días gratis, sin necesidad de tarjeta.",
+    "price_body": "Después, {price} / {period}.",
+    "period_month": "mes",
+    "period_year": "año",
+    "decline": "Ahora no",
+    "hire": "Empezar prueba gratuita",
+    "hire_pending": "Empezando…",
+    "hire_error": "Algo salió mal al iniciar tu prueba. Inténtalo de nuevo.",
+    "trial_used_error": "Tu prueba gratuita con Ada ya terminó. Suscríbete para seguir entrenando con ella.",
+    "loading": "Cargando…"
   }
 }
