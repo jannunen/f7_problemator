@@ -523,6 +523,13 @@
     "hire_pending": "Starter…",
     "hire_error": "Noe gikk galt ved start av prøveperioden. Prøv igjen.",
     "trial_used_error": "Den gratis prøveperioden din med Ada er allerede over. Abonner for å fortsette å trene med henne.",
-    "loading": "Laster…"
+    "loading": "Laster…",
+    "subscribe_button": "Abonner — {price} / {period}",
+    "subscribe_pending": "Åpner betaling…",
+    "checkout_error": "Kunne ikke åpne betaling. Prøv igjen.",
+    "manage_subscription": "Administrer abonnement",
+    "manage_pending": "Åpner…",
+    "manage_error": "Kunne ikke åpne faktureringsportalen. Prøv igjen.",
+    "manage_unavailable": "Ingenting å administrere ennå."
   }
 }

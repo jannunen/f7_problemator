@@ -523,6 +523,13 @@
     "hire_pending": "Alustamine…",
     "hire_error": "Prooviperioodi alustamine ebaõnnestus. Proovi uuesti.",
     "trial_used_error": "Sinu tasuta prooviperiood Adaga on juba läbi. Telli, et jätkata temaga treenimist.",
-    "loading": "Laadimine…"
+    "loading": "Laadimine…",
+    "subscribe_button": "Telli — {price} / {period}",
+    "subscribe_pending": "Makse avamine…",
+    "checkout_error": "Makse avamine ebaõnnestus. Proovi uuesti.",
+    "manage_subscription": "Halda tellimust",
+    "manage_pending": "Avamine…",
+    "manage_error": "Arvelduse halduse avamine ebaõnnestus. Proovi uuesti.",
+    "manage_unavailable": "Hallata pole veel midagi."
   }
 }

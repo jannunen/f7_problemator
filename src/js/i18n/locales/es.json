@@ -523,6 +523,13 @@
     "hire_pending": "Empezando…",
     "hire_error": "Algo salió mal al iniciar tu prueba. Inténtalo de nuevo.",
     "trial_used_error": "Tu prueba gratuita con Ada ya terminó. Suscríbete para seguir entrenando con ella.",
-    "loading": "Cargando…"
+    "loading": "Cargando…",
+    "subscribe_button": "Suscribirse — {price} / {period}",
+    "subscribe_pending": "Abriendo el pago…",
+    "checkout_error": "No se pudo abrir el pago. Inténtalo de nuevo.",
+    "manage_subscription": "Gestionar suscripción",
+    "manage_pending": "Abriendo…",
+    "manage_error": "No se pudo abrir el portal de facturación. Inténtalo de nuevo.",
+    "manage_unavailable": "Todavía no hay nada que gestionar."
   }
 }

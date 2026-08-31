@@ -523,6 +523,13 @@
     "hire_pending": "Démarrage…",
     "hire_error": "Une erreur est survenue au démarrage de l'essai. Réessaie.",
     "trial_used_error": "Ton essai gratuit avec Ada est déjà terminé. Abonne-toi pour continuer à t'entraîner avec elle.",
-    "loading": "Chargement…"
+    "loading": "Chargement…",
+    "subscribe_button": "S'abonner — {price} / {period}",
+    "subscribe_pending": "Ouverture du paiement…",
+    "checkout_error": "Impossible d'ouvrir le paiement. Réessaie.",
+    "manage_subscription": "Gérer l'abonnement",
+    "manage_pending": "Ouverture…",
+    "manage_error": "Impossible d'ouvrir le portail de facturation. Réessaie.",
+    "manage_unavailable": "Rien à gérer pour l'instant."
   }
 }

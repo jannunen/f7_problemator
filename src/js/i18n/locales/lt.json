@@ -523,6 +523,13 @@
     "hire_pending": "Pradedama…",
     "hire_error": "Nepavyko pradėti bandomojo laikotarpio. Bandyk dar kartą.",
     "trial_used_error": "Tavo nemokamas bandomasis laikotarpis su Ada jau baigėsi. Užsiprenumeruok, kad galėtum tęsti treniruotes su ja.",
-    "loading": "Kraunama…"
+    "loading": "Kraunama…",
+    "subscribe_button": "Prenumeruoti — {price} / {period}",
+    "subscribe_pending": "Atveriamas mokėjimas…",
+    "checkout_error": "Nepavyko atverti mokėjimo. Bandyk dar kartą.",
+    "manage_subscription": "Tvarkyti prenumeratą",
+    "manage_pending": "Atveriama…",
+    "manage_error": "Nepavyko atverti atsiskaitymų portalo. Bandyk dar kartą.",
+    "manage_unavailable": "Kol kas nėra ko tvarkyti."
   }
 }

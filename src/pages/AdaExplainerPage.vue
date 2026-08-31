@@ -13,6 +13,21 @@
         <span>{{ t('ada.disclosure') }}</span>
       </div>
 
+      <!-- A climber who has actually paid at some point (active, past_due,
+           or cancelled but not simply on the trial) can manage that
+           subscription from here regardless of whether they are currently
+           hired — this is about the Stripe subscription, not the coaching
+           relationship. Shown only when there is something to manage:
+           VirtualCoachController::portal() 422s for anyone who never went
+           through Checkout, and canManageSubscription mirrors that gate so
+           the entry point simply is not offered rather than failing. -->
+      <div v-if="canManage" class="ada__manage">
+        <f7-button outline small :disabled="managing" @click="manageSubscription">
+          {{ managing ? t('ada.manage_pending') : t('ada.manage_subscription') }}
+        </f7-button>
+        <p v-if="manageError" class="ada__error">{{ manageError }}</p>
+      </div>
+
       <section class="ada__section">
         <h3 class="ada__heading">{{ t('ada.does_title') }}</h3>
         <ul class="ada__list">
@@ -38,7 +53,19 @@
 
       <p v-if="hireError" class="ada__error">{{ hireError }}</p>
 
-      <div class="ada__actions">
+      <!-- The trial-is-over case, split out from the plain hireError text
+           above: it is not a failure, it is a climber who liked Ada enough
+           to come back with nothing to buy the return with. Replaces the
+           dead end with the one action that actually continues. -->
+      <div v-if="needsSubscription" class="ada__subscribe">
+        <p>{{ t('ada.trial_used_error') }}</p>
+        <f7-button large fill :disabled="subscribing" @click="subscribe">
+          {{ subscribing ? t('ada.subscribe_pending') : t('ada.subscribe_button', { price: priceLabel, period: periodLabel }) }}
+        </f7-button>
+        <p v-if="subscribeError" class="ada__error">{{ subscribeError }}</p>
+      </div>
+
+      <div v-else class="ada__actions">
         <f7-button large fill :disabled="hiring" @click="hire">
           {{ hiring ? t('ada.hire_pending') : t('ada.hire') }}
         </f7-button>
@@ -61,6 +88,8 @@ import { queries, invalidate } from '@js/queryKeys.js'
 import api from '@js/api'
 import { formatMoney } from '@js/helpers/money.js'
 import { dismissAdaOffer } from '@js/helpers/adaOffer.js'
+import { isTrialExhausted, canManageSubscription } from '@js/helpers/adaSubscription.js'
+import { openExternal } from '@js/helpers/externalWindow.js'
 
 const { t, locale } = useI18n()
 const queryClient = useQueryClient()
@@ -87,6 +116,10 @@ const periodLabel = computed(() => {
 
 const hiring = ref(false)
 const hireError = ref(null)
+// Set only for the one hire() failure that has an actual next step — see
+// isTrialExhausted. Distinct from hireError so the template can show the
+// subscribe CTA instead of, not alongside, a plain failure message.
+const needsSubscription = ref(false)
 
 const decline = () => {
   dismissAdaOffer()
@@ -97,6 +130,7 @@ const hire = async () => {
   if (hiring.value) return
   hiring.value = true
   hireError.value = null
+  needsSubscription.value = false
 
   try {
     const result = await api.hireVirtualCoach()
@@ -106,11 +140,61 @@ const hire = async () => {
     // to the list costs nothing if that ever changes.
     f7.views.main.router.navigate(result?.thread_id ? `/messages/${result.thread_id}` : '/messages')
   } catch (e) {
-    hireError.value = e?.response?.data?.needs_subscription
-      ? t('ada.trial_used_error')
-      : t('ada.hire_error')
+    if (isTrialExhausted(e?.response?.data)) {
+      needsSubscription.value = true
+    } else {
+      hireError.value = t('ada.hire_error')
+    }
   } finally {
     hiring.value = false
+  }
+}
+
+const subscribing = ref(false)
+const subscribeError = ref(null)
+
+// Opens Stripe Checkout in a new tab — see externalWindow.js for why a new
+// tab rather than navigating the app's own view. Nothing here ever sees a
+// card number; the URL is the whole of what this app does with payment.
+const subscribe = async () => {
+  if (subscribing.value) return
+  subscribing.value = true
+  subscribeError.value = null
+
+  try {
+    const { url } = await api.checkoutVirtualCoach()
+    openExternal(url)
+  } catch {
+    // A silent failure on a payment button reads as the app being broken,
+    // not as "nothing happened" — say so.
+    subscribeError.value = t('ada.checkout_error')
+  } finally {
+    subscribing.value = false
+  }
+}
+
+// Independent of hire/needsSubscription above: this is about whether there
+// is a Stripe subscription to manage at all, which can be true whether or
+// not this climber currently has Ada (they could have fired her while still
+// mid-subscription) — see canManageSubscription's own comment.
+const canManage = computed(() => canManageSubscription(data.value?.status))
+const managing = ref(false)
+const manageError = ref(null)
+
+const manageSubscription = async () => {
+  if (managing.value) return
+  managing.value = true
+  manageError.value = null
+
+  try {
+    const { url } = await api.virtualCoachPortal()
+    openExternal(url)
+  } catch (e) {
+    manageError.value = e?.response?.status === 422
+      ? t('ada.manage_unavailable')
+      : t('ada.manage_error')
+  } finally {
+    managing.value = false
   }
 }
 </script>
@@ -136,6 +220,23 @@ const hire = async () => {
 .ada__disclosure-icon {
   color: var(--p-accent);
   flex: none;
+}
+
+.ada__manage {
+  margin: 0 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+
+.ada__subscribe {
+  margin: 0 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: center;
 }
 
 .ada__section {

@@ -51,7 +51,10 @@ import { registerBackButton, setupChrome, registerDeepLinks } from '@js/native.j
 import { pendingWebSession } from '@helpers/socialAuth.js'
 import { useBrowserHistory, browserHistoryRoot } from '@js/platform.js'
 import { readStoredToken } from '@js/authToken.js'
+import { wasReturnedFromStripeCheckout } from '@js/helpers/stripeReturn.js'
+import { invalidate } from '@js/queryKeys.js'
 import { useI18n } from 'vue-i18n'
+import { useQueryClient } from '@tanstack/vue-query'
 import { watch, computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import $ from 'dom7'
@@ -65,6 +68,7 @@ export default {
   setup() {
     const { t } = useI18n()
     const store = useStore()
+    const queryClient = useQueryClient()
     const allTime = computed(() => store.state.alltime)
     const profile = computed(() => store.state.profile)
     // Read from where the page is actually served rather than configured, so
@@ -149,6 +153,23 @@ export default {
     pendingWebSession().then((token) => {
       if (token) store.dispatch('completeSocialLogin', token)
     })
+
+    // The other trip through an external page: back from Stripe Checkout
+    // after subscribing to Ada. The subscription just changed — trial
+    // exhausted becomes paying, or a first subscription starts — so the
+    // cached virtualCoach state is wrong the instant this loads. Without
+    // this a climber who just paid would still be shown "trial used up"
+    // until something else happened to invalidate it, which is the worst
+    // possible moment to have that backwards.
+    if (wasReturnedFromStripeCheckout(window.location.search, window.location.hash)) {
+      queryClient.invalidateQueries({ queryKey: invalidate.virtualCoach() })
+      // Drop the flag so refreshing this page does not read as another
+      // return trip.
+      const url = new URL(window.location.href)
+      url.searchParams.delete('subscribed')
+      window.history.replaceState(null, '', url.pathname + url.search + url.hash)
+    }
+
     // Save tip showing status in localStorage.
     const tipShowStatus = JSON.parse(localStorage.getItem('tipShowStatus'))
     const access_token = computed(() => store.state.access_token)

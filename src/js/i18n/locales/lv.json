@@ -523,6 +523,13 @@
     "hire_pending": "Sākas…",
     "hire_error": "Neizdevās sākt izmēģinājuma periodu. Mēģini vēlreiz.",
     "trial_used_error": "Tavs bezmaksas izmēģinājuma periods ar Adu jau ir beidzies. Abonē, lai turpinātu treniņus ar viņu.",
-    "loading": "Ielādē…"
+    "loading": "Ielādē…",
+    "subscribe_button": "Abonēt — {price} / {period}",
+    "subscribe_pending": "Tiek atvērts norēķins…",
+    "checkout_error": "Neizdevās atvērt norēķinu. Mēģini vēlreiz.",
+    "manage_subscription": "Pārvaldīt abonementu",
+    "manage_pending": "Tiek atvērts…",
+    "manage_error": "Neizdevās atvērt rēķinu portālu. Mēģini vēlreiz.",
+    "manage_unavailable": "Pagaidām nav ko pārvaldīt."
   }
 }

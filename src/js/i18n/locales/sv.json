@@ -523,6 +523,13 @@
     "hire_pending": "Startar…",
     "hire_error": "Något gick fel när provperioden skulle starta. Försök igen.",
     "trial_used_error": "Din gratis provperiod med Ada är redan slut. Prenumerera för att fortsätta träna med henne.",
-    "loading": "Laddar…"
+    "loading": "Laddar…",
+    "subscribe_button": "Prenumerera — {price} / {period}",
+    "subscribe_pending": "Öppnar kassan…",
+    "checkout_error": "Det gick inte att öppna kassan. Försök igen.",
+    "manage_subscription": "Hantera prenumeration",
+    "manage_pending": "Öppnar…",
+    "manage_error": "Det gick inte att öppna faktureringsportalen. Försök igen.",
+    "manage_unavailable": "Inget att hantera än."
   }
 }
