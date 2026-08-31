@@ -68,6 +68,13 @@ export const queries = {
     // for a list that had not moved.
     staleTime: A_DAY,
 
+    // If you give another query a staleTime like this one's, check what its
+    // callers pass. A caller using initialData hands TanStack a value cached
+    // AS the answer — so an empty placeholder counts as a fresh, correct
+    // result and the query never runs. That is exactly what happened here:
+    // the gym picker sat on "Loading gyms..." forever. Callers of this one
+    // use placeholderData, which is only what to show while finding out.
+    //
     // gcTime must not be shorter than staleTime, or the point is lost: an
     // unused query is evicted after the default five minutes, and the next
     // mount refetches however fresh the data was considered. Keeping the
