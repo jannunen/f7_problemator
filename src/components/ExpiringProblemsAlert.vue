@@ -28,7 +28,6 @@
 </template>
 <script setup>
 import { useStore } from 'vuex'
-import { useI18n } from 'vue-i18n'
 import {  computed, ref } from 'vue'
 import { date_format, right } from '@js/helpers'
 import RoundBadge from '@components/ui/RoundBadge.vue'

@@ -16,12 +16,11 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
-import { ref } from 'vue'
-import dayjs from 'dayjs'
-const store = useStore()
 const { t } = useI18n()
-const props = defineProps({
+// The template reads `comp` directly (defineProps exposes props to the
+// template by name on their own), so nothing here reads the return value —
+// but the call itself must stay, or Vue never learns the prop exists.
+defineProps({
     comp : Object,
 })
 const getCompText = (comp) => {

@@ -58,7 +58,7 @@ import $ from 'dom7'
 import { f7, f7ready } from 'framework7-vue'
 
 export default {
-  components: { BottomTabBar, LeftSidepanel },
+  components: { BottomTabBar, LeftSidepanel, ErrorBoundary },
   props: {
     f7router: Object,
   },
