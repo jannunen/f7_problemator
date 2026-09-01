@@ -62,5 +62,16 @@ export function buildNumber(v) {
   return major * 10000 + minor * 100 + patch
 }
 
-/** The version this build was compiled from. */
-export const APP_VERSION = import.meta.env?.PACKAGE_VERSION ?? '0.0.0'
+/**
+ * The version this build was compiled from.
+ *
+ * No `?.` before `PACKAGE_VERSION`: vite-plugin-package-version injects it by
+ * textually replacing the exact expression `import.meta.env.PACKAGE_VERSION`
+ * at build time. `import.meta.env?.PACKAGE_VERSION` is a different
+ * expression — it survives untouched and instead reads a property off
+ * Vite's own bare `import.meta.env` replacement, which only carries MODE,
+ * DEV, PROD, BASE_URL and SSR. The optional chaining silently produced
+ * '0.0.0' in every production build; nothing had consumed APP_VERSION yet
+ * to notice.
+ */
+export const APP_VERSION = import.meta.env.PACKAGE_VERSION ?? '0.0.0'

@@ -9,7 +9,7 @@
         <div class="flex flex-col items-center py-6 px-4">
           <img width="60" :src="logo" class="sidepanel-logo" />
           <h1 class="font-bold text-lg mt-2">Problemator</h1>
-          <small class="p-text-muted">{{ version }}</small>
+          <small class="p-text-muted">{{ buildStamp }}</small>
           <span class="text-xs font-semibold uppercase mt-1 p-text-dim sidepanel-tagline">{{ t('sidepanel.every_problem_counts') }}</span>
         </div>
 
@@ -115,6 +115,7 @@
 import { useI18n } from 'vue-i18n'
 import { performUpdate } from '@js/helpers/update.js'
 import { isUpdateAvailable } from '@js/version.js'
+import { BUILD_STAMP } from '@js/buildInfo.js'
 import { useStore } from 'vuex'
 import { f7 } from 'framework7-vue'
 import { ref, watch, computed } from 'vue'
@@ -130,6 +131,10 @@ const showChangeLogDialog = ref(false)
 
 const gym = computed(() => store.state.gym)
 const version = computed(() => store.state.version)
+// Display only — never compared against the server, which only knows plain
+// semver (see isUpdateAvailable below). Constant per build, so no need to
+// make it reactive.
+const buildStamp = BUILD_STAMP
 // Was `serverVersion != version`, a string inequality. The backend advertised
 // 0.8.10 while the app was 1.3.2, so it was permanently true and every user
 // saw this banner on every launch. Now it asks whether the server is offering

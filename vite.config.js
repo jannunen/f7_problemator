@@ -7,10 +7,26 @@ import loadVersion from 'vite-plugin-package-version';
 import EnvironmentPlugin from 'vite-plugin-environment'
 
 const fs = require('node:fs');
+const { execSync } = require('node:child_process');
 
 const SRC_DIR = path.resolve(__dirname, './src')
 const PUBLIC_DIR = path.resolve(__dirname, './public')
 const BUILD_DIR = path.resolve(__dirname, './www')
+
+/**
+ * `git rev-parse --short HEAD`, baked in at build time as a build stamp (see
+ * src/js/buildInfo.js) — package.json's version is bumped by hand and every
+ * build in between looked identical, so nothing told a deploy apart from the
+ * one before it. A build with no `.git` around — a tarball, an image with no
+ * git installed — has nothing to report: null here, never a build failure.
+ */
+function gitShortSha() {
+  try {
+    return execSync('git rev-parse --short=7 HEAD').toString().trim() || null
+  } catch {
+    return null
+  }
+}
 
 export default defineConfig(({ command, mode }) => {
   process.env = {...process.env, ...loadEnv(mode, process.cwd())}
@@ -18,6 +34,9 @@ export default defineConfig(({ command, mode }) => {
     plugins: [ EnvironmentPlugin('all', {prefix : 'VITE_'}),loadVersion(), basicSsl(), vue(), framework7({ emitCss: false })],
     root: SRC_DIR,
     base: '',
+    define: {
+      'import.meta.env.BUILD_SHA': JSON.stringify(gitShortSha()),
+    },
     publicDir: PUBLIC_DIR,
     build: {
       outDir: BUILD_DIR,
