@@ -57,6 +57,7 @@
     "logout": "Kirjaudu ulos",
     "every_problem_counts": "Jokainen reitti lasketaan",
     "new_version": "Uusi versio saatavilla {version}.",
+    "update_ready": "Uusi versio on valmiina.",
     "update_now": "Päivitä nyt",
     "user_id": "Käyttäjä-ID",
     "gym_id": "Halli-ID"

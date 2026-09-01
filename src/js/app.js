@@ -16,6 +16,7 @@ import Framework7Vue, { registerComponents } from 'framework7-vue/bundle'
 import store from "./store.js";
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import { queryClient } from '@js/queryClient'
+import { registerServiceWorker } from '@js/helpers/registerServiceWorker.js'
 
 
 
@@ -77,3 +78,11 @@ installErrorReporting(app, (msg) => {
 });
 
 app.mount('#app');
+
+// Register the workbox-generated worker so a deploy has something to hand
+// off to — see helpers/registerServiceWorker.js for why this call was the
+// missing piece, and helpers/update.js for the handover itself. Deferred to
+// `load` so it never competes with the resources the first paint needs.
+window.addEventListener('load', () => {
+  registerServiceWorker()
+});

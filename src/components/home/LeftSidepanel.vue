@@ -9,7 +9,7 @@
         <div class="flex flex-col items-center py-6 px-4">
           <img width="60" :src="logo" class="sidepanel-logo" />
           <h1 class="font-bold text-lg mt-2">Problemator</h1>
-          <small class="p-text-muted">{{ version }}</small>
+          <small class="p-text-muted">{{ buildStamp }}</small>
           <span class="text-xs font-semibold uppercase mt-1 p-text-dim sidepanel-tagline">{{ t('sidepanel.every_problem_counts') }}</span>
         </div>
 
@@ -94,7 +94,7 @@
           <div class="p-banner p-banner--info">
             <span class="material-icons p-banner__icon">system_update</span>
             <div class="p-banner__content">
-              {{ t('sidepanel.new_version', { version: serverVersion }) }}
+              {{ versionAdvertisesUpdate ? t('sidepanel.new_version', { version: serverVersion }) : t('sidepanel.update_ready') }}
               <button @click="updateVersion" class="p-btn p-btn--primary p-btn--sm mt-2">{{ t('sidepanel.update_now') }}</button>
             </div>
           </div>
@@ -114,7 +114,9 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { performUpdate } from '@js/helpers/update.js'
-import { isUpdateAvailable } from '@js/version.js'
+import { waitingWorkerAvailable } from '@js/helpers/registerServiceWorker.js'
+import { isUpdateAvailable, shouldShowUpdateBanner } from '@js/version.js'
+import { BUILD_STAMP } from '@js/buildInfo.js'
 import { useStore } from 'vuex'
 import { f7 } from 'framework7-vue'
 import { ref, watch, computed } from 'vue'
@@ -130,11 +132,25 @@ const showChangeLogDialog = ref(false)
 
 const gym = computed(() => store.state.gym)
 const version = computed(() => store.state.version)
+// Display only — never compared against the server, which only knows plain
+// semver (see isUpdateAvailable below). Constant per build, so no need to
+// make it reactive.
+const buildStamp = BUILD_STAMP
 // Was `serverVersion != version`, a string inequality. The backend advertised
 // 0.8.10 while the app was 1.3.2, so it was permanently true and every user
 // saw this banner on every launch. Now it asks whether the server is offering
 // something strictly newer, and stays silent when it cannot tell.
-const updateAvailable = computed(() => isUpdateAvailable(version.value, serverVersion.value))
+//
+// Kept separate from updateAvailable below (see shouldShowUpdateBanner in
+// version.js) purely so the banner text can tell "the server told us"
+// (which has a version number worth printing) from "a worker is waiting"
+// (which does not).
+const versionAdvertisesUpdate = computed(() => isUpdateAvailable(version.value, serverVersion.value))
+const updateAvailable = computed(() => shouldShowUpdateBanner({
+  localVersion: version.value,
+  serverVersion: serverVersion.value,
+  waitingWorkerAvailable: waitingWorkerAvailable.value,
+}))
 const climber = computed(() => store.state.climber)
 const isAuthenticated = computed(() => store.state.isAuthenticated)
 const serverVersion = computed(() => store.state.server_version)

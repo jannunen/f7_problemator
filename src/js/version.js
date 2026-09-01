@@ -50,6 +50,31 @@ export function isUpdateAvailable(localVersion, serverVersion) {
 }
 
 /**
+ * Should the update banner show, given both signals the app has?
+ *
+ * Either is sufficient on its own:
+ *  - the server advertising a strictly newer version (isUpdateAvailable
+ *    above), or
+ *  - a service worker already sitting in `waiting` on this device (see
+ *    watchForWaitingWorker in helpers/registerServiceWorker.js).
+ *
+ * They used to be the same question, and on the web they no longer are:
+ * nothing keeps package.json here and config/mobile.php on the backend in
+ * lockstep, so a forgotten bump can make isUpdateAvailable permanently false
+ * even while a new worker is genuinely waiting on the device. The waiting
+ * worker is the more truthful signal — it means new bytes already landed,
+ * whatever a version string says — so it must be able to show the banner on
+ * its own, not merely add to a comparison that can veto it.
+ *
+ * The version comparison still matters on native: there is no service
+ * worker there at all (the app store handles updates on its own), so it is
+ * the only signal that platform has.
+ */
+export function shouldShowUpdateBanner({ localVersion, serverVersion, waitingWorkerAvailable }) {
+  return isUpdateAvailable(localVersion, serverVersion) || !!waitingWorkerAvailable
+}
+
+/**
  * Store build number, derived so there is still only one number to bump.
  * 1.4.0 -> 10400, 1.4.12 -> 10412, 2.0.0 -> 20000. Monotonic as long as minor
  * and patch stay below 100.
@@ -62,5 +87,16 @@ export function buildNumber(v) {
   return major * 10000 + minor * 100 + patch
 }
 
-/** The version this build was compiled from. */
-export const APP_VERSION = import.meta.env?.PACKAGE_VERSION ?? '0.0.0'
+/**
+ * The version this build was compiled from.
+ *
+ * No `?.` before `PACKAGE_VERSION`: vite-plugin-package-version injects it by
+ * textually replacing the exact expression `import.meta.env.PACKAGE_VERSION`
+ * at build time. `import.meta.env?.PACKAGE_VERSION` is a different
+ * expression — it survives untouched and instead reads a property off
+ * Vite's own bare `import.meta.env` replacement, which only carries MODE,
+ * DEV, PROD, BASE_URL and SSR. The optional chaining silently produced
+ * '0.0.0' in every production build; nothing had consumed APP_VERSION yet
+ * to notice.
+ */
+export const APP_VERSION = import.meta.env.PACKAGE_VERSION ?? '0.0.0'
