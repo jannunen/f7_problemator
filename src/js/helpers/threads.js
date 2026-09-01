@@ -1,5 +1,6 @@
 /**
- * Pure reads over a coaching message thread.
+ * Pure reads over a coaching message thread, plus normalising what sending
+ * into one hands back.
  *
  * Relations and counts arrive absent rather than null from this API — a
  * thread with nothing unread has no `unread_count` key at all, and a thread
@@ -76,5 +77,29 @@ export function isCoach(climberId, thread) {
   if (coachId == null || climberId == null) return false
 
   return Number(climberId) === Number(coachId)
+}
+
+/**
+ * Normalises what POST /training/messages/{id} hands back.
+ *
+ * It used to return the created message row directly. Now that Ada, the AI
+ * coach, can answer inline, it returns an envelope instead:
+ * `{ message, coach_reply, coach_failed }`. `coach_reply` is Ada's answer,
+ * produced synchronously in the same request so the climber sees it without
+ * polling — it is absent when the thread is with a human coach, or when her
+ * reply failed. `coach_failed` is true when the thread is with Ada but she
+ * could not answer; the climber's own message is still saved either way.
+ *
+ * Defensive on both ends: a response with no `message` key is treated as an
+ * old-style bare row, so a client talking to an unmigrated backend does not
+ * crash the page; a missing `coach_reply` or `coach_failed` reads as "no
+ * reply, nothing failed" rather than throwing.
+ */
+export function normalizeSendResult(sent) {
+  return {
+    message: sent?.message ?? sent ?? null,
+    coachReply: sent?.coach_reply ?? null,
+    coachFailed: sent?.coach_failed ?? false,
+  }
 }
 
