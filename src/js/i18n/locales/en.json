@@ -65,6 +65,7 @@
     "logout": "Logout",
     "every_problem_counts": "Every problem counts",
     "new_version": "New version available {version}.",
+    "update_ready": "A new version is ready.",
     "update_now": "Update now",
     "user_id": "User ID",
     "gym_id": "Gym ID"

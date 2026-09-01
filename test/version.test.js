@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseVersion, compareVersions, isUpdateAvailable, buildNumber } from '../src/js/version.js'
+import { parseVersion, compareVersions, isUpdateAvailable, buildNumber, shouldShowUpdateBanner } from '../src/js/version.js'
 
 describe('parseVersion', () => {
   it('parses the usual shapes', () => {
@@ -71,5 +71,30 @@ describe('buildNumber', () => {
     expect(buildNumber('1.100.0')).toBeNull()
     expect(buildNumber('1.0.100')).toBeNull()
     expect(buildNumber('nope')).toBeNull()
+  })
+})
+
+describe('shouldShowUpdateBanner', () => {
+  it('shows when the server advertises something newer, worker or not', () => {
+    expect(shouldShowUpdateBanner({ localVersion: '1.4.0', serverVersion: '1.5.0', waitingWorkerAvailable: false })).toBe(true)
+    expect(shouldShowUpdateBanner({ localVersion: '1.4.0', serverVersion: '1.5.0', waitingWorkerAvailable: true })).toBe(true)
+  })
+
+  // The exact scenario this exists for: package.json and config/mobile.php
+  // agree (both 1.5.0), so the version comparison alone would stay silent
+  // forever — even though a new worker is genuinely waiting on the device.
+  it('shows on a waiting worker alone, even when the version strings match', () => {
+    expect(shouldShowUpdateBanner({ localVersion: '1.5.0', serverVersion: '1.5.0', waitingWorkerAvailable: true })).toBe(true)
+  })
+
+  it('stays quiet when neither signal fires', () => {
+    expect(shouldShowUpdateBanner({ localVersion: '1.5.0', serverVersion: '1.5.0', waitingWorkerAvailable: false })).toBe(false)
+    expect(shouldShowUpdateBanner({ localVersion: '1.5.0', serverVersion: '1.4.0', waitingWorkerAvailable: false })).toBe(false)
+  })
+
+  it('is not fooled by an older server version once a worker is waiting', () => {
+    // Belt and braces: even a server report that looks like a downgrade
+    // must not suppress a waiting worker, which is the ground truth.
+    expect(shouldShowUpdateBanner({ localVersion: '1.5.0', serverVersion: '1.0.0', waitingWorkerAvailable: true })).toBe(true)
   })
 })
