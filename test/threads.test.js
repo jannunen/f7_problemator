@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest'
-import { unreadTotal, threadTitle, coachesToStartWith, isCoach } from '../src/js/helpers/threads.js'
+import {
+  unreadTotal,
+  threadTitle,
+  coachesToStartWith,
+  isCoach,
+  normalizeSendResult,
+} from '../src/js/helpers/threads.js'
 
 describe('unreadTotal', () => {
   it('adds up what is waiting across threads', () => {
@@ -133,6 +139,55 @@ describe('isCoach', () => {
     expect(isCoach(9, null)).toBe(false)
     expect(isCoach(null, thread)).toBe(false)
     expect(isCoach(undefined, { coach_climber_id: undefined })).toBe(false)
+  })
+})
+
+describe('normalizeSendResult', () => {
+  it('splits the envelope into the sent message and Ada\'s reply', () => {
+    const envelope = {
+      message: { id: 123, body: 'hi', sender_climber_id: 42 },
+      coach_reply: { id: 124, body: 'hello back', sender_climber_id: 990001 },
+      coach_failed: false,
+    }
+    expect(normalizeSendResult(envelope)).toEqual({
+      message: { id: 123, body: 'hi', sender_climber_id: 42 },
+      coachReply: { id: 124, body: 'hello back', sender_climber_id: 990001 },
+      coachFailed: false,
+    })
+  })
+
+  // The common case for a human-coached thread: Ada never runs, so there is
+  // no reply to show and nothing failed.
+  it('reads a null coach_reply as no reply', () => {
+    const envelope = { message: { id: 1, body: 'hi' }, coach_reply: null, coach_failed: false }
+    expect(normalizeSendResult(envelope)).toEqual({
+      message: { id: 1, body: 'hi' },
+      coachReply: null,
+      coachFailed: false,
+    })
+  })
+
+  it('surfaces coach_failed so the caller can tell the climber Ada could not answer', () => {
+    const envelope = { message: { id: 1, body: 'hi' }, coach_reply: null, coach_failed: true }
+    expect(normalizeSendResult(envelope).coachFailed).toBe(true)
+  })
+
+  // An older backend, or any other caller of the same endpoint, may still
+  // hand back the bare row this endpoint used to return. Without this the
+  // page would push an object with no body/sender_climber_id and render a
+  // broken bubble.
+  it('treats a response with no message key as an old-style bare row', () => {
+    const bareRow = { id: 1, body: 'hi', sender_climber_id: 42 }
+    expect(normalizeSendResult(bareRow)).toEqual({
+      message: { id: 1, body: 'hi', sender_climber_id: 42 },
+      coachReply: null,
+      coachFailed: false,
+    })
+  })
+
+  it('survives a missing response rather than throwing', () => {
+    expect(normalizeSendResult(null)).toEqual({ message: null, coachReply: null, coachFailed: false })
+    expect(normalizeSendResult(undefined)).toEqual({ message: null, coachReply: null, coachFailed: false })
   })
 })
 

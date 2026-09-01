@@ -91,6 +91,11 @@
         <p v-if="!messages.length" class="msgs__note">{{ t('messages.no_messages') }}</p>
       </div>
 
+      <!-- The climber's message still went through — only Ada's reply
+           failed — so this sits beside the composer rather than replacing
+           it. Quiet on purpose: they can just try sending again. -->
+      <p v-if="coachFailed" class="msgs__coach-failed">{{ t('messages.coach_failed') }}</p>
+
       <!-- can_write comes straight from the server, which is the only side
            that knows whether the coaching relationship is still live. -->
       <div v-if="canWrite" class="composer">
@@ -116,7 +121,7 @@ import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import api from '@js/api.js'
 import { showAgo } from '@helpers'
-import { threadTitle, coachesToStartWith, isCoach } from '@helpers/threads.js'
+import { threadTitle, coachesToStartWith, isCoach, normalizeSendResult } from '@helpers/threads.js'
 
 const props = defineProps({ f7route: { type: Object, default: () => ({}) } })
 
@@ -132,6 +137,10 @@ const messages = ref([])
 const canWrite = ref(false)
 const draft = ref('')
 const sending = ref(false)
+// Set when the last send reached a thread with Ada (the AI coach) but she
+// could not answer. The climber's message still went through — this is a
+// quiet UI note, not a message row, and clears itself on the next send.
+const coachFailed = ref(false)
 
 const myClimberId = computed(() => store.state.climber?.id)
 
@@ -226,6 +235,7 @@ const closeThread = () => {
   openThread.value = null
   messages.value = []
   draft.value = ''
+  coachFailed.value = false
 }
 
 const send = async () => {
@@ -233,9 +243,17 @@ const send = async () => {
   if (!body || sending.value) return
 
   sending.value = true
+  coachFailed.value = false
   try {
     const sent = await api.sendMessage(openThread.value.id, body)
-    messages.value.push(sent)
+    const { message, coachReply, coachFailed: failed } = normalizeSendResult(sent)
+
+    // Both pushed before the one scroll below, so Ada's reply lands on
+    // screen with the climber's own message rather than below the fold.
+    if (message) messages.value.push(message)
+    if (coachReply) messages.value.push(coachReply)
+    coachFailed.value = failed
+
     draft.value = ''
     await scrollToNewest()
   } finally {
@@ -313,6 +331,14 @@ onMounted(async () => {
   margin-top: 0.2rem;
   font-size: 0.7rem;
   color: var(--p-text-dark);
+}
+
+/* Quiet, like .msgs__note — this is "try again", not an alert. */
+.msgs__coach-failed {
+  margin: 0;
+  padding: 0.4rem 1rem 0;
+  font-size: 0.78rem;
+  color: var(--p-warning);
 }
 
 .composer {
