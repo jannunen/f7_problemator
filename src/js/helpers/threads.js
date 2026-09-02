@@ -103,3 +103,71 @@ export function normalizeSendResult(sent) {
   }
 }
 
+/**
+ * A fresh id for an optimistic message, distinguishable at a glance from any
+ * id the server assigns (those are numbers). The prefix is what a reconcile
+ * or removal keys off of, so it never needs a separate "is this pending"
+ * flag threaded through the message object.
+ */
+export function optimisticId() {
+  return `optimistic-${Date.now()}-${Math.random().toString(36).slice(2)}`
+}
+
+/**
+ * The climber's own message, shown the instant they hit send rather than
+ * after the round trip.
+ *
+ * Why this matters: when the thread is with Ada, her reply is produced
+ * synchronously inside the same POST /training/messages/{id} request — it
+ * can take several seconds, longer if she calls a tool. Awaiting that
+ * response before showing the climber's own text leaves the screen looking
+ * frozen for as long as she takes to answer. There is nothing to wait for
+ * here; it is their own words.
+ */
+export function buildOptimisticMessage(body, senderClimberId, id = optimisticId()) {
+  return {
+    id,
+    body,
+    sender_climber_id: senderClimberId,
+    created_at: new Date().toISOString(),
+    pending: true,
+  }
+}
+
+/**
+ * Settles a pending bubble once the request resolves: swapped in place for
+ * the server's confirmed row on success, or dropped on failure.
+ *
+ * Replacing in place (rather than removing-then-pushing) matters so the
+ * message does not visibly jump to the bottom of the list, and so it lands
+ * before Ada's reply when the caller pushes that next. Falls back to
+ * appending when the optimistic id is not found, so a reconcile can never
+ * silently drop the climber's message; pass a nullish `serverMessage` to
+ * remove the pending bubble instead, for the request-failed path.
+ */
+export function reconcileOptimisticMessage(messages, pendingId, serverMessage) {
+  const list = messages ?? []
+  const index = list.findIndex((m) => m?.id === pendingId)
+
+  if (!serverMessage) return list.filter((m) => m?.id !== pendingId)
+  if (index === -1) return [...list, serverMessage]
+  return [...list.slice(0, index), serverMessage, ...list.slice(index + 1)]
+}
+
+/**
+ * Whether a thread is the one with Ada, the virtual coach — the only thread
+ * where a "composing" indicator means anything, since a human coach's
+ * thread has nobody typing on the other end to indicate.
+ *
+ * adaThreadId comes from GET /coaching/virtual's `thread_id`, which is null
+ * until Ada is hired — see queries.virtualCoach in queryKeys.js. Guarded on
+ * both sides for the same reason isCoach is: an absent id on either side
+ * must not accidentally match an absent id on the other.
+ */
+export function isAdaThread(thread, adaThreadId) {
+  const threadId = thread?.id
+  if (threadId == null || adaThreadId == null) return false
+
+  return Number(threadId) === Number(adaThreadId)
+}
+

@@ -793,7 +793,9 @@
     "start_with": "Message {name}",
     "no_coach": "Messaging is between you and your coach. You do not have one yet.",
     "coach_tag": "Coach",
-    "coach_failed": "Your message was sent, but the coach could not reply. Try sending again."
+    "coach_failed": "Your message was sent, but the coach could not reply. Try sending again.",
+    "send_failed": "Your message did not send. Try again.",
+    "ada_composing": "Ada is typing…"
   },
   "errors": {
     "screen_failed_title": "This screen didn't load",

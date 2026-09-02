@@ -79,7 +79,7 @@
           v-for="m in messages"
           :key="m.id"
           class="msg"
-          :class="{ 'msg--mine': m.sender_climber_id === myClimberId }"
+          :class="{ 'msg--mine': m.sender_climber_id === myClimberId, 'msg--pending': m.pending }"
         >
           <span
             v-if="isCoach(m.sender_climber_id, openThread) && m.sender_climber_id !== myClimberId"
@@ -89,7 +89,17 @@
           <span class="msg__when">{{ showAgo(m.created_at) }}</span>
         </div>
         <p v-if="!messages.length" class="msgs__note">{{ t('messages.no_messages') }}</p>
+
+        <!-- Only shown for the thread with Ada — see isAdaThread. A human
+             coach's thread gets nothing here, because nobody is actually
+             typing on the other end. -->
+        <p v-if="showComposing" class="msgs__note msgs__composing">{{ t('messages.ada_composing') }}</p>
       </div>
+
+      <!-- The request itself failed, so nothing reached the server — the
+           optimistic bubble was already pulled back out and the draft
+           restored below, rather than left looking sent when it was not. -->
+      <p v-if="sendFailed" class="msgs__coach-failed">{{ t('messages.send_failed') }}</p>
 
       <!-- The climber's message still went through — only Ada's reply
            failed — so this sits beside the composer rather than replacing
@@ -119,9 +129,20 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
+import { useQuery } from '@tanstack/vue-query'
 import api from '@js/api.js'
+import { queries } from '@js/queryKeys.js'
 import { showAgo } from '@helpers'
-import { threadTitle, coachesToStartWith, isCoach, normalizeSendResult } from '@helpers/threads.js'
+import {
+  threadTitle,
+  coachesToStartWith,
+  isCoach,
+  normalizeSendResult,
+  buildOptimisticMessage,
+  reconcileOptimisticMessage,
+  isAdaThread,
+  optimisticId,
+} from '@helpers/threads.js'
 
 const props = defineProps({ f7route: { type: Object, default: () => ({}) } })
 
@@ -141,8 +162,23 @@ const sending = ref(false)
 // could not answer. The climber's message still went through — this is a
 // quiet UI note, not a message row, and clears itself on the next send.
 const coachFailed = ref(false)
+// Set when the send request itself failed — nothing reached the server.
+// Distinct from coachFailed: that one means "your message is safe, only the
+// reply is missing"; this one means "your message did not go, try again",
+// which is also why the draft gets restored rather than left empty.
+const sendFailed = ref(false)
 
 const myClimberId = computed(() => store.state.climber?.id)
+
+// Same query key the home card and Ada's explainer page use, so this page
+// opens with thread_id already in cache in the common case rather than a
+// second round trip just to know whether the open thread is hers.
+const { data: virtualCoach } = useQuery(queries.virtualCoach())
+const adaThreadId = computed(() => virtualCoach.value?.thread_id ?? null)
+
+// Only meaningful while a request to Ada's own thread is in flight — a
+// human coach's thread never shows this, see isAdaThread.
+const showComposing = computed(() => sending.value && isAdaThread(openThread.value, adaThreadId.value))
 
 const coaches = ref([])
 const starting = ref(false)
@@ -236,6 +272,7 @@ const closeThread = () => {
   messages.value = []
   draft.value = ''
   coachFailed.value = false
+  sendFailed.value = false
 }
 
 const send = async () => {
@@ -244,18 +281,36 @@ const send = async () => {
 
   sending.value = true
   coachFailed.value = false
+  sendFailed.value = false
+
+  // Shown the instant they hit send, not after the round trip — see
+  // buildOptimisticMessage for why that gap matters on Ada's thread. The
+  // draft clears right away too, same as a normal send felt before this.
+  const pendingId = optimisticId()
+  messages.value.push(buildOptimisticMessage(body, myClimberId.value, pendingId))
+  draft.value = ''
+  await scrollToNewest()
+
   try {
     const sent = await api.sendMessage(openThread.value.id, body)
     const { message, coachReply, coachFailed: failed } = normalizeSendResult(sent)
 
-    // Both pushed before the one scroll below, so Ada's reply lands on
-    // screen with the climber's own message rather than below the fold.
-    if (message) messages.value.push(message)
+    // Swapped in place for the confirmed row, then Ada's reply (if any)
+    // pushed after it, so it lands on screen with the climber's own message
+    // rather than below the fold.
+    messages.value = reconcileOptimisticMessage(messages.value, pendingId, message)
     if (coachReply) messages.value.push(coachReply)
     coachFailed.value = failed
 
-    draft.value = ''
     await scrollToNewest()
+  } catch {
+    // Nothing reached the server. Pulling the bubble back out rather than
+    // leaving it looking sent, and handing the text back to the composer
+    // rather than silently discarding what they typed — losing a message a
+    // climber already wrote is worse than making them press send again.
+    messages.value = reconcileOptimisticMessage(messages.value, pendingId, null)
+    draft.value = body
+    sendFailed.value = true
   } finally {
     sending.value = false
   }
@@ -331,6 +386,20 @@ onMounted(async () => {
   margin-top: 0.2rem;
   font-size: 0.7rem;
   color: var(--p-text-dark);
+}
+
+/* Sent, not yet confirmed by the server — same bubble, quieter, so it
+   reads as "on its way" rather than as a different kind of message. */
+.msg--pending {
+  opacity: 0.6;
+}
+
+/* Same quiet treatment as .msgs__note, just left-aligned like an
+   incoming message rather than centered like an empty state. */
+.msgs__composing {
+  margin: 0;
+  text-align: left;
+  font-style: italic;
 }
 
 /* Quiet, like .msgs__note — this is "try again", not an alert. */
