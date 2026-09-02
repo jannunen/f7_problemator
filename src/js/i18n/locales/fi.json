@@ -770,7 +770,9 @@
     "start_with": "Viesti valmentajalle {name}",
     "no_coach": "Viestit kulkevat sinun ja valmentajasi välillä. Sinulla ei ole vielä valmentajaa.",
     "coach_tag": "Valmentaja",
-    "coach_failed": "Viestisi lähetettiin, mutta valmentaja ei pystynyt vastaamaan. Yritä lähettää uudelleen."
+    "coach_failed": "Viestisi lähetettiin, mutta valmentaja ei pystynyt vastaamaan. Yritä lähettää uudelleen.",
+    "send_failed": "Viestiäsi ei lähetetty. Yritä uudelleen.",
+    "ada_composing": "Ada kirjoittaa…"
   },
   "errors": {
     "screen_failed_title": "Näkymä ei latautunut",

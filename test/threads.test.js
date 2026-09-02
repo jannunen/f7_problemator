@@ -5,6 +5,9 @@ import {
   coachesToStartWith,
   isCoach,
   normalizeSendResult,
+  buildOptimisticMessage,
+  reconcileOptimisticMessage,
+  isAdaThread,
 } from '../src/js/helpers/threads.js'
 
 describe('unreadTotal', () => {
@@ -188,6 +191,89 @@ describe('normalizeSendResult', () => {
   it('survives a missing response rather than throwing', () => {
     expect(normalizeSendResult(null)).toEqual({ message: null, coachReply: null, coachFailed: false })
     expect(normalizeSendResult(undefined)).toEqual({ message: null, coachReply: null, coachFailed: false })
+  })
+})
+
+describe('buildOptimisticMessage', () => {
+  it('shapes a bubble that looks like any other message', () => {
+    const msg = buildOptimisticMessage('hi coach', 42, 'optimistic-1')
+    expect(msg.id).toBe('optimistic-1')
+    expect(msg.body).toBe('hi coach')
+    expect(msg.sender_climber_id).toBe(42)
+    expect(msg.pending).toBe(true)
+    expect(typeof msg.created_at).toBe('string')
+  })
+
+  // A component that never passes its own id still gets one, and two calls
+  // in a row do not collide — sending twice quickly must not reconcile the
+  // wrong bubble.
+  it('mints its own id when none is given', () => {
+    const a = buildOptimisticMessage('one', 1)
+    const b = buildOptimisticMessage('two', 1)
+    expect(a.id).toBeTruthy()
+    expect(a.id).not.toBe(b.id)
+  })
+})
+
+describe('reconcileOptimisticMessage', () => {
+  const pending = { id: 'optimistic-1', body: 'hi', sender_climber_id: 1, pending: true }
+  const confirmed = { id: 501, body: 'hi', sender_climber_id: 1, created_at: '2026-01-01T00:00:00Z' }
+
+  it('swaps the pending bubble for the confirmed row, in place', () => {
+    const before = [{ id: 1, body: 'earlier' }, pending]
+    const after = reconcileOptimisticMessage(before, 'optimistic-1', confirmed)
+    expect(after).toEqual([{ id: 1, body: 'earlier' }, confirmed])
+  })
+
+  // The request failed — nothing to swap in, so the pending bubble is just
+  // dropped rather than left looking sent.
+  it('removes the pending bubble when there is no server message', () => {
+    const before = [{ id: 1, body: 'earlier' }, pending]
+    expect(reconcileOptimisticMessage(before, 'optimistic-1', null)).toEqual([{ id: 1, body: 'earlier' }])
+  })
+
+  // Should not happen in practice, but a reconcile must never silently drop
+  // the climber's message just because its bubble was not found.
+  it('appends rather than dropping the message when the pending id is gone', () => {
+    const before = [{ id: 1, body: 'earlier' }]
+    expect(reconcileOptimisticMessage(before, 'optimistic-1', confirmed)).toEqual([
+      { id: 1, body: 'earlier' },
+      confirmed,
+    ])
+  })
+
+  it('survives an empty or missing message list', () => {
+    expect(reconcileOptimisticMessage([], 'optimistic-1', confirmed)).toEqual([confirmed])
+    expect(reconcileOptimisticMessage(null, 'optimistic-1', confirmed)).toEqual([confirmed])
+    expect(reconcileOptimisticMessage(null, 'optimistic-1', null)).toEqual([])
+  })
+})
+
+describe('isAdaThread', () => {
+  it('recognises the thread that matches the virtual coach thread_id', () => {
+    expect(isAdaThread({ id: 77 }, 77)).toBe(true)
+  })
+
+  it('does not match a different thread', () => {
+    expect(isAdaThread({ id: 77 }, 78)).toBe(false)
+  })
+
+  // The ids cross a JSON boundary and arrive as either, same as isCoach.
+  it('does not care whether the ids are strings or numbers', () => {
+    expect(isAdaThread({ id: '77' }, 77)).toBe(true)
+    expect(isAdaThread({ id: 77 }, '77')).toBe(true)
+  })
+
+  /**
+   * Both guards matter. Ada not being hired means adaThreadId is null, and
+   * an unguarded compare would otherwise need every open thread's id to
+   * also be null to fail safely — a coincidence better not to rely on.
+   */
+  it('labels no thread Ada\'s when either id is missing', () => {
+    expect(isAdaThread({ id: 77 }, null)).toBe(false)
+    expect(isAdaThread({}, 77)).toBe(false)
+    expect(isAdaThread(null, 77)).toBe(false)
+    expect(isAdaThread(null, null)).toBe(false)
   })
 })
 
