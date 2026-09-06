@@ -1,5 +1,5 @@
 <template>
-  <f7-page name="messages">
+  <f7-page name="messages" ref="pageRoot">
     <!-- Back-link pops the router when the list is showing, but inside a
          thread it should only step back to the list — the thread is not a
          separate route, so the router has nothing to pop there. -->
@@ -126,7 +126,7 @@
 </template>
 
 <script setup>
-import { computed, nextTick, onMounted, ref } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
@@ -142,6 +142,7 @@ import {
   reconcileOptimisticMessage,
   isAdaThread,
   optimisticId,
+  isNearBottom,
 } from '@helpers/threads.js'
 
 const props = defineProps({ f7route: { type: Object, default: () => ({}) } })
@@ -234,21 +235,86 @@ const load = async () => {
   }
 }
 
+// Template ref on the f7-page itself, not a bare selector. Framework7 keeps
+// previous pages in the DOM during a transition, so `document.querySelector`
+// can find another page's scroller — or, worse, the one behind this page —
+// instead of this one. Scoping to this component's own root cannot make
+// that mistake, and keeps working even when this page is not the top of the
+// stack.
+const pageRoot = ref(null)
+
+/**
+ * The element Framework7 actually scrolls for an f7-page: `.page-content`,
+ * which it renders around this page's whole default slot. `.thread` itself
+ * has no overflow rule at all — the old code set `scrollTop` on an element
+ * that never scrolls, which is why it silently never worked.
+ *
+ * Deliberately not restyled to make `.thread` the scroller instead: that was
+ * tried before on this screen and took over Framework7's own scroll
+ * handling, which broke the bottom tab bar. This scrolls the element
+ * Framework7 already owns.
+ */
+let warnedNoScroller = false
+
+const getScroller = () => {
+  // The ref first: scoped to this page, so it cannot match a stacked page
+  // Framework7 is transitioning away.
+  const viaRef = pageRoot.value?.$el?.querySelector('.page-content')
+  if (viaRef) return viaRef
+
+  // Fallback, because the ref path depends on `$el` resolving for
+  // framework7-vue's component shape and that is not something we can prove
+  // outside a browser. `.page-current` is Framework7's own marker for the
+  // page actually on screen, so this stays scoped without needing the ref.
+  const viaCurrent = document.querySelector('.page-current .page-content')
+  if (viaCurrent) return viaCurrent
+
+  // Loud, once. A null scroller makes every scroll a silent no-op — which is
+  // exactly the bug this function was written to fix, and it took an evening
+  // to find the first time precisely because nothing said anything.
+  if (!warnedNoScroller) {
+    warnedNoScroller = true
+    console.warn('MessagesPage: no .page-content scroller found; the thread will not follow new messages.')
+  }
+  return null
+}
+
+// Whether new content should pull the view down to it. Starts true — and is
+// reset to true every time a thread is opened, see open() — and goes false
+// the moment the climber scrolls away from the bottom themselves, so an
+// incoming reply cannot yank them back mid-read. Sending a message re-arms
+// it, on the theory that a climber who is actively replying wants to see
+// what they just sent even if they had scrolled up beforehand.
+const stickToBottom = ref(true)
+
+const onScroll = () => {
+  const el = getScroller()
+  if (!el) return
+  stickToBottom.value = isNearBottom(el.scrollTop, el.scrollHeight, el.clientHeight)
+}
+
 /**
  * Land on the newest message, the way every chat app does.
  *
  * Without this a thread with any history opens at its oldest message, and the
- * thing you came to read is somewhere below the fold.
+ * thing you came to read is somewhere below the fold. Waits a frame past
+ * nextTick, not just nextTick alone — Ada's replies run several paragraphs,
+ * and scrollHeight needs the browser to have actually laid that out, not
+ * merely to have received the DOM patch.
  */
 const scrollToNewest = async () => {
   await nextTick()
-  const el = document.querySelector('.thread')
+  await new Promise((resolve) => requestAnimationFrame(resolve))
+  const el = getScroller()
   if (el) el.scrollTop = el.scrollHeight
 }
 
 const open = async (thread) => {
   openThread.value = thread
   threadLoading.value = true
+  // A fresh thread always opens at its newest message, whatever the climber
+  // was doing in whatever thread they had open before.
+  stickToBottom.value = true
   try {
     const res = await api.messageThread(thread.id)
     // The paginator sends newest-first pages, because that is the one a
@@ -282,6 +348,10 @@ const send = async () => {
   sending.value = true
   coachFailed.value = false
   sendFailed.value = false
+  // A climber replying wants to see their own message land, even if they
+  // had scrolled up to reread something first — sending is their own
+  // action, not incoming content, so it always re-claims the bottom.
+  stickToBottom.value = true
 
   // Shown the instant they hit send, not after the round trip — see
   // buildOptimisticMessage for why that gap matters on Ada's thread. The
@@ -316,7 +386,30 @@ const send = async () => {
   }
 }
 
+// The three explicit scrollToNewest() calls above (opening a thread, the
+// optimistic send, the reply landing) cover what the climber directly
+// caused. Content also reshapes itself afterwards, on its own timing: the
+// "Ada is typing…" note appears and then disappears, and the failure notes
+// toggle near the composer. This follows all of it — but, per stickToBottom,
+// only while the climber has not deliberately scrolled away from the
+// bottom, so a background change never yanks them off something they came
+// back to read.
+watch(
+  [messages, showComposing, coachFailed, sendFailed],
+  () => {
+    if (!openThread.value || !stickToBottom.value) return
+    scrollToNewest()
+  },
+  { deep: true }
+)
+
 onMounted(async () => {
+  // `.page-content` exists as soon as the page mounts — Framework7 wraps the
+  // whole default slot in it regardless of which v-if branch is showing —
+  // so the listener can attach immediately rather than waiting on a thread
+  // ever being opened.
+  getScroller()?.addEventListener('scroll', onScroll, { passive: true })
+
   await load()
 
   // Arrived at a specific conversation rather than the list — open it, so
@@ -326,6 +419,10 @@ onMounted(async () => {
 
   const thread = threads.value.find((t) => Number(t.id) === wanted)
   if (thread) await open(thread)
+})
+
+onUnmounted(() => {
+  getScroller()?.removeEventListener('scroll', onScroll)
 })
 </script>
 

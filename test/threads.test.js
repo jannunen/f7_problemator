@@ -8,6 +8,7 @@ import {
   buildOptimisticMessage,
   reconcileOptimisticMessage,
   isAdaThread,
+  isNearBottom,
 } from '../src/js/helpers/threads.js'
 
 describe('unreadTotal', () => {
@@ -274,6 +275,34 @@ describe('isAdaThread', () => {
     expect(isAdaThread({}, 77)).toBe(false)
     expect(isAdaThread(null, 77)).toBe(false)
     expect(isAdaThread(null, null)).toBe(false)
+  })
+})
+
+describe('isNearBottom', () => {
+  it('is at the bottom when scrolled all the way down', () => {
+    expect(isNearBottom(400, 500, 100)).toBe(true)
+  })
+
+  it('is at the bottom within the threshold', () => {
+    expect(isNearBottom(370, 500, 100, 40)).toBe(true)
+    expect(isNearBottom(360, 500, 100, 40)).toBe(true)
+  })
+
+  // The whole point of the threshold: exact equality is brittle against
+  // sub-pixel scroll positions and iOS momentum scrolling, so a climber a
+  // few pixels short of the very bottom still counts as "there".
+  it('is not at the bottom once past the threshold', () => {
+    expect(isNearBottom(350, 500, 100, 40)).toBe(false)
+  })
+
+  it('is not at the bottom when scrolled to the top of a long thread', () => {
+    expect(isNearBottom(0, 500, 100)).toBe(false)
+  })
+
+  // A thread shorter than its own viewport has nowhere to scroll — it reads
+  // as already at the bottom rather than as scrolled away from it.
+  it('is at the bottom when there is nothing to scroll', () => {
+    expect(isNearBottom(0, 100, 100)).toBe(true)
   })
 })
 
