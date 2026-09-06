@@ -171,3 +171,25 @@ export function isAdaThread(thread, adaThreadId) {
   return Number(threadId) === Number(adaThreadId)
 }
 
+/**
+ * How close a scroller has to be to its own bottom edge to still count as
+ * "at the bottom" for auto-scroll purposes. Not zero: a scroller that just
+ * grew by a pixel of rounding, or is mid-momentum-scroll on iOS, should not
+ * read as "the climber scrolled away" and stop following new messages.
+ */
+export const NEAR_BOTTOM_PX = 48
+
+/**
+ * Whether a scroller is close enough to its bottom to auto-follow new
+ * content without yanking the reader away from something they scrolled up
+ * to read.
+ *
+ * Compares the gap below the visible area (scrollHeight minus what is
+ * already scrolled past and visible) against a threshold, rather than
+ * requiring scrollTop to exactly equal the maximum — that exact equality
+ * is brittle across browsers and against sub-pixel scroll positions.
+ */
+export function isNearBottom(scrollTop, scrollHeight, clientHeight, threshold = NEAR_BOTTOM_PX) {
+  return scrollHeight - scrollTop - clientHeight <= threshold
+}
+
