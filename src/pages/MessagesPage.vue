@@ -254,7 +254,30 @@ const pageRoot = ref(null)
  * handling, which broke the bottom tab bar. This scrolls the element
  * Framework7 already owns.
  */
-const getScroller = () => pageRoot.value?.$el?.querySelector('.page-content') ?? null
+let warnedNoScroller = false
+
+const getScroller = () => {
+  // The ref first: scoped to this page, so it cannot match a stacked page
+  // Framework7 is transitioning away.
+  const viaRef = pageRoot.value?.$el?.querySelector('.page-content')
+  if (viaRef) return viaRef
+
+  // Fallback, because the ref path depends on `$el` resolving for
+  // framework7-vue's component shape and that is not something we can prove
+  // outside a browser. `.page-current` is Framework7's own marker for the
+  // page actually on screen, so this stays scoped without needing the ref.
+  const viaCurrent = document.querySelector('.page-current .page-content')
+  if (viaCurrent) return viaCurrent
+
+  // Loud, once. A null scroller makes every scroll a silent no-op — which is
+  // exactly the bug this function was written to fix, and it took an evening
+  // to find the first time precisely because nothing said anything.
+  if (!warnedNoScroller) {
+    warnedNoScroller = true
+    console.warn('MessagesPage: no .page-content scroller found; the thread will not follow new messages.')
+  }
+  return null
+}
 
 // Whether new content should pull the view down to it. Starts true — and is
 // reset to true every time a thread is opened, see open() — and goes false
