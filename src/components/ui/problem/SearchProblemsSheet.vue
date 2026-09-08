@@ -34,6 +34,15 @@
     </f7-list>
   </div>
   <div class="px-4 pb-4 flex flex-col gap-2">
+    <!-- The other half of "what did you climb". This sheet can only find
+         problems a gym has set, which leaves a board session, a home wall or
+         a spray-wall afternoon with nowhere to go from the one button a
+         climber actually presses to log something. -->
+    <button @click="$emit('log-session')" class="p-btn p-btn--block sheet__session">
+      <span class="material-icons sheet__session-icon">grid_on</span>
+      {{ t('board.entry') }}
+    </button>
+
     <button v-if="problems.length > 0" @click="clearSearch" class="p-btn p-btn--block" style="background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.25); color: #fcd34d;">
       {{ t('global.clear_search_action') }}
     </button>
@@ -59,7 +68,7 @@ const props = defineProps({
     default: false,
   },
 })
-const emit = defineEmits(['close', 'clear'])
+const emit = defineEmits(['close', 'clear', 'log-session'])
 const { t, tc } = useI18n()
 const gymid = computed(() => store.state.gymid)
 const searchProblemText = ref('')
@@ -101,6 +110,18 @@ const onClearSearchText = () => {
 }
 </script>
 <style scoped>
+.sheet__session {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  background: transparent;
+  border: 1px dashed var(--p-border-light);
+  color: var(--p-text-secondary);
+}
+
+.sheet__session-icon { font-size: 18px; }
+
 .search-input-wrap {
   position: relative;
   display: flex;

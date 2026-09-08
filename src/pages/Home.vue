@@ -150,7 +150,11 @@
         </div>
       </div>
       <f7-sheet v-model:opened="isOpened" style="height: auto" close-on-escape close-by-outside-click swipe-to-close @sheet:closed="isOpened = false">
-        <SearchProblemsSheetVue @close="onSearchSheetClosed" @start-navigate="onStartNavigate" />
+        <SearchProblemsSheetVue
+          @close="onSearchSheetClosed"
+          @start-navigate="onStartNavigate"
+          @log-session="onLogSession"
+        />
       </f7-sheet>
     </div>
   </f7-page>
@@ -241,6 +245,12 @@ const onSearchSheetClosed = () => {
 
 const onAddTick = () => {
   isOpened.value = true
+}
+// Close first, then navigate: an open sheet outlives the page transition
+// and would sit over the screen it sent you to.
+const onLogSession = () => {
+  isOpened.value = false
+  props.f7router.navigate('/board-session')
 }
 const onStartNavigate = (problem) => {
   isOpened.value = false
