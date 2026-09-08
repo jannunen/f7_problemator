@@ -785,7 +785,10 @@
     "stop_confirm_title": "Stop this programme?",
     "stop_confirm_body": "This programme ends and leaves your training list. It cannot be undone. Everything you have already logged stays in your training log.",
     "stop_confirm_keeps": "Your coach and your subscription are not affected — you can ask for a new programme any time.",
-    "stop_error": "Couldn't stop the programme. Try again."
+    "stop_error": "Couldn't stop the programme. Try again.",
+    "reply_to_coach": "Reply to your coach",
+    "reply_to_named": "Reply to {name}",
+    "reply_opening": "Opening chat…"
   },
   "messages": {
     "title": "Messages",

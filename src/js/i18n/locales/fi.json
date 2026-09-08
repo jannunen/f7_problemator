@@ -762,7 +762,10 @@
     "stop_confirm_title": "Lopetetaanko tämä ohjelma?",
     "stop_confirm_body": "Ohjelma päättyy ja poistuu harjoituslistaltasi. Tätä ei voi perua. Kaikki jo kirjaamasi harjoitukset säilyvät harjoituspäiväkirjassasi.",
     "stop_confirm_keeps": "Valmentajaasi tai tilaustasi tämä ei koske — voit pyytää uuden ohjelman milloin tahansa.",
-    "stop_error": "Ohjelman lopettaminen ei onnistunut. Yritä uudelleen."
+    "stop_error": "Ohjelman lopettaminen ei onnistunut. Yritä uudelleen.",
+    "reply_to_coach": "Vastaa valmentajalle",
+    "reply_to_named": "Vastaa {name}lle",
+    "reply_opening": "Avataan keskustelua…"
   },
   "messages": {
     "title": "Viestit",

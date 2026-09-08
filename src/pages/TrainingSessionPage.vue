@@ -4,7 +4,12 @@
 
     <p v-if="loading" class="sess__note">{{ t('training.loading') }}</p>
 
-    <session-body v-else-if="session" :session="session" @changed="load" />
+    <session-body
+      v-else-if="session"
+      :session="session"
+      :coach="coach"
+      @changed="load"
+    />
   </f7-page>
 </template>
 
@@ -27,6 +32,11 @@ const { t } = useI18n()
 const session = ref(null)
 const loading = ref(true)
 
+// Who wrote the feedback, so the climber can answer it. The assignment
+// carries this and the page used to throw it away, which is why the only
+// thing you could do with a question from your coach was tick it read.
+const coach = ref(null)
+
 const load = async () => {
   loading.value = true
   try {
@@ -34,6 +44,9 @@ const load = async () => {
     session.value = (assignment.sessions ?? []).find(
       (s) => String(s.id) === String(props.f7route.params.sessionId)
     )
+    coach.value = assignment.coach_climber_id
+      ? { climberId: assignment.coach_climber_id, name: assignment.coach?.etunimi ?? '' }
+      : null
   } finally {
     loading.value = false
   }

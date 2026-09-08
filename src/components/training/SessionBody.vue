@@ -12,11 +12,27 @@
       <span class="coachsays__label">{{ t('training.coach_said') }}</span>
       <p class="coachsays__text">{{ session.coach_notes }}</p>
 
-      <!-- Cleared by hand. Nothing here marks itself read, so the flag on the
-           home screen means what it says. -->
-      <button class="coachsays__mark" :disabled="marking" @click="toggleRead">
-        {{ session.coach_notes_read_at ? t('training.mark_unread') : t('training.mark_read') }}
-      </button>
+      <div class="coachsays__actions">
+        <!-- Feedback that ends in a question needs an answer, not a tick.
+             Ada's reviews routinely finish with "want me to adjust the loads
+             on the upcoming sessions?" — and until this button existed the
+             only thing the climber could do with that was mark it read,
+             which answers nothing and loses the question. -->
+        <button
+          v-if="canReply"
+          class="coachsays__reply"
+          :disabled="opening"
+          @click="replyToCoach"
+        >
+          {{ opening ? t('training.reply_opening') : replyLabel }}
+        </button>
+
+        <!-- Cleared by hand. Nothing here marks itself read, so the flag on the
+             home screen means what it says. -->
+        <button class="coachsays__mark" :disabled="marking" @click="toggleRead">
+          {{ session.coach_notes_read_at ? t('training.mark_unread') : t('training.mark_read') }}
+        </button>
+      </div>
     </div>
 
     <div
@@ -176,7 +192,8 @@
  * Recording is the parent's cue to refetch: this component does not own the
  * assignment, so it reports `changed` rather than mutating what it was given.
  */
-import { onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref } from 'vue'
+import { f7 } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import api from '@js/api.js'
@@ -185,7 +202,10 @@ import { clearMarksOnOpen } from '@helpers/trainingPrefs.js'
 import TrainingTimerSheet from '@components/training/TrainingTimerSheet.vue'
 
 const props = defineProps({
-  session: { type: Object, required: true }
+  session: { type: Object, required: true },
+  // { climberId, name }, or null when the caller does not know — the day
+  // sheet renders this component without an assignment to hand.
+  coach: { type: Object, default: null }
 })
 const emit = defineEmits(['changed'])
 
@@ -223,6 +243,49 @@ const timerSummary = (item) => {
 const openTimer = (item) => {
   timed.value = item
   timerOpen.value = true
+}
+
+const canReply = computed(() => !!props.coach?.climberId)
+
+const replyLabel = computed(() =>
+  props.coach?.name
+    ? t('training.reply_to_named', { name: props.coach.name })
+    : t('training.reply_to_coach')
+)
+
+const opening = ref(false)
+
+/**
+ * Straight into the conversation, where the question can actually be
+ * answered.
+ *
+ * Marks the feedback read on the way, unlike everything else on this screen:
+ * opening the thread to reply to it is a stronger statement of having read it
+ * than pressing "mark as read" is, and leaving the flag up after that would
+ * have the home screen nagging about feedback the climber is mid-reply to.
+ * A failure to mark is deliberately swallowed — losing the flag is a much
+ * smaller problem than not getting to the chat.
+ */
+const replyToCoach = async () => {
+  if (opening.value || !canReply.value) return
+  opening.value = true
+
+  try {
+    const thread = await api.openDirectThread(props.coach.climberId)
+
+    if (!props.session.coach_notes_read_at) {
+      await api
+        .markTrainingFeedbackRead({ id: props.session.id, read: true })
+        .catch(() => {})
+    }
+
+    f7.views.main.router.navigate(thread?.id ? `/messages/${thread.id}` : '/messages')
+  } catch {
+    // The relationship ended between loading the page and tapping. Drop the
+    // button rather than explaining a failure — same call TrainingProgramPage
+    // makes for the same reason.
+    opening.value = false
+  }
 }
 
 const toggleRead = async () => {
@@ -328,6 +391,29 @@ const toggleComplete = async () => {
 }
 
 .coachsays--read .coachsays__label { color: var(--p-text-muted); }
+
+.coachsays__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* The one that answers the question leads, and is the only filled control
+   in the card — "mark as read" stays the quiet alternative it always was. */
+.coachsays__reply {
+  width: 100%;
+  padding: 0.6rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--p-accent);
+  color: #04121f;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.coachsays__reply[disabled] {
+  opacity: 0.6;
+}
 
 .coachsays__mark {
   margin-top: 0.5rem;
