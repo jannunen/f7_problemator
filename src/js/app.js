@@ -32,8 +32,19 @@ import { jwtInterceptor, setLogoutHandler, setTokenRefreshHandler } from '@js/he
 // enable interceptors for http requests
 jwtInterceptor();
 
-// Wire up the 401 handler to use the store's logout action
-setLogoutHandler(() => store.dispatch('logout'));
+// Wire up the 401 handler to use the store's logout action. Flipping
+// isAuthenticated alone only hides the tab bar and side panel (see
+// app.vue) — whatever page the climber was on stays mounted, which is how a
+// stuck "Loading…" screen survived a 401 in the first place. Sending them to
+// '/' is the same move ShowTickHelp.vue already makes after its own logout;
+// Home renders the sign-in flow there whenever isAuthenticated is false.
+setLogoutHandler(() => {
+    store.dispatch('logout')
+    const router = f7?.views?.main?.router
+    if (router && router.currentRoute?.path !== '/') {
+        router.navigate('/', { reloadAll: true })
+    }
+});
 
 // Keep Vuex state in sync when the interceptor refreshes the token
 setTokenRefreshHandler((token) => store.commit('setToken', token));
