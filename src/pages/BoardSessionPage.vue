@@ -60,9 +60,12 @@
 
     <!-- The grade. Big and scrollable, because it is the one choice made
          over and over. -->
-    <!-- One row, scrolled rather than wrapped: the full ladder is thirty-odd
-         grades, and wrapping it pushed the tries stepper and the Add button
-         off the bottom of a phone — the two controls pressed most often. -->
+    <!-- One column, scrolled rather than wrapped. The full ladder is
+         thirty-odd grades; wrapping it pushed the tries stepper and the Add
+         button — the two controls pressed most often — off the bottom of a
+         phone. Vertical rather than horizontal because a grade ladder is
+         something climbers already read as a column, easiest at the top and
+         getting harder as you go down — the order gradeList sorts in. -->
     <div ref="gradeStrip" class="bs__grades">
       <button
         v-for="g in gradeList"
@@ -212,7 +215,7 @@ const setGradeRef = (id, el) => {
 
 const scrollGradeIntoView = async (id) => {
   await nextTick()
-  gradeEls[id]?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })
+  gradeEls[id]?.scrollIntoView({ block: 'center', behavior: 'smooth' })
 }
 
 const select = (id) => {
@@ -350,24 +353,30 @@ const save = async () => {
   color: var(--p-text-dim);
 }
 
+/* Ten rows deep, then it scrolls. The height is derived from the row height
+   rather than guessed, so the two cannot drift apart and leave a row cut in
+   half at the bottom edge — which reads as a rendering bug rather than as an
+   invitation to scroll. */
 .bs__grades {
+  --bs-row: 2.1rem;
+  --bs-gap: 0.25rem;
+
   display: flex;
-  flex-wrap: nowrap;
-  gap: 0.4rem;
-  padding: 0 1rem 0.8rem;
-  overflow-x: auto;
-  scroll-snap-type: x proximity;
+  flex-direction: column;
+  gap: var(--bs-gap);
+  margin: 0 1rem 0.8rem;
+  padding-right: 0.2rem;
+  max-height: calc(10 * var(--bs-row) + 9 * var(--bs-gap));
+  overflow-y: auto;
+  scroll-snap-type: y proximity;
   -webkit-overflow-scrolling: touch;
 }
 
 .bs__grade {
-  flex: 0 0 auto;
+  flex: 0 0 var(--bs-row);
+  height: var(--bs-row);
   scroll-snap-align: center;
-  /* Sized so about ten sit in the strip on a phone. Wider than this and the
-     ladder needs constant scrolling; narrower and "6B+" stops fitting. */
-  min-width: 2.9rem;
-  padding: 0.5rem 0.3rem;
-  border-radius: 10px;
+  border-radius: 8px;
   border: 1px solid var(--p-border-light);
   background: transparent;
   color: var(--p-text-secondary);
