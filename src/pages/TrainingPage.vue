@@ -79,6 +79,15 @@
         </template>
       </f7-list-item>
     </f7-list>
+
+    <!-- Board and off-board sessions have no programme and no coach behind
+         them, so they belong here beside the training a coach set rather
+         than buried in the problem flow: it is the screen a climber opens
+         when the question is "what have I trained". -->
+    <button class="training__log" @click="logSession">
+      <i class="material-icons training__log-icon">add_circle_outline</i>
+      {{ t('board.entry') }}
+    </button>
   </f7-page>
 </template>
 
@@ -137,6 +146,8 @@ const respond = async (inv, accept) => {
   decliningId.value = null
   await load()
 }
+
+const logSession = () => f7.views.main.router.navigate('/board-session')
 
 const open = (assignment) => {
   f7.views.main.router.navigate(`/training/${assignment.id}`)
@@ -244,6 +255,23 @@ onMounted(load)
   padding-inline: 0.9rem;
   color: var(--p-danger-tint);
 }
+
+.training__log {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  width: calc(100% - 2rem);
+  margin: 1.2rem 1rem 2rem;
+  padding: 0.75rem;
+  border: 1px dashed var(--p-border-light);
+  border-radius: 12px;
+  background: transparent;
+  color: var(--p-text-secondary);
+  font-size: 0.9rem;
+}
+
+.training__log-icon { font-size: 20px; }
 
 .invite__decline {
   display: flex;

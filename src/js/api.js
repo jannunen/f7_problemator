@@ -138,6 +138,13 @@ const api = {
     const ret = await axios.post(endpoint + `/training/assignments/${id}/cancel`)
     return ret.data
   },
+  // A board or personal session: what was climbed, how hard, how many tries.
+  // One entry per ascent — tries are per climb, so three flashes and two
+  // redpoints at the same grade is five entries. See BoardSessionController.
+  async saveBoardSession(payload) {
+    const ret = await axios.post(endpoint + '/board-session', payload)
+    return ret.data
+  },
   async socialExchange(accessToken) {
     const ret = await axios.post(endpoint + '/auth/social/exchange', {
       access_token: accessToken
