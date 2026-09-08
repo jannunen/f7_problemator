@@ -85,3 +85,18 @@ export function byGrade(ascents, gradeOrder) {
     .filter((g) => counts[g.id])
     .map((g) => ({ gradeid: g.id, name: g.name, count: counts[g.id] }))
 }
+
+/**
+ * What this session is worth, by the same rule the server uses: the sum of
+ * problemator_grade.score over what was sent.
+ *
+ * Projects score nothing. A pretick is not a send, and counting one would
+ * let a climber run their score up by falling off something hard over and
+ * over — the same reason getDayScore() excludes them server-side. Tries do
+ * not change it either; the grade is the grade.
+ */
+export function sessionScore(ascents, grades) {
+  return ascents
+    .filter((a) => a.ticktype === 'tick')
+    .reduce((total, a) => total + Number(grades?.[a.gradeid]?.score ?? 0), 0)
+}

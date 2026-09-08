@@ -17,7 +17,21 @@
         <span class="bs__total-n num">{{ totals.hardest ?? '—' }}</span>
         <span class="bs__total-l">{{ t('board.hardest') }}</span>
       </div>
+      <div class="bs__total">
+        <span class="bs__total-n num">{{ score }}</span>
+        <span class="bs__total-l">{{ t('board.score') }}</span>
+      </div>
     </div>
+
+    <!-- Today's running total and the day to beat. Shown only once it is
+         known: a best day of zero for somebody who has never ticked anything
+         is worse than saying nothing. -->
+    <p v-if="dayScore" class="bs__best">
+      {{ t('board.today_total', { n: dayScore.today.score + score }) }}
+      <template v-if="dayScore.best">
+        · {{ t('board.your_best', { n: dayScore.best.score }) }}
+      </template>
+    </p>
 
     <div v-if="histogram.length" class="bs__hist">
       <div v-for="h in histogram" :key="h.gradeid" class="bs__bar">
@@ -46,13 +60,17 @@
 
     <!-- The grade. Big and scrollable, because it is the one choice made
          over and over. -->
-    <div class="bs__grades">
+    <!-- One row, scrolled rather than wrapped: the full ladder is thirty-odd
+         grades, and wrapping it pushed the tries stepper and the Add button
+         off the bottom of a phone — the two controls pressed most often. -->
+    <div ref="gradeStrip" class="bs__grades">
       <button
         v-for="g in gradeList"
         :key="g.id"
+        :ref="(el) => setGradeRef(g.id, el)"
         class="bs__grade"
         :class="{ 'bs__grade--on': gradeid === g.id }"
-        @click="gradeid = g.id"
+        @click="select(g.id)"
       >{{ g.name }}</button>
     </div>
 
@@ -126,14 +144,21 @@
  * sent until Save, so the whole session is one request and a mistyped ascent
  * costs a tap rather than a delete.
  */
-import { computed, ref } from 'vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
 import { f7 } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import dayjs from 'dayjs'
 import api from '@js/api.js'
 import PopupTickDate from '@components/problem/TickDate.vue'
-import { BOARDS, needsAngle, buildPayload, summarise, byGrade } from '@js/helpers/boardSession.js'
+import {
+  BOARDS,
+  needsAngle,
+  buildPayload,
+  summarise,
+  byGrade,
+  sessionScore
+} from '@js/helpers/boardSession.js'
 
 const { t } = useI18n()
 const store = useStore()
@@ -167,6 +192,33 @@ const gymId = computed(() => store.state.gym?.id ?? null)
 const gymName = computed(() => store.state.gym?.name ?? '')
 
 const totals = computed(() => summarise(ascents.value, grades.value))
+const score = computed(() => sessionScore(ascents.value, grades.value))
+
+// Today's total and the best day so far. A failure here costs the line, not
+// the screen — logging must work whether or not the score loaded.
+const dayScore = ref(null)
+onMounted(async () => {
+  dayScore.value = await api.myDayScore().catch(() => null)
+})
+
+// The strip is one scrolling row, so the selected grade has to be brought
+// into view itself — picking 7C from the far end and then losing sight of it
+// is worse than a wrapped list would have been.
+const gradeStrip = ref(null)
+const gradeEls = {}
+const setGradeRef = (id, el) => {
+  if (el) gradeEls[id] = el
+}
+
+const scrollGradeIntoView = async (id) => {
+  await nextTick()
+  gradeEls[id]?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' })
+}
+
+const select = (id) => {
+  gradeid.value = id
+  scrollGradeIntoView(id)
+}
 const histogram = computed(() => byGrade(ascents.value, gradeList.value))
 const reversed = computed(() => [...ascents.value].reverse())
 
@@ -286,6 +338,12 @@ const save = async () => {
 
 .bs__date { text-align: left; }
 
+.bs__best {
+  margin: 0 1rem 0.7rem;
+  font-size: 0.78rem;
+  color: var(--p-text-muted);
+}
+
 .bs__gym {
   margin: 0 1rem 0.6rem;
   font-size: 0.75rem;
@@ -294,13 +352,20 @@ const save = async () => {
 
 .bs__grades {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.4rem;
   padding: 0 1rem 0.8rem;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
 }
 
 .bs__grade {
-  min-width: 3.1rem;
+  flex: 0 0 auto;
+  scroll-snap-align: center;
+  /* Sized so about ten sit in the strip on a phone. Wider than this and the
+     ladder needs constant scrolling; narrower and "6B+" stops fitting. */
+  min-width: 2.9rem;
   padding: 0.5rem 0.3rem;
   border-radius: 10px;
   border: 1px solid var(--p-border-light);

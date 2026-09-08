@@ -857,6 +857,9 @@
     "name_decoy": "Decoy",
     "name_other": "Kaikki muu",
     "entry": "Kirjaa lauta- tai omatoiminen treeni",
-    "entry_short": "Kirjaa treeni"
+    "entry_short": "Kirjaa treeni",
+    "score": "Pisteet",
+    "today_total": "Tänään {n} p",
+    "your_best": "paras päivä {n}"
   }
 }

@@ -880,6 +880,9 @@
     "name_decoy": "Decoy",
     "name_other": "Everything else",
     "entry": "Log a board or personal session",
-    "entry_short": "Log a session"
+    "entry_short": "Log a session",
+    "score": "Score",
+    "today_total": "Today {n} pts",
+    "your_best": "best day {n}"
   }
 }

@@ -4,7 +4,8 @@ import {
   needsAngle,
   buildPayload,
   summarise,
-  byGrade
+  byGrade,
+  sessionScore
 } from '../src/js/helpers/boardSession.js'
 
 const GRADES = {
@@ -129,5 +130,35 @@ describe('byGrade', () => {
     const h = byGrade([{ gradeid: 2, tries: 1, ticktype: 'tick' }], ORDER)
     expect(h).toHaveLength(1)
     expect(h[0].name).toBe('6B')
+  })
+})
+
+describe('sessionScore', () => {
+  it('sums grade.score over what was sent', () => {
+    const s = sessionScore(
+      [
+        { gradeid: 1, tries: 1, ticktype: 'tick' },
+        { gradeid: 2, tries: 1, ticktype: 'tick' }
+      ],
+      GRADES
+    )
+    expect(s).toBe(1250)
+  })
+
+  // Same rule the server applies: counting a project would let a climber run
+  // their score up by falling off something hard over and over.
+  it('scores a project as nothing', () => {
+    const s = sessionScore([{ gradeid: 3, tries: 20, ticktype: 'pretick' }], GRADES)
+    expect(s).toBe(0)
+  })
+
+  it('does not let tries change the score', () => {
+    const once = sessionScore([{ gradeid: 2, tries: 1, ticktype: 'tick' }], GRADES)
+    const hard = sessionScore([{ gradeid: 2, tries: 14, ticktype: 'tick' }], GRADES)
+    expect(hard).toBe(once)
+  })
+
+  it('treats an unknown grade as worth nothing rather than NaN', () => {
+    expect(sessionScore([{ gradeid: 99, tries: 1, ticktype: 'tick' }], GRADES)).toBe(0)
   })
 })
