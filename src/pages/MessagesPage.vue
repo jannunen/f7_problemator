@@ -9,6 +9,17 @@
           <i class="material-icons">arrow_back</i>
         </f7-link>
       </template>
+      <!-- The only way in to Ada's own page once a climber has hired her.
+           The home offer card is the other one, and it stops being shown the
+           moment they have a coach — which left everything on that page
+           (what she is, what she costs, how to stop) unreachable by exactly
+           the people it is for. Her thread is where they already are when
+           any of those questions come up. -->
+      <template v-if="isAda" #right>
+        <f7-link href="/coach/ada">
+          <i class="material-icons">info_outline</i>
+        </f7-link>
+      </template>
     </f7-navbar>
 
     <template v-if="!openThread">
@@ -180,6 +191,9 @@ const adaThreadId = computed(() => virtualCoach.value?.thread_id ?? null)
 // Only meaningful while a request to Ada's own thread is in flight — a
 // human coach's thread never shows this, see isAdaThread.
 const showComposing = computed(() => sending.value && isAdaThread(openThread.value, adaThreadId.value))
+
+// Same question, asked for the navbar link rather than the typing indicator.
+const isAda = computed(() => isAdaThread(openThread.value, adaThreadId.value))
 
 const coaches = ref([])
 const starting = ref(false)

@@ -41,3 +41,6 @@ Thumbs.db
 # Production build
 www/
 .env.production
+
+# graphify build artifacts (knowledge-graph tooling, not part of the app)
+/graphify-out/

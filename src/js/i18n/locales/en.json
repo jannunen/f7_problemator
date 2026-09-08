@@ -779,7 +779,13 @@
     "filter_all": "All",
     "none_match_filter": "No programs here. Try another tab.",
     "message_coach": "Message your coach",
-    "message_coach_named": "Message coach {name}"
+    "message_coach_named": "Message coach {name}",
+    "stop": "Stop this programme",
+    "stop_pending": "Stopping…",
+    "stop_confirm_title": "Stop this programme?",
+    "stop_confirm_body": "This programme ends and leaves your training list. It cannot be undone. Everything you have already logged stays in your training log.",
+    "stop_confirm_keeps": "Your coach and your subscription are not affected — you can ask for a new programme any time.",
+    "stop_error": "Couldn't stop the programme. Try again."
   },
   "messages": {
     "title": "Messages",
@@ -840,6 +846,16 @@
     "manage_subscription": "Manage subscription",
     "manage_pending": "Opening…",
     "manage_error": "Couldn't open the billing portal. Try again.",
-    "manage_unavailable": "Nothing to manage yet."
+    "manage_unavailable": "Nothing to manage yet.",
+    "ends_on": "Your subscription is cancelled. Ada is yours until {date}.",
+    "ends_soon": "Your subscription is cancelled. Ada is yours until the end of the paid period.",
+    "end_coaching": "Stop working with Ada",
+    "end_pending": "Ending…",
+    "end_confirm_title": "Stop working with Ada?",
+    "end_confirm_body": "Ada will no longer coach you, review your sessions, or reply in your chat.",
+    "end_warning_programme_stays": "Your current programme stays on your training list. You can stop it separately from the programme itself.",
+    "end_warning_subscription_stays": "Your subscription keeps running. Cancel it under Manage subscription if you want the billing to stop too.",
+    "end_error": "Couldn't end the coaching. Try again.",
+    "access_ended": "Your access to Ada has run out. Subscribe to keep training with her."
   }
 }

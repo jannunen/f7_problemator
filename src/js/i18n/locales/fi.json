@@ -756,7 +756,13 @@
     "filter_all": "Kaikki",
     "none_match_filter": "Ei ohjelmia täällä. Kokeile toista välilehteä.",
     "message_coach": "Viesti valmentajalle",
-    "message_coach_named": "Viesti valmentajalle {name}"
+    "message_coach_named": "Viesti valmentajalle {name}",
+    "stop": "Lopeta tämä ohjelma",
+    "stop_pending": "Lopetetaan…",
+    "stop_confirm_title": "Lopetetaanko tämä ohjelma?",
+    "stop_confirm_body": "Ohjelma päättyy ja poistuu harjoituslistaltasi. Tätä ei voi perua. Kaikki jo kirjaamasi harjoitukset säilyvät harjoituspäiväkirjassasi.",
+    "stop_confirm_keeps": "Valmentajaasi tai tilaustasi tämä ei koske — voit pyytää uuden ohjelman milloin tahansa.",
+    "stop_error": "Ohjelman lopettaminen ei onnistunut. Yritä uudelleen."
   },
   "messages": {
     "title": "Viestit",
@@ -817,6 +823,16 @@
     "manage_subscription": "Hallitse tilausta",
     "manage_pending": "Avataan…",
     "manage_error": "Laskutuksen hallinnan avaaminen epäonnistui. Yritä uudelleen.",
-    "manage_unavailable": "Ei vielä mitään hallittavaa."
+    "manage_unavailable": "Ei vielä mitään hallittavaa.",
+    "ends_on": "Tilauksesi on peruttu. Ada on käytössäsi {date} asti.",
+    "ends_soon": "Tilauksesi on peruttu. Ada on käytössäsi maksetun jakson loppuun asti.",
+    "end_coaching": "Lopeta valmennus Adan kanssa",
+    "end_pending": "Lopetetaan…",
+    "end_confirm_title": "Lopetetaanko valmennus Adan kanssa?",
+    "end_confirm_body": "Ada ei enää valmenna sinua, kommentoi harjoituksiasi eikä vastaa chatissa.",
+    "end_warning_programme_stays": "Nykyinen ohjelmasi jää harjoituslistallesi. Voit lopettaa sen erikseen ohjelman omalta sivulta.",
+    "end_warning_subscription_stays": "Tilauksesi jatkuu normaalisti. Peru se kohdasta Hallitse tilausta, jos haluat myös laskutuksen loppuvan.",
+    "end_error": "Valmennuksen lopettaminen ei onnistunut. Yritä uudelleen.",
+    "access_ended": "Käyttöoikeutesi Adaan on päättynyt. Tilaa jatkaaksesi harjoittelua hänen kanssaan."
   }
 }
