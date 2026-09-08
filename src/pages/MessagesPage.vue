@@ -342,17 +342,89 @@ const open = async (thread) => {
     api.markThreadRead(thread.id).then(load).catch(() => {})
 
     await scrollToNewest()
+    startPolling()
   } finally {
     threadLoading.value = false
   }
 }
 
 const closeThread = () => {
+  stopPolling()
   openThread.value = null
   messages.value = []
   draft.value = ''
   coachFailed.value = false
   sendFailed.value = false
+}
+
+/**
+ * Ada does not always answer within the request that prompted her.
+ *
+ * A programme takes minutes to write and arrives from the generation sweep;
+ * a session review arrives from a cron job entirely unconnected to anything
+ * the climber just did. This screen fetched a thread once, on open, and then
+ * never asked again — so those messages landed in the database and the
+ * climber, sitting in the chat waiting for exactly them, saw nothing. That
+ * read as Ada never having replied at all, and was reported as such.
+ *
+ * Deliberately modest: one small GET, only while a thread is actually open
+ * and the tab is visible, appending only what is genuinely new. It is not a
+ * substitute for a push channel — it is the difference between a message
+ * arriving in a few seconds and not arriving until the climber thinks to
+ * back out of the thread and open it again.
+ */
+const POLL_MS = 8000
+let poller = null
+
+const stopPolling = () => {
+  if (poller) {
+    clearInterval(poller)
+    poller = null
+  }
+}
+
+const startPolling = () => {
+  stopPolling()
+  poller = setInterval(pollOnce, POLL_MS)
+}
+
+const pollOnce = async () => {
+  // Not while the tab is in the background (the browser throttles it anyway,
+  // and there is nobody there to read the result), and not on top of a send
+  // that is still in flight — that would race the optimistic message.
+  if (!openThread.value || sending.value || document.hidden) return
+
+  try {
+    const res = await api.messageThread(openThread.value.id)
+    const fetched = (res?.data ?? []).slice().reverse()
+
+    // Ids we already have, including the optimistic one still waiting for
+    // its real row. Anything else is new.
+    const known = new Set(messages.value.map((m) => String(m.id)))
+    const fresh = fetched.filter((m) => !known.has(String(m.id)))
+
+    if (fresh.length === 0) return
+
+    messages.value = [...messages.value, ...fresh]
+
+    // Only follow it down if they were already at the bottom. Yanking the
+    // view mid-read is worse than making them scroll.
+    if (stickToBottom.value) await scrollToNewest()
+
+    // It arrived while they were looking at it, so it is read.
+    api.markThreadRead(openThread.value.id).then(load).catch(() => {})
+  } catch {
+    // A dropped poll is not worth telling anyone about; the next one is
+    // eight seconds away.
+  }
+}
+
+// A backgrounded tab stops polling entirely and catches up in one go when
+// it comes back, which is both cheaper and what a climber returning to the
+// app actually wants.
+const onVisibility = () => {
+  if (document.hidden) return
+  if (openThread.value) pollOnce()
 }
 
 const send = async () => {
@@ -435,8 +507,14 @@ onMounted(async () => {
   if (thread) await open(thread)
 })
 
+onMounted(() => {
+  document.addEventListener('visibilitychange', onVisibility)
+})
+
 onUnmounted(() => {
   getScroller()?.removeEventListener('scroll', onScroll)
+  document.removeEventListener('visibilitychange', onVisibility)
+  stopPolling()
 })
 </script>
 
