@@ -26,6 +26,33 @@ module.exports = {
   globIgnores: [],
   ignoreURLParametersMatching: [/^utm_/, /^fbclid$/],
   swDest: 'www/service-worker.js',
+  // Rescues everyone already stuck on a build from before this fix. Their
+  // old worker precached index.html and never re-checks it, so no config
+  // change reaches them on its own — but the browser fetches
+  // service-worker.js itself straight from the network on every visit,
+  // independent of anything the old worker is serving. That's the only way
+  // out: a stuck client's next load sees this new worker, and these two
+  // settings are what let it take over without anyone closing every open
+  // tab first.
+  //
+  // skipWaiting makes the new worker activate the moment it finishes
+  // installing, instead of sitting in `waiting` until every controlled tab
+  // closes (which, on a PWA people leave open, can be never). clientsClaim
+  // then hands it control of already-open tabs immediately on activation,
+  // rather than only new ones. Together: a stuck visitor's next full
+  // navigation is served by the new worker, whose precache — correctly, see
+  // above — carries no stale index.html, so the navigation goes to the
+  // network and gets current HTML naming the current bundle.
+  //
+  // The usual worry with skipWaiting — assets swapping under a page mid-
+  // session — is the right trade here: the alternative is a user stuck
+  // forever. It's also cheaper than it looks, because the deploy already
+  // never deletes old bundles from the server (no --delete in
+  // .github/workflows/ci.yml, deliberately) — a tab that was already open
+  // when this happens keeps fetching the chunks it started with until it
+  // next navigates or reloads.
+  skipWaiting: true,
+  clientsClaim: true,
   // Navigations (loading the page itself) go to the network first, so a
   // deploy takes effect on the very next visit. Only when there is no
   // network at all — opening the app offline — does this fall back to
