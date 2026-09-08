@@ -41,6 +41,20 @@ export function shouldRegisterServiceWorker({ native = isNative, hasServiceWorke
  * there too, but with nothing previously controlling the page there is
  * nothing to update *from*, and prompting on someone's first visit is noise.
  * See isMeaningfulWaitingWorker below for that check.
+ *
+ * workbox-config.js now sets skipWaiting + clientsClaim (see the comment
+ * there for why — it's what rescues anyone already stuck on a pre-fix
+ * build), which mostly empties this signal out: a worker that skips
+ * waiting barely sits in `registration.waiting` at all before it activates
+ * and clientsClaim hands it the page, at which point `controllerchange`
+ * fires and flips this back to false on its own. So this can still go
+ * true, briefly, in the race between "installed" and that handover — it is
+ * not dead code — but it is no longer the dependable signal it was. The
+ * version-number comparison in version.js (`isUpdateAvailable`) is: it
+ * doesn't depend on service worker timing at all, only on the backend
+ * advertising a newer package.json version, and that's what
+ * shouldShowUpdateBanner leans on now for the "you have an old tab open"
+ * case.
  */
 export const waitingWorkerAvailable = ref(false)
 
