@@ -25,6 +25,21 @@
         {{ coachName ? t('training.message_coach_named', { name: coachName }) : t('training.message_coach') }}
       </f7-button>
 
+      <!-- Stopping it. Below the coach button and styled down, because the
+           overwhelmingly common reason to open this page is to train, not to
+           quit — but a climber who wants out should not have to ask someone
+           for it. Hidden once there is nothing left to stop: a finished
+           programme is refused by the server anyway. -->
+      <button
+        v-if="canStop"
+        class="prog__stop"
+        :disabled="stopping"
+        @click="stopProgramme"
+      >
+        {{ stopping ? t('training.stop_pending') : t('training.stop') }}
+      </button>
+      <p v-if="stopError" class="prog__error">{{ stopError }}</p>
+
       <!-- Two questions, two shapes. The list answers "what is next"; the
            calendar answers "what does my month look like". -->
       <div class="modes">
@@ -168,6 +183,49 @@ const messageCoach = async () => {
   } finally {
     messaging.value = false
   }
+}
+
+/**
+ * Only a running programme can be stopped.
+ *
+ * The server refuses a finished one with a 422 and treats a second stop as a
+ * no-op, so this is about not offering an action that cannot do anything —
+ * not about trusting the client to enforce it.
+ */
+const canStop = computed(() => assignment.value?.status === 'active')
+const stopping = ref(false)
+const stopError = ref(null)
+
+/**
+ * Ends this programme and nothing else.
+ *
+ * Not the coaching, and not any subscription — the server keeps all three
+ * apart, so the dialog says so. A climber who stops a plan usually wants a
+ * different one from the same coach, which is exactly what they would lose
+ * if this quietly did more.
+ */
+const stopProgramme = () => {
+  if (stopping.value || !canStop.value) return
+
+  f7.dialog.confirm(
+    `${t('training.stop_confirm_body')}\n\n${t('training.stop_confirm_keeps')}`,
+    t('training.stop_confirm_title'),
+    async () => {
+      stopping.value = true
+      stopError.value = null
+
+      try {
+        await api.cancelTrainingAssignment(assignment.value.id)
+        // Back to the training list, which no longer contains it —
+        // myAssignments() filters cancelled programmes out server-side.
+        f7.views.main.router.back()
+      } catch {
+        stopError.value = t('training.stop_error')
+      } finally {
+        stopping.value = false
+      }
+    }
+  )
 }
 
 const done = computed(() => progress(assignment.value).done)
@@ -362,5 +420,28 @@ onMounted(() => load())
   background: transparent;
   border-color: var(--p-border-light);
   color: var(--p-text-secondary);
+}
+
+/* Quieter still than .prog__msg — plain text, not a button shape. Findable
+   for the climber looking for it, invisible to the one who is not. */
+.prog__stop {
+  display: block;
+  margin: 0 1rem 1rem;
+  padding: 0.4rem 0;
+  border: 0;
+  background: none;
+  color: var(--p-text-dim);
+  font-size: 0.85rem;
+  text-decoration: underline;
+}
+
+.prog__stop[disabled] {
+  opacity: 0.6;
+}
+
+.prog__error {
+  margin: 0 1rem 0.8rem;
+  color: var(--p-danger, #ef4444);
+  font-size: 0.85rem;
 }
 </style>

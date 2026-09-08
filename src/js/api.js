@@ -121,6 +121,23 @@ const api = {
     const ret = await axios.post(endpoint + '/coaching/virtual/portal')
     return ret.data
   },
+  // Ending a coaching relationship — Ada's or a human coach's; it is one
+  // table and one endpoint. Deliberately narrow: it ends the coaching and
+  // nothing else. The programme stays with the climber (the server has
+  // always treated it as theirs once assigned) and any Stripe subscription
+  // keeps running, so the caller has to say both of those out loud rather
+  // than letting a climber assume one button did all three.
+  async endCoachRelationship(id) {
+    const ret = await axios.delete(endpoint + `/training/relationships/${id}`)
+    return ret.data
+  },
+  // Stopping a programme, which is a different thing again: the plan ends
+  // and leaves the training list, the coach stays, the subscription stays.
+  // Idempotent server-side, so a double-tap is not an error.
+  async cancelTrainingAssignment(id) {
+    const ret = await axios.post(endpoint + `/training/assignments/${id}/cancel`)
+    return ret.data
+  },
   async socialExchange(accessToken) {
     const ret = await axios.post(endpoint + '/auth/social/exchange', {
       access_token: accessToken
