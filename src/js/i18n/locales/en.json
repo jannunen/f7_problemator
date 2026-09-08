@@ -879,6 +879,7 @@
     "name_grasshopper": "Grasshopper",
     "name_decoy": "Decoy",
     "name_other": "Everything else",
-    "entry": "Log a board or personal session"
+    "entry": "Log a board or personal session",
+    "entry_short": "Log a session"
   }
 }

@@ -856,6 +856,7 @@
     "name_grasshopper": "Grasshopper",
     "name_decoy": "Decoy",
     "name_other": "Kaikki muu",
-    "entry": "Kirjaa lauta- tai omatoiminen treeni"
+    "entry": "Kirjaa lauta- tai omatoiminen treeni",
+    "entry_short": "Kirjaa treeni"
   }
 }

@@ -35,6 +35,17 @@
             <span class="p-nav-item__label">{{ t('sidepanel.messages') }}</span>
           </button>
 
+          <!-- Here rather than on the training page, which is only reachable
+               from the home card, and that card is shown only to climbers who
+               have a coach, an invitation or an unread message. Board and
+               home-wall sessions are precisely what somebody with none of
+               those logs, so putting the entry point behind that card hides
+               it from everyone it is for. -->
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'board' }" @click="openBoardSession">
+            <span class="material-icons p-nav-item__icon">grid_on</span>
+            <span class="p-nav-item__label">{{ t('board.entry_short') }}</span>
+          </button>
+
           <!--
           <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'import_ticks' }" @click="showTickHelpDialog=true">
             <span class="material-icons p-nav-item__icon">merge</span>
@@ -196,6 +207,11 @@ const openMessages = () => {
   store.commit('setSelectedLeftPanelItem', 'messages')
   store.commit('setSidePanel', false)
   f7.views.main.router.navigate("/messages")
+}
+const openBoardSession = () => {
+  store.commit('setSelectedLeftPanelItem', 'board')
+  store.commit('setSidePanel', false)
+  f7.views.main.router.navigate("/board-session")
 }
 const updateVersion = () => {
   // On the web this reloads and picks up the new service worker. In a shipped
