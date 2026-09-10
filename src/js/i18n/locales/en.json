@@ -860,5 +860,29 @@
     "end_warning_subscription_stays": "Your subscription keeps running. Cancel it under Manage subscription if you want the billing to stop too.",
     "end_error": "Couldn't end the coaching. Try again.",
     "access_ended": "Your access to Ada has run out. Subscribe to keep training with her."
+  },
+  "board": {
+    "title": "Log a session",
+    "sends": "Sends",
+    "projects": "Projects",
+    "hardest": "Hardest",
+    "add": "Add to session",
+    "project": "Project",
+    "save": "Save {n} ascents",
+    "saving": "Saving…",
+    "save_error": "Couldn't save the session. Try again.",
+    "save_invalid": "Something in the session was rejected. Check the grades and try again.",
+    "at_gym": "At {gym}",
+    "name_kilter": "Kilter",
+    "name_tension": "Tension",
+    "name_moon": "MoonBoard",
+    "name_grasshopper": "Grasshopper",
+    "name_decoy": "Decoy",
+    "name_other": "Everything else",
+    "entry": "Log a board or personal session",
+    "entry_short": "Log a session",
+    "score": "Score",
+    "today_total": "Today {n} pts",
+    "your_best": "best day {n}"
   }
 }

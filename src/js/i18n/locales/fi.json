@@ -837,5 +837,29 @@
     "end_warning_subscription_stays": "Tilauksesi jatkuu normaalisti. Peru se kohdasta Hallitse tilausta, jos haluat myös laskutuksen loppuvan.",
     "end_error": "Valmennuksen lopettaminen ei onnistunut. Yritä uudelleen.",
     "access_ended": "Käyttöoikeutesi Adaan on päättynyt. Tilaa jatkaaksesi harjoittelua hänen kanssaan."
+  },
+  "board": {
+    "title": "Kirjaa treeni",
+    "sends": "Nousut",
+    "projects": "Projektit",
+    "hardest": "Kovin",
+    "add": "Lisää treeniin",
+    "project": "Projekti",
+    "save": "Tallenna {n} nousua",
+    "saving": "Tallennetaan…",
+    "save_error": "Treenin tallennus ei onnistunut. Yritä uudelleen.",
+    "save_invalid": "Osaa treenistä ei hyväksytty. Tarkista asteikot ja yritä uudelleen.",
+    "at_gym": "Paikassa {gym}",
+    "name_kilter": "Kilter",
+    "name_tension": "Tension",
+    "name_moon": "MoonBoard",
+    "name_grasshopper": "Grasshopper",
+    "name_decoy": "Decoy",
+    "name_other": "Kaikki muu",
+    "entry": "Kirjaa lauta- tai omatoiminen treeni",
+    "entry_short": "Kirjaa treeni",
+    "score": "Pisteet",
+    "today_total": "Tänään {n} p",
+    "your_best": "paras päivä {n}"
   }
 }
