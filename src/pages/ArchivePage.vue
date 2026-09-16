@@ -73,7 +73,10 @@
                                             <div v-else class="rounded-full font-bold  text-red-400  ">
                                                 {{ t('redpoint') }}
                                             </div>
-                                            <div class="ps-2">@{{ tick.problem.gym.name }}</div>
+                                            <!-- A board or personal send has no gym: gymid is NULL by
+                                                 design, so reading gym.name here threw and emptied the
+                                                 whole day's list. See helpers/tickPlace. -->
+                                            <div v-if="placeOf(tick)" class="ps-2">@{{ placeText(tick) }}</div>
                                         </div>
                                         <div class="text-sm">{{ t('problem.tick_in_tries', parseInt(tick.tries)) }}</div>
                                     </div>
@@ -106,7 +109,10 @@
                                             <div class="rounded-full font-bold text-yellow-400">
                                                 {{ t('archive.a_burn') }}
                                             </div>
-                                            <div class="ps-2">@{{ tick.problem.gym.name }}</div>
+                                            <!-- A board or personal send has no gym: gymid is NULL by
+                                                 design, so reading gym.name here threw and emptied the
+                                                 whole day's list. See helpers/tickPlace. -->
+                                            <div v-if="placeOf(tick)" class="ps-2">@{{ placeText(tick) }}</div>
                                         </div>
                                         <div class="text-sm">{{ t('problem.tick_in_tries', parseInt(tick.tries)) }}</div>
                                     </div>
@@ -147,6 +153,7 @@ import 'v-calendar/dist/style.css'
 import { Calendar, SetupCalendar, DatePicker } from 'v-calendar'
 import { f7 } from 'framework7-vue'
 import { toaster, alert } from '@js/helpers/notifications.js'
+import { tickPlace, tickGradeName } from '@js/helpers/tickPlace.js'
 import { right } from '@js/helpers'
 
 import { Bar } from 'vue-chartjs'
@@ -158,6 +165,22 @@ dayjs.extend(timezone)
 const guessed = ref(dayjs.tz.guess())
 dayjs.tz.setDefault(guessed.value)
 const { t } = useI18n()
+
+/**
+ * Where a tick happened — a gym for an ordinary route, the board for a board
+ * or personal send, nothing when neither is known.
+ */
+const placeOf = (tick) => tickPlace(tick?.problem)
+
+const placeText = (tick) => {
+  const place = placeOf(tick)
+  if (!place) return ''
+  if (place.type === 'gym') return place.name
+
+  const name = t('board.name_' + place.board)
+  // 0° is a real setting, so only a genuinely absent angle is omitted.
+  return place.angle == null ? name : `${name} ${place.angle}°`
+}
 const loading = ref(true)
 
 onMounted(() => {
@@ -177,7 +200,7 @@ const ascentsByGrade = computed(() => {
     }
     // Take the ticks from the current state
     return archiveDate.value.ticks.reduce((acc, item) => {
-        const grade = item.problem.grade.name
+        const grade = tickGradeName(item.problem) ?? t('problem.no_grade')
         if (acc[grade] == null) {
             acc[grade] = 1
         } else {
@@ -193,7 +216,7 @@ const projectsByGrade = computed(() => {
     }
     // Take the ticks from the current state
     return archiveDate.value.tries.reduce((acc, item) => {
-        const grade = item.problem.grade.name
+        const grade = tickGradeName(item.problem) ?? t('problem.no_grade')
         if (acc[grade] == null) {
             acc[grade] = 1
         } else {

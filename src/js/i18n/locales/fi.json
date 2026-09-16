@@ -389,7 +389,8 @@
     "confirm_like": "Haluatko varmasti tykätä tästä radasta?",
     "tick_in_tries": "ei yrityksiä | 1 yritys | {n} yritystä",
     "confirm_dislike": "Haluatko varmasti epätykätä tätä rataa? Ratamestari saa tästä ilmoituksen, mutta se on anonyymi.",
-    "grade_required": "Tällä reitillä ei ole vielä tasoa. Kerro arviosi, niin voit kuitata nousun."
+    "grade_required": "Tällä reitillä ei ole vielä tasoa. Kerro arviosi, niin voit kuitata nousun.",
+    "no_grade": "Ei astetta"
   },
   "home": {
     "hardest_climb": "Kovin nousu",
@@ -860,6 +861,7 @@
     "entry_short": "Kirjaa treeni",
     "score": "Pisteet",
     "today_total": "Tänään {n} p",
-    "your_best": "paras päivä {n}"
+    "your_best": "paras päivä {n}",
+    "logged_today": "Jo kirjattu tänään"
   }
 }

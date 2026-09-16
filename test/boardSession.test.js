@@ -5,7 +5,8 @@ import {
   buildPayload,
   summarise,
   byGrade,
-  sessionScore
+  sessionScore,
+  loggedToday
 } from '../src/js/helpers/boardSession.js'
 
 const GRADES = {
@@ -160,5 +161,47 @@ describe('sessionScore', () => {
 
   it('treats an unknown grade as worth nothing rather than NaN', () => {
     expect(sessionScore([{ gradeid: 99, tries: 1, ticktype: 'tick' }], GRADES)).toBe(0)
+  })
+})
+
+describe('loggedToday', () => {
+  const tick = (id, board, angle, grade, tries = 1) => ({
+    id, tries: String(tries),
+    problem: { board_type: board, board_angle: angle, grade: { name: grade } }
+  })
+
+  it('pulls board ascents out of the archive lists', () => {
+    const rows = loggedToday([tick(1, 'kilter', 40, '6B')], [], GRADES)
+    expect(rows).toHaveLength(1)
+    expect(rows[0]).toMatchObject({ board: 'kilter', angle: 40, gradeName: '6B', ticktype: 'tick' })
+  })
+
+  // This list answers "what have I logged here", not "what have I climbed
+  // today" — the score line above it already answers that.
+  it('leaves out ordinary gym routes', () => {
+    const gymTick = { id: 9, tries: '1', problem: { board_type: null, grade: { name: '6C' } } }
+    expect(loggedToday([gymTick], [], GRADES)).toHaveLength(0)
+  })
+
+  it('includes projects and marks them as such', () => {
+    const rows = loggedToday([], [tick(2, 'tension', 30, '7A', 14)], GRADES)
+    expect(rows[0].ticktype).toBe('pretick')
+    expect(rows[0].tries).toBe(14)
+  })
+
+  // A tick and a project can share an id across the two tables.
+  it('gives ticks and projects distinct keys', () => {
+    const rows = loggedToday([tick(1, 'kilter', 40, '6B')], [tick(1, 'kilter', 40, '7A')], GRADES)
+    expect(rows[0].id).not.toBe(rows[1].id)
+  })
+
+  it('survives empty or missing lists', () => {
+    expect(loggedToday(null, undefined, GRADES)).toEqual([])
+    expect(loggedToday([], [], GRADES)).toEqual([])
+  })
+
+  it('keeps a missing angle null rather than zero', () => {
+    const rows = loggedToday([tick(3, 'other', null, '6A')], [], GRADES)
+    expect(rows[0].angle).toBeNull()
   })
 })

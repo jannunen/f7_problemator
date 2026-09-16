@@ -116,6 +116,20 @@
       </div>
     </div>
 
+    <!-- Already saved earlier today. The composer opens empty every time, so
+         without this a reload made the morning's session look like it never
+         happened. Read-only: editing a saved tick belongs in the archive,
+         which is where the delete lives. -->
+    <div v-if="alreadyLogged.length" class="bs__logged">
+      <h4 class="bs__logged-h">{{ t('board.logged_today') }}</h4>
+      <div v-for="a in alreadyLogged" :key="a.id" class="bs__row bs__row--done">
+        <span class="bs__row-g">{{ a.gradeName ?? '—' }}</span>
+        <span class="bs__row-t">{{ t('problem.tries', a.tries) }}</span>
+        <span class="bs__row-b">{{ boardLabel(a) }}</span>
+        <span v-if="a.ticktype === 'pretick'" class="bs__row-p">{{ t('board.project') }}</span>
+      </div>
+    </div>
+
     <p v-if="error" class="bs__error">{{ error }}</p>
 
     <button
@@ -160,7 +174,8 @@ import {
   buildPayload,
   summarise,
   byGrade,
-  sessionScore
+  sessionScore,
+  loggedToday
 } from '@js/helpers/boardSession.js'
 
 const { t } = useI18n()
@@ -200,8 +215,29 @@ const score = computed(() => sessionScore(ascents.value, grades.value))
 // Today's total and the best day so far. A failure here costs the line, not
 // the screen — logging must work whether or not the score loaded.
 const dayScore = ref(null)
+
+// What was already saved today, so a reload does not hide it.
+const alreadyLogged = ref([])
+
+const boardLabel = (a) => {
+  const name = t('board.name_' + a.board)
+  // 0° is a real setting; only a genuinely absent angle is omitted.
+  return a.angle == null ? name : `${name} ${a.angle}°`
+}
+
+const loadToday = async () => {
+  const day = dayjs().format('YYYY-MM-DD')
+  const span = `${day},${day}`
+  const [ticks, tries] = await Promise.all([
+    api.getArchiveDay({ span, type: 'ticks' }).catch(() => []),
+    api.getArchiveDay({ span, type: 'tries' }).catch(() => [])
+  ])
+  alreadyLogged.value = loggedToday(ticks, tries, grades.value)
+}
+
 onMounted(async () => {
   dayScore.value = await api.myDayScore().catch(() => null)
+  await loadToday()
 })
 
 // The strip is one scrolling row, so the selected grade has to be brought
@@ -434,6 +470,29 @@ const save = async () => {
   color: var(--p-text-dim);
   padding: 0.2rem;
   line-height: 1;
+}
+
+.bs__logged {
+  margin-top: 1.2rem;
+  padding: 0 1rem;
+}
+
+.bs__logged-h {
+  margin: 0 0 0.3rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--p-text-muted);
+}
+
+/* Dimmer than the rows being composed: these are done, not pending. */
+.bs__row--done {
+  opacity: 0.65;
+}
+
+.bs__row-b {
+  font-size: 0.72rem;
+  color: var(--p-text-dim);
 }
 
 .bs__error {
