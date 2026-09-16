@@ -100,3 +100,34 @@ export function sessionScore(ascents, grades) {
     .filter((a) => a.ticktype === 'tick')
     .reduce((total, a) => total + Number(grades?.[a.gradeid]?.score ?? 0), 0)
 }
+
+/**
+ * Today's already-logged board and personal ascents, out of the archive's
+ * tick and project lists.
+ *
+ * The logging screen is a composer: it opens empty every time, so after a
+ * reload there was nothing on it to show that the morning's session had ever
+ * happened. This is what puts it back — read from the archive rather than a
+ * new endpoint, since the archive already returns exactly these rows.
+ *
+ * Gym routes are filtered out on board_type: this list answers "what have I
+ * logged here", not "what have I climbed today", which the score line above
+ * it already answers.
+ */
+export function loggedToday(ticks, tries, grades) {
+  const rows = [
+    ...(ticks ?? []).map((t) => ({ ...t, ticktype: 'tick' })),
+    ...(tries ?? []).map((t) => ({ ...t, ticktype: 'pretick' }))
+  ]
+
+  return rows
+    .filter((t) => t?.problem?.board_type)
+    .map((t) => ({
+      id: `${t.ticktype}-${t.id}`,
+      board: t.problem.board_type,
+      angle: t.problem.board_angle ?? null,
+      gradeName: t.problem?.grade?.name ?? grades?.[t.problem?.gradeid]?.name ?? null,
+      tries: Number(t.tries ?? 1),
+      ticktype: t.ticktype
+    }))
+}

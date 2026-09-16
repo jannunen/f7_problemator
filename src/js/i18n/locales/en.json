@@ -412,7 +412,8 @@
     "confirm_like": "Are you sure you want to like this problem?",
     "tick_in_tries": "no tries | 1 try | {n} tries",
     "confirm_dislike": "Are you sure you want to dislike this problem? The routesetter will get a notification about this, but it will be anonymous.",
-    "grade_required": "This problem has no grade yet. Say what you thought it was to log the send."
+    "grade_required": "This problem has no grade yet. Say what you thought it was to log the send.",
+    "no_grade": "Ungraded"
   },
   "home": {
     "hardest_climb": "Hardest climb",
@@ -883,6 +884,7 @@
     "entry_short": "Log a session",
     "score": "Score",
     "today_total": "Today {n} pts",
-    "your_best": "best day {n}"
+    "your_best": "best day {n}",
+    "logged_today": "Already logged today"
   }
 }
