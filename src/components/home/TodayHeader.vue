@@ -21,6 +21,9 @@ const qrReaderOpened = ref(false)
 const openQRReader = () => {
   qrReaderOpened.value = true
 }
+const openBoardSession = () => {
+  f7.views.main.router.navigate('/board-session')
+}
 const emit = defineEmits(['addtick'])
 </script>
 <template>
@@ -47,6 +50,10 @@ const emit = defineEmits(['addtick'])
         {{ t('home.view_todays_ticks', 'View today\'s ascents') }}
       </a>
     </div>
+    <button @click="openBoardSession" class="today-session-btn">
+      <span class="material-icons today-session-btn__icon">grid_on</span>
+      {{ t('board.entry_short') }}
+    </button>
     <qr-search-sheet :opened="qrReaderOpened" @close="qrReaderOpened = false" />
 
   </div>
@@ -64,6 +71,36 @@ const emit = defineEmits(['addtick'])
   flex-direction: column;
   align-items: center;
   gap: 0.5rem;
+}
+.today-session-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  width: calc(100% - 2rem);
+  margin: 0.75rem auto 0;
+  padding: 0.625rem 1rem;
+  border-radius: 999px;
+  border: 1px solid rgba(var(--p-purple-rgb), 0.3);
+  background: rgba(var(--p-purple-rgb), 0.1);
+  color: var(--p-purple);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all var(--p-duration) var(--p-ease);
+  -webkit-tap-highlight-color: transparent;
+}
+.today-session-btn:hover {
+  background: rgba(var(--p-purple-rgb), 0.18);
+}
+.today-session-btn:active {
+  transform: scale(0.98);
+}
+.today-session-btn__icon {
+  font-size: 18px;
+  line-height: 1;
 }
 .today-action-btn {
   display: flex;
