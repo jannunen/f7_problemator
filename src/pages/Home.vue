@@ -149,7 +149,11 @@
           <show-login-instructions />
         </div>
       </div>
-      <f7-sheet v-model:opened="isOpened" style="height: auto" close-on-escape close-by-outside-click swipe-to-close @sheet:closed="isOpened = false">
+      <!-- Fixed height rather than the usual auto/max-height sheets: this one's
+           content grows and shrinks as search hits come back, and letting the
+           sheet itself resize with it made the whole thing jump underfoot
+           while typing. 80% is fixed, so only the results list scrolls. -->
+      <f7-sheet v-model:opened="isOpened" style="height: 80%" close-on-escape close-by-outside-click swipe-to-close @sheet:closed="isOpened = false">
         <SearchProblemsSheetVue
           @close="onSearchSheetClosed"
           @start-navigate="onStartNavigate"
