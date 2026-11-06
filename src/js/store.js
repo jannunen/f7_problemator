@@ -376,6 +376,11 @@ export default createStore({
       const ret = await api.deleteProject(payload)
       commit('problems', {...state.problems,[ret.problem.id] : ret.problem})
       invalidateAfter('deleteProject')
+      // Unlike deleteTick right below, this never returned its result —
+      // every caller's `resp.message` read `.message` off undefined and
+      // crashed before whatever came after it (ArchivePage.vue's post-delete
+      // refetch) ever ran.
+      return ret
     },
      async getCompResults({ state, commit }, payload) {
       const ret = await api.getCompResults(payload)
