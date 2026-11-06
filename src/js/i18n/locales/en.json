@@ -864,6 +864,7 @@
   },
   "board": {
     "title": "Log a session",
+    "explainer": "Not tied to any specific boulder — just a list of problems with their grades and attempts.",
     "sends": "Sends",
     "projects": "Projects",
     "hardest": "Hardest",
