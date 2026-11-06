@@ -191,6 +191,13 @@ const onClearSearchText = () => {
 .search-input-clear {
   position: absolute;
   right: 10px;
+  /* Framework7's base CSS resets every <button> to width: 100%. With no
+     width of its own, this one stretched to fill the input (absolute
+     positioning with only `right` set sizes to shrink-to-fit UNLESS
+     something else forces a width) and the icon inside it landed wherever
+     flex centering put it — on top of the typed text instead of at the
+     right edge. */
+  width: auto;
   background: none;
   border: none;
   color: var(--p-text-muted);
