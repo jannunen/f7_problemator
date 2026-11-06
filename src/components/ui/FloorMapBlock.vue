@@ -19,6 +19,15 @@
     <div v-else-if="!hasGymMap" class="text-center px-2 py-2 mx-2">
       <div class="mt-2 text-sm p-text-muted">{{ t('home.floor_map_missing') }}</div>
     </div>
+    <!-- The map is a tab, but a bottom bar is easy to overlook; this is the
+         in-page way in. Not gated on hasGymMap: the tab is always there and
+         GymMapPage has its own empty state, so the button behaves the same
+         in every branch above. The route list button stays removed. -->
+    <div class="px-4 pb-2">
+      <a href="/gym-map" @click.prevent="openGymMap" class="p-btn p-btn--block mt-2" style="background: rgba(var(--p-accent-rgb), 0.12); color: var(--p-accent); border: 1px solid rgba(var(--p-accent-rgb), 0.2); padding: 0.75rem 1rem; font-size: 1rem;">
+        <span class="material-icons" style="font-size: 22px; vertical-align: middle; margin-right: 8px;">map</span>{{ t('home.open_problem_map') }}
+      </a>
+    </div>
   </div>
 </template>
 <script setup>
@@ -36,6 +45,11 @@ const hasGymMap = computed(() => walls.value.some(w => w.shape_data && w.shape_d
 const props = defineProps({
   f7router: Object,
 })
+
+// Same options as the map tab in app.vue: the map needs a fresh page, not a cached one.
+const openGymMap = () => {
+  f7.views.main.router.navigate('/gym-map', { ignoreCache: true, force: true })
+}
 
 const onAreaSelected = (area) => {
   // Navigate to problems with selected wall
