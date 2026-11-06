@@ -340,6 +340,16 @@ const api = {
     const ret = await axios.delete(url, payload)
     return ret.data
   },
+  // store.js's `deleteProject` action has always called this, but it never
+  // existed — every project/pretick delete (TickList.vue and ArchivePage.vue,
+  // swipeout or button) threw "api.deleteProject is not a function" and
+  // silently failed as an unhandled rejection. /pretick/{id} already exists
+  // and does the right thing (TickController@deletePretick).
+  async deleteProject(payload) {
+    const url = endpoint + "/pretick/"+payload
+    const ret = await axios.delete(url, payload)
+    return ret.data
+  },
   async reportProblem({ id, type, note }) {
     const ret = await axios.post(endpoint + `/problem/${id}/report`, { type, note })
     return ret.data
