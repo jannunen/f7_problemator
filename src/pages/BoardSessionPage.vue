@@ -2,6 +2,14 @@
   <f7-page name="board-session">
     <f7-navbar :title="t('board.title')" back-link />
 
+    <!-- What this screen actually is: not tied to the gym's catalogue of set
+         problems, just a free-form tally. Without this, "Log a session"
+         reads like it should let you pick from existing boulders. -->
+    <div class="p-banner p-banner--info bs__explainer">
+      <span class="material-icons p-banner__icon">info_outline</span>
+      <div class="p-banner__content">{{ t('board.explainer') }}</div>
+    </div>
+
     <!-- Running totals, so the session is visible while it is being built
          rather than only after saving. -->
     <div class="bs__totals">
@@ -383,6 +391,8 @@ const save = async () => {
   color: var(--p-text-muted);
 }
 
+.bs__explainer { margin: 0 1rem 0.8rem; }
+
 .bs__gym {
   margin: 0 1rem 0.6rem;
   font-size: 0.75rem;
@@ -441,7 +451,11 @@ const save = async () => {
 
 .bs__tries-l { font-size: 0.85rem; color: var(--p-text-muted); }
 
-.bs__add { margin: 0 1rem 1rem; }
+/* .p-btn--block sets width: 100%, which is 100% of the page's full content
+   width — adding a horizontal margin on top of that (rather than instead of
+   part of it) pushed the button's right edge past the viewport. calc()
+   reserves the margins' own space inside the width instead. */
+.bs__add { width: calc(100% - 2rem); margin: 0 1rem 1rem; }
 
 .bs__list { padding: 0 1rem; }
 
@@ -501,5 +515,7 @@ const save = async () => {
   font-size: 0.85rem;
 }
 
-.bs__save { margin: 1rem; }
+/* Same width/margin fix as .bs__add — this button has the identical bug,
+   just hidden until an ascent exists (v-if="ascents.length"). */
+.bs__save { width: calc(100% - 2rem); margin: 1rem; }
 </style>

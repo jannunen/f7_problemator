@@ -841,6 +841,7 @@
   },
   "board": {
     "title": "Kirjaa treeni",
+    "explainer": "Ei liity olemassa oleviin ongelmiin – tämä on vain lista nousuja asteikkoineen ja yrityksineen.",
     "sends": "Nousut",
     "projects": "Projektit",
     "hardest": "Kovin",
