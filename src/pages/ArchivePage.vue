@@ -83,11 +83,18 @@
                                 </div>
                             </template>
                             <template #after>
-                                <div class="flex flex-col">
-                                    <div class="text-sm">{{ dayjs.utc(tick.tstamp).fromNow() }}</div>
-                                    <div class="text-sm">
-                                        {{ dayjs.utc(tick.tstamp).local().format('DD.MM.YYYY HH:mm') }}
+                                <div class="flex flex-row items-center gap-1">
+                                    <div class="flex flex-col items-end">
+                                        <div class="text-sm">{{ dayjs.utc(tick.tstamp).fromNow() }}</div>
+                                        <div class="text-sm">
+                                            {{ dayjs.utc(tick.tstamp).local().format('DD.MM.YYYY HH:mm') }}
+                                        </div>
                                     </div>
+                                    <!-- Swiping the row also deletes (below), but nothing on the row
+                                         hints that, so this is the one a climber can actually find. -->
+                                    <button class="archive-delete-btn" @click.stop="confirmDeleteTick(tick)">
+                                        <i class="material-icons" style="font-size: 20px;">delete_outline</i>
+                                    </button>
                                 </div>
                             </template>
                             <f7-swipeout-actions right>
@@ -119,11 +126,16 @@
                                 </div>
                             </template>
                             <template #after>
-                                <div class="flex flex-col">
-                                    <div class="text-sm">{{ dayjs.utc(tick.tstamp).fromNow() }}</div>
-                                    <div class="text-sm">
-                                        {{ dayjs.utc(tick.tstamp).local().format('DD.MM.YYYY HH:mm') }}
+                                <div class="flex flex-row items-center gap-1">
+                                    <div class="flex flex-col items-end">
+                                        <div class="text-sm">{{ dayjs.utc(tick.tstamp).fromNow() }}</div>
+                                        <div class="text-sm">
+                                            {{ dayjs.utc(tick.tstamp).local().format('DD.MM.YYYY HH:mm') }}
+                                        </div>
                                     </div>
+                                    <button class="archive-delete-btn" @click.stop="confirmDeleteProjectTick(tick)">
+                                        <i class="material-icons" style="font-size: 20px;">delete_outline</i>
+                                    </button>
                                 </div>
                             </template>
                             <f7-swipeout-actions right>
@@ -338,15 +350,35 @@ const openProblem = (tick) => {
         })
     }
 }
-const onProjectDeleted = (tick) => {
-    store.dispatch('deleteProject', tick.id).then((resp) => {
-        toaster(resp.message)
-    })
+// deleteTick/deleteProject only invalidate the TanStack Query cache (feed,
+// badges, rankings...) — this page's list comes from Vuex's
+// archive.dateDetails, a completely separate store the delete never touches.
+// Without this refetch the row stayed on screen until the next unrelated
+// re-render, looking like the delete silently did nothing.
+const refreshArchiveDate = async () => {
+    loading.value = true
+    await store.dispatch('fetchArchiveDate', { span: selectedSpan.value })
+    loading.value = false
 }
-const onDeleted = (tick) => {
-    store.dispatch('deleteTick', tick.id).then((resp) => {
-        toaster(resp.message)
-    })
+const onProjectDeleted = async (tick) => {
+    const resp = await store.dispatch('deleteProject', tick.id)
+    toaster(resp.message)
+    await refreshArchiveDate()
+}
+const onDeleted = async (tick) => {
+    const resp = await store.dispatch('deleteTick', tick.id)
+    toaster(resp.message)
+    await refreshArchiveDate()
+}
+// The swipeout gesture (f7-swipeout-button below) already deletes, but
+// nothing on the row hints it's there — no icon, no affordance. This is the
+// same action behind a control that's actually discoverable, confirmed the
+// same way the swipeout's own confirm-text already does.
+const confirmDeleteTick = (tick) => {
+    f7.dialog.confirm(t('problem.tick_delete_are_you_sure'), () => onDeleted(tick))
+}
+const confirmDeleteProjectTick = (tick) => {
+    f7.dialog.confirm(t('problem.tick_delete_are_you_sure'), () => onProjectDeleted(tick))
 }
 const daysWithTicks = computed(() => Object.keys(tickDates.value).reduce((acc, datekey) => {
     const item = tickDates.value[datekey]
@@ -355,3 +387,16 @@ const daysWithTicks = computed(() => Object.keys(tickDates.value).reduce((acc, d
     return acc
 }, []))
 </script>
+<style scoped>
+.archive-delete-btn {
+  border: 0;
+  background: none;
+  color: var(--p-text-dim);
+  padding: 0.25rem;
+  line-height: 1;
+}
+.archive-delete-btn:hover,
+.archive-delete-btn:active {
+  color: var(--p-danger);
+}
+</style>
