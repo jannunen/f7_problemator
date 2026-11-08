@@ -19,6 +19,7 @@ import { useStore } from 'vuex'
 import BoulderJudging from './BoulderJudging.vue'
 import SportJudging from './SportJudging.vue'
 import { useI18n } from 'vue-i18n'
+import { isBoulderingCompType, isSportCompType } from '../../js/helpers/compKind.js'
 const store = useStore()
 const { t } = useI18n()
 
@@ -45,31 +46,8 @@ const search = ref("")
 const urlSearchParams = new URLSearchParams(window.location.search);
 
 
-const isBoulderingComp = computed(() => {
-  if (comp.value == null || comp.value.tyyppi == null) {
-  return false
-  }
-  if ( comp.value.tyyppi != 'sport') { 
-    return true;
-  }
-  if (comp.value.tyyppi.match(/boulder/)) {
-    return true
-  }
-  return false
-})
-
-const isSportComp = computed(() => {
-  if (comp.value == null || comp.value.tyyppi == null) {
-  return false
-  }
-  if ( comp.value.tyyppi == 'sport') {
-    return true
-  }
-  if (comp.value.tyyppi.match(/sport/)) {
-    return true
-  } 
-  return false
-})
+const isBoulderingComp = computed(() => isBoulderingCompType(comp.value?.tyyppi))
+const isSportComp = computed(() => isSportCompType(comp.value?.tyyppi))
 
 const count = ref(0)
 </script>
