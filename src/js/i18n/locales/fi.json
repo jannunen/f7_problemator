@@ -33,7 +33,8 @@
     "name": "Nimi",
     "team": "Tiimi",
     "tops": "Topit",
-    "points": "Pisteet"
+    "points": "Pisteet",
+    "checkpoints": "Tarkistuspisteet"
   },
   "gym": {
     "gym_completion_title": "Hallin suoritusaste",
@@ -71,7 +72,14 @@
   "judging": {
     "contender_name": "Kilpailijan nimi",
     "name_placeholder": "Aloita kirjoittamaan kilpailijan nimeä",
-    "judging_competitions": "Tuomarikortti"
+    "judging_competitions": "Tuomarikortti",
+    "highest_point": "Korkein saavutettu piste",
+    "pick_problem": "Valitse ongelma",
+    "checkpoint_recorded": "Tarkistuspiste tallennettu",
+    "checkpoint_recorded_n": "Tarkistuspiste {n} tallennettu",
+    "checkpoint_failed": "Tarkistuspisteen tallennus epäonnistui",
+    "top_recorded": "Top tallennettu",
+    "top_failed": "Topin tallennus epäonnistui"
   },
   "comps": {
     "standalone_competition_title": "Kilpailupisteiden syöttö",
@@ -132,7 +140,22 @@
     "spots_left": "{n} paikkaa jäljellä",
     "registered_count": "{n} ilmoittautunutta",
     "special_price_hint": "Erikoishinnan aktivoi järjestäjä — pyydä sitä heiltä.",
-    "paid": "Maksettu"
+    "paid": "Maksettu",
+    "checkpoint_points": "Tarkistuspisteet",
+    "fixed_points_best_n": "Kiinteät pisteet, parhaat N",
+    "best_n_count": "Parhaat {n} lasketaan",
+    "top": "Top",
+    "checkpoint_n": "Tarkistuspiste {n}",
+    "topped": "Topattu",
+    "checkpoint_reached": "Tarkistuspiste {n} saavutettu",
+    "no_checkpoint_yet": "Ei vielä tarkistuspistettä",
+    "clear_checkpoint": "Poista",
+    "checkpoint_saved": "Tarkistuspiste tallennettu",
+    "checkpoint_locked": "Kilpailu on lukittu, tarkistuspisteitä ei voi enää muuttaa.",
+    "checkpoint_not_ongoing": "Kilpailu ei ole käynnissä, tarkistuspisteitä ei voi nyt merkitä.",
+    "checkpoint_not_participant": "Et osallistu tähän kilpailuun.",
+    "checkpoint_invalid": "Tarkistuspiste ei kelpaa tälle ongelmalle.",
+    "checkpoint_failed": "Tarkistuspisteen tallennus epäonnistui. Yritä uudelleen."
   },
   "settings": {
     "settings_title": "Asetukset",

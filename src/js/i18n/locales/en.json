@@ -41,7 +41,8 @@
     "name": "Name",
     "team": "Team",
     "tops": "Tops",
-    "points": "Points"
+    "points": "Points",
+    "checkpoints": "Checkpoints"
   },
   "gym": {
     "gym_completion_title": "Gym completion",
@@ -79,7 +80,14 @@
   "judging": {
     "contender_name": "Contender name",
     "name_placeholder": "Start writing contender name",
-    "judging_competitions": "Judging sheet"
+    "judging_competitions": "Judging sheet",
+    "highest_point": "Highest point reached",
+    "pick_problem": "Choose a problem",
+    "checkpoint_recorded": "Checkpoint recorded",
+    "checkpoint_recorded_n": "Checkpoint {n} recorded",
+    "checkpoint_failed": "Could not record the checkpoint",
+    "top_recorded": "Top recorded",
+    "top_failed": "Could not record the top"
   },
   "comps": {
     "standalone_competition_title": "Competition Point Entry",
@@ -140,7 +148,22 @@
     "spots_left": "{n} spots left",
     "registered_count": "{n} registered",
     "special_price_hint": "The special price is arranged by the organiser — ask them to activate it for you.",
-    "paid": "Paid"
+    "paid": "Paid",
+    "checkpoint_points": "Checkpoints",
+    "fixed_points_best_n": "Fixed points, best N",
+    "best_n_count": "Best {n} count",
+    "top": "Top",
+    "checkpoint_n": "Checkpoint {n}",
+    "topped": "Topped",
+    "checkpoint_reached": "Checkpoint {n} reached",
+    "no_checkpoint_yet": "No checkpoint yet",
+    "clear_checkpoint": "Clear",
+    "checkpoint_saved": "Checkpoint saved",
+    "checkpoint_locked": "The competition is locked, checkpoints can no longer be changed.",
+    "checkpoint_not_ongoing": "The competition is not ongoing, checkpoints cannot be entered now.",
+    "checkpoint_not_participant": "You are not a participant of this competition.",
+    "checkpoint_invalid": "That checkpoint is not valid for this problem.",
+    "checkpoint_failed": "Could not save the checkpoint. Try again."
   },
   "settings": {
     "settings_title": "Settings",

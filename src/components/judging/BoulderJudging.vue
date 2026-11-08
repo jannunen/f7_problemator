@@ -4,6 +4,8 @@ import { computed, onMounted, ref } from 'vue'
 import useDebouncedRef, { debounce } from '@helpers/debouncedRef.js'
 import { useStore } from 'vuex'
 import axios from 'axios'
+import { checkpointOptions, CHECKPOINT_TYPES } from '@helpers/checkpoints.js'
+import { toaster } from '@helpers/notifications.js'
 const { t } = useI18n()
 const store = useStore()
 const props = defineProps(['comp'])
@@ -16,6 +18,54 @@ const triesBonus = ref(1)
 const hits = ref([])
 const search = ref('')
 const apiurl = 'https://pwa.problemator.fi'
+const isCheckpointComp = computed(() => CHECKPOINT_TYPES.includes(props.comp?.tyyppi))
+const cpProblemId = ref('')
+const cpProblem = computed(() => (props.comp.problems ?? []).find((p) => p.id == cpProblemId.value) ?? null)
+const cpChoices = computed(() => checkpointOptions(cpProblem.value))
+const cpProblems = computed(() =>
+  [...(props.comp.problems ?? [])].sort((a, b) => parseInt(a.pivot.num) - parseInt(b.pivot.num))
+)
+const pickCheckpoint = (opt) => {
+  if (isNaN(parseInt(contid.value))) {
+    alert('Cannot add without contender id')
+    return
+  }
+  if (cpProblem.value == null) {
+    alert(t('judging.pick_problem'))
+    return
+  }
+  if (opt.value === 'top') {
+    // Reaching the top is an ordinary judged ascent (tries etc.) through the
+    // same CompetitionsController@addAscent route; toast only once it succeeded.
+    store
+      .dispatch('addTopJudging', {
+        compid: props.comp.id,
+        contender: contid.value,
+        problemid: cpProblem.value.id,
+        tries_top: triesTop.value,
+        tries_bonus: triesBonus.value,
+      })
+      .then(() => toaster(t('judging.top_recorded')))
+      .catch((err) => toaster(err?.response?.data?.message || err?.message || t('judging.top_failed')))
+    return
+  }
+  store
+    .dispatch('addCheckpointJudging', {
+      compid: props.comp.id,
+      contender: contid.value,
+      problemid: cpProblem.value.id,
+      checkpoint: opt.value,
+    })
+    .then((ret) => {
+      // Show what the server stored (it keeps the highest), not what was tapped.
+      if (ret && ret.ok === true && ret.checkpoint != null) {
+        toaster(t('judging.checkpoint_recorded_n', { n: ret.checkpoint }))
+      } else {
+        toaster(ret?.message || t('judging.checkpoint_failed'))
+      }
+    })
+    .catch((err) => toaster(err?.response?.data?.message || err?.message || t('judging.checkpoint_failed')))
+}
 const clearSearch= () => {
  search.value = ''
  hits.value = [] 
@@ -56,7 +106,7 @@ const addAscent = () => {
     frm_compid: props.comp.id,
     comp_id: props.comp.id,
   }
-  axios
+  return axios
     .post(url, params)
     .then((r) => r.data)
     .then((data) => {
@@ -165,7 +215,29 @@ const fetchContender = debounce(() => {
       </div>
     </div>
 
-    <f7-list no-hairlines-md class="mb-2 p-0">
+    <div v-if="isCheckpointComp" class="mb-3 p-2 bg-gray-100 dark:bg-gray-800 rounded-md" data-test="checkpoint-picker">
+      <select v-model="cpProblemId" class="w-full border border-black rounded-md p-2 mb-2">
+        <option value="">{{ t('judging.pick_problem') }}</option>
+        <option v-for="p in cpProblems" :key="p.id" :value="p.id">{{ p.pivot.num }} {{ p.tag }}</option>
+      </select>
+      <div v-if="cpProblem != null">
+        <div class="text-sm font-bold mb-1">{{ t('judging.highest_point') }}</div>
+        <div class="flex flex-row flex-wrap gap-2">
+          <button
+            v-for="opt in cpChoices"
+            :key="opt.value"
+            type="button"
+            class="px-3 py-2 rounded text-sm font-bold text-white"
+            :class="opt.value === 'top' ? 'bg-yellow-500' : 'bg-indigo-500'"
+            @click="() => pickCheckpoint(opt)"
+          >
+            {{ opt.value === 'top' ? t('comps.top') : t('comps.checkpoint_n', { n: opt.value }) }} ({{ opt.points }})
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <f7-list v-if="!isCheckpointComp" no-hairlines-md class="mb-2 p-0">
       <f7-list-input
         label="Route numbers (comma separated)"
         type="text"
@@ -213,7 +285,7 @@ const fetchContender = debounce(() => {
       </div>
     </div>
     <div class="mt-5 py-1 flex flex-col">
-      <button @click="addAscent" class="button px-8 py-3 my-1" type="button">
+      <button v-if="!isCheckpointComp" @click="addAscent" class="button px-8 py-3 my-1" type="button">
         Add ascent
       </button>
       <button

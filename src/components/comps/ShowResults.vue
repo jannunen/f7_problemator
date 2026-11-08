@@ -1,7 +1,7 @@
 <template>
   {{ type }}
   <!-- If competition is variable points, this works.. -->
-  <div v-if="type == 'variable_points' && results != null">
+  <div v-if="isPointsType && results != null">
     <div>
     <small>Last update {{ lastUpdate.format("YYYY-MM-DD HH:mm.ss") }}</small>,
     <small>next reload in {{ secsToReload }}</small>
@@ -16,20 +16,22 @@
           <th>{{ t('results.name')}}</th>
           <th>{{ t('results.team')}}</th>
           <th>{{ t('results.tops')}}</th>
+          <th v-if="type == 'checkpoint_points'">{{ t('results.checkpoints')}}</th>
           <th>{{ t('results.points')}}</th>
         </tr>
       </thead>
       <tbody>
-          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-1" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+result.id">
+          <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-1" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+(result.id ?? result.contid)">
             <td class="w-1/12">{{result.standing}}</td>
-            <td class="w-4/12">{{ result.climber.etunimi }} {{ result.climber.sukunimi }}</td>
-            <td class="w-3/12">{{ result.climber.team }} </td>
+            <td class="w-4/12">{{ climberName(result) }}</td>
+            <td class="w-3/12">{{ result.climber?.team }} </td>
   <!--
 
             <td class="w-2/12">{{ result.climber.height }} </td>
             <td class="w-2/12">{{ result.climber.apeindex }} </td>
             -->
-                    <td class="w-1/12"> {{ result.amountTops }}</td>
+                    <td class="w-1/12"> {{ result.amountTops }}<span v-if="type == 'fixed_points_best_n' && result.countedTops != null && result.countedTops != result.amountTops"> ({{ result.countedTops }})</span></td>
+            <td v-if="type == 'checkpoint_points'" class="w-1/12"> {{ result.amountCheckpoints ?? 0 }}</td>
             <td class="w-1/12">{{ result.points}} </td>
           </tr>
       </tbody>
@@ -147,6 +149,12 @@ const props = defineProps({
   type: String, 
   results: Object, 
 })
+const isPointsType = computed(() => ['variable_points', 'checkpoint_points', 'fixed_points_best_n'].includes(props.type))
+// Rows from the new scorers may carry only climbername; the older shape has climber.etunimi/sukunimi.
+const climberName = (result) => {
+  if (result.climber?.etunimi != null) return `${result.climber.etunimi} ${result.climber.sukunimi}`
+  return result.climbername ?? ''
+}
 const sortResults = (keyedResults) =>  Object.keys(keyedResults).map(key => keyedResults[key]).sort((a,b) => { return parseInt(a.standing) - parseInt(b.standing)})
 const reloadInterval = 45
 

@@ -54,6 +54,9 @@
       <p-badge class="text-xl py-1 bg-blue-500">  {{ comp.paidregistrations?.length }}</p-badge>
       </div>
     </div>
+    <div v-if="isTopPointsType" class="my-1 flex flex-row flex-wrap gap-1">
+      <p-badge v-if="comp.tyyppi == 'fixed_points_best_n' && comp.nbest" class="text-sm py-1 bg-indigo-500">{{ t('comps.best_n_count', { n: comp.nbest }) }}</p-badge>
+    </div>
     <div v-if="sortedProblems.length == 0" class="my-3 text-2xl">
       No problems have been added - yet.
     </div>
@@ -112,6 +115,22 @@
                 </div>
                 <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
+              <div v-else-if="comp.tyyppi=='checkpoint_points'" class="w-full">
+                <check-point-row
+                  :problem="prob"
+                  :my-checkpoint="myCheckpointFor(prob.id)"
+                  :has-top="isTicked(prob.id)"
+                  :disabled="true"
+                />
+              </div>
+              <div v-else-if="comp.tyyppi=='fixed_points_best_n'" class="flex flex-row">
+                <div class="flex flex-row items-center mr-2">
+                  <div class="text-sm font-bold bg-blue-500 text-white rounded-md p-1 dark:bg-blue-600 mr-1 min-w-[2rem] h-8 flex items-center justify-center">
+                    {{ prob.pivot.max_points }}
+                  </div>
+                </div>
+                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+              </div>
               <div v-else-if="comp.tyyppi=='sport'">
                 <input :value="tries[prob.id]?.sport_points" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
               </div>
@@ -148,6 +167,8 @@ import duration from 'dayjs/plugin/duration'
 import isBetween from 'dayjs/plugin/isBetween'
 import PBadge from '@components/PBadge.vue'
 import PointsPerRoute from './PointsPerRoute.vue'
+import CheckPointRow from './CheckpointRow.vue'
+import { TOP_POINTS_TYPES, myCheckpointFor as myCheckpointForHelper } from '@helpers/checkpoints.js'
 import ShowResults from './ShowResults.vue'
 import { webendpoint } from '@js/api.js'
 
@@ -177,6 +198,9 @@ const isTicked = (pid) => {
   const tick = comp.userticks[pid]
   return tick != null
 }
+
+const isTopPointsType = computed(() => TOP_POINTS_TYPES.includes(props.comp.tyyppi))
+const myCheckpointFor = (pid) => myCheckpointForHelper(store.state.competition?.my_checkpoints, pid)
 const errors = ref("")
 const loaded = ref(false)
 const showPointsPerRoute = ref(false)
