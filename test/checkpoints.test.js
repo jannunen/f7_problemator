@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { checkpointOptions } from '../src/js/helpers/checkpoints.js'
+import { checkpointOptions, myCheckpointFor } from '../src/js/helpers/checkpoints.js'
 
 describe('checkpointOptions', () => {
   it('lists checkpoints in order then the top', () => {
@@ -19,5 +19,17 @@ describe('checkpointOptions', () => {
   })
   it('copes with a problem that has no pivot', () => {
     expect(checkpointOptions(undefined)).toEqual([{ label: 'Top', value: 'top', points: 0 }])
+  })
+})
+
+describe('myCheckpointFor', () => {
+  it('reads the stored index', () => {
+    expect(myCheckpointFor({ 7: 2 }, 7)).toBe(2)
+    expect(myCheckpointFor({ 7: '3' }, 7)).toBe(3)
+  })
+  it('is null when absent, empty or an empty PHP array', () => {
+    expect(myCheckpointFor({}, 7)).toBeNull()
+    expect(myCheckpointFor([], 7)).toBeNull()
+    expect(myCheckpointFor(undefined, 7)).toBeNull()
   })
 })

@@ -449,6 +449,14 @@ export default createStore({
       commit('removeMyCheckpoint', payload.problemid)
       return ret
     },
+    async addTopJudging(_ctx, payload) {
+      const ret = await api.addTopAscent(payload)
+      // The controller answers 200 with {error:true,message} for refusals.
+      if (ret && ret.error) {
+        throw new Error(ret.message || 'Could not record the top')
+      }
+      return ret
+    },
     async addCheckpointJudging(_ctx, payload) {
       return await api.addCheckpointAscent(payload)
     },

@@ -77,7 +77,8 @@
     "pick_problem": "Valitse ongelma",
     "checkpoint_recorded": "Tarkistuspiste tallennettu",
     "checkpoint_failed": "Tarkistuspisteen tallennus epäonnistui",
-    "top_recorded": "Top tallennettu"
+    "top_recorded": "Top tallennettu",
+    "top_failed": "Topin tallennus epäonnistui"
   },
   "comps": {
     "standalone_competition_title": "Kilpailupisteiden syöttö",

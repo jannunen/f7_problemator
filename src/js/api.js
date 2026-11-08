@@ -229,6 +229,16 @@ const api = {
     })
     return ret.data
   },
+  async addTopAscent(payload) {
+    // routeid as an ARRAY is taken by the backend as problem ids.
+    const ret = await axios.post(endpoint+"/competitions/"+payload.compid+"/add_ascent",{
+      contender: payload.contender,
+      routeid: [payload.problemid],
+      tries_top: payload.tries_top,
+      tries_bonus: payload.tries_bonus,
+    })
+    return ret.data
+  },
   async saveCheckpoint(payload) {
     const ret = await axios.post(endpoint+"/competitions/"+payload.compid+"/checkpoints",{
       problemid: payload.problemid,

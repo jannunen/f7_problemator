@@ -35,10 +35,18 @@ const pickCheckpoint = (opt) => {
     return
   }
   if (opt.value === 'top') {
-    // Reaching the top is the ordinary tick path (route number + tries).
-    routeIds.value = String(cpProblem.value.pivot.num)
-    addAscent()
-    toaster(t('judging.top_recorded'))
+    // Reaching the top is an ordinary judged ascent (tries etc.) through the
+    // same CompetitionsController@addAscent route; toast only once it succeeded.
+    store
+      .dispatch('addTopJudging', {
+        compid: props.comp.id,
+        contender: contid.value,
+        problemid: cpProblem.value.id,
+        tries_top: triesTop.value,
+        tries_bonus: triesBonus.value,
+      })
+      .then(() => toaster(t('judging.top_recorded')))
+      .catch((err) => toaster(err?.message || err?.response?.data?.message || t('judging.top_failed')))
     return
   }
   store
@@ -91,7 +99,7 @@ const addAscent = () => {
     frm_compid: props.comp.id,
     comp_id: props.comp.id,
   }
-  axios
+  return axios
     .post(url, params)
     .then((r) => r.data)
     .then((data) => {

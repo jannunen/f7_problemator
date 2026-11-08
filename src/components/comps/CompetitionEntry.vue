@@ -171,7 +171,7 @@ import PointsPerRoute from './PointsPerRoute.vue'
 import ShowResults from './ShowResults.vue'
 import { webendpoint } from '@js/api.js'
 import CheckPointRow from './CheckpointRow.vue'
-import { TOP_POINTS_TYPES } from '@helpers/checkpoints.js'
+import { TOP_POINTS_TYPES, myCheckpointFor as myCheckpointForHelper } from '@helpers/checkpoints.js'
 
 import {  toaster } from '@helpers/notifications.js'
 import { toLocalTime } from '@helpers/component.helpers'
@@ -223,12 +223,7 @@ const isTicked = (pid) => {
 }
 
 const isTopPointsType = computed(() => TOP_POINTS_TYPES.includes(props.comp.tyyppi))
-const myCheckpointFor = (pid) => {
-  const mine = store.state.competition?.my_checkpoints
-  if (mine == null || Array.isArray(mine)) return null
-  const v = parseInt(mine[pid])
-  return isNaN(v) ? null : v
-}
+const myCheckpointFor = (pid) => myCheckpointForHelper(store.state.competition?.my_checkpoints, pid)
 const busy = ref({})
 const checkpointError = (err) => {
   const status = err?.response?.status

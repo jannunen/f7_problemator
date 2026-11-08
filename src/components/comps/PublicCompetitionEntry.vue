@@ -122,8 +122,6 @@
                   :my-checkpoint="myCheckpointFor(prob.id)"
                   :has-top="isTicked(prob.id)"
                   :disabled="true"
-                  @select="(v) => onSelectCheckpoint(prob, v)"
-                  @clear="() => onClearCheckpoint(prob)"
                 />
               </div>
               <div v-else-if="comp.tyyppi=='fixed_points_best_n'" class="flex flex-row">
@@ -171,7 +169,7 @@ import isBetween from 'dayjs/plugin/isBetween'
 import PBadge from '@components/PBadge.vue'
 import PointsPerRoute from './PointsPerRoute.vue'
 import CheckPointRow from './CheckpointRow.vue'
-import { TOP_POINTS_TYPES } from '@helpers/checkpoints.js'
+import { TOP_POINTS_TYPES, myCheckpointFor as myCheckpointForHelper } from '@helpers/checkpoints.js'
 import ShowResults from './ShowResults.vue'
 import { webendpoint } from '@js/api.js'
 
@@ -203,15 +201,7 @@ const isTicked = (pid) => {
 }
 
 const isTopPointsType = computed(() => TOP_POINTS_TYPES.includes(props.comp.tyyppi))
-const myCheckpointFor = (pid) => {
-  const mine = store.state.competition?.my_checkpoints
-  if (mine == null || Array.isArray(mine)) return null
-  const v = parseInt(mine[pid])
-  return isNaN(v) ? null : v
-}
-// Public (no login) entry is read-only for checkpoints: nothing is written.
-const onSelectCheckpoint = () => {}
-const onClearCheckpoint = () => {}
+const myCheckpointFor = (pid) => myCheckpointForHelper(store.state.competition?.my_checkpoints, pid)
 const errors = ref("")
 const loaded = ref(false)
 const showPointsPerRoute = ref(false)

@@ -18,3 +18,10 @@ export function checkpointOptions(problem) {
   options.push({ label: 'Top', value: 'top', points: Number(pivot.max_points ?? 0) })
   return options
 }
+
+/** The climber's stored checkpoint index for a problem, from comp.my_checkpoints (object, or [] when empty). */
+export function myCheckpointFor(mine, problemid) {
+  if (mine == null || Array.isArray(mine)) return null
+  const v = parseInt(mine[problemid])
+  return isNaN(v) ? null : v
+}
