@@ -55,7 +55,6 @@
       </div>
     </div>
     <div v-if="isTopPointsType" class="my-1 flex flex-row flex-wrap gap-1">
-      <p-badge class="text-sm py-1 bg-indigo-500">{{ t('comps.' + comp.tyyppi) }}</p-badge>
       <p-badge v-if="comp.tyyppi == 'fixed_points_best_n' && comp.nbest" class="text-sm py-1 bg-indigo-500">{{ t('comps.best_n_count', { n: comp.nbest }) }}</p-badge>
     </div>
     <div v-if="sortedProblems.length == 0" class="my-3 text-2xl">
@@ -227,7 +226,9 @@ const myCheckpointFor = (pid) => myCheckpointForHelper(store.state.competition?.
 const busy = ref({})
 const checkpointError = (err) => {
   const status = err?.response?.status
-  if (status == 400) return t('comps.checkpoint_locked')
+  if (status == 400) {
+    return /not ongoing/.test(err?.response?.data?.message ?? '') ? t('comps.checkpoint_not_ongoing') : t('comps.checkpoint_locked')
+  }
   if (status == 403) return t('comps.checkpoint_not_participant')
   if (status == 422) return t('comps.checkpoint_invalid')
   return t('comps.checkpoint_failed')

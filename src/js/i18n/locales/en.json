@@ -84,6 +84,7 @@
     "highest_point": "Highest point reached",
     "pick_problem": "Choose a problem",
     "checkpoint_recorded": "Checkpoint recorded",
+    "checkpoint_recorded_n": "Checkpoint {n} recorded",
     "checkpoint_failed": "Could not record the checkpoint",
     "top_recorded": "Top recorded",
     "top_failed": "Could not record the top"
@@ -159,6 +160,7 @@
     "clear_checkpoint": "Clear",
     "checkpoint_saved": "Checkpoint saved",
     "checkpoint_locked": "The competition is locked, checkpoints can no longer be changed.",
+    "checkpoint_not_ongoing": "The competition is not ongoing, checkpoints cannot be entered now.",
     "checkpoint_not_participant": "You are not a participant of this competition.",
     "checkpoint_invalid": "That checkpoint is not valid for this problem.",
     "checkpoint_failed": "Could not save the checkpoint. Try again."

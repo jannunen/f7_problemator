@@ -55,7 +55,6 @@
       </div>
     </div>
     <div v-if="isTopPointsType" class="my-1 flex flex-row flex-wrap gap-1">
-      <p-badge class="text-sm py-1 bg-indigo-500">{{ t('comps.' + comp.tyyppi) }}</p-badge>
       <p-badge v-if="comp.tyyppi == 'fixed_points_best_n' && comp.nbest" class="text-sm py-1 bg-indigo-500">{{ t('comps.best_n_count', { n: comp.nbest }) }}</p-badge>
     </div>
     <div v-if="sortedProblems.length == 0" class="my-3 text-2xl">
@@ -140,7 +139,7 @@
               </div>
             </template>
             <template #after>
-              <p-button v-if="comp.tyyppi != 'checkpoint_points'" @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">tick</p-button>
+              <p-button @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">tick</p-button>
               <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
               <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
             </template>

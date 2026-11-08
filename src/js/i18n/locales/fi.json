@@ -76,6 +76,7 @@
     "highest_point": "Korkein saavutettu piste",
     "pick_problem": "Valitse ongelma",
     "checkpoint_recorded": "Tarkistuspiste tallennettu",
+    "checkpoint_recorded_n": "Tarkistuspiste {n} tallennettu",
     "checkpoint_failed": "Tarkistuspisteen tallennus epäonnistui",
     "top_recorded": "Top tallennettu",
     "top_failed": "Topin tallennus epäonnistui"
@@ -151,6 +152,7 @@
     "clear_checkpoint": "Poista",
     "checkpoint_saved": "Tarkistuspiste tallennettu",
     "checkpoint_locked": "Kilpailu on lukittu, tarkistuspisteitä ei voi enää muuttaa.",
+    "checkpoint_not_ongoing": "Kilpailu ei ole käynnissä, tarkistuspisteitä ei voi nyt merkitä.",
     "checkpoint_not_participant": "Et osallistu tähän kilpailuun.",
     "checkpoint_invalid": "Tarkistuspiste ei kelpaa tälle ongelmalle.",
     "checkpoint_failed": "Tarkistuspisteen tallennus epäonnistui. Yritä uudelleen."

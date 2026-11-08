@@ -46,7 +46,7 @@ const pickCheckpoint = (opt) => {
         tries_bonus: triesBonus.value,
       })
       .then(() => toaster(t('judging.top_recorded')))
-      .catch((err) => toaster(err?.message || err?.response?.data?.message || t('judging.top_failed')))
+      .catch((err) => toaster(err?.response?.data?.message || err?.message || t('judging.top_failed')))
     return
   }
   store
@@ -56,8 +56,15 @@ const pickCheckpoint = (opt) => {
       problemid: cpProblem.value.id,
       checkpoint: opt.value,
     })
-    .then(() => toaster(t('judging.checkpoint_recorded')))
-    .catch((err) => toaster(err?.response?.data?.message || t('judging.checkpoint_failed')))
+    .then((ret) => {
+      // Show what the server stored (it keeps the highest), not what was tapped.
+      if (ret && ret.ok === true && ret.checkpoint != null) {
+        toaster(t('judging.checkpoint_recorded_n', { n: ret.checkpoint }))
+      } else {
+        toaster(ret?.message || t('judging.checkpoint_failed'))
+      }
+    })
+    .catch((err) => toaster(err?.response?.data?.message || err?.message || t('judging.checkpoint_failed')))
 }
 const clearSearch= () => {
  search.value = ''
