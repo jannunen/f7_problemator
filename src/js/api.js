@@ -220,6 +220,26 @@ const api = {
     const ret = await axios.post(endpoint+"/competitions/"+payload.comp_id+"/add_ascent",payload)
     return ret.data
   },
+  async addCheckpointAscent(payload) {
+    // A judge records a checkpoint for a contender: one problem id, 1-based index.
+    const ret = await axios.post(endpoint+"/competitions/"+payload.compid+"/add_ascent",{
+      contender: payload.contender,
+      problemid: [payload.problemid],
+      checkpoint: payload.checkpoint,
+    })
+    return ret.data
+  },
+  async saveCheckpoint(payload) {
+    const ret = await axios.post(endpoint+"/competitions/"+payload.compid+"/checkpoints",{
+      problemid: payload.problemid,
+      checkpoint: payload.checkpoint,
+    })
+    return ret.data
+  },
+  async deleteCheckpoint(payload) {
+    const ret = await axios.delete(endpoint+"/competitions/"+payload.compid+"/checkpoints/"+payload.problemid)
+    return ret.data
+  },
   async findContenderInComp(payload) {
     const ret = await axios.get(endpoint+"/competitions/findcontenderincomp?term="+payload.term+"&compid="+payload.compid)
     return ret.data

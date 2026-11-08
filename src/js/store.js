@@ -143,6 +143,20 @@ export default createStore({
         state.competition.userticks = {...state.competition.userticks, [payload.problemid] : payload}
       }
     },
+    setMyCheckpoint(state, payload) {
+      if (state.competition) {
+        const mine = Array.isArray(state.competition.my_checkpoints) ? {} : { ...(state.competition.my_checkpoints ?? {}) }
+        mine[payload.problemid] = payload.checkpoint
+        state.competition.my_checkpoints = mine
+      }
+    },
+    removeMyCheckpoint(state, payload) {
+      if (state.competition) {
+        const mine = Array.isArray(state.competition.my_checkpoints) ? {} : { ...(state.competition.my_checkpoints ?? {}) }
+        delete mine[payload]
+        state.competition.my_checkpoints = mine
+      }
+    },
     removeTickFromCompetition(state, payload) {
       if (state.competition && state.competition.userticks) {
         const newTicks = {...state.competition.userticks}
@@ -423,6 +437,20 @@ export default createStore({
       dispatch('rankings', { country: state.rankingTarget })
       invalidateAfter('saveTick')
       return ret
+    },
+    async saveCheckpoint({ commit }, payload) {
+      const ret = await api.saveCheckpoint(payload)
+      // The server keeps the highest checkpoint: show what it stored, not what was tapped.
+      commit('setMyCheckpoint', { problemid: payload.problemid, checkpoint: ret.checkpoint })
+      return ret
+    },
+    async deleteCheckpoint({ commit }, payload) {
+      const ret = await api.deleteCheckpoint(payload)
+      commit('removeMyCheckpoint', payload.problemid)
+      return ret
+    },
+    async addCheckpointJudging(_ctx, payload) {
+      return await api.addCheckpointAscent(payload)
     },
     async likeProblem({ state , commit}, payload) {
       const pid = payload.id

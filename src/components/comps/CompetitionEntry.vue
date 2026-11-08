@@ -54,6 +54,10 @@
       <p-badge class="text-xl py-1 bg-blue-500">  {{ comp.paidregistrations?.length }}</p-badge>
       </div>
     </div>
+    <div v-if="isTopPointsType" class="my-1 flex flex-row flex-wrap gap-1">
+      <p-badge class="text-sm py-1 bg-indigo-500">{{ t('comps.' + comp.tyyppi) }}</p-badge>
+      <p-badge v-if="comp.tyyppi == 'fixed_points_best_n' && comp.nbest" class="text-sm py-1 bg-indigo-500">{{ t('comps.best_n_count', { n: comp.nbest }) }}</p-badge>
+    </div>
     <div v-if="sortedProblems.length == 0" class="my-3 text-2xl">
       No problems have been added - yet.
     </div>
@@ -111,6 +115,24 @@
                 </div>
                 <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
+              <div v-else-if="comp.tyyppi=='checkpoint_points'" class="w-full">
+                <check-point-row
+                  :problem="prob"
+                  :my-checkpoint="myCheckpointFor(prob.id)"
+                  :has-top="isTicked(prob.id)"
+                  :disabled="busy[prob.id] || !compOngoing"
+                  @select="(v) => onSelectCheckpoint(prob, v)"
+                  @clear="() => onClearCheckpoint(prob)"
+                />
+              </div>
+              <div v-else-if="comp.tyyppi=='fixed_points_best_n'" class="flex flex-row">
+                <div class="flex flex-row items-center mr-2">
+                  <div class="text-sm font-bold bg-blue-500 text-white rounded-md p-1 dark:bg-blue-600 mr-1 min-w-[2rem] h-8 flex items-center justify-center">
+                    {{ prob.pivot.max_points }}
+                  </div>
+                </div>
+                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+              </div>
               <div v-else-if="comp.tyyppi=='sport'">
                 <input :value="tries[prob.id]?.sport_points" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
               </div>
@@ -119,7 +141,7 @@
               </div>
             </template>
             <template #after>
-              <p-button @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">tick</p-button>
+              <p-button v-if="comp.tyyppi != 'checkpoint_points'" @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">tick</p-button>
               <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
               <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
             </template>
@@ -148,6 +170,8 @@ import PBadge from '@components/PBadge.vue'
 import PointsPerRoute from './PointsPerRoute.vue'
 import ShowResults from './ShowResults.vue'
 import { webendpoint } from '@js/api.js'
+import CheckPointRow from './CheckpointRow.vue'
+import { TOP_POINTS_TYPES } from '@helpers/checkpoints.js'
 
 import {  toaster } from '@helpers/notifications.js'
 import { toLocalTime } from '@helpers/component.helpers'
@@ -196,6 +220,42 @@ const isTicked = (pid) => {
   }
   const tick = comp.userticks[pid]
   return tick != null
+}
+
+const isTopPointsType = computed(() => TOP_POINTS_TYPES.includes(props.comp.tyyppi))
+const myCheckpointFor = (pid) => {
+  const mine = store.state.competition?.my_checkpoints
+  if (mine == null || Array.isArray(mine)) return null
+  const v = parseInt(mine[pid])
+  return isNaN(v) ? null : v
+}
+const busy = ref({})
+const checkpointError = (err) => {
+  const status = err?.response?.status
+  if (status == 400) return t('comps.checkpoint_locked')
+  if (status == 403) return t('comps.checkpoint_not_participant')
+  if (status == 422) return t('comps.checkpoint_invalid')
+  return t('comps.checkpoint_failed')
+}
+const onSelectCheckpoint = (prob, value) => {
+  if (value === 'top') {
+    // Reaching the top is the ordinary tick flow.
+    doTick(prob.id)
+    return
+  }
+  busy.value = { ...busy.value, [prob.id]: true }
+  store
+    .dispatch('saveCheckpoint', { compid: props.comp.id, problemid: prob.id, checkpoint: value })
+    .then(() => toaster(t('comps.checkpoint_saved')))
+    .catch((err) => toaster(checkpointError(err)))
+    .finally(() => { busy.value = { ...busy.value, [prob.id]: false } })
+}
+const onClearCheckpoint = (prob) => {
+  busy.value = { ...busy.value, [prob.id]: true }
+  store
+    .dispatch('deleteCheckpoint', { compid: props.comp.id, problemid: prob.id })
+    .catch((err) => toaster(checkpointError(err)))
+    .finally(() => { busy.value = { ...busy.value, [prob.id]: false } })
 }
 const errors = ref("")
 const loaded = ref(false)
