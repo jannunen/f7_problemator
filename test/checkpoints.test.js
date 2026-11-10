@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { checkpointOptions, myCheckpointFor, TRIES_AND_BONUS_TYPES } from '../src/js/helpers/checkpoints.js'
+import { checkpointOptions, checkpointDisplayLabel, myCheckpointFor, TRIES_AND_BONUS_TYPES } from '../src/js/helpers/checkpoints.js'
 
 describe('checkpointOptions', () => {
   it('lists checkpoints in order then the top, with no label by default', () => {
@@ -31,6 +31,27 @@ describe('checkpointOptions', () => {
   })
   it('copes with a problem that has no pivot', () => {
     expect(checkpointOptions(undefined)).toEqual([{ label: 'Top', value: 'top', points: 0 }])
+  })
+})
+
+describe('checkpointDisplayLabel', () => {
+  const t = (key, params) => (params ? `${key}:${JSON.stringify(params)}` : key)
+  const options = [
+    { label: 'A', value: 1, points: 5 },
+    { label: null, value: 2, points: 10 },
+    { label: 'Top', value: 'top', points: 25 },
+  ]
+  it('always uses the top translation for value "top", ignoring any label', () => {
+    expect(checkpointDisplayLabel(options, 'top', t)).toBe('comps.top')
+  })
+  it('returns a labeled checkpoint\'s label verbatim, ignoring the translator', () => {
+    expect(checkpointDisplayLabel(options, 1, t)).toBe('A')
+  })
+  it('falls back to the numbered translation for an unlabeled checkpoint', () => {
+    expect(checkpointDisplayLabel(options, 2, t)).toBe('comps.checkpoint_n:{"n":2}')
+  })
+  it('falls back to the numbered translation when value matches no option', () => {
+    expect(checkpointDisplayLabel(options, 99, t)).toBe('comps.checkpoint_n:{"n":99}')
   })
 })
 

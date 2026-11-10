@@ -24,6 +24,18 @@ export function checkpointOptions(problem) {
   return options
 }
 
+/**
+ * Display text for one checkpoint position: the routesetter's custom label
+ * when set, otherwise the localized 'Checkpoint N' fallback (unchanged from
+ * before labels existed). value === 'top' always uses the dedicated 'Top'
+ * translation, ignoring any label, matching today's behavior.
+ */
+export function checkpointDisplayLabel(options, value, t) {
+  if (value === 'top') return t('comps.top')
+  const opt = options.find((o) => o.value === value)
+  return opt?.label || t('comps.checkpoint_n', { n: value })
+}
+
 /** The climber's stored checkpoint index for a problem, from comp.my_checkpoints (object, or [] when empty). */
 export function myCheckpointFor(mine, problemid) {
   if (mine == null || Array.isArray(mine)) return null
