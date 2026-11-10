@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { checkpointOptions, myCheckpointFor } from '../src/js/helpers/checkpoints.js'
+import { checkpointOptions, myCheckpointFor, TRIES_AND_BONUS_TYPES } from '../src/js/helpers/checkpoints.js'
 
 describe('checkpointOptions', () => {
   it('lists checkpoints in order then the top', () => {
@@ -19,6 +19,12 @@ describe('checkpointOptions', () => {
   })
   it('copes with a problem that has no pivot', () => {
     expect(checkpointOptions(undefined)).toEqual([{ label: 'Top', value: 'top', points: 0 }])
+  })
+})
+
+describe('TRIES_AND_BONUS_TYPES', () => {
+  it('lists the comp types scored from tries-to-bonus + tries-to-top', () => {
+    expect(TRIES_AND_BONUS_TYPES).toEqual(['traditional', 'ifsc_2018_bouldering', 'flashcomp'])
   })
 })
 
