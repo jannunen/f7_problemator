@@ -166,6 +166,7 @@
     "checkpoint_n": "Checkpoint {n}",
     "topped": "Topped",
     "checkpoint_reached": "Checkpoint {n} reached",
+    "checkpoint_label_reached": "{label} reached",
     "no_checkpoint_yet": "No checkpoint yet",
     "clear_checkpoint": "Clear",
     "checkpoint_saved": "Checkpoint saved",

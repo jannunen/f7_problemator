@@ -148,6 +148,7 @@
     "checkpoint_n": "Tarkistuspiste {n}",
     "topped": "Topattu",
     "checkpoint_reached": "Tarkistuspiste {n} saavutettu",
+    "checkpoint_label_reached": "{label} saavutettu",
     "no_checkpoint_yet": "Ei vielä tarkistuspistettä",
     "clear_checkpoint": "Poista",
     "checkpoint_saved": "Tarkistuspiste tallennettu",
