@@ -77,6 +77,7 @@
     "pick_problem": "Valitse ongelma",
     "checkpoint_recorded": "Tarkistuspiste tallennettu",
     "checkpoint_recorded_n": "Tarkistuspiste {n} tallennettu",
+    "checkpoint_recorded_label": "{label} tallennettu",
     "checkpoint_failed": "Tarkistuspisteen tallennus epäonnistui",
     "top_recorded": "Top tallennettu",
     "top_failed": "Topin tallennus epäonnistui"

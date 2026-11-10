@@ -59,7 +59,8 @@ const pickCheckpoint = (opt) => {
     .then((ret) => {
       // Show what the server stored (it keeps the highest), not what was tapped.
       if (ret && ret.ok === true && ret.checkpoint != null) {
-        toaster(t('judging.checkpoint_recorded_n', { n: ret.checkpoint }))
+        const label = checkpointDisplayLabel(cpChoices.value, ret.checkpoint, t)
+        toaster(t('judging.checkpoint_recorded_label', { label }))
       } else {
         toaster(ret?.message || t('judging.checkpoint_failed'))
       }
