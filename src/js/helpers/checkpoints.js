@@ -1,6 +1,9 @@
 export const CHECKPOINT_TYPES = ['checkpoint_points']
 export const TOP_POINTS_TYPES = ['checkpoint_points', 'fixed_points_best_n']
 
+/** Comp types scored from tries-to-bonus + tries-to-top (a single zone/bonus hold). */
+export const TRIES_AND_BONUS_TYPES = ['traditional', 'ifsc_2018_bouldering', 'flashcomp']
+
 /**
  * Picker options for one competition problem (pivot.checkpoints and
  * pivot.max_points): each checkpoint in order, then Top. A checkpoint's value

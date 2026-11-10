@@ -135,6 +135,30 @@
               <div v-else-if="comp.tyyppi=='sport'">
                 <input :value="tries[prob.id]?.sport_points" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
               </div>
+              <div v-else-if="isTriesAndBonusType" class="flex flex-row gap-3">
+                <div class="flex flex-col items-center">
+                  <div class="text-xs">{{ t('comps.tries_to_bonus') }}</div>
+                  <f7-stepper fill :value="tries[prob.id]?.tries_bonus || 1" @stepper:change="(num) => setAttempt(prob.id, 'tries_bonus', num)"></f7-stepper>
+                </div>
+                <div class="flex flex-col items-center">
+                  <div class="text-xs">{{ t('comps.tries_to_top') }}</div>
+                  <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                </div>
+              </div>
+              <div v-else-if="comp.tyyppi=='ifsc_2024_bouldering'" class="flex flex-row gap-2">
+                <div class="flex flex-col items-center">
+                  <div class="text-xs">{{ t('comps.tries_to_low_zone') }}</div>
+                  <f7-stepper fill :value="tries[prob.id]?.attempts_low_zone || 1" @stepper:change="(num) => setAttempt(prob.id, 'attempts_low_zone', num)"></f7-stepper>
+                </div>
+                <div class="flex flex-col items-center">
+                  <div class="text-xs">{{ t('comps.tries_to_high_zone') }}</div>
+                  <f7-stepper fill :value="tries[prob.id]?.attempts_high_zone || 1" @stepper:change="(num) => setAttempt(prob.id, 'attempts_high_zone', num)"></f7-stepper>
+                </div>
+                <div class="flex flex-col items-center">
+                  <div class="text-xs">{{ t('comps.tries_to_top') }}</div>
+                  <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                </div>
+              </div>
               <div v-else>
                 Comp type not supported (yet)
               </div>
@@ -170,7 +194,7 @@ import PointsPerRoute from './PointsPerRoute.vue'
 import ShowResults from './ShowResults.vue'
 import { webendpoint } from '@js/api.js'
 import CheckPointRow from './CheckpointRow.vue'
-import { TOP_POINTS_TYPES, myCheckpointFor as myCheckpointForHelper } from '@helpers/checkpoints.js'
+import { TOP_POINTS_TYPES, TRIES_AND_BONUS_TYPES, myCheckpointFor as myCheckpointForHelper } from '@helpers/checkpoints.js'
 
 import {  toaster } from '@helpers/notifications.js'
 import { toLocalTime } from '@helpers/component.helpers'
@@ -222,6 +246,7 @@ const isTicked = (pid) => {
 }
 
 const isTopPointsType = computed(() => TOP_POINTS_TYPES.includes(props.comp.tyyppi))
+const isTriesAndBonusType = computed(() => TRIES_AND_BONUS_TYPES.includes(props.comp.tyyppi))
 const myCheckpointFor = (pid) => myCheckpointForHelper(store.state.competition?.my_checkpoints, pid)
 const busy = ref({})
 const checkpointError = (err) => {
@@ -343,11 +368,14 @@ const compOngoing = computed(() => {
 })
 
 // First, set the tries from the comp object.
+const toIntOrNull = (v) => (v == null ? null : parseInt(v))
 tries.value = Object.keys(props.comp.userticks).reduce((acc, key) => {
   const aTick = props.comp.userticks[key]
   acc[aTick.problemid] = {
     tries: parseInt(aTick.tries),
     tries_bonus: parseInt(aTick.tries_bonus),
+    attempts_low_zone: toIntOrNull(aTick.attempts_low_zone),
+    attempts_high_zone: toIntOrNull(aTick.attempts_high_zone),
     ticked: true,
     sport_points: aTick.sport_points,
   }
@@ -366,13 +394,13 @@ const onDeleted = (id) => {
     })
     .catch((err) => { })
 }
-const setTries = (id, triesAmount) => {
+const setAttempt = (id, field, amount) => {
   if (!(id in tries.value)) {
     tries.value[id] = { tries: 0, sport_points: 0 }
   }
-  const newTries = { ...tries.value[id], tries: triesAmount }
-  tries.value[id] = newTries
+  tries.value[id] = { ...tries.value[id], [field]: amount }
 }
+const setTries = (id, triesAmount) => setAttempt(id, 'tries', triesAmount)
 const lastUpdate = ref(dayjs())
 const lastResultUpdate = ref(dayjs())
 
@@ -429,14 +457,23 @@ const doTick = (id) => {
 
   let aTries = 1
   let aSportPoints = 0
+  let aTriesBonus = 0
+  let aAttemptsLowZone = null
+  let aAttemptsHighZone = null
   if (tries.value[id] != null) {
     aTries = tries.value[id].tries
     aSportPoints = tries.value[id].sport_points
+    aTriesBonus = tries.value[id].tries_bonus ?? 0
+    aAttemptsLowZone = tries.value[id].attempts_low_zone ?? null
+    aAttemptsHighZone = tries.value[id].attempts_high_zone ?? null
   }
 
   const payload = {
     ticktype: 'tick',
     tries: aTries,
+    tries_bonus: aTriesBonus,
+    attempts_low_zone: aAttemptsLowZone,
+    attempts_high_zone: aAttemptsHighZone,
     created: new Date(),
     problemid: id,
     sport_points: aSportPoints,
