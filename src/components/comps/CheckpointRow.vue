@@ -1,6 +1,31 @@
 <template>
   <div class="flex flex-col w-full">
-    <div class="flex flex-row flex-wrap gap-1">
+    <div v-if="hasMultipleCheckpoints" class="flex flex-row flex-wrap items-center gap-2">
+      <select
+        class="p-select flex-1 min-w-0"
+        style="font-size: 0.875rem; line-height: 1.2; height: auto; padding-top: 0.375rem; padding-bottom: 0.375rem"
+        data-test="checkpoint-select"
+        :disabled="disabled"
+        :value="selectValue"
+        @change="onSelectChange"
+      >
+        <option value="" disabled>{{ t('comps.select_checkpoint') }}</option>
+        <option v-for="opt in checkpointOnlyOptions" :key="opt.value" :value="opt.value">
+          {{ label(opt) }} ({{ opt.points }})
+        </option>
+      </select>
+      <button
+        type="button"
+        :disabled="disabled"
+        class="px-2 py-1 rounded-md text-sm font-bold text-white disabled:opacity-50"
+        :class="chipClass(topOption)"
+        data-test="chip-top"
+        @click="emit('select', 'top')"
+      >
+        {{ label(topOption) }} ({{ topOption.points }})
+      </button>
+    </div>
+    <div v-else class="flex flex-row flex-wrap gap-1">
       <button
         v-for="opt in options"
         :key="opt.value"
@@ -48,6 +73,21 @@ const { t } = useI18n()
 const options = computed(() => checkpointOptions(props.problem))
 const label = (opt) => checkpointDisplayLabel(options.value, opt.value, t)
 const reachedLabel = computed(() => options.value.find((o) => o.value === props.myCheckpoint)?.label ?? null)
+// Top is recorded through the ordinary tick path (see onSelectCheckpoint in the
+// parent), not via this picker's select/clear flow, so it always stays its own
+// button rather than folding into the dropdown — a native select makes it too
+// easy to land on by accident when scrolling through many checkpoints.
+const checkpointOnlyOptions = computed(() => options.value.filter((o) => o.value !== 'top'))
+const topOption = computed(() => options.value.find((o) => o.value === 'top'))
+// A dropdown only pays for itself once there's more than one checkpoint to
+// pick from; with zero or one, the original two-button layout is already compact.
+const hasMultipleCheckpoints = computed(() => checkpointOnlyOptions.value.length > 1)
+const selectValue = computed(() => (props.myCheckpoint != null && !props.hasTop ? String(props.myCheckpoint) : ''))
+const onSelectChange = (e) => {
+  const v = e.target.value
+  if (v === '') return
+  emit('select', parseInt(v, 10))
+}
 // A top tick wins over any checkpoint, so only Top is highlighted when topped.
 const isReached = (opt) => {
   if (props.hasTop) return opt.value === 'top'

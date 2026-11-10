@@ -157,7 +157,12 @@
     "checkpoint_not_ongoing": "Kilpailu ei ole käynnissä, tarkistuspisteitä ei voi nyt merkitä.",
     "checkpoint_not_participant": "Et osallistu tähän kilpailuun.",
     "checkpoint_invalid": "Tarkistuspiste ei kelpaa tälle ongelmalle.",
-    "checkpoint_failed": "Tarkistuspisteen tallennus epäonnistui. Yritä uudelleen."
+    "checkpoint_failed": "Tarkistuspisteen tallennus epäonnistui. Yritä uudelleen.",
+    "tries": "Yritykset",
+    "select_zone": "Valitse alue",
+    "low_zone": "Alempi alue",
+    "high_zone": "Ylempi alue",
+    "select_checkpoint": "Valitse tarkistuspiste"
   },
   "settings": {
     "settings_title": "Asetukset",
