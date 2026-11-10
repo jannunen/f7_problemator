@@ -2,14 +2,26 @@ import { describe, it, expect } from 'vitest'
 import { checkpointOptions, myCheckpointFor, TRIES_AND_BONUS_TYPES } from '../src/js/helpers/checkpoints.js'
 
 describe('checkpointOptions', () => {
-  it('lists checkpoints in order then the top', () => {
+  it('lists checkpoints in order then the top, with no label by default', () => {
     const problem = { pivot: { max_points: 25, checkpoints: [{ points: 5 }, { points: 10 }, { points: 15 }] } }
     expect(checkpointOptions(problem)).toEqual([
-      { label: 'Checkpoint 1', value: 1, points: 5 },
-      { label: 'Checkpoint 2', value: 2, points: 10 },
-      { label: 'Checkpoint 3', value: 3, points: 15 },
+      { label: null, value: 1, points: 5 },
+      { label: null, value: 2, points: 10 },
+      { label: null, value: 3, points: 15 },
       { label: 'Top', value: 'top', points: 25 },
     ])
+  })
+  it('uses a checkpoint\'s custom label, trimmed, when set', () => {
+    const problem = { pivot: { max_points: 25, checkpoints: [{ points: 5, label: 'A' }, { points: 10, label: '  C  ' }] } }
+    expect(checkpointOptions(problem)).toEqual([
+      { label: 'A', value: 1, points: 5 },
+      { label: 'C', value: 2, points: 10 },
+      { label: 'Top', value: 'top', points: 25 },
+    ])
+  })
+  it('treats a blank or whitespace-only label the same as no label', () => {
+    const problem = { pivot: { max_points: 25, checkpoints: [{ points: 5, label: '' }, { points: 10, label: '   ' }] } }
+    expect(checkpointOptions(problem).map((o) => o.label)).toEqual([null, null, 'Top'])
   })
   it('offers only the top when there are no checkpoints', () => {
     expect(checkpointOptions({ pivot: { max_points: 25, checkpoints: null } })).toEqual([

@@ -9,12 +9,14 @@ export const TRIES_AND_BONUS_TYPES = ['traditional', 'ifsc_2018_bouldering', 'fl
  * pivot.max_points): each checkpoint in order, then Top. A checkpoint's value
  * is its 1-based index, which is what the backend expects; Top's value is
  * 'top' and is recorded through the ordinary tick path, not as a checkpoint.
+ * A checkpoint's label is the routesetter's custom name (trimmed), or null when
+ * absent or blank; callers fall back to the translated 'Checkpoint N' text.
  * Mirrors the dashboard's helper of the same name.
  */
 export function checkpointOptions(problem) {
   const pivot = problem?.pivot ?? {}
   const options = (pivot.checkpoints ?? []).map((c, i) => ({
-    label: `Checkpoint ${i + 1}`,
+    label: typeof c.label === 'string' && c.label.trim() !== '' ? c.label.trim() : null,
     value: i + 1,
     points: Number(c.points),
   }))
