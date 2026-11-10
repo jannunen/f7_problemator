@@ -53,6 +53,10 @@ describe('checkpointDisplayLabel', () => {
   it('falls back to the numbered translation when value matches no option', () => {
     expect(checkpointDisplayLabel(options, 99, t)).toBe('comps.checkpoint_n:{"n":99}')
   })
+  it('falls back to the numbered translation instead of throwing when options is null or undefined', () => {
+    expect(checkpointDisplayLabel(null, 1, t)).toBe('comps.checkpoint_n:{"n":1}')
+    expect(checkpointDisplayLabel(undefined, 1, t)).toBe('comps.checkpoint_n:{"n":1}')
+  })
 })
 
 describe('TRIES_AND_BONUS_TYPES', () => {

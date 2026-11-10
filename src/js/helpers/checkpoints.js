@@ -32,7 +32,7 @@ export function checkpointOptions(problem) {
  */
 export function checkpointDisplayLabel(options, value, t) {
   if (value === 'top') return t('comps.top')
-  const opt = options.find((o) => o.value === value)
+  const opt = (options ?? []).find((o) => o.value === value)
   return opt?.label || t('comps.checkpoint_n', { n: value })
 }
 
