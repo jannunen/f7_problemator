@@ -4,7 +4,7 @@ import { computed, onMounted, ref } from 'vue'
 import useDebouncedRef, { debounce } from '@helpers/debouncedRef.js'
 import { useStore } from 'vuex'
 import axios from 'axios'
-import { checkpointOptions, CHECKPOINT_TYPES } from '@helpers/checkpoints.js'
+import { checkpointOptions, checkpointDisplayLabel, CHECKPOINT_TYPES } from '@helpers/checkpoints.js'
 import { toaster } from '@helpers/notifications.js'
 const { t } = useI18n()
 const store = useStore()
@@ -231,7 +231,7 @@ const fetchContender = debounce(() => {
             :class="opt.value === 'top' ? 'bg-yellow-500' : 'bg-indigo-500'"
             @click="() => pickCheckpoint(opt)"
           >
-            {{ opt.value === 'top' ? t('comps.top') : t('comps.checkpoint_n', { n: opt.value }) }} ({{ opt.points }})
+            {{ checkpointDisplayLabel(cpChoices, opt.value, t) }} ({{ opt.points }})
           </button>
         </div>
       </div>
