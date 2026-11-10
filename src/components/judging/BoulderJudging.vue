@@ -4,7 +4,7 @@ import { computed, onMounted, ref } from 'vue'
 import useDebouncedRef, { debounce } from '@helpers/debouncedRef.js'
 import { useStore } from 'vuex'
 import axios from 'axios'
-import { checkpointOptions, CHECKPOINT_TYPES } from '@helpers/checkpoints.js'
+import { checkpointOptions, checkpointDisplayLabel, CHECKPOINT_TYPES } from '@helpers/checkpoints.js'
 import { toaster } from '@helpers/notifications.js'
 const { t } = useI18n()
 const store = useStore()
@@ -49,6 +49,10 @@ const pickCheckpoint = (opt) => {
       .catch((err) => toaster(err?.response?.data?.message || err?.message || t('judging.top_failed')))
     return
   }
+  // Capture at send-time: the judge may switch cpProblemId (and therefore
+  // cpChoices) before this request resolves, which would otherwise label the
+  // toast with the NEW problem's checkpoints instead of the recorded one.
+  const choicesAtCall = cpChoices.value
   store
     .dispatch('addCheckpointJudging', {
       compid: props.comp.id,
@@ -59,7 +63,15 @@ const pickCheckpoint = (opt) => {
     .then((ret) => {
       // Show what the server stored (it keeps the highest), not what was tapped.
       if (ret && ret.ok === true && ret.checkpoint != null) {
-        toaster(t('judging.checkpoint_recorded_n', { n: ret.checkpoint }))
+        const label = checkpointDisplayLabel(choicesAtCall, ret.checkpoint, t)
+        // escapeParameter: the label is routesetter-authored free text, validated
+        // server-side only as "a string, at most 40 chars" (no HTML stripping).
+        // toaster() hands this straight to Framework7's notification, which renders
+        // its subtitle as HTML without escaping, so an unescaped label would be a
+        // stored XSS. escapeParameter HTML-entity-escapes the {label} interpolation
+        // before the message is formatted, so a label like '<img onerror=...>' comes
+        // out as literal text ('&lt;img onerror=...&gt;'), never as markup.
+        toaster(t('judging.checkpoint_recorded_label', { label }, { escapeParameter: true }))
       } else {
         toaster(ret?.message || t('judging.checkpoint_failed'))
       }
@@ -231,7 +243,7 @@ const fetchContender = debounce(() => {
             :class="opt.value === 'top' ? 'bg-yellow-500' : 'bg-indigo-500'"
             @click="() => pickCheckpoint(opt)"
           >
-            {{ opt.value === 'top' ? t('comps.top') : t('comps.checkpoint_n', { n: opt.value }) }} ({{ opt.points }})
+            {{ checkpointDisplayLabel(cpChoices, opt.value, t) }} ({{ opt.points }})
           </button>
         </div>
       </div>

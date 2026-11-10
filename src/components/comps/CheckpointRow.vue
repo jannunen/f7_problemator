@@ -16,7 +16,7 @@
     </div>
     <div class="flex flex-row items-center mt-1 text-sm">
       <span v-if="hasTop" class="font-bold text-green-600">{{ t('comps.topped') }}</span>
-      <span v-else-if="myCheckpoint" class="font-bold text-indigo-600">{{ t('comps.checkpoint_reached', { n: myCheckpoint }) }}</span>
+      <span v-else-if="myCheckpoint" class="font-bold text-indigo-600">{{ reachedLabel ? t('comps.checkpoint_label_reached', { label: reachedLabel }) : t('comps.checkpoint_reached', { n: myCheckpoint }) }}</span>
       <span v-else class="text-gray-500">{{ t('comps.no_checkpoint_yet') }}</span>
       <button
         v-if="myCheckpoint && !hasTop"
@@ -34,7 +34,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { checkpointOptions } from '@helpers/checkpoints.js'
+import { checkpointOptions, checkpointDisplayLabel } from '@helpers/checkpoints.js'
 
 const props = defineProps({
   problem: Object,
@@ -46,7 +46,8 @@ const emit = defineEmits(['select', 'clear'])
 const { t } = useI18n()
 
 const options = computed(() => checkpointOptions(props.problem))
-const label = (opt) => (opt.value === 'top' ? t('comps.top') : t('comps.checkpoint_n', { n: opt.value }))
+const label = (opt) => checkpointDisplayLabel(options.value, opt.value, t)
+const reachedLabel = computed(() => options.value.find((o) => o.value === props.myCheckpoint)?.label ?? null)
 // A top tick wins over any checkpoint, so only Top is highlighted when topped.
 const isReached = (opt) => {
   if (props.hasTop) return opt.value === 'top'

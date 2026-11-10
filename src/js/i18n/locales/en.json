@@ -85,6 +85,7 @@
     "pick_problem": "Choose a problem",
     "checkpoint_recorded": "Checkpoint recorded",
     "checkpoint_recorded_n": "Checkpoint {n} recorded",
+    "checkpoint_recorded_label": "{label} recorded",
     "checkpoint_failed": "Could not record the checkpoint",
     "top_recorded": "Top recorded",
     "top_failed": "Could not record the top"
@@ -166,6 +167,7 @@
     "checkpoint_n": "Checkpoint {n}",
     "topped": "Topped",
     "checkpoint_reached": "Checkpoint {n} reached",
+    "checkpoint_label_reached": "{label} reached",
     "no_checkpoint_yet": "No checkpoint yet",
     "clear_checkpoint": "Clear",
     "checkpoint_saved": "Checkpoint saved",
