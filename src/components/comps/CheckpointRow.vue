@@ -34,7 +34,7 @@
 <script setup>
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { checkpointOptions } from '@helpers/checkpoints.js'
+import { checkpointOptions, checkpointDisplayLabel } from '@helpers/checkpoints.js'
 
 const props = defineProps({
   problem: Object,
@@ -46,7 +46,7 @@ const emit = defineEmits(['select', 'clear'])
 const { t } = useI18n()
 
 const options = computed(() => checkpointOptions(props.problem))
-const label = (opt) => (opt.value === 'top' ? t('comps.top') : t('comps.checkpoint_n', { n: opt.value }))
+const label = (opt) => checkpointDisplayLabel(options.value, opt.value, t)
 // A top tick wins over any checkpoint, so only Top is highlighted when topped.
 const isReached = (opt) => {
   if (props.hasTop) return opt.value === 'top'
