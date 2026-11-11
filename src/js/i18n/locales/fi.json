@@ -86,6 +86,7 @@
     "standalone_competition_title": "Kilpailupisteiden syöttö",
     "registration_has_closed": "Ilmoittautuminen on sulkeutunut",
     "tick_time_span": "Merkinnän aikaväli",
+    "no_time_limit": "Ei aikarajaa",
     "location": "Sijainti",
     "no_categories_with_help": "Kilpailussa ei ole kategorioita, ilmoittautuminen ei ole mahdollista. Odota, että kilpailun järjestäjä lisää kategorioita.",
     "thats": "Se on",

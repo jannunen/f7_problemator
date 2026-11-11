@@ -1,4 +1,5 @@
 import dayjs from 'dayjs'
+import { isRegistrationOpen } from './compWindow'
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -22,15 +23,8 @@ const isRegistrationPossible = (comp, nowInTimeUTC ) => {
     if (nowInTimeUTC == null) {
         nowInTimeUTC = dayjs().utc()
     }
-  const regStart = dayjs.utc(comp.registration_start)
-  const regEnd = dayjs.utc(comp.registration_end)
-  let isPossible = true
-  if (regStart == null) {
-    isPossible = nowInTimeUTC.isBefore(regEnd) 
-  } else {
-     isPossible =  nowInTimeUTC.isAfter(regStart) && nowInTimeUTC.isBefore(regEnd) 
-  }
-  return isPossible
+  // A missing registration_start/registration_end means no limit on that side.
+  return isRegistrationOpen(comp, nowInTimeUTC)
 }
 
 const getAscentsByGrade = (grades, ticks, lastDays,showOfType) => {

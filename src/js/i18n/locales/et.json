@@ -75,6 +75,7 @@
     "standalone_competition_title": "Võistluse punktide sisestamine",
     "registration_has_closed": "Registreerimine on lõppenud",
     "tick_time_span": "Tipu ajavahemik",
+    "no_time_limit": "Ajalimiiti pole",
     "location": "Asukoht",
     "no_categories_with_help": "Võistlusel pole kategooriaid määratud, registreerumine pole võimalik. Oota, kuni võistluse korraldaja lisab kategooriad.",
     "thats": "See on",

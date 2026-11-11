@@ -43,7 +43,7 @@
       Competition venue opens at: {{ toLocalTime(comp.compdate) }}
       <small class="m-0">ID: {{ comp.id }}</small>
     </div>
-    <h3 class=""> {{ t('comps.timespan') }} {{ toLocalTime(comp.timespan_start) }} - {{ toLocalTime(comp.timespan_end) }} </h3>
+    <h3 class=""> {{ t('comps.timespan') }} {{ windowLabel(comp.timespan_start, comp.timespan_end, toLocalTime, t('comps.no_time_limit')) }} </h3>
     <div class="my-1 flex flex-row justify-between">
       <h2 class="text-xl">
         <p-badge class="text-xl py-1 bg-blue-500">  {{ sortedProblems.length }}</p-badge>
@@ -207,6 +207,7 @@ import { TOP_POINTS_TYPES, TRIES_AND_BONUS_TYPES, myCheckpointFor as myCheckpoin
 
 import {  toaster } from '@helpers/notifications.js'
 import { toLocalTime } from '@helpers/component.helpers'
+import { isCompRunning, msUntilEnd, windowLabel } from '@helpers/compWindow'
 import { handleValidationErrors } from '@helpers'
 import dayjs from 'dayjs'
 import utc from "dayjs/plugin/utc"
@@ -379,10 +380,8 @@ const isPaidAndPriceIsSet = computed(() => {
 const compOngoing = computed(() => {
   const nowUTC = dayjs().utc()
 
-  return nowUTC.isBetween(
-    dayjs.utc(props.comp.timespan_start),
-    dayjs.utc(props.comp.timespan_end)
-  )
+  // Missing timespan_start/timespan_end means no limit on that side.
+  return isCompRunning(props.comp, nowUTC)
 })
 
 // First, set the tries from the comp object.
@@ -466,7 +465,12 @@ onUnmounted(() => {
 
 setInterval(() => {
   // Update time left
-  const dur = dayjs.duration(dayjs(props.comp.timespan_end).diff(dayjs()))
+  const ms = msUntilEnd(props.comp)
+  if (ms === null) {
+    timeLeft.value = t('comps.no_time_limit')
+    return
+  }
+  const dur = dayjs.duration(ms)
   timeLeft.value = dur.format('D[day(s)] HH[h] mm[m] ss[s]') + ' left'
 }, 1000)
 const timeLeft = ref(null)
