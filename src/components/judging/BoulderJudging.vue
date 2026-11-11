@@ -25,6 +25,20 @@ const cpChoices = computed(() => checkpointOptions(cpProblem.value))
 const cpProblems = computed(() =>
   [...(props.comp.problems ?? [])].sort((a, b) => parseInt(a.pivot.num) - parseInt(b.pivot.num))
 )
+// Top is recorded via the ordinary ascent path (see pickCheckpoint below), not
+// through this select, so it always stays its own button.
+const cpCheckpointOnly = computed(() => cpChoices.value.filter((o) => o.value !== 'top'))
+const cpTopOption = computed(() => cpChoices.value.find((o) => o.value === 'top'))
+const cpHasMultipleCheckpoints = computed(() => cpCheckpointOnly.value.length > 1)
+// This picker is a momentary action (pick a checkpoint, submit), not a toggle
+// reflecting prior state, so the select resets to its placeholder after each pick.
+const onCpSelectChange = (e) => {
+  const v = e.target.value
+  e.target.value = ''
+  if (v === '') return
+  const opt = cpCheckpointOnly.value.find((o) => String(o.value) === v)
+  if (opt) pickCheckpoint(opt)
+}
 const pickCheckpoint = (opt) => {
   if (isNaN(parseInt(contid.value))) {
     alert('Cannot add without contender id')
@@ -234,7 +248,29 @@ const fetchContender = debounce(() => {
       </select>
       <div v-if="cpProblem != null">
         <div class="text-sm font-bold mb-1">{{ t('judging.highest_point') }}</div>
-        <div class="flex flex-row flex-wrap gap-2">
+        <div v-if="cpHasMultipleCheckpoints" class="flex flex-row flex-wrap items-center gap-2">
+          <select
+            class="p-select flex-1 min-w-0"
+            style="font-size: 0.875rem; line-height: 1.2; height: auto; padding-top: 0.375rem; padding-bottom: 0.375rem"
+            data-test="checkpoint-select"
+            value=""
+            @change="onCpSelectChange"
+          >
+            <option value="" disabled>{{ t('comps.select_checkpoint') }}</option>
+            <option v-for="opt in cpCheckpointOnly" :key="opt.value" :value="opt.value">
+              {{ checkpointDisplayLabel(cpChoices, opt.value, t) }} ({{ opt.points }})
+            </option>
+          </select>
+          <button
+            type="button"
+            class="px-3 py-2 rounded text-sm font-bold text-white bg-yellow-500"
+            data-test="chip-top"
+            @click="() => pickCheckpoint(cpTopOption)"
+          >
+            {{ checkpointDisplayLabel(cpChoices, cpTopOption.value, t) }} ({{ cpTopOption.points }})
+          </button>
+        </div>
+        <div v-else class="flex flex-row flex-wrap gap-2">
           <button
             v-for="opt in cpChoices"
             :key="opt.value"

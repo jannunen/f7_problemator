@@ -146,12 +146,20 @@
               </div>
               <div v-else-if="comp.tyyppi=='ifsc_2024_bouldering'" class="flex flex-row gap-2">
                 <div class="flex flex-col items-center">
-                  <div class="text-xs">{{ t('comps.tries_to_low_zone') }}</div>
-                  <f7-stepper fill :value="tries[prob.id]?.attempts_low_zone || 1" @stepper:change="(num) => setAttempt(prob.id, 'attempts_low_zone', num)"></f7-stepper>
-                </div>
-                <div class="flex flex-col items-center">
-                  <div class="text-xs">{{ t('comps.tries_to_high_zone') }}</div>
-                  <f7-stepper fill :value="tries[prob.id]?.attempts_high_zone || 1" @stepper:change="(num) => setAttempt(prob.id, 'attempts_high_zone', num)"></f7-stepper>
+                  <select
+                    class="p-select text-xs"
+                    data-test="zone-select"
+                    :value="zoneFor(prob.id)"
+                    @change="(e) => setZone(prob.id, e.target.value)"
+                  >
+                    <option value="attempts_low_zone">{{ t('comps.low_zone') }}</option>
+                    <option value="attempts_high_zone">{{ t('comps.high_zone') }}</option>
+                  </select>
+                  <f7-stepper
+                    fill
+                    :value="tries[prob.id]?.[zoneFor(prob.id)] || 1"
+                    @stepper:change="(num) => setAttempt(prob.id, zoneFor(prob.id), num)"
+                  ></f7-stepper>
                 </div>
                 <div class="flex flex-col items-center">
                   <div class="text-xs">{{ t('comps.tries_to_top') }}</div>
@@ -226,6 +234,15 @@ const isTicked = (pid) => {
 const isTopPointsType = computed(() => TOP_POINTS_TYPES.includes(props.comp.tyyppi))
 const isTriesAndBonusType = computed(() => TRIES_AND_BONUS_TYPES.includes(props.comp.tyyppi))
 const myCheckpointFor = (pid) => myCheckpointForHelper(store.state.competition?.my_checkpoints, pid)
+// Which zone (low/high) each ifsc_2024_bouldering row's single stepper is
+// currently pointed at. Purely local UI state — not submitted — the tries
+// value for each zone still lives in tries[prob.id], so switching the
+// dropdown never loses what was already entered for the other zone.
+const selectedZone = ref({})
+const zoneFor = (pid) => selectedZone.value[pid] ?? 'attempts_low_zone'
+const setZone = (pid, field) => {
+  selectedZone.value = { ...selectedZone.value, [pid]: field }
+}
 const errors = ref("")
 const loaded = ref(false)
 const showPointsPerRoute = ref(false)
