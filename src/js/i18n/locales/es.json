@@ -75,6 +75,7 @@
     "standalone_competition_title": "Registro de puntos de competicion",
     "registration_has_closed": "La inscripcion se ha cerrado",
     "tick_time_span": "Periodo de registro de ascensiones",
+    "no_time_limit": "Sin límite de tiempo",
     "location": "Ubicacion",
     "no_categories_with_help": "La competicion no tiene categorias configuradas, no es posible inscribirse. Espera a que el organizador anada algunas categorias.",
     "thats": "Eso es",

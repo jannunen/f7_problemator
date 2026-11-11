@@ -9,7 +9,7 @@
         <span v-if="comp.location" class="fact">{{ comp.location }}</span>
         <span class="fact">
           {{ t('comps.tick_time_span') }}
-          {{ toLocalTime(comp.timespan_start) }}–{{ toLocalTime(comp.timespan_end) }}
+          {{ windowLabel(comp.timespan_start, comp.timespan_end, toLocalTime, t('comps.no_time_limit')) }}
         </span>
       </div>
 
@@ -80,7 +80,7 @@
               <button class="cat__register" :disabled="isRegistering" @click="askRegister(cat)">
                 {{ isRegistering ? t('comps.registering') : t('comps.register_button') }}
               </button>
-              <span class="cat__deadline">
+              <span v-if="hasBound(comp.registration_end)" class="cat__deadline">
                 {{ t('comps.registration_ends') }} {{ toLocalTime(comp.registration_end) }}
               </span>
             </template>
@@ -109,6 +109,7 @@ import { ref, computed} from 'vue'
 import { confirm, toaster } from '@helpers/notifications.js'
 import { handleValidationErrors } from '@helpers'
 import { isRegistrationPossible, toLocalTime } from '@helpers/component.helpers'
+import { hasBound, windowLabel } from '@helpers/compWindow'
 
 const nowUTC = ref(dayjs().utc())
 setInterval(() => nowUTC.value = dayjs().utc(),1000*30)

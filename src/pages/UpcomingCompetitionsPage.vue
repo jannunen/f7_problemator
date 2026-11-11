@@ -40,6 +40,7 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { ref } from 'vue'
 import dayjs from 'dayjs'
 import { isRegistrationPossible, toLocalTime } from '../js/helpers/component.helpers'
+import { hasBound, windowLabel } from '../js/helpers/compWindow'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
 import api from '@js/api'
@@ -53,11 +54,11 @@ dayjs.extend(relativeTime)
 const getCompText = (comp) => {
     if (!isFull(comp) && isRegistrationPossible(comp, nowUTC.value)) {
         return `
-        <div class="text-green-400">${t('Registration between')}: ${toLocalTime(comp.registration_start) || 'now'} - ${toLocalTime(comp.registration_end)}`
-        + ", " + t('ending in') +" "+ dayjs.utc(comp.registration_end).fromNow()+ "</div>"
+        <div class="text-green-400">${t('Registration between')}: ${windowLabel(comp.registration_start, comp.registration_end, toLocalTime, t('comps.no_time_limit'))}`
+        + (hasBound(comp.registration_end) ? ", " + t('ending in') +" "+ dayjs.utc(comp.registration_end).fromNow() : "") + "</div>"
     } else {
       if (!isFull(comp)) {
-        return `<div class="text-orange-400">Registration time was/is ${toLocalTime(comp.registration_start)} - ${toLocalTime(comp.registration_end)}</div>`
+        return `<div class="text-orange-400">Registration time was/is ${windowLabel(comp.registration_start, comp.registration_end, toLocalTime, t('comps.no_time_limit'))}</div>`
       }
     }
 }

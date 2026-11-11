@@ -16,6 +16,7 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
+import { hasBound } from '@helpers/compWindow'
 const { t } = useI18n()
 // The template reads `comp` directly (defineProps exposes props to the
 // template by name on their own), so nothing here reads the return value —
@@ -24,6 +25,7 @@ defineProps({
     comp : Object,
 })
 const getCompText = (comp) => {
+  if (!hasBound(comp.registration_end)) return t('comps.no_time_limit')
   return `${t('comps.registration_ends')} ${comp.registration_end}`
 }
 </script>

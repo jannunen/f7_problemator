@@ -33,9 +33,9 @@
                   <div class="text-orange-400 font-bold">{{ t('comps.not_registered') }}</div>
                   <span v-if="isFull(comp)" class="text-red-700 font-bold">{{ t('comps.full') }}</span>
                   <span v-if="isRegistrationPossible(comp, nowUTC.value)">
-                      <div>{{ t('Registration between') }} {{ toLocalTime(comp.registration_start) }} - {{ toLocalTime(comp.registration_end) }}</div>
+                      <div>{{ t('Registration between') }} {{ windowLabel(comp.registration_start, comp.registration_end, toLocalTime, t('comps.no_time_limit')) }}</div>
                   </span>
-                  <div v-else>Registration is between {{ toLocalTime(comp.registration_start)}} -  {{ toLocalTime(comp.registration_end)}}</div>
+                  <div v-else>Registration is between {{ windowLabel(comp.registration_start, comp.registration_end, toLocalTime, t('comps.no_time_limit')) }}</div>
               </span>
             </span>
             <div v-else class="text-red-500">
@@ -54,6 +54,7 @@ import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
 import { isRegistrationPossible, toLocalTime } from '@helpers/component.helpers'
+import { hasBound, windowLabel } from '@helpers/compWindow'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
@@ -76,10 +77,14 @@ const isPaidAndRegistered = (comp) => {
 
 const isFull = (comp) => (comp.maxcontenders != 0 && comp.paidregistrations_count >= comp.maxcontenders)
 const getCompText = (comp) => {
+  const fmt = (v) => dayjs(v).format("YYYY-MM-DD HH:mm")
+  const range = windowLabel(comp.timespan_start, comp.timespan_end, fmt, t('comps.no_time_limit'))
+  // No end: nothing to count down to, so skip the "ends in" line.
+  if (!hasBound(comp.timespan_end)) {
+    return `<span class="text-white">${t('comps.ongoing_between')} ${range}</span>`
+  }
   const left = dayjs().to(comp.timespan_end)
-  return `<span class="text-white">${t('comps.ongoing_between')} ${dayjs(comp.timespan_start).format("YYYY-MM-DD HH:mm")} - ${
-    dayjs(comp.timespan_end).format("YYYY-MM-DD HH:mm")
-  }</span><br />${t('comps.comp_time_ends_in')} ${left}`
+  return `<span class="text-white">${t('comps.ongoing_between')} ${range}</span><br />${t('comps.comp_time_ends_in')} ${left}`
 }
 const getLink = (comp) => {
     // The actual link will be used, if registration IS possible and comp IS NOT full

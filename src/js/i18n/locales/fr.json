@@ -75,6 +75,7 @@
     "standalone_competition_title": "Saisie des points de competition",
     "registration_has_closed": "Les inscriptions sont fermees",
     "tick_time_span": "Periode d'enregistrement des ascensions",
+    "no_time_limit": "Pas de limite de temps",
     "location": "Lieu",
     "no_categories_with_help": "La competition n'a pas de categories configurees, l'inscription n'est pas possible. Attendez que l'organisateur ajoute des categories.",
     "thats": "C'est",
