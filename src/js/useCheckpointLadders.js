@@ -8,8 +8,9 @@ import { myCheckpointFor } from '@helpers/checkpoints.js'
  *
  * Taps are optimistic: the ladder changes at once, writes are coalesced per
  * route (helpers/ladderSync.js) and the server response is adopted when it
- * arrives. On failure the route goes back to what the server last confirmed,
- * with an inline message and a retry that re-sends the failed state.
+ * arrives. If a write fails the taps stay on screen marked 'Not saved' with
+ * Retry (re-sends the whole state); only final refusals (locked, not ongoing,
+ * not a participant) go back to the server's state and lock the ladders.
  *
  * The Top goes through the ordinary tick path (tries = attempts) after the
  * zone stamps are saved; undoing it deletes that tick, then writes the
@@ -28,6 +29,10 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
   const lockedReason = ref(null)
   const version = ref(0) // bumped whenever the writer's busy state may have changed
   const failed = {} // problemid -> { kind: 'write' | 'top', state }
+  const lastReach = {} // problemid -> time of the ✓ that just turned the button into ✓ Top
+  // A Top straight after a ✓ on the same route is the second tap of a double
+  // tap on ✓ (the button became ✓ Top under the finger): ignore it.
+  const isDoubleTap = (pid) => lastReach[pid] != null && Date.now() - lastReach[pid] < ladder.DOUBLE_TAP_MS
 
   const comp = () => store.state.competition
   const isTicked = (pid) => comp()?.userticks?.[pid] != null
@@ -101,11 +106,18 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
     onFailed: (pid, err, sent) => {
       version.value++
       if (sync.hasQueued(pid)) return
-      failed[pid] = { kind: 'write', state: sent }
-      const prob = probById[pid]
-      if (prob) setLocal(pid, serverState(prob))
       setError(pid, messageFor(err))
-      if (isFinal(err)) lockedReason.value = messageFor(err)
+      if (isFinal(err)) {
+        // Locked / not ongoing / not a participant: retrying cannot help, so
+        // show what the server has and lock the ladders.
+        const prob = probById[pid]
+        if (prob) setLocal(pid, serverState(prob))
+        lockedReason.value = messageFor(err)
+        return
+      }
+      // Anything else (offline, 5xx, 422): keep the taps on screen, unsaved,
+      // with Retry. The next tap or Retry sends the whole state again.
+      failed[pid] = { kind: 'write' }
     },
   })
 
@@ -171,6 +183,8 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
       setError(pid, null)
       delete failed[pid]
     }
+    // Anything in between (a try, choosing a rung, undo) makes a later Top deliberate.
+    if (action !== 'reached' && action !== 'top') delete lastReach[pid]
     switch (action) {
       case 'select':
         setLocal(pid, ladder.selectRung(cur, arg))
@@ -183,14 +197,19 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
       case 'reached': {
         const next = ladder.markReached(cur)
         if (next === cur) return
-        if (next.topped) return top(prob, next)
+        if (next.topped) {
+          if (isDoubleTap(pid)) return
+          return top(prob, next)
+        }
+        // Only a ✓ that made the Top the active rung swaps the button under the finger.
+        if (ladder.isTopRung(next, next.active)) lastReach[pid] = Date.now()
         write(prob, next)
         return
       }
       case 'top': {
         const next = ladder.top(cur)
-        if (next !== cur) return top(prob, next)
-        return
+        if (next === cur || isDoubleTap(pid)) return
+        return top(prob, next)
       }
       case 'undo': {
         const { state, undone } = ladder.undo(cur)
@@ -205,7 +224,7 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
         delete failed[pid]
         if (!f) return
         if (f.kind === 'top') return top(prob, ladder.top(cur))
-        write(prob, f.state)
+        write(prob, cur)
         return
       }
       case 'clear':

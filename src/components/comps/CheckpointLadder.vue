@@ -71,16 +71,32 @@
         >
           {{ t('ladder.add_try') }}
         </button>
+        <!-- Two different elements (own keys), not one relabelled button: after
+             ✓ on the last zone the Top button takes its place, and a quick
+             second tap must not land on it. It is also held for a moment. -->
         <button
+          v-if="activeIsTop"
+          key="top"
           type="button"
-          class="ladder__btn"
-          :class="activeIsTop ? 'ladder__btn--top' : 'ladder__btn--reached'"
-          :disabled="disabled"
-          :aria-label="activeIsTop ? t('ladder.mark_top') : t('ladder.mark_reached', { label: activeLabel })"
-          data-test="mark-reached"
-          @click="emit(activeIsTop ? 'top' : 'reached')"
+          class="ladder__btn ladder__btn--top"
+          :disabled="disabled || topHeld"
+          :aria-label="t('ladder.mark_top')"
+          data-test="mark-top"
+          @click="onTop"
         >
-          {{ activeIsTop ? t('ladder.top_button') : t('ladder.reached_button') }}
+          {{ t('ladder.top_button') }}
+        </button>
+        <button
+          v-else
+          key="reached"
+          type="button"
+          class="ladder__btn ladder__btn--reached"
+          :disabled="disabled"
+          :aria-label="t('ladder.mark_reached', { label: activeLabel })"
+          data-test="mark-reached"
+          @click="onReached"
+        >
+          {{ t('ladder.reached_button') }}
         </button>
       </div>
 
@@ -129,7 +145,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed, ref, onBeforeUnmount } from 'vue'
+import { DOUBLE_TAP_MS } from '@helpers/ladder.js'
 import { useI18n } from 'vue-i18n'
 import { checkpointOptions, checkpointDisplayLabel } from '@helpers/checkpoints.js'
 import { rungView, tallyGroups, canUndo, isEmpty, isTopRung } from '@helpers/ladder.js'
@@ -173,6 +190,23 @@ const clearable = computed(() => !!props.state && !props.state.topped && !isEmpt
 const showFooter = computed(
   () => (!props.readonly && !props.disabled && (undoable.value || clearable.value)) || !!props.error || props.saving || (props.disabled && !!props.lockedReason),
 )
+
+// ✓ on the last zone turns the button into ✓ Top: hold that for a moment so
+// a double tap on ✓ can never record a top.
+const topHeld = ref(false)
+let holdTimer = null
+const onReached = () => {
+  emit('reached')
+  topHeld.value = true
+  clearTimeout(holdTimer)
+  holdTimer = setTimeout(() => {
+    topHeld.value = false
+  }, DOUBLE_TAP_MS)
+}
+const onTop = () => {
+  if (!topHeld.value) emit('top')
+}
+onBeforeUnmount(() => clearTimeout(holdTimer))
 
 const canSelect = (row) => !props.disabled && !props.readonly && row.status === 'idle'
 const onRung = (row) => {

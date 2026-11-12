@@ -81,6 +81,9 @@ describe('CheckpointLadder', () => {
     const html = await render({ state: selectRung(fromServer({ zones: 2 }), 3) })
     expect(html).toContain('aria-label="Mark the top reached"')
     expect(html).toContain('✓ Top')
+    // the Top ✓ is its own element, not the zone ✓ relabelled
+    expect(html).toContain('data-test="mark-top"')
+    expect(html).not.toContain('data-test="mark-reached"')
   })
 
   it('topped: green Top with tries, no action buttons, undo still there', async () => {

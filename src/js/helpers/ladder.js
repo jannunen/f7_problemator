@@ -23,6 +23,9 @@
 
 export const ACTIONS = { TRY: 'try', REACHED: 'reached', TOP: 'top' }
 
+/** A Top within this many ms of a ✓ on the same route is a double tap, not a top. */
+export const DOUBLE_TAP_MS = 400
+
 const toInt = (v) => {
   const n = parseInt(v, 10)
   return Number.isNaN(n) ? null : n

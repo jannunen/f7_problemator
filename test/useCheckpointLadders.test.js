@@ -76,19 +76,33 @@ describe('useCheckpointLadders', () => {
     expect(ladders.stateFor(prob).active).toBe(2) // kept after adopting the response
   })
 
-  it('a failed write reverts to the server state, shows a message and retry re-sends it', async () => {
+  it('a failed write keeps the taps on screen with Not saved, and Retry re-sends the whole state', async () => {
+    let failing = true
+    const { ladders, calls, competition } = setup({ fail: (name) => failing && name === 'saveCheckpoint' })
+    ladders.act(prob, 'try')
+    ladders.act(prob, 'try')
+    await vi.advanceTimersByTimeAsync(300)
+    expect(ladders.stateFor(prob).attempts).toBe(2) // not lost
+    expect(ladders.errors.value[7]).toBe('ladder.not_saved')
+    expect(ladders.isSaving(7)).toBe(false)
+    failing = false
+    ladders.act(prob, 'retry')
+    expect(ladders.errors.value[7]).toBeUndefined()
+    await vi.advanceTimersByTimeAsync(300)
+    expect(writes(calls).at(-1)).toMatchObject({ attempts: 2, checkpoint: 0 })
+    expect(competition.my_checkpoint_tries[7]).toEqual({ attempts: 2, zone_tries: {} })
+  })
+
+  it('a tap after a failed write sends everything, including the unsaved taps', async () => {
     let failing = true
     const { ladders, calls } = setup({ fail: (name) => failing && name === 'saveCheckpoint' })
     ladders.act(prob, 'try')
     await vi.advanceTimersByTimeAsync(300)
-    expect(ladders.stateFor(prob).attempts).toBe(0)
-    expect(ladders.errors.value[7]).toBe('ladder.not_saved')
     failing = false
-    ladders.act(prob, 'retry')
-    expect(ladders.stateFor(prob).attempts).toBe(1)
+    ladders.act(prob, 'try')
     expect(ladders.errors.value[7]).toBeUndefined()
     await vi.advanceTimersByTimeAsync(300)
-    expect(writes(calls).at(-1)).toMatchObject({ attempts: 1, checkpoint: 0 })
+    expect(writes(calls).at(-1)).toMatchObject({ attempts: 2 })
   })
 
   it('a locked competition disables every ladder with the reason', async () => {
@@ -96,6 +110,7 @@ describe('useCheckpointLadders', () => {
     ladders.act(prob, 'reached')
     await vi.advanceTimersByTimeAsync(300)
     expect(ladders.lockedReason.value).toBe('comps.checkpoint_locked')
+    expect(ladders.stateFor(prob).reached).toEqual({}) // back to what the server has
   })
 
   it('Top saves the zone stamps first, then the top tick with tries = attempts', async () => {
@@ -120,6 +135,27 @@ describe('useCheckpointLadders', () => {
     await ladders.act(prob, 'retry')
     expect(saveTop).toHaveBeenCalledTimes(2)
     expect(ladders.stateFor(prob).topped).toBe(true)
+  })
+
+  it('double tap on ✓ of the last zone records the zone only, never a top', async () => {
+    const { ladders, calls, saveTop } = setup()
+    ladders.act(prob, 'try')
+    ladders.act(prob, 'reached') // zone 1
+    await vi.advanceTimersByTimeAsync(1000)
+    const before = writes(calls).length
+    ladders.act(prob, 'reached') // zone 2, the last zone: the button becomes ✓ Top
+    await vi.advanceTimersByTimeAsync(150)
+    await ladders.act(prob, 'reached') // second tap of the double tap (as 'reached')
+    await ladders.act(prob, 'top') // ...or as 'top' from the ✓ Top button
+    await vi.advanceTimersByTimeAsync(300)
+    expect(writes(calls).length - before).toBe(1)
+    expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 2, zone_tries: { 1: 1, 2: 1 } })
+    expect(saveTop).not.toHaveBeenCalled()
+    expect(ladders.stateFor(prob)).toMatchObject({ topped: false, active: 3 })
+    // a deliberate tap afterwards still tops
+    await vi.advanceTimersByTimeAsync(400)
+    await ladders.act(prob, 'top')
+    expect(saveTop).toHaveBeenCalledTimes(1)
   })
 
   it('undo of a top removes the tick and writes the previous state with replace', async () => {
