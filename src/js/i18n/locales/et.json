@@ -532,5 +532,27 @@
     "manage_pending": "Avamine…",
     "manage_error": "Arvelduse halduse avamine ebaõnnestus. Proovi uuesti.",
     "manage_unavailable": "Hallata pole veel midagi."
+  },
+  "ladder": {
+    "group_label": "Raja {route} tsoonid ja top",
+    "loading": "Tsoonide laadimine",
+    "add_try": "+ katse",
+    "add_try_on": "Lisa katse: {label}",
+    "reached_button": "✓ saavutatud",
+    "mark_reached": "Märgi {label} saavutatuks",
+    "top_button": "✓ Top",
+    "mark_top": "Märgi top saavutatuks",
+    "in_tries": "{n}. katsel",
+    "rung_idle": "{label}, {points} punkti, saavutamata",
+    "rung_active": "{label}, {points} punkti, käsil, 1 katse | {label}, {points} punkti, käsil, {n} katset",
+    "rung_reached": "{label}, {points} punkti, saavutatud 1. katsel | {label}, {points} punkti, saavutatud {n}. katsel",
+    "rung_reached_unknown": "{label}, {points} punkti, saavutatud",
+    "rung_topped": "{label}, {points} punkti, topitud 1. katsel | {label}, {points} punkti, topitud {n}. katsel",
+    "live_count": "{label}: 1 katse | {label}: {n} katset",
+    "live_topped": "Topitud 1. katsel | Topitud {n}. katsel",
+    "undo": "Võta viimane tagasi",
+    "saving": "Salvestamine…",
+    "retry": "Proovi uuesti",
+    "not_saved": "Salvestamata."
   }
 }

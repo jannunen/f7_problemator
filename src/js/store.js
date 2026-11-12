@@ -155,6 +155,17 @@ export default createStore({
         const mine = Array.isArray(state.competition.my_checkpoints) ? {} : { ...(state.competition.my_checkpoints ?? {}) }
         delete mine[payload]
         state.competition.my_checkpoints = mine
+        const tries = Array.isArray(state.competition.my_checkpoint_tries) ? {} : { ...(state.competition.my_checkpoint_tries ?? {}) }
+        delete tries[payload]
+        state.competition.my_checkpoint_tries = tries
+      }
+    },
+    // Zone tries for one route ({attempts, zone_tries}), as the server stored them.
+    setMyCheckpointTries(state, payload) {
+      if (state.competition) {
+        const tries = Array.isArray(state.competition.my_checkpoint_tries) ? {} : { ...(state.competition.my_checkpoint_tries ?? {}) }
+        tries[payload.problemid] = { attempts: payload.attempts, zone_tries: payload.zone_tries }
+        state.competition.my_checkpoint_tries = tries
       }
     },
     removeTickFromCompetition(state, payload) {
@@ -441,6 +452,14 @@ export default createStore({
     async saveCheckpoint({ commit }, payload) {
       const ret = await api.saveCheckpoint(payload)
       // The server keeps the highest checkpoint: show what it stored, not what was tapped.
+      if (ret.attempts != null && ret.zone_tries != null) {
+        // A zone tries write. checkpoint 0 + attempts 0 means the row is gone (undo back to empty).
+        if (!(parseInt(ret.checkpoint) > 0) && !(parseInt(ret.attempts) > 0)) {
+          commit('removeMyCheckpoint', payload.problemid)
+          return ret
+        }
+        commit('setMyCheckpointTries', { problemid: payload.problemid, attempts: ret.attempts, zone_tries: ret.zone_tries })
+      }
       commit('setMyCheckpoint', { problemid: payload.problemid, checkpoint: ret.checkpoint })
       return ret
     },

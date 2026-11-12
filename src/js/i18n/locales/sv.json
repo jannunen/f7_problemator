@@ -532,5 +532,27 @@
     "manage_pending": "Öppnar…",
     "manage_error": "Det gick inte att öppna faktureringsportalen. Försök igen.",
     "manage_unavailable": "Inget att hantera än."
+  },
+  "ladder": {
+    "group_label": "Zoner och topp för leden {route}",
+    "loading": "Laddar zoner",
+    "add_try": "+ försök",
+    "add_try_on": "Lägg till ett försök på {label}",
+    "reached_button": "✓ nådd",
+    "mark_reached": "Markera {label} som nådd",
+    "top_button": "✓ Topp",
+    "mark_top": "Markera toppen som nådd",
+    "in_tries": "på {n}",
+    "rung_idle": "{label}, {points} poäng, inte nådd",
+    "rung_active": "{label}, {points} poäng, försöker nu, 1 försök | {label}, {points} poäng, försöker nu, {n} försök",
+    "rung_reached": "{label}, {points} poäng, nådd på 1 försök | {label}, {points} poäng, nådd på {n} försök",
+    "rung_reached_unknown": "{label}, {points} poäng, nådd",
+    "rung_topped": "{label}, {points} poäng, toppad på 1 försök | {label}, {points} poäng, toppad på {n} försök",
+    "live_count": "{label}: 1 försök | {label}: {n} försök",
+    "live_topped": "Toppad på 1 försök | Toppad på {n} försök",
+    "undo": "Ångra senaste",
+    "saving": "Sparar…",
+    "retry": "Försök igen",
+    "not_saved": "Inte sparat."
   }
 }

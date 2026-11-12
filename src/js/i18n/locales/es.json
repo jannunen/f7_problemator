@@ -532,5 +532,27 @@
     "manage_pending": "Abriendo…",
     "manage_error": "No se pudo abrir el portal de facturación. Inténtalo de nuevo.",
     "manage_unavailable": "Todavía no hay nada que gestionar."
+  },
+  "ladder": {
+    "group_label": "Zonas y top de la vía {route}",
+    "loading": "Cargando zonas",
+    "add_try": "+ intento",
+    "add_try_on": "Añadir un intento en {label}",
+    "reached_button": "✓ alcanzada",
+    "mark_reached": "Marcar {label} como alcanzada",
+    "top_button": "✓ Top",
+    "mark_top": "Marcar el top como alcanzado",
+    "in_tries": "en {n}",
+    "rung_idle": "{label}, {points} puntos, no alcanzada",
+    "rung_active": "{label}, {points} puntos, intentando, 1 intento | {label}, {points} puntos, intentando, {n} intentos",
+    "rung_reached": "{label}, {points} puntos, alcanzada en 1 intento | {label}, {points} puntos, alcanzada en {n} intentos",
+    "rung_reached_unknown": "{label}, {points} puntos, alcanzada",
+    "rung_topped": "{label}, {points} puntos, top en 1 intento | {label}, {points} puntos, top en {n} intentos",
+    "live_count": "{label}: 1 intento | {label}: {n} intentos",
+    "live_topped": "Top en 1 intento | Top en {n} intentos",
+    "undo": "Deshacer último",
+    "saving": "Guardando…",
+    "retry": "Reintentar",
+    "not_saved": "No guardado."
   }
 }

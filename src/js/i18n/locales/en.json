@@ -928,5 +928,27 @@
     "today_total": "Today {n} pts",
     "your_best": "best day {n}",
     "logged_today": "Already logged today"
+  },
+  "ladder": {
+    "group_label": "Zones and top for route {route}",
+    "loading": "Loading zones",
+    "add_try": "+ try",
+    "add_try_on": "Add a try on {label}",
+    "reached_button": "✓ reached",
+    "mark_reached": "Mark {label} reached",
+    "top_button": "✓ Top",
+    "mark_top": "Mark the top reached",
+    "in_tries": "in {n}",
+    "rung_idle": "{label}, {points} points, not reached",
+    "rung_active": "{label}, {points} points, trying now, 1 try so far | {label}, {points} points, trying now, {n} tries so far",
+    "rung_reached": "{label}, {points} points, reached in 1 try | {label}, {points} points, reached in {n} tries",
+    "rung_reached_unknown": "{label}, {points} points, reached",
+    "rung_topped": "{label}, {points} points, topped in 1 try | {label}, {points} points, topped in {n} tries",
+    "live_count": "{label}: 1 try | {label}: {n} tries",
+    "live_topped": "Topped in 1 try | Topped in {n} tries",
+    "undo": "Undo last",
+    "saving": "Saving…",
+    "retry": "Retry",
+    "not_saved": "Not saved."
   }
 }

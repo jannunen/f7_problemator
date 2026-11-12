@@ -532,5 +532,27 @@
     "manage_pending": "Åpner…",
     "manage_error": "Kunne ikke åpne faktureringsportalen. Prøv igjen.",
     "manage_unavailable": "Ingenting å administrere ennå."
+  },
+  "ladder": {
+    "group_label": "Soner og topp for ruten {route}",
+    "loading": "Laster soner",
+    "add_try": "+ forsøk",
+    "add_try_on": "Legg til et forsøk på {label}",
+    "reached_button": "✓ nådd",
+    "mark_reached": "Merk {label} som nådd",
+    "top_button": "✓ Topp",
+    "mark_top": "Merk toppen som nådd",
+    "in_tries": "på {n}",
+    "rung_idle": "{label}, {points} poeng, ikke nådd",
+    "rung_active": "{label}, {points} poeng, prøver nå, 1 forsøk | {label}, {points} poeng, prøver nå, {n} forsøk",
+    "rung_reached": "{label}, {points} poeng, nådd på 1 forsøk | {label}, {points} poeng, nådd på {n} forsøk",
+    "rung_reached_unknown": "{label}, {points} poeng, nådd",
+    "rung_topped": "{label}, {points} poeng, toppet på 1 forsøk | {label}, {points} poeng, toppet på {n} forsøk",
+    "live_count": "{label}: 1 forsøk | {label}: {n} forsøk",
+    "live_topped": "Toppet på 1 forsøk | Toppet på {n} forsøk",
+    "undo": "Angre siste",
+    "saving": "Lagrer…",
+    "retry": "Prøv igjen",
+    "not_saved": "Ikke lagret."
   }
 }

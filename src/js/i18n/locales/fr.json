@@ -532,5 +532,27 @@
     "manage_pending": "Ouverture…",
     "manage_error": "Impossible d'ouvrir le portail de facturation. Réessaie.",
     "manage_unavailable": "Rien à gérer pour l'instant."
+  },
+  "ladder": {
+    "group_label": "Zones et top de la voie {route}",
+    "loading": "Chargement des zones",
+    "add_try": "+ essai",
+    "add_try_on": "Ajouter un essai sur {label}",
+    "reached_button": "✓ atteinte",
+    "mark_reached": "Marquer {label} comme atteinte",
+    "top_button": "✓ Top",
+    "mark_top": "Marquer le top comme atteint",
+    "in_tries": "en {n}",
+    "rung_idle": "{label}, {points} points, non atteinte",
+    "rung_active": "{label}, {points} points, en cours, 1 essai | {label}, {points} points, en cours, {n} essais",
+    "rung_reached": "{label}, {points} points, atteinte en 1 essai | {label}, {points} points, atteinte en {n} essais",
+    "rung_reached_unknown": "{label}, {points} points, atteinte",
+    "rung_topped": "{label}, {points} points, toppé en 1 essai | {label}, {points} points, toppé en {n} essais",
+    "live_count": "{label} : 1 essai | {label} : {n} essais",
+    "live_topped": "Toppé en 1 essai | Toppé en {n} essais",
+    "undo": "Annuler le dernier",
+    "saving": "Enregistrement…",
+    "retry": "Réessayer",
+    "not_saved": "Non enregistré."
   }
 }

@@ -895,5 +895,27 @@
     "today_total": "Tänään {n} p",
     "your_best": "paras päivä {n}",
     "logged_today": "Jo kirjattu tänään"
+  },
+  "ladder": {
+    "group_label": "Reitin {route} zonet ja top",
+    "loading": "Ladataan zoneja",
+    "add_try": "+ yritys",
+    "add_try_on": "Lisää yritys: {label}",
+    "reached_button": "✓ saavutettu",
+    "mark_reached": "Merkitse {label} saavutetuksi",
+    "top_button": "✓ Top",
+    "mark_top": "Merkitse top saavutetuksi",
+    "in_tries": "{n}. yrit.",
+    "rung_idle": "{label}, {points} pistettä, ei saavutettu",
+    "rung_active": "{label}, {points} pistettä, yrityksessä, 1 yritys | {label}, {points} pistettä, yrityksessä, {n} yritystä",
+    "rung_reached": "{label}, {points} pistettä, saavutettu 1 yrityksellä | {label}, {points} pistettä, saavutettu {n} yrityksellä",
+    "rung_reached_unknown": "{label}, {points} pistettä, saavutettu",
+    "rung_topped": "{label}, {points} pistettä, topattu 1 yrityksellä | {label}, {points} pistettä, topattu {n} yrityksellä",
+    "live_count": "{label}: 1 yritys | {label}: {n} yritystä",
+    "live_topped": "Topattu 1 yrityksellä | Topattu {n} yrityksellä",
+    "undo": "Peru viimeisin",
+    "saving": "Tallennetaan…",
+    "retry": "Yritä uudelleen",
+    "not_saved": "Ei tallennettu."
   }
 }
