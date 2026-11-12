@@ -75,6 +75,21 @@ describe('addTry', () => {
     expect(s3.reached).toEqual({ 1: 1, 2: 1 })
     expect(s3.attempts).toBe(1)
   })
+  it('caps an unknown count at the next higher known count (stored {2:3}, attempts 5)', () => {
+    const stored = { zones: 3, checkpoint: 2, tries: { attempts: 5, zone_tries: { 2: 3 } } }
+    // ✓ on rung 3: {1:3, 2:3, 3:5}
+    const r = markReached(fromServer(stored))
+    expect(r.reached).toEqual({ 1: 3, 2: 3, 3: 5 })
+    expect(r.attempts).toBe(5)
+    // + try on rung 3: rung 1 capped at 3, one more try
+    const t = addTry(fromServer(stored))
+    expect(t.reached).toEqual({ 1: 3, 2: 3 })
+    expect(t.attempts).toBe(6)
+    // + try on the Top with rung 3 unknown too (stored cp3, {2:3}): {1:3, 2:3, 3:5}, attempts 6
+    const top3 = addTry(fromServer({ zones: 3, checkpoint: 3, tries: { attempts: 5, zone_tries: { 2: 3 } } }))
+    expect(top3.reached).toEqual({ 1: 3, 2: 3, 3: 5 })
+    expect(top3.attempts).toBe(6)
+  })
   it('stamps unknown counts from old rows at the current tally (stored cp3, {1:2}, attempts 4)', () => {
     const s = addTry(fromServer({ zones: 4, checkpoint: 3, tries: { attempts: 4, zone_tries: { 1: 2 } } }))
     expect(s.reached).toEqual({ 1: 2, 2: 4, 3: 4 })

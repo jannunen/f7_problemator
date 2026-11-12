@@ -118,11 +118,23 @@ export function selectRung(state, rung) {
 // Stamp every zone below `upTo` (inclusive) that is unreached, or reached with
 // an unknown count, at `count`. The user's rule: moving on to a higher rung
 // means the lower ones were completed, frozen at the tally at that moment.
+// A stamp is capped at the smallest KNOWN count among higher reached rungs
+// (and never below the rung beneath it): zone_tries must not decrease with
+// the rung index, or the server refuses the write. E.g. stored {2:3},
+// attempts 5, rung 1 unknown -> rung 1 becomes 3, not 5.
 const stampBelow = (state, upTo, count) => {
   const reached = { ...state.reached }
   const last = Math.min(upTo, state.zones)
+  let floor = 1
   for (let r = 1; r <= last; r++) {
-    if (!(r in reached) || reached[r] == null) reached[r] = count
+    if (reached[r] == null) {
+      let cap = Infinity
+      for (const [k, v] of Object.entries(state.reached)) {
+        if (Number(k) > r && v != null && v < cap) cap = v
+      }
+      reached[r] = Math.max(floor, Math.min(count, cap))
+    }
+    floor = reached[r]
   }
   return reached
 }
