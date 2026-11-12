@@ -44,18 +44,20 @@ export function createLadderSync({
     r.target = null
     r.inflight++
     r.chain = r.chain.then(async () => {
+      let response
       try {
-        const response = hasUnknownCounts(state)
+        response = hasUnknownCounts(state)
           ? await restoreLegacy(pid, highestReached(state))
           : await save(pid, toWrite(state), replace)
-        // Only clear replace if nothing newer asked for it meanwhile.
-        if (replace && r.target == null) r.replace = false
-        onSaved(pid, response, state)
       } catch (err) {
-        onFailed(pid, err, state)
-      } finally {
         r.inflight--
+        onFailed(pid, err, state)
+        return
       }
+      r.inflight--
+      // Only clear replace if nothing newer asked for it meanwhile.
+      if (replace && r.target == null) r.replace = false
+      onSaved(pid, response, state)
     })
     return r.chain
   }

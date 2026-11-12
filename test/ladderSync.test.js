@@ -106,6 +106,14 @@ describe('createLadderSync', () => {
     expect(sync.isBusy(1)).toBe(false)
   })
 
+  it('is no longer busy when the callbacks run', async () => {
+    const seen = []
+    const { sync } = setup({ onSaved: (pid) => seen.push(sync.isBusy(pid)), onFailed: (pid) => seen.push(sync.isBusy(pid)) })
+    sync.queue(1, addTry(fromServer({ zones: 1 })))
+    await sync.flush(1)
+    expect(seen).toEqual([false])
+  })
+
   it('flush with nothing queued does not write', async () => {
     const { sync, save } = setup()
     await sync.flush(4)
