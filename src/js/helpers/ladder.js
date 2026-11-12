@@ -125,24 +125,18 @@ const stampBelow = (state, upTo, count) => {
 }
 
 /**
- * `+ try` on the active rung. Every zone below it that was not reached yet is
- * stamped as reached first (at the current tally, at least 1: a zone cannot be
- * reached before the first attempt), then the attempt counter goes up by one.
+ * `+ try` on the active rung. ONE TAP = ONE TRY: attempts always goes up by
+ * exactly one. Every zone below the active rung that is unreached, or reached
+ * with an unknown count (old data), is first stamped at the current tally
+ * (at least 1: a zone cannot be reached before the first attempt).
+ *   0 tries, choose B, + try   -> A in 1, attempts 1
+ *   2 tries on A, choose B, + try -> A in 2, attempts 3
+ *   stored cp 3, {1:2}, attempts 4, + try on rung 4 -> {1:2, 2:4, 3:4}, attempts 5
  */
 export function addTry(state) {
   if (state.topped || state.active == null) return state
-  const k = state.active
-  let attempts = state.attempts
-  let reached = state.reached
-  let needsStamp = false
-  for (let r = 1; r <= Math.min(k - 1, state.zones); r++) {
-    if (state.reached[r] == null) needsStamp = true
-  }
-  if (needsStamp) {
-    attempts = Math.max(attempts, 1)
-    reached = stampBelow(state, k - 1, attempts)
-  }
-  return withHistory(state, { ...state, reached, attempts: attempts + 1 }, ACTIONS.TRY)
+  const reached = stampBelow(state, state.active - 1, Math.max(state.attempts, 1))
+  return withHistory(state, { ...state, reached, attempts: state.attempts + 1 }, ACTIONS.TRY)
 }
 
 /**

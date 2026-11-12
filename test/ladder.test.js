@@ -67,16 +67,25 @@ describe('addTry', () => {
     expect(s.attempts).toBe(3)
     expect(s.active).toBe(2)
   })
-  it('skipping straight to a later rung with no tries stamps the skipped zones at 1', () => {
-    const s = addTry(selectRung(fresh(3), 3))
-    expect(s.reached).toEqual({ 1: 1, 2: 1 })
-    expect(s.attempts).toBe(2)
+  it('one tap is one try: with no tries, choosing B and + try gives A in 1, attempts 1', () => {
+    const s = addTry(selectRung(fresh(2), 2))
+    expect(s.reached).toEqual({ 1: 1 })
+    expect(s.attempts).toBe(1)
+    const s3 = addTry(selectRung(fresh(3), 3))
+    expect(s3.reached).toEqual({ 1: 1, 2: 1 })
+    expect(s3.attempts).toBe(1)
+  })
+  it('stamps unknown counts from old rows at the current tally (stored cp3, {1:2}, attempts 4)', () => {
+    const s = addTry(fromServer({ zones: 4, checkpoint: 3, tries: { attempts: 4, zone_tries: { 1: 2 } } }))
+    expect(s.reached).toEqual({ 1: 2, 2: 4, 3: 4 })
+    expect(s.attempts).toBe(5)
+    expect(toWrite(s)).toEqual({ checkpoint: 3, attempts: 5, zone_tries: { 1: 2, 2: 4, 3: 4 } })
   })
   it('a try on the Top stamps every unreached zone', () => {
     let s = apply(fresh(2), addTry)
     s = addTry(selectRung(s, 3))
     expect(s.reached).toEqual({ 1: 1, 2: 1 })
-    expect(s.attempts).toBe(2)
+    expect(s.attempts).toBe(2) // one try on A, then one on the Top
     expect(s.topped).toBe(false)
   })
   it('does nothing once topped', () => {
@@ -118,9 +127,9 @@ describe('markReached', () => {
     let s = fromServer({ zones: 3, checkpoint: 1 })
     s = addTry(s) // a try on zone 2 means zone 1 was done: its unknown count becomes 1
     expect(s.reached).toEqual({ 1: 1 })
-    expect(s.attempts).toBe(2)
+    expect(s.attempts).toBe(1)
     s = markReached(s)
-    expect(s.reached).toEqual({ 1: 1, 2: 2 })
+    expect(s.reached).toEqual({ 1: 1, 2: 1 })
     // ✓ straight away on old data stamps the unknown count too
     expect(markReached(fromServer({ zones: 3, checkpoint: 1 })).reached).toEqual({ 1: 1, 2: 1 })
   })
