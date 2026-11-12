@@ -48,13 +48,13 @@
                 v-if="state.attempts > 0"
                 class="ladder__tally"
                 :width="tallyWidth"
-                height="18"
-                :viewBox="'0 0 ' + tallyWidth + ' 18'"
+                height="20"
+                :viewBox="'0 0 ' + tallyWidth + ' 20'"
                 data-test="tally"
               >
                 <path v-for="(d, i) in tallyPaths" :key="i" :d="d" />
               </svg>
-              <span class="ladder__count" data-test="count">{{ state.attempts }}</span>
+              <span v-if="state.attempts > 0" class="ladder__count" data-test="count">{{ state.attempts }}</span>
             </template>
           </span>
         </button>
@@ -86,7 +86,7 @@
 
       <div v-if="showFooter" class="ladder__footer">
         <button
-          v-if="!readonly && undoable"
+          v-if="!readonly && !disabled && undoable"
           type="button"
           class="ladder__quiet"
           :disabled="disabled"
@@ -96,7 +96,7 @@
           {{ t('ladder.undo') }}
         </button>
         <button
-          v-else-if="!readonly && clearable"
+          v-else-if="!readonly && !disabled && clearable"
           type="button"
           class="ladder__quiet ladder__quiet--danger"
           :disabled="disabled"
@@ -171,7 +171,7 @@ const undoable = computed(() => !!props.state && canUndo(props.state))
 // start the route over. A top is removed by swiping the row, as before.
 const clearable = computed(() => !!props.state && !props.state.topped && !isEmpty(props.state))
 const showFooter = computed(
-  () => (!props.readonly && (undoable.value || clearable.value)) || !!props.error || props.saving || (props.disabled && !!props.lockedReason),
+  () => (!props.readonly && !props.disabled && (undoable.value || clearable.value)) || !!props.error || props.saving || (props.disabled && !!props.lockedReason),
 )
 
 const canSelect = (row) => !props.disabled && !props.readonly && row.status === 'idle'
@@ -203,20 +203,21 @@ const announcement = computed(() => {
 // Chalk tally: up to three groups of five (the number beside it is the truth
 // past that). Strokes lean a little, the way a hand draws them.
 const TALLY_MAX_GROUPS = 3
-const GROUP_W = 16
+const GROUP_W = 24
+const STROKE_GAP = 4.5
 const shownGroups = computed(() => tallyGroups(props.state?.attempts ?? 0).slice(-TALLY_MAX_GROUPS))
-const tallyWidth = computed(() => Math.max(1, shownGroups.value.length * GROUP_W + 2))
+const tallyWidth = computed(() => Math.max(1, shownGroups.value.length * GROUP_W))
 const tallyPaths = computed(() => {
   const paths = []
   shownGroups.value.forEach((count, g) => {
-    const x0 = 2 + g * GROUP_W
+    const x0 = 4 + g * GROUP_W
     const verticals = Math.min(count, 4)
     for (let i = 0; i < verticals; i++) {
-      const x = x0 + i * 3
+      const x = x0 + i * STROKE_GAP
       const lean = i % 2 === 0 ? 0.6 : -0.4
-      paths.push(`M${x + lean},3 L${x - lean},15`)
+      paths.push(`M${x + lean},2 L${x - lean},18`)
     }
-    if (count === 5) paths.push(`M${x0 - 2},13 L${x0 + 11},4`)
+    if (count === 5) paths.push(`M${x0 - 3},15 L${x0 + 3 * STROKE_GAP + 3},5`)
   })
   return paths
 })
@@ -246,12 +247,13 @@ const spineStyle = computed(() => {
   --ladder-tape: #94a3b8;
   --ladder-focus: #4f46e5;
   --ladder-paper: #fff;
+  --ladder-tape-edge: rgba(15, 23, 42, 0.18);
 
   width: 100%;
   color: var(--ladder-ink);
   font-variant-numeric: tabular-nums;
 }
-:global(.theme-dark) .ladder {
+html.theme-dark .ladder {
   --ladder-ink: #f1f5f9;
   --ladder-ink-soft: #94a3b8;
   --ladder-chalk: #f1f5f9;
@@ -266,6 +268,7 @@ const spineStyle = computed(() => {
   --ladder-danger: #fca5a5;
   --ladder-focus: #a5b4fc;
   --ladder-paper: #0c1220;
+  --ladder-tape-edge: rgba(255, 255, 255, 0.22);
 }
 
 .ladder__rungs {
@@ -278,13 +281,13 @@ const spineStyle = computed(() => {
 /* The route's own tape runs up the ladder. */
 .ladder__spine {
   position: absolute;
-  left: 13px;
+  left: 15px;
   top: 22px;
   bottom: 22px;
   width: 4px;
   border-radius: 2px;
   background: var(--ladder-tape);
-  box-shadow: inset 0 0 0 1px var(--ladder-hold-strong);
+  box-shadow: 0 0 0 1px var(--ladder-tape-edge);
 }
 .ladder__spine--idle {
   background: var(--ladder-hold-strong);
@@ -383,6 +386,22 @@ const spineStyle = computed(() => {
   stroke-linecap: round;
   fill: none;
   opacity: 0.9;
+}
+
+/* locked: nothing is being attempted, so no amber */
+.ladder--disabled .ladder__rung--active {
+  background: var(--ladder-hold);
+  border-color: var(--ladder-hold-strong);
+}
+.ladder--disabled .ladder__rung--active .ladder__node {
+  border-color: var(--ladder-idle);
+}
+.ladder--disabled .ladder__rung--active .ladder__count {
+  color: var(--ladder-ink-soft);
+}
+.ladder__status:only-child {
+  margin-left: 0;
+  text-align: left;
 }
 
 /* reached */
