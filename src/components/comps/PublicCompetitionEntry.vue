@@ -173,7 +173,11 @@
               </div>
             </template>
             <template #after>
-              <p-button @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">{{ t('global.save') }}</p-button>
+              <p-button
+                :disabled="busy[prob.id]"
+                @click="() => doTick(prob.id)"
+                class="w-20 py-2 dark:bg-green-500 bg-green-600 disabled:opacity-50"
+              >{{ busy[prob.id] ? t('global.saving') : t('global.save') }}</p-button>
               <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
               <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
               <button
@@ -292,6 +296,7 @@ const onChangeSportPoints = (pid, e) => {
   tries.value[pid].sport_points = e.target.value
 }
 const tries = ref({})
+const busy = ref({})
 const getJudgingLink = computed(() => {
   if (props.comp != null) {
     const url = `/competitions/${props.comp.id}/judging`
@@ -436,6 +441,8 @@ setInterval(() => {
 const timeLeft = ref(null)
 
 const doTick = (id) => {
+  if (busy.value[id]) return
+  busy.value = { ...busy.value, [id]: true }
 
   let aSportPoints = 0
   if (tries.value[id] != null) {
@@ -463,6 +470,7 @@ const doTick = (id) => {
       toaster(t('comps.tick_saved'))
     })
     .catch((err) => { })
+    .finally(() => { busy.value = { ...busy.value, [id]: false } })
 }
 const getPointsPerProblem = (num) => {
   if (pointRules.value == null) {

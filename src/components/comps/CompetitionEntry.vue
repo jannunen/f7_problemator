@@ -175,7 +175,12 @@
               </div>
             </template>
             <template #after>
-              <p-button v-if="comp.tyyppi != 'checkpoint_points'" @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">{{ t('global.save') }}</p-button>
+              <p-button
+                v-if="comp.tyyppi != 'checkpoint_points'"
+                :disabled="busy[prob.id]"
+                @click="() => doTick(prob.id)"
+                class="w-20 py-2 dark:bg-green-500 bg-green-600 disabled:opacity-50"
+              >{{ busy[prob.id] ? t('global.saving') : t('global.save') }}</p-button>
               <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
               <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
               <button
@@ -499,6 +504,8 @@ setInterval(() => {
 const timeLeft = ref(null)
 
 const doTick = (id) => {
+  if (busy.value[id]) return
+  busy.value = { ...busy.value, [id]: true }
 
   let aSportPoints = 0
   if (tries.value[id] != null) {
@@ -530,6 +537,7 @@ const doTick = (id) => {
       }
     })
     .catch((err) => { })
+    .finally(() => { busy.value = { ...busy.value, [id]: false } })
 }
 const getStyles = (prob) => {
   const htmlcolour = prob.colour.code
