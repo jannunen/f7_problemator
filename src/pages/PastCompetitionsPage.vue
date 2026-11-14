@@ -47,7 +47,11 @@ dayjs.extend(relativeTime)
 const getLink = (comp) => `${webendpoint}/comps/${comp.id}/results`
 const { data: comps } = useQuery({
   ...queries.competitions(),
-  initialData: { upcoming: [], ongoing: [], past: [] },
+  // placeholderData, not initialData: initialData is cached AS the answer, so
+  // the empty list counted as a fresh, correct result and the query could
+  // go without ever actually fetching — see queryKeys.js's gyms() for why.
+  // placeholderData is only what to show while finding out.
+  placeholderData: { upcoming: [], ongoing: [], past: [] },
 })
 const past = computed(() => comps.value?.past || [])
 
