@@ -171,7 +171,7 @@
               </div>
             </template>
             <template #after>
-              <p-button @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">tick</p-button>
+              <p-button @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">{{ t('global.save') }}</p-button>
               <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
               <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
             </template>
