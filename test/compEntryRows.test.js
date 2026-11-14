@@ -189,12 +189,26 @@ describe.each([
     expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 4, tries_bonus: 2 })
   })
 
-  it('ifsc_2024_bouldering: the old zone fields do not push the corrected tries above the ladder', async () => {
-    const legacy = { 1: { problemid: 1, tries: 5, tries_bonus: 0, attempts_low_zone: 3, attempts_high_zone: 4 } }
+  // Unusable old zones (above the tries) are not loaded, so nothing holds the correction up.
+  it('ifsc_2024_bouldering: the top tick is saved without the old zone fields', async () => {
+    const legacy = { 1: { problemid: 1, tries: 5, tries_bonus: 0, attempts_low_zone: 3, attempts_high_zone: 6 } }
     const live = await renderLive(makeComp('ifsc_2024_bouldering', legacy), { Component, names })
     live.ladder(1).onEdit(3, 2)
     await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(1), { timeout: 2000 })
-    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 2 })
+    const payload = live.saveTick.mock.calls[0][1]
+    expect(payload).toMatchObject({ problemid: 1, tries: 2 })
+    expect(payload).not.toHaveProperty('attempts_low_zone')
+    expect(payload).not.toHaveProperty('attempts_high_zone')
+  })
+
+  it('ifsc_2024_bouldering: a Top correction writes the old zone counts, not the corrected tries', async () => {
+    const legacy = { 1: { problemid: 1, tries: 5, tries_bonus: 0, attempts_low_zone: 2, attempts_high_zone: 3 } }
+    const live = await renderLive(makeComp('ifsc_2024_bouldering', legacy), { Component, names })
+    live.ladder(1).onEdit(3, 4)
+    await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(1), { timeout: 2000 })
+    expect(live.saveCheckpoint.mock.calls.at(-1)[1]).toMatchObject({ problemid: 1, checkpoint: 2, attempts: 4, zone_tries: { 1: 2, 2: 3 }, replace: true })
+    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 4 })
+    expect(live.saveTick.mock.calls[0][1]).not.toHaveProperty('attempts_high_zone')
   })
 })
 

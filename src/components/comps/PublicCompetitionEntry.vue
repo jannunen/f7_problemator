@@ -483,6 +483,9 @@ const ladders = useCheckpointLadders({
   saveCheckpoint: (payload) => store.dispatch('publicSaveCheckpoint', withKey(payload)),
   deleteCheckpoint: (payload) => store.dispatch('publicDeleteCheckpoint', withKey(payload)),
   bonusAffectsTop: isTriesAndBonusType.value,
+  legacyZoneTries: props.comp.tyyppi == 'ifsc_2024_bouldering'
+    ? (tick) => ({ 1: tick.attempts_low_zone, 2: tick.attempts_high_zone })
+    : undefined,
 })
 
 // sport: only the top (1000) is a tick. A lower height is partial credit,
@@ -531,8 +534,9 @@ const saveTickFor = (id, triesBonus) => {
     ticktype: 'tick',
     tries: aTries,
     tries_bonus: triesBonus === undefined ? aTriesBonus : triesBonus,
-    attempts_low_zone: aAttemptsLowZone,
-    attempts_high_zone: aAttemptsHighZone,
+    // ifsc_2024_bouldering keeps its zones on the ladder; the tick's old zone
+    // fields are left as they are, or the server would clamp the tries up to them.
+    ...(props.comp.tyyppi == 'ifsc_2024_bouldering' ? {} : { attempts_low_zone: aAttemptsLowZone, attempts_high_zone: aAttemptsHighZone }),
     created: new Date(),
     problemid: id,
     sport_points: aSportPoints,

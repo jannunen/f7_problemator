@@ -31,6 +31,8 @@ import { myCheckpointFor } from '@helpers/checkpoints.js'
  *   saveCheckpoint / deleteCheckpoint (payload) => Promise   default: the store actions
  *   bonusAffectsTop  true when the top tick stores the bonus (rung 1) count, so
  *                correcting that count while topped saves the tick again
+ *   legacyZoneTries  (tick) => { rung: count }  zone counts a pre-ladder top tick carries;
+ *                default: rung 1 from tries_bonus when bonusAffectsTop, else none
  */
 export function useCheckpointLadders({
   store,
@@ -43,6 +45,7 @@ export function useCheckpointLadders({
   saveCheckpoint = (payload) => store.dispatch('saveCheckpoint', payload),
   deleteCheckpoint = (payload) => store.dispatch('deleteCheckpoint', payload),
   bonusAffectsTop = false,
+  legacyZoneTries = null,
 }) {
   const local = ref({}) // problemid -> ladder state for this session (holds the undo stack)
   const errors = ref({}) // problemid -> inline message
@@ -64,6 +67,7 @@ export function useCheckpointLadders({
     return all[pid] ?? null
   }
 
+  const tickZones = legacyZoneTries ?? (bonusAffectsTop ? (tick) => ({ 1: tick.tries_bonus }) : () => ({}))
   // The bonus count stored on the top tick, when it is a usable one.
   const tickBonus = (pid) => {
     if (!bonusAffectsTop) return null
@@ -73,20 +77,41 @@ export function useCheckpointLadders({
     return bonus >= 1 && !(bonus > tries) ? bonus : null
   }
 
+  // A Top saved before the ladders has no checkpoint row; its zone counts are
+  // on the tick only. Left unknown, a correction would stamp over them. Filled
+  // in only when every rung then reads in climbing order within the top's tries.
+  const withTickZones = (state, tick) => {
+    if (!state.topped || tick == null) return state
+    const fromTick = tickZones(tick) ?? {}
+    const reached = { ...state.reached }
+    let filled = false
+    for (let r = 1; r <= state.zones; r++) {
+      const c = parseInt(fromTick[r])
+      if (reached[r] == null && c >= 1) {
+        reached[r] = c
+        filled = true
+      }
+    }
+    if (!filled) return state
+    let floor = 1
+    for (let r = 1; r <= state.zones; r++) {
+      if (reached[r] == null) continue
+      if (reached[r] < floor) return state
+      floor = reached[r]
+    }
+    if (state.topTries != null && floor > state.topTries) return state
+    return { ...state, reached }
+  }
+
   const serverState = (prob) => {
+    const topTick = comp()?.userticks?.[prob.id] ?? null
     const state = ladder.fromServer({
       zones: zonesFor(prob),
       checkpoint: myCheckpointFor(comp()?.my_checkpoints, prob.id),
       tries: triesFor(prob.id),
-      topTick: comp()?.userticks?.[prob.id] ?? null,
+      topTick,
     })
-    // A Top saved before the ladders has no checkpoint row; its bonus count
-    // is on the tick only. Left unknown, a correction would stamp over it.
-    const bonus = tickBonus(prob.id)
-    if (state.topped && state.zones >= 1 && state.reached[1] == null && bonus != null) {
-      return { ...state, reached: { ...state.reached, 1: bonus } }
-    }
-    return state
+    return withTickZones(state, topTick)
   }
 
   /** The ladder to show for a problem. A local state whose Top disagrees with

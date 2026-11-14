@@ -442,6 +442,28 @@ describe('useCheckpointLadders', () => {
       competition.userticks = { 7: { problemid: 7, tries: 5, tries_bonus: 2 } }
       expect(ladders.stateFor(prob).reached).toEqual({ 1: null })
     })
+
+    const ifscZones = (tick) => ({ 1: tick.attempts_low_zone, 2: tick.attempts_high_zone })
+
+    it('test_correcting_a_legacy_top_writes_the_ticks_own_zone_counts', async () => {
+      const { ladders, calls, saveTop, competition } = setup({}, { legacyZoneTries: ifscZones })
+      competition.userticks = { 7: { problemid: 7, tries: 5, attempts_low_zone: 2, attempts_high_zone: 3 } }
+      expect(ladders.stateFor(prob).reached).toEqual({ 1: 2, 2: 3 })
+      ladders.act(prob, 'edit', { rung: 3, count: 4 })
+      await vi.advanceTimersByTimeAsync(300)
+      expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 2, attempts: 4, zone_tries: { 1: 2, 2: 3 }, replace: true })
+      expect(saveTop).toHaveBeenLastCalledWith(7, 4, 2)
+    })
+
+    it.each([
+      ['out_of_order', { attempts_low_zone: 4, attempts_high_zone: 3 }],
+      ['above_the_tries', { attempts_low_zone: 2, attempts_high_zone: 6 }],
+      ['missing', { attempts_low_zone: null, attempts_high_zone: null }],
+    ])('test_legacy_zone_counts_that_are_%s_stay_unknown', (_, zones) => {
+      const { ladders, competition } = setup({}, { legacyZoneTries: ifscZones })
+      competition.userticks = { 7: { problemid: 7, tries: 5, ...zones } }
+      expect(ladders.stateFor(prob).reached).toEqual({ 1: null, 2: null })
+    })
   })
 
   describe('injected dependencies', () => {
