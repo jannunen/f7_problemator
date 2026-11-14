@@ -145,38 +145,19 @@
                   <f7-stepper fill :min="tries[prob.id]?.tries_bonus || 1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
                 </div>
               </div>
-              <div v-else-if="comp.tyyppi=='ifsc_2024_bouldering'" class="flex flex-col gap-1">
-                <div class="flex flex-col items-start">
-                  <select
-                    class="p-select mb-1 w-24"
-                    style="font-size: 0.75rem; line-height: 1.1; height: auto; padding-top: 0.25rem; padding-bottom: 0.25rem"
-                    data-test="zone-select"
-                    :value="zoneFor(prob.id)"
-                    @change="(e) => setZone(prob.id, e.target.value)"
-                  >
-                    <option value="attempts_low_zone">{{ t('comps.low_zone') }}</option>
-                    <option value="attempts_high_zone">{{ t('comps.high_zone') }}</option>
-                  </select>
-                  <f7-stepper
-                    :key="`${prob.id}-${zoneFor(prob.id)}-${tries[prob.id]?.[zoneFor(prob.id)] || 1}`"
-                    small
-                    fill
-                    :min="zoneFor(prob.id) === 'attempts_high_zone' ? (tries[prob.id]?.attempts_low_zone || 1) : 1"
-                    :value="tries[prob.id]?.[zoneFor(prob.id)] || 1"
-                    @stepper:change="(num) => setAttempt(prob.id, zoneFor(prob.id), num)"
-                  ></f7-stepper>
-                </div>
-                <div class="flex flex-col items-start">
-                  <div class="text-xs">{{ t('comps.tries_to_top') }}</div>
-                  <f7-stepper
-                    :key="`${prob.id}-top-${tries[prob.id]?.tries || 1}`"
-                    small
-                    fill
-                    :min="Math.max(tries[prob.id]?.attempts_low_zone || 1, tries[prob.id]?.attempts_high_zone || 1)"
-                    :value="tries[prob.id]?.tries || 1"
-                    @stepper:change="(num) => setTries(prob.id, num)"
-                  ></f7-stepper>
-                </div>
+              <div v-else-if="comp.tyyppi=='ifsc_2024_bouldering'" class="w-full">
+                <checkpoint-ladder
+                  :problem="prob"
+                  :state="zoneLadderFor(prob)"
+                  :options="zoneLadderOptions"
+                  :disabled="!compOngoing || busy[prob.id]"
+                  @select="(r) => onZoneLadderAction(prob, 'select', r)"
+                  @try="() => onZoneLadderAction(prob, 'try')"
+                  @reached="() => onZoneLadderAction(prob, 'reached')"
+                  @top="() => onZoneLadderAction(prob, 'top')"
+                  @undo="() => onZoneLadderAction(prob, 'undo')"
+                  @clear="() => onZoneLadderAction(prob, 'clear')"
+                />
               </div>
               <div v-else>
                 Comp type not supported (yet)
@@ -226,6 +207,8 @@ import PBadge from '@components/PBadge.vue'
 import PointsPerRoute from './PointsPerRoute.vue'
 import CheckpointLadder from './CheckpointLadder.vue'
 import { fromServer as ladderFromServer } from '@helpers/ladder.js'
+import * as zoneLadder from '@helpers/ladder.js'
+import { zoneLadderFromTick, zoneLadderToTick } from '@helpers/zoneLadder.js'
 import { TOP_POINTS_TYPES, TRIES_AND_BONUS_TYPES, myCheckpointFor as myCheckpointForHelper } from '@helpers/checkpoints.js'
 import ShowResults from './ShowResults.vue'
 import { webendpoint } from '@js/api.js'
@@ -274,14 +257,59 @@ const ladderFor = (prob) => {
     topTick: store.state.competition?.userticks?.[prob.id] ?? null,
   })
 }
-// Which zone (low/high) each ifsc_2024_bouldering row's single stepper is
-// currently pointed at. Purely local UI state — not submitted — the tries
-// value for each zone still lives in tries[prob.id], so switching the
-// dropdown never loses what was already entered for the other zone.
-const selectedZone = ref({})
-const zoneFor = (pid) => selectedZone.value[pid] ?? 'attempts_low_zone'
-const setZone = (pid, field) => {
-  selectedZone.value = { ...selectedZone.value, [pid]: field }
+// ifsc_2024_bouldering's low/high zones + top, as a ladder (same presentation
+// and state machine as checkpoint_points' CheckpointLadder), but the zone
+// data lives on the climber's own tick row, not a side-effect-free table —
+// so unlike checkpoints, taps stay purely local and only reach the server
+// when the existing Save button submits the whole tick (doTick/saveTickFor).
+const zoneLadderOptions = computed(() => [
+  { label: t('comps.low_zone'), value: 1, points: 5 },
+  { label: t('comps.high_zone'), value: 2, points: 10 },
+  { label: t('comps.top'), value: 'top', points: 25 },
+])
+const zoneLadders = ref({}) // problemid -> ladder state, this session only
+const zoneLadderFor = (prob) => {
+  if (zoneLadders.value[prob.id]) return zoneLadders.value[prob.id]
+  const t0 = tries.value[prob.id] ?? {}
+  const state = zoneLadderFromTick({
+    attempts_low_zone: t0.attempts_low_zone,
+    attempts_high_zone: t0.attempts_high_zone,
+    tries: t0.tries,
+    topped: isTicked(prob.id),
+  })
+  zoneLadders.value = { ...zoneLadders.value, [prob.id]: state }
+  return state
+}
+const setZoneLadderState = (pid, next) => {
+  zoneLadders.value = { ...zoneLadders.value, [pid]: next }
+  // Mirror into tries[pid] so Save (doTick/saveTickFor) sends it unchanged.
+  const { attempts_low_zone, attempts_high_zone, topTries } = zoneLadderToTick(next)
+  tries.value[pid] = {
+    ...tries.value[pid],
+    attempts_low_zone,
+    attempts_high_zone,
+    tries: topTries ?? tries.value[pid]?.tries ?? 1,
+  }
+}
+const onZoneLadderAction = (prob, action, arg) => {
+  const cur = zoneLadderFor(prob)
+  switch (action) {
+    case 'select':
+      return setZoneLadderState(prob.id, zoneLadder.selectRung(cur, arg))
+    case 'try':
+      return setZoneLadderState(prob.id, zoneLadder.addTry(cur))
+    case 'reached':
+      return setZoneLadderState(prob.id, zoneLadder.markReached(cur))
+    case 'top':
+      return setZoneLadderState(prob.id, zoneLadder.top(cur))
+    case 'undo': {
+      const { state } = zoneLadder.undo(cur)
+      return setZoneLadderState(prob.id, state)
+    }
+    case 'clear':
+      return setZoneLadderState(prob.id, zoneLadderFromTick({}))
+    default:
+  }
 }
 const errors = ref("")
 const loaded = ref(false)
