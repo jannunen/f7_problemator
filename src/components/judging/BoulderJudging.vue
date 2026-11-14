@@ -1,6 +1,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { computed, onMounted, ref } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import useDebouncedRef, { debounce } from '@helpers/debouncedRef.js'
 import { useStore } from 'vuex'
 import axios from 'axios'
@@ -15,6 +15,12 @@ const ascents = ref([])
 const routeIds = ref('')
 const triesTop = ref(1)
 const triesBonus = ref(1)
+// Tries to top can never be fewer than tries to bonus — the bonus hold sits
+// before the top on the route, so reaching it can't take more tries than
+// finishing it. Either side can be set directly (typed or a quick-pick
+// button), so both directions are enforced here rather than per-control.
+watch(triesBonus, (bonus) => { if (triesTop.value < bonus) triesTop.value = bonus })
+watch(triesTop, (top) => { if (top < triesBonus.value) triesTop.value = triesBonus.value })
 const hits = ref([])
 const search = ref('')
 const apiurl = 'https://pwa.problemator.fi'

@@ -143,7 +143,7 @@
                 </div>
                 <div class="flex flex-col items-center">
                   <div class="text-xs">{{ t('comps.tries_to_top') }}</div>
-                  <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                  <f7-stepper fill :min="tries[prob.id]?.tries_bonus || 1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
                 </div>
               </div>
               <div v-else-if="comp.tyyppi=='ifsc_2024_bouldering'" class="flex flex-row gap-2">
@@ -443,7 +443,15 @@ const setAttempt = (id, field, amount) => {
   if (!(id in tries.value)) {
     tries.value[id] = { tries: 1, sport_points: 0 }
   }
-  tries.value[id] = { ...tries.value[id], [field]: amount }
+  const next = { ...tries.value[id], [field]: amount }
+  // Tries to top can never be fewer than tries to bonus — the bonus hold
+  // sits before the top on the route, so reaching it can't take more tries
+  // than finishing it. Raising bonus past the stored top pulls top up with
+  // it; the stepper's own :min stops top being pulled below bonus directly.
+  if (field === 'tries_bonus' && (next.tries ?? 1) < amount) {
+    next.tries = amount
+  }
+  tries.value[id] = next
 }
 const setTries = (id, triesAmount) => setAttempt(id, 'tries', triesAmount)
 const lastUpdate = ref(dayjs())
