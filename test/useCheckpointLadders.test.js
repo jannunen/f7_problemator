@@ -339,8 +339,21 @@ describe('useCheckpointLadders', () => {
       expect(ladders.isSaving(7)).toBe(false)
     })
 
+    it('by default a bonus (rung 1) edit on a topped route leaves the top tick alone', async () => {
+      const { ladders, calls, saveTop, deleteTop } = setup()
+      await reachBoth(ladders)
+      await ladders.act(prob, 'top') // top in 3, bonus in 2
+      ladders.act(prob, 'edit', { rung: 1, count: 1 })
+      await vi.advanceTimersByTimeAsync(600)
+      expect(saveTop).toHaveBeenCalledTimes(1)
+      expect(deleteTop).not.toHaveBeenCalled()
+      expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 2, attempts: 3, zone_tries: { 1: 1, 2: 3 }, replace: true })
+      expect(ladders.stateFor(prob)).toMatchObject({ topped: true, topTries: 3 })
+      expect(ladders.isSaving(7)).toBe(false)
+    })
+
     it('test_editing_a_reached_bonus_rungs_count_after_a_top_resaves_the_tick', async () => {
-      const { ladders, calls, saveTop, competition } = setup()
+      const { ladders, calls, saveTop, competition } = setup({}, { bonusAffectsTop: true })
       await reachBoth(ladders)
       await ladders.act(prob, 'top') // top in 3, bonus in 2
       expect(saveTop).toHaveBeenLastCalledWith(7, 3, 2)

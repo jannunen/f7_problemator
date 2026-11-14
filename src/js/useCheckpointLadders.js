@@ -29,6 +29,8 @@ import { myCheckpointFor } from '@helpers/checkpoints.js'
  *   deleteTop    (problemid) => Promise          removes the top tick
  *   zonesFor     (prob) => number of zones       default: the problem's checkpoints
  *   saveCheckpoint / deleteCheckpoint (payload) => Promise   default: the store actions
+ *   bonusAffectsTop  true when the top tick stores the bonus (rung 1) count, so
+ *                correcting that count while topped saves the tick again
  */
 export function useCheckpointLadders({
   store,
@@ -40,6 +42,7 @@ export function useCheckpointLadders({
   zonesFor = (prob) => prob?.pivot?.checkpoints?.length ?? 0,
   saveCheckpoint = (payload) => store.dispatch('saveCheckpoint', payload),
   deleteCheckpoint = (payload) => store.dispatch('deleteCheckpoint', payload),
+  bonusAffectsTop = false,
 }) {
   const local = ref({}) // problemid -> ladder state for this session (holds the undo stack)
   const errors = ref({}) // problemid -> inline message
@@ -228,7 +231,8 @@ export function useCheckpointLadders({
     cancelRetop(prob.id)
     if (cur.topped && !next.topped) return untop(prob, cur, next)
     if (next.topped && !cur.topped) return top(prob, next, { replace: true })
-    if (next.topped && (topUnsaved || next.topTries !== cur.topTries || next.reached[1] !== cur.reached[1])) return retop(prob, next)
+    const bonusMoved = bonusAffectsTop && next.reached[1] !== cur.reached[1]
+    if (next.topped && (topUnsaved || next.topTries !== cur.topTries || bonusMoved)) return retop(prob, next)
     write(prob, next, { replace: true })
   }
 
