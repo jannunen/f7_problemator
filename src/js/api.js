@@ -248,6 +248,7 @@ const api = {
       body.zone_tries = payload.zone_tries ?? {}
       body.replace = !!payload.replace
     }
+    if (payload.score != null) body.score = payload.score
     const ret = await axios.post(endpoint+"/competitions/"+payload.compid+"/checkpoints", body)
     return ret.data
   },
