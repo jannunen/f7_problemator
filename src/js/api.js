@@ -239,7 +239,7 @@ const api = {
     })
     return ret.data
   },
-  async saveCheckpoint(payload) {
+  async saveCheckpoint(payload, prefix = '') {
     // attempts/zone_tries/replace are the zone tries full-state write; leaving
     // them out is the old checkpoint-only write (server keeps the max).
     const body = { problemid: payload.problemid, checkpoint: payload.checkpoint }
@@ -249,11 +249,19 @@ const api = {
       body.replace = !!payload.replace
     }
     if (payload.score != null) body.score = payload.score
-    const ret = await axios.post(endpoint+"/competitions/"+payload.compid+"/checkpoints", body)
+    let url = endpoint + prefix + "/competitions/" + payload.compid + "/checkpoints"
+    if (payload.point_entry_key) {
+      url += "?key=" + payload.point_entry_key
+    }
+    const ret = await axios.post(url, body)
     return ret.data
   },
-  async deleteCheckpoint(payload) {
-    const ret = await axios.delete(endpoint+"/competitions/"+payload.compid+"/checkpoints/"+payload.problemid)
+  async deleteCheckpoint(payload, prefix = '') {
+    let url = endpoint + prefix + "/competitions/" + payload.compid + "/checkpoints/" + payload.problemid
+    if (payload.point_entry_key) {
+      url += "?key=" + payload.point_entry_key
+    }
+    const ret = await axios.delete(url)
     return ret.data
   },
   async findContenderInComp(payload) {

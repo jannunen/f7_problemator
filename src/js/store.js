@@ -22,6 +22,19 @@ const getFromLocalStorage = (key, defaultValue) => {
   return localStorage[key] ? JSON.parse(localStorage[key]) : defaultValue;
 };
 
+// The server keeps the highest checkpoint: show what it stored, not what was tapped.
+const commitSavedCheckpoint = (commit, problemid, ret) => {
+  if (ret.attempts != null && ret.zone_tries != null) {
+    // A zone tries write. checkpoint 0 + attempts 0 means the row is gone (undo back to empty).
+    if (!(parseInt(ret.checkpoint) > 0) && !(parseInt(ret.attempts) > 0)) {
+      commit('removeMyCheckpoint', problemid)
+      return
+    }
+    commit('setMyCheckpointTries', { problemid, attempts: ret.attempts, zone_tries: ret.zone_tries })
+  }
+  commit('setMyCheckpoint', { problemid, checkpoint: ret.checkpoint })
+}
+
 export default createStore({
   modules : {
     home,
@@ -451,20 +464,27 @@ export default createStore({
     },
     async saveCheckpoint({ commit }, payload) {
       const ret = await api.saveCheckpoint(payload)
-      // The server keeps the highest checkpoint: show what it stored, not what was tapped.
-      if (ret.attempts != null && ret.zone_tries != null) {
-        // A zone tries write. checkpoint 0 + attempts 0 means the row is gone (undo back to empty).
-        if (!(parseInt(ret.checkpoint) > 0) && !(parseInt(ret.attempts) > 0)) {
-          commit('removeMyCheckpoint', payload.problemid)
-          return ret
-        }
-        commit('setMyCheckpointTries', { problemid: payload.problemid, attempts: ret.attempts, zone_tries: ret.zone_tries })
-      }
-      commit('setMyCheckpoint', { problemid: payload.problemid, checkpoint: ret.checkpoint })
+      commitSavedCheckpoint(commit, payload.problemid, ret)
       return ret
     },
     async deleteCheckpoint({ commit }, payload) {
       const ret = await api.deleteCheckpoint(payload)
+      commit('removeMyCheckpoint', payload.problemid)
+      return ret
+    },
+    async publicSaveCheckpoint({ state, commit }, payload) {
+      if (state.climber != null && state.climber.point_entry_key != null) {
+        payload.point_entry_key = state.climber.point_entry_key
+      }
+      const ret = await api.saveCheckpoint(payload, '/compkey')
+      commitSavedCheckpoint(commit, payload.problemid, ret)
+      return ret
+    },
+    async publicDeleteCheckpoint({ state, commit }, payload) {
+      if (state.climber != null && state.climber.point_entry_key != null) {
+        payload.point_entry_key = state.climber.point_entry_key
+      }
+      const ret = await api.deleteCheckpoint(payload, '/compkey')
       commit('removeMyCheckpoint', payload.problemid)
       return ret
     },
