@@ -79,6 +79,7 @@
         </div>
         <p v-if="comp.tyyppi != 'checkpoint_points'" class="text-center">{{ t('comps.delete_ascent_hint') }}</p>
         <p v-else class="text-center">Swipe left to delete an ascent</p>
+        <p v-if="comp.tyyppi == 'sport'" class="text-center text-sm text-gray-400">{{ t('comps.sport_points_hint') }}</p>
         <f7-list class="m-0">
           <f7-list-item>
             <template #title>
