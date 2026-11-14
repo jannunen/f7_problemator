@@ -146,10 +146,11 @@
                   <f7-stepper fill :min="tries[prob.id]?.tries_bonus || 1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
                 </div>
               </div>
-              <div v-else-if="comp.tyyppi=='ifsc_2024_bouldering'" class="flex flex-row gap-2">
-                <div class="flex flex-col items-center">
+              <div v-else-if="comp.tyyppi=='ifsc_2024_bouldering'" class="flex flex-col gap-1">
+                <div class="flex flex-col items-start">
                   <select
-                    class="p-select text-xs"
+                    class="p-select mb-1 w-24"
+                    style="font-size: 0.75rem; line-height: 1.1; height: auto; padding-top: 0.25rem; padding-bottom: 0.25rem"
                     data-test="zone-select"
                     :value="zoneFor(prob.id)"
                     @change="(e) => setZone(prob.id, e.target.value)"
@@ -158,15 +159,24 @@
                     <option value="attempts_high_zone">{{ t('comps.high_zone') }}</option>
                   </select>
                   <f7-stepper
+                    :key="`${prob.id}-${zoneFor(prob.id)}-${tries[prob.id]?.[zoneFor(prob.id)] || 1}`"
+                    small
                     fill
-                    :min="1"
+                    :min="zoneFor(prob.id) === 'attempts_high_zone' ? (tries[prob.id]?.attempts_low_zone || 1) : 1"
                     :value="tries[prob.id]?.[zoneFor(prob.id)] || 1"
                     @stepper:change="(num) => setAttempt(prob.id, zoneFor(prob.id), num)"
                   ></f7-stepper>
                 </div>
-                <div class="flex flex-col items-center">
+                <div class="flex flex-col items-start">
                   <div class="text-xs">{{ t('comps.tries_to_top') }}</div>
-                  <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                  <f7-stepper
+                    :key="`${prob.id}-top-${tries[prob.id]?.tries || 1}`"
+                    small
+                    fill
+                    :min="Math.max(tries[prob.id]?.attempts_low_zone || 1, tries[prob.id]?.attempts_high_zone || 1)"
+                    :value="tries[prob.id]?.tries || 1"
+                    @stepper:change="(num) => setTries(prob.id, num)"
+                  ></f7-stepper>
                 </div>
               </div>
               <div v-else>
@@ -395,6 +405,28 @@ const setAttempt = (id, field, amount) => {
   // it; the stepper's own :min stops top being pulled below bonus directly.
   if (field === 'tries_bonus' && (next.tries ?? 1) < amount) {
     next.tries = amount
+  }
+  // ifsc_2024_bouldering: low zone, then high zone, then top — each sits
+  // further up the route, so reaching a later one can never take fewer
+  // tries than an earlier one. Raising an earlier value pulls later ones
+  // up with it; each stepper's own :min stops a later value being pulled
+  // below an earlier one directly.
+  if (field === 'attempts_low_zone') {
+    if ((next.attempts_high_zone ?? 1) < amount) next.attempts_high_zone = amount
+    if ((next.tries ?? 1) < amount) next.tries = amount
+  } else if (field === 'attempts_high_zone') {
+    // The stepper's :min isn't reactive to the zone dropdown switching
+    // underneath it, so this clamp is the real enforcement, not just a
+    // backstop for a decrement :min already should have blocked.
+    const lowFloor = next.attempts_low_zone ?? 1
+    if (amount < lowFloor) {
+      amount = lowFloor
+      next.attempts_high_zone = lowFloor
+    }
+    if ((next.tries ?? 1) < amount) next.tries = amount
+  } else if (field === 'tries') {
+    const floor = Math.max(next.attempts_low_zone ?? 1, next.attempts_high_zone ?? 1)
+    if (amount < floor) next.tries = floor
   }
   tries.value[id] = next
 }
