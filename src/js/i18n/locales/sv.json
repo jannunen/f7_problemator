@@ -556,6 +556,12 @@
     "undo": "Ångra senaste",
     "saving": "Sparar…",
     "retry": "Försök igen",
-    "not_saved": "Inte sparat."
+    "not_saved": "Inte sparat.",
+    "edit_rung": "Korrigera {label}",
+    "fewer_tries": "Ett försök färre",
+    "more_tries": "Ett försök till",
+    "remove_mark": "Ta bort",
+    "remove_mark_above": "Ta bort denna och de ovanför",
+    "edit_done": "Klar"
   }
 }

@@ -921,6 +921,12 @@
     "undo": "Peru viimeisin",
     "saving": "Tallennetaan…",
     "retry": "Yritä uudelleen",
-    "not_saved": "Ei tallennettu."
+    "not_saved": "Ei tallennettu.",
+    "edit_rung": "Korjaa {label}",
+    "fewer_tries": "Yksi yritys vähemmän",
+    "more_tries": "Yksi yritys enemmän",
+    "remove_mark": "Poista",
+    "remove_mark_above": "Poista tämä ja ylemmät",
+    "edit_done": "Valmis"
   }
 }

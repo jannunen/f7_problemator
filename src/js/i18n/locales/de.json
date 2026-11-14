@@ -556,6 +556,12 @@
     "undo": "Letzte rückgängig",
     "saving": "Speichern…",
     "retry": "Erneut versuchen",
-    "not_saved": "Nicht gespeichert."
+    "not_saved": "Nicht gespeichert.",
+    "edit_rung": "{label} korrigieren",
+    "fewer_tries": "Ein Versuch weniger",
+    "more_tries": "Ein Versuch mehr",
+    "remove_mark": "Entfernen",
+    "remove_mark_above": "Diese und alle darüber entfernen",
+    "edit_done": "Fertig"
   }
 }

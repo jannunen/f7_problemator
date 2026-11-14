@@ -556,6 +556,12 @@
     "undo": "Cofnij ostatnie",
     "saving": "Zapisywanie…",
     "retry": "Ponów",
-    "not_saved": "Nie zapisano."
+    "not_saved": "Nie zapisano.",
+    "edit_rung": "Popraw {label}",
+    "fewer_tries": "Jedna próba mniej",
+    "more_tries": "Jedna próba więcej",
+    "remove_mark": "Usuń",
+    "remove_mark_above": "Usuń tę i wyższe",
+    "edit_done": "Gotowe"
   }
 }

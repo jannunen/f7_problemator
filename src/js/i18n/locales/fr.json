@@ -556,6 +556,12 @@
     "undo": "Annuler le dernier",
     "saving": "Enregistrement…",
     "retry": "Réessayer",
-    "not_saved": "Non enregistré."
+    "not_saved": "Non enregistré.",
+    "edit_rung": "Corriger {label}",
+    "fewer_tries": "Un essai de moins",
+    "more_tries": "Un essai de plus",
+    "remove_mark": "Retirer",
+    "remove_mark_above": "Retirer celle-ci et celles du dessus",
+    "edit_done": "Terminé"
   }
 }

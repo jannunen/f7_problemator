@@ -556,6 +556,12 @@
     "undo": "Atšaukti paskutinį",
     "saving": "Saugoma…",
     "retry": "Bandyti dar kartą",
-    "not_saved": "Neišsaugota."
+    "not_saved": "Neišsaugota.",
+    "edit_rung": "Taisyti {label}",
+    "fewer_tries": "Vienu bandymu mažiau",
+    "more_tries": "Vienu bandymu daugiau",
+    "remove_mark": "Pašalinti",
+    "remove_mark_above": "Pašalinti šį ir esančius aukščiau",
+    "edit_done": "Atlikta"
   }
 }

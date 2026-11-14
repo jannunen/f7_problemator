@@ -179,6 +179,197 @@ describe('useCheckpointLadders', () => {
     expect(writes(calls).at(-1)).toMatchObject({ attempts: 1, replace: true })
   })
 
+  describe('corrections', () => {
+    // zone 1 in 2, zone 2 in 3, saved; trying the top
+    const reachBoth = async (ladders) => {
+      ladders.act(prob, 'try')
+      ladders.act(prob, 'try')
+      ladders.act(prob, 'reached')
+      ladders.act(prob, 'try')
+      ladders.act(prob, 'reached')
+      await vi.advanceTimersByTimeAsync(500) // saved, and past the double tap guard on the Top
+    }
+
+    it('editing a reached count is one full-state write with replace', async () => {
+      const { ladders, calls } = setup()
+      await reachBoth(ladders)
+      ladders.act(prob, 'edit', { rung: 1, count: 1 })
+      expect(ladders.stateFor(prob).reached).toEqual({ 1: 1, 2: 3 }) // at once
+      await vi.advanceTimersByTimeAsync(300)
+      expect(writes(calls).at(-1)).toEqual({ compid: 3, problemid: 7, checkpoint: 2, attempts: 3, zone_tries: { 1: 1, 2: 3 }, replace: true })
+      expect(ladders.stateFor(prob)).toMatchObject({ reached: { 1: 1, 2: 3 }, active: 3 })
+    })
+
+    it('stepper taps coalesce, and a count is clamped to what the server accepts', async () => {
+      const { ladders, calls } = setup()
+      await reachBoth(ladders)
+      const before = writes(calls).length
+      ladders.act(prob, 'edit', { rung: 1, count: 3 })
+      ladders.act(prob, 'edit', { rung: 1, count: 4 }) // zone 2 was reached in 3
+      ladders.act(prob, 'edit', { rung: 1, count: 9 })
+      await vi.advanceTimersByTimeAsync(300)
+      expect(writes(calls).length - before).toBe(1)
+      expect(writes(calls).at(-1)).toMatchObject({ zone_tries: { 1: 3, 2: 3 }, attempts: 3, replace: true })
+    })
+
+    it('an edit that changes nothing sends nothing', async () => {
+      const { ladders, calls } = setup()
+      await reachBoth(ladders)
+      const before = writes(calls).length
+      ladders.act(prob, 'edit', { rung: 1, count: 2 })
+      ladders.act(prob, 'edit', { rung: 3, count: 5 }) // not topped: the top has no count
+      ladders.act(prob, 'unreach', 3)
+      await vi.advanceTimersByTimeAsync(300)
+      expect(writes(calls).length).toBe(before)
+      expect(ladders.isSaving(7)).toBe(false)
+    })
+
+    it('removing the highest mark keeps the zones below and makes it the active rung', async () => {
+      const { ladders, calls, competition } = setup()
+      await reachBoth(ladders)
+      ladders.act(prob, 'unreach', 2)
+      expect(ladders.stateFor(prob)).toMatchObject({ reached: { 1: 2 }, attempts: 3, active: 2 })
+      await vi.advanceTimersByTimeAsync(300)
+      expect(writes(calls).at(-1)).toEqual({ compid: 3, problemid: 7, checkpoint: 1, attempts: 3, zone_tries: { 1: 2 }, replace: true })
+      expect(competition.my_checkpoints[7]).toBe(1)
+      expect(ladders.stateFor(prob).active).toBe(2) // kept after adopting the response
+    })
+
+    it('removing the first zone removes the ones above; the tries stay', async () => {
+      const { ladders, calls } = setup()
+      await reachBoth(ladders)
+      ladders.act(prob, 'unreach', 1)
+      await vi.advanceTimersByTimeAsync(300)
+      expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 0, attempts: 3, zone_tries: {}, replace: true })
+      expect(ladders.stateFor(prob)).toMatchObject({ reached: {}, active: 1 })
+    })
+
+    it('undo of a removal puts the mark back', async () => {
+      const { ladders, calls } = setup()
+      await reachBoth(ladders)
+      ladders.act(prob, 'unreach', 2)
+      await vi.advanceTimersByTimeAsync(300)
+      ladders.act(prob, 'undo')
+      await vi.advanceTimersByTimeAsync(300)
+      expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 2, zone_tries: { 1: 2, 2: 3 }, replace: true })
+      expect(ladders.stateFor(prob).active).toBe(3)
+    })
+
+    it('removing the top deletes the tick and keeps the zones; undo tops again with the same tries', async () => {
+      const { ladders, calls, saveTop, deleteTop, competition } = setup()
+      await reachBoth(ladders)
+      ladders.act(prob, 'try')
+      await ladders.act(prob, 'top') // top in 4
+      expect(saveTop).toHaveBeenLastCalledWith(7, 4)
+      await ladders.act(prob, 'unreach', 3)
+      expect(deleteTop).toHaveBeenCalledWith(7)
+      await vi.advanceTimersByTimeAsync(300)
+      expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 2, attempts: 4, zone_tries: { 1: 2, 2: 3 }, replace: true })
+      expect(ladders.stateFor(prob)).toMatchObject({ topped: false, active: 3 })
+      expect(competition.userticks[7]).toBeUndefined()
+      await ladders.act(prob, 'undo')
+      expect(saveTop).toHaveBeenCalledTimes(2)
+      expect(saveTop).toHaveBeenLastCalledWith(7, 4)
+      expect(ladders.stateFor(prob)).toMatchObject({ topped: true, topTries: 4 })
+    })
+
+    it('removing a zone of a topped route removes the top tick too', async () => {
+      const { ladders, calls, deleteTop } = setup()
+      await reachBoth(ladders)
+      await ladders.act(prob, 'top')
+      await ladders.act(prob, 'unreach', 2)
+      expect(deleteTop).toHaveBeenCalledTimes(1)
+      await vi.advanceTimersByTimeAsync(300)
+      expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 1, zone_tries: { 1: 2 }, replace: true })
+      expect(ladders.stateFor(prob)).toMatchObject({ topped: false, reached: { 1: 2 }, active: 2 })
+    })
+
+    it('a zone edit on a topped route leaves the top tick alone', async () => {
+      const { ladders, calls, saveTop, deleteTop } = setup()
+      await reachBoth(ladders)
+      await ladders.act(prob, 'top')
+      ladders.act(prob, 'edit', { rung: 2, count: 2 })
+      await vi.advanceTimersByTimeAsync(300)
+      expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 2, attempts: 3, zone_tries: { 1: 2, 2: 2 }, replace: true })
+      expect(saveTop).toHaveBeenCalledTimes(1)
+      expect(deleteTop).not.toHaveBeenCalled()
+      expect(ladders.stateFor(prob).topped).toBe(true)
+    })
+
+    it('correcting the tries of the top saves the tick once, with the last value', async () => {
+      const { ladders, calls, saveTop, competition } = setup()
+      await reachBoth(ladders)
+      await ladders.act(prob, 'top') // top in 3
+      ladders.act(prob, 'edit', { rung: 3, count: 4 })
+      ladders.act(prob, 'edit', { rung: 3, count: 5 })
+      ladders.act(prob, 'edit', { rung: 3, count: 6 })
+      expect(ladders.stateFor(prob)).toMatchObject({ topped: true, topTries: 6, attempts: 6 })
+      expect(ladders.isSaving(7)).toBe(true)
+      expect(saveTop).toHaveBeenCalledTimes(1)
+      await vi.advanceTimersByTimeAsync(300)
+      expect(saveTop).toHaveBeenCalledTimes(2)
+      expect(saveTop).toHaveBeenLastCalledWith(7, 6)
+      expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 2, attempts: 6, zone_tries: { 1: 2, 2: 3 }, replace: true })
+      expect(competition.userticks[7].tries).toBe(6)
+      expect(ladders.isSaving(7)).toBe(false)
+    })
+
+    it('a zone edit made while a corrected top is waiting does not lose the top', async () => {
+      const { ladders, calls, saveTop } = setup()
+      await reachBoth(ladders)
+      await ladders.act(prob, 'top')
+      ladders.act(prob, 'edit', { rung: 3, count: 5 })
+      ladders.act(prob, 'edit', { rung: 1, count: 1 })
+      await vi.advanceTimersByTimeAsync(300)
+      expect(saveTop).toHaveBeenLastCalledWith(7, 5)
+      expect(writes(calls).at(-1)).toMatchObject({ attempts: 5, zone_tries: { 1: 1, 2: 3 }, replace: true })
+      expect(ladders.isSaving(7)).toBe(false)
+    })
+
+    it('removing the top while a corrected top is waiting just removes it', async () => {
+      const { ladders, saveTop, deleteTop } = setup()
+      await reachBoth(ladders)
+      await ladders.act(prob, 'top')
+      ladders.act(prob, 'edit', { rung: 3, count: 5 })
+      await ladders.act(prob, 'unreach', 3)
+      await vi.advanceTimersByTimeAsync(600)
+      expect(deleteTop).toHaveBeenCalledTimes(1)
+      expect(saveTop).toHaveBeenCalledTimes(1)
+      expect(ladders.stateFor(prob)).toMatchObject({ topped: false, attempts: 5, active: 3 })
+      expect(ladders.isSaving(7)).toBe(false)
+    })
+
+    it('a failed correction stays on screen with Retry, like any other write', async () => {
+      let failing = false
+      const { ladders, calls } = setup({ fail: (name) => failing && name === 'saveCheckpoint' })
+      await reachBoth(ladders)
+      failing = true
+      ladders.act(prob, 'unreach', 2)
+      await vi.advanceTimersByTimeAsync(300)
+      expect(ladders.errors.value[7]).toBe('ladder.not_saved')
+      expect(ladders.stateFor(prob).reached).toEqual({ 1: 2 })
+      failing = false
+      ladders.act(prob, 'retry')
+      await vi.advanceTimersByTimeAsync(300)
+      // replace sticks until a write carrying it succeeds
+      expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 1, zone_tries: { 1: 2 }, replace: true })
+    })
+
+    it('works on a ladder loaded from the server, after a reload', async () => {
+      const { ladders, calls, competition } = setup()
+      competition.my_checkpoints = { 7: 2 }
+      competition.my_checkpoint_tries = { 7: { attempts: 5, zone_tries: { 1: 2, 2: 4 } } }
+      expect(ladders.stateFor(prob).active).toBe(3)
+      ladders.act(prob, 'edit', { rung: 2, count: 3 })
+      await vi.advanceTimersByTimeAsync(300)
+      expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 2, attempts: 5, zone_tries: { 1: 2, 2: 3 }, replace: true })
+      ladders.act(prob, 'unreach', 2)
+      await vi.advanceTimersByTimeAsync(300)
+      expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 1, attempts: 5, zone_tries: { 1: 2 }, replace: true })
+      expect(ladders.stateFor(prob).active).toBe(2)
+    })
+  })
+
   it('swiping the ascent away (tick deleted elsewhere) drops the local topped ladder', async () => {
     const { ladders, competition } = setup()
     await ladders.act(prob, 'top')

@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   fromServer, selectRung, addTry, markReached, top, undo, canUndo, toWrite,
   adoptServer, rungView, hasUnknownCounts, tallyGroups, firstUnreached, highestReached, isEmpty, sameData,
+  canEdit, countBounds, setReachedCount, unreach, marksAbove, MAX_TRIES,
 } from '../src/js/helpers/ladder.js'
 
 const fresh = (zones = 2) => fromServer({ zones })
@@ -225,6 +226,256 @@ describe('undo', () => {
     expect(state.reached).toEqual({ 1: null })
     expect(hasUnknownCounts(state)).toBe(true)
     expect(toWrite(state)).toEqual({ checkpoint: 1, attempts: 0, zone_tries: {} })
+  })
+})
+
+// zone 1 in 2, zone 2 in 4, three zones, 5 tries so far, trying zone 3
+const midRoute = () => fromServer({ zones: 3, checkpoint: 2, tries: { attempts: 5, zone_tries: { 1: 2, 2: 4 } } })
+const toppedRoute = () => fromServer({ zones: 2, checkpoint: 2, tries: { attempts: 6, zone_tries: { 1: 2, 2: 4 } }, topTick: { tries: 6 } })
+// What the server accepts as a full-state write (CheckpointRecorder::validateState).
+const expectWritable = (s) => {
+  expect(hasUnknownCounts(s)).toBe(false)
+  const w = toWrite(s)
+  const rungs = Object.keys(w.zone_tries).map(Number).sort((a, b) => a - b)
+  const values = rungs.map((r) => w.zone_tries[r])
+  for (const v of values) {
+    expect(v).toBeGreaterThanOrEqual(1)
+    expect(v).toBeLessThanOrEqual(w.attempts)
+  }
+  expect([...values].sort((a, b) => a - b)).toEqual(values)
+  expect(w.checkpoint).toBe(rungs.length ? Math.max(...rungs) : 0)
+  if (s.topped) expect(s.topTries).toBeGreaterThanOrEqual(values.length ? Math.max(...values) : 1)
+}
+
+describe('canEdit, countBounds', () => {
+  it('only reached zones and the top of a topped route can be edited', () => {
+    const s = midRoute()
+    expect([1, 2, 3, 4, 0, 9, null].map((r) => canEdit(s, r))).toEqual([true, true, false, false, false, false, false])
+    expect(countBounds(s, 3)).toBeNull()
+    expect(canEdit(toppedRoute(), 3)).toBe(true)
+    expect(canEdit(toppedRoute(), '1')).toBe(true)
+  })
+  it('holds a zone between the counts below and above it', () => {
+    const s = midRoute()
+    expect(countBounds(s, 1)).toEqual({ min: 1, max: 4 })
+    expect(countBounds(s, 2)).toEqual({ min: 2, max: MAX_TRIES }) // the last mark: nothing above it
+  })
+  it('the top caps the last zone, and the zones are the floor of the top', () => {
+    const s = toppedRoute()
+    expect(countBounds(s, 2)).toEqual({ min: 2, max: 6 })
+    expect(countBounds(s, 3)).toEqual({ min: 4, max: MAX_TRIES })
+  })
+  it('skips unknown counts when looking for a neighbour', () => {
+    const s = fromServer({ zones: 3, checkpoint: 3, tries: { attempts: 6, zone_tries: { 1: 2, 3: 5 } } })
+    expect(s.reached).toEqual({ 1: 2, 2: null, 3: 5 })
+    expect(countBounds(s, 2)).toEqual({ min: 2, max: 5 })
+    expect(countBounds(s, 3)).toEqual({ min: 2, max: MAX_TRIES })
+  })
+  it('never returns an empty range, even for data that is out of order', () => {
+    const s = { ...midRoute(), reached: { 1: 5, 2: 3, 3: 2 } }
+    expect(countBounds(s, 2)).toEqual({ min: 5, max: 5 })
+  })
+})
+
+describe('setReachedCount', () => {
+  it('corrects a zone count and leaves everything else alone', () => {
+    const s = setReachedCount(midRoute(), 1, 3)
+    expect(s.reached).toEqual({ 1: 3, 2: 4 })
+    expect(s).toMatchObject({ attempts: 5, active: 3, topped: false })
+    expectWritable(s)
+  })
+  it('clamps to the neighbours instead of breaking the order', () => {
+    expect(setReachedCount(midRoute(), 1, 9).reached).toEqual({ 1: 4, 2: 4 })
+    expect(setReachedCount(midRoute(), 2, 1).reached).toEqual({ 1: 2, 2: 2 })
+    expect(setReachedCount(midRoute(), 1, 0).reached).toEqual({ 1: 1, 2: 4 })
+    expect(setReachedCount(midRoute(), 1, -3).reached[1]).toBe(1)
+    expect(setReachedCount(midRoute(), 2, 5000).reached[2]).toBe(MAX_TRIES)
+  })
+  it('raising the last mark past the running total takes the total with it', () => {
+    const s = setReachedCount(midRoute(), 2, 7)
+    expect(s.reached).toEqual({ 1: 2, 2: 7 })
+    expect(s.attempts).toBe(7)
+    expectWritable(s)
+  })
+  it('lowering the last mark keeps tries made since then', () => {
+    const s = setReachedCount(midRoute(), 2, 3) // reached in 4, now 5: one try since
+    expect(s.reached).toEqual({ 1: 2, 2: 3 })
+    expect(s.attempts).toBe(5)
+  })
+  it('with no tries since the mark, the running total moves with it, down and back up', () => {
+    const marked = apply(fresh(2), addTry, addTry, addTry, markReached) // zone 1 in 3, total 3
+    const down = setReachedCount(marked, 1, 2)
+    expect(down).toMatchObject({ attempts: 2, reached: { 1: 2 }, active: 2 })
+    const up = setReachedCount(down, 1, 3)
+    expect(up).toMatchObject({ attempts: 3, reached: { 1: 3 } })
+    expectWritable(down)
+  })
+  it('a lower zone never moves the running total down', () => {
+    const s = apply(fresh(3), addTry, addTry, markReached, markReached) // {1:2, 2:2}, total 2
+    expect(setReachedCount(s, 1, 1)).toMatchObject({ attempts: 2, reached: { 1: 1, 2: 2 } })
+  })
+  it('corrects the tries of the top; the zones are its floor', () => {
+    const s = setReachedCount(toppedRoute(), 3, 8)
+    expect(s).toMatchObject({ topped: true, topTries: 8, attempts: 8, active: null })
+    expect(s.reached).toEqual({ 1: 2, 2: 4 })
+    expect(setReachedCount(toppedRoute(), 3, 1)).toMatchObject({ topTries: 4, attempts: 4 })
+    expectWritable(setReachedCount(toppedRoute(), 3, 1))
+  })
+  it('a zone of a topped route cannot pass the top', () => {
+    const s = setReachedCount(toppedRoute(), 2, 50)
+    expect(s.reached).toEqual({ 1: 2, 2: 6 })
+    expect(s).toMatchObject({ topped: true, topTries: 6, attempts: 6 })
+    expectWritable(s)
+  })
+  it('stamps unknown counts so the result can be written as a full state', () => {
+    // old data: zones 1 and 2 reached, no counts, no tries
+    const old = setReachedCount(fromServer({ zones: 3, checkpoint: 2 }), 2, 3)
+    expect(old.reached).toEqual({ 1: 3, 2: 3 })
+    expect(old.attempts).toBe(3)
+    expectWritable(old)
+    // a top tick with no zone counts at all (e.g. an ifsc tick saved without zones)
+    const ticked = setReachedCount(fromServer({ zones: 2, topTick: { tries: 4 } }), 1, 2)
+    expect(ticked.reached).toEqual({ 1: 2, 2: 4 })
+    expect(ticked).toMatchObject({ topped: true, topTries: 4, attempts: 4 })
+    expectWritable(ticked)
+    // an unknown zone between two known ones stays between them
+    const gap = setReachedCount(fromServer({ zones: 3, checkpoint: 3, tries: { attempts: 6, zone_tries: { 1: 2, 3: 5 } } }), 1, 1)
+    expect(gap.reached).toEqual({ 1: 1, 2: 5, 3: 5 })
+    expectWritable(gap)
+  })
+  it('ignores unreached rungs, the same value and junk', () => {
+    const s = midRoute()
+    expect(setReachedCount(s, 3, 2)).toBe(s)
+    expect(setReachedCount(s, 4, 2)).toBe(s) // the top of a route that is not topped
+    expect(setReachedCount(s, 1, 2)).toBe(s)
+    expect(setReachedCount(s, 1, 'x')).toBe(s)
+    expect(setReachedCount(s, 1, null)).toBe(s)
+    const t = toppedRoute()
+    expect(setReachedCount(t, 3, 6)).toBe(t)
+  })
+  it('accepts strings and can be undone', () => {
+    const before = midRoute()
+    const s = setReachedCount(before, '1', '3')
+    expect(s.reached[1]).toBe(3)
+    const { state, undone } = undo(s)
+    expect(undone).toBe('edit')
+    expect(state.reached).toEqual({ 1: 2, 2: 4 })
+    expect(sameData(state, before)).toBe(true)
+  })
+  it('stays writable through any sequence of corrections', () => {
+    let s = apply(fresh(3), addTry, markReached, addTry, addTry, markReached, addTry)
+    for (const [rung, n] of [[1, 5], [2, 1], [1, 3], [2, 9], [1, 1], [2, 2], [1, 2]]) {
+      s = setReachedCount(s, rung, n)
+      expectWritable(s)
+    }
+    s = top(s)
+    for (const [rung, n] of [[4, 1], [3, 9], [1, 9], [4, 12], [2, 11], [3, 1]]) {
+      s = setReachedCount(s, rung, n)
+      expectWritable(s)
+    }
+  })
+})
+
+describe('unreach', () => {
+  it('removes the highest mark and keeps the ones below', () => {
+    const s = unreach(midRoute(), 2)
+    expect(s.reached).toEqual({ 1: 2 })
+    expect(s).toMatchObject({ attempts: 5, active: 2, topped: false })
+    expect(toWrite(s)).toEqual({ checkpoint: 1, attempts: 5, zone_tries: { 1: 2 } })
+    expect(rungView(s).map((r) => r.status)).toEqual(['reached', 'active', 'idle', 'idle'])
+  })
+  it('takes the marks above with it: zones are reached in order', () => {
+    const s = unreach(midRoute(), 1)
+    expect(s.reached).toEqual({})
+    expect(s).toMatchObject({ attempts: 5, active: 1 })
+    expect(toWrite(s)).toEqual({ checkpoint: 0, attempts: 5, zone_tries: {} })
+    expect(marksAbove(midRoute(), 1)).toBe(1)
+    expect(marksAbove(midRoute(), 2)).toBe(0)
+  })
+  it('on the Top rung removes only the top', () => {
+    const s = unreach(toppedRoute(), 3)
+    expect(s).toMatchObject({ topped: false, topTries: null, attempts: 6, active: 3 })
+    expect(s.reached).toEqual({ 1: 2, 2: 4 })
+    expect(marksAbove(toppedRoute(), 3)).toBe(0)
+  })
+  it('a zone of a topped route takes the top with it', () => {
+    const s = unreach(toppedRoute(), 2)
+    expect(s).toMatchObject({ topped: false, topTries: null, active: 2 })
+    expect(s.reached).toEqual({ 1: 2 })
+    expect(marksAbove(toppedRoute(), 2)).toBe(1)
+    expect(marksAbove(toppedRoute(), 1)).toBe(2)
+  })
+  it('the removed rung becomes the one being attempted, and ✓ marks it again', () => {
+    let s = selectRung(midRoute(), 4) // trying the top
+    s = unreach(s, 2)
+    expect(s.active).toBe(2)
+    s = markReached(s)
+    expect(s.reached).toEqual({ 1: 2, 2: 5 })
+    expect(s.active).toBe(3)
+  })
+  it('ignores rungs that are not reached', () => {
+    const s = midRoute()
+    expect(unreach(s, 3)).toBe(s)
+    expect(unreach(s, 4)).toBe(s)
+    expect(unreach(s, 'x')).toBe(s)
+    expect(marksAbove(s, 3)).toBe(0)
+  })
+  it('can be undone, the top included', () => {
+    const before = toppedRoute()
+    const { state, undone } = undo(unreach(before, 1))
+    expect(undone).toBe('unreach')
+    expect(state).toMatchObject({ topped: true, topTries: 6, active: null })
+    expect(state.reached).toEqual({ 1: 2, 2: 4 })
+  })
+  it('keeps unknown counts below unknown (nothing is made up)', () => {
+    const s = unreach(fromServer({ zones: 3, checkpoint: 3 }), 3)
+    expect(s.reached).toEqual({ 1: null, 2: null })
+    expect(s.active).toBe(3)
+  })
+})
+
+describe('the active rung always lands on the lowest unreached rung', () => {
+  const reload = (s) => {
+    const w = toWrite(s)
+    return fromServer({ zones: s.zones, checkpoint: w.checkpoint, tries: w })
+  }
+  it('after ✓, and the same again when rebuilt from what was written', () => {
+    let s = fresh(3)
+    for (const expected of [2, 3, 4]) {
+      s = markReached(addTry(s))
+      expect(s.active).toBe(expected)
+      expect(reload(s).active).toBe(expected)
+    }
+  })
+  it('after ✓ on a rung chosen further up', () => {
+    const s = markReached(selectRung(addTry(fresh(3)), 3))
+    expect(s.active).toBe(4)
+    expect(firstUnreached(s)).toBe(4)
+  })
+  it('after undo, a correction and a removal, live and after a reload', () => {
+    let s = apply(fresh(3), addTry, markReached, addTry, markReached) // 1 and 2 reached
+    expect(s.active).toBe(3)
+    s = undo(s).state // zone 2 not reached after all
+    expect(s.active).toBe(2)
+    expect(reload(s).active).toBe(2)
+    s = markReached(s)
+    s = setReachedCount(s, 1, 2)
+    expect(s.active).toBe(3)
+    expect(reload(s).active).toBe(3)
+    s = unreach(s, 2)
+    expect(s.active).toBe(2)
+    expect(reload(s).active).toBe(2)
+    s = undo(s).state // the removal undone: zone 2 is back
+    expect(s.active).toBe(3)
+    s = unreach(s, 1)
+    expect(s.active).toBe(1)
+    expect(reload(s).active).toBe(1)
+  })
+  it('adopting the server answer after a removal keeps the removed rung active', () => {
+    const s = unreach(midRoute(), 2)
+    const adopted = adoptServer(s, { checkpoint: 1, attempts: 5, zone_tries: { 1: 2 } })
+    expect(adopted.active).toBe(2)
+    expect(adopted.reached).toEqual({ 1: 2 })
   })
 })
 

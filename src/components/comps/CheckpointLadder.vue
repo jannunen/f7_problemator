@@ -19,45 +19,96 @@
     <template v-else>
       <!-- Climbing order in the DOM (zone 1 first) so screen readers and the
            tab order go up the route; column-reverse draws the Top at the top. -->
-      <div class="ladder__rungs">
-        <span class="ladder__spine" :style="spineStyle" aria-hidden="true"></span>
-        <button
+      <div class="ladder__rungs" :style="spineStyle">
+        <div
           v-for="row in rows"
           :key="row.rung"
-          type="button"
-          class="ladder__rung"
-          :class="['ladder__rung--' + row.status, { 'ladder__rung--top': row.isTop }]"
-          :aria-label="rungName(row)"
-          :aria-current="row.status === 'active' ? 'step' : undefined"
-          :aria-disabled="!canSelect(row) ? 'true' : undefined"
-          :data-test="'rung-' + (row.isTop ? 'top' : row.rung)"
-          @click="onRung(row)"
+          class="ladder__step"
+          :class="{ 'ladder__step--open': openRung === row.rung }"
         >
-          <span class="ladder__node" aria-hidden="true"></span>
-          <span class="ladder__label">
-            <span class="ladder__name">{{ rungLabel(row) }}</span>
-            <span class="ladder__points">{{ rungPoints(row) }}</span>
-          </span>
-          <span class="ladder__mark" aria-hidden="true">
-            <template v-if="row.status === 'reached'">
-              <span class="ladder__check">✓</span>
-              <span v-if="row.count != null" class="ladder__in">{{ t('ladder.in_tries', { n: row.count }) }}</span>
-            </template>
-            <template v-else-if="row.status === 'active'">
-              <svg
-                v-if="state.attempts > 0"
-                class="ladder__tally"
-                :width="tallyWidth"
-                height="20"
-                :viewBox="'0 0 ' + tallyWidth + ' 20'"
-                data-test="tally"
+          <button
+            type="button"
+            class="ladder__rung"
+            :class="['ladder__rung--' + row.status, { 'ladder__rung--top': row.isTop, 'ladder__rung--editable': canEditRow(row) }]"
+            :aria-label="rungName(row)"
+            :aria-current="row.status === 'active' ? 'step' : undefined"
+            :aria-disabled="!canSelect(row) && !canEditRow(row) ? 'true' : undefined"
+            :aria-expanded="canEditRow(row) ? (openRung === row.rung ? 'true' : 'false') : undefined"
+            :data-test="'rung-' + (row.isTop ? 'top' : row.rung)"
+            @click="onRung(row)"
+          >
+            <!-- Node and label stay together on the first line; the mark
+                 drops to a line of its own when the row is too narrow. -->
+            <span class="ladder__head">
+              <span class="ladder__node" aria-hidden="true"></span>
+              <span class="ladder__label">
+                <span class="ladder__name">{{ rungLabel(row) }}</span>
+                <span class="ladder__points">{{ rungPoints(row) }}</span>
+              </span>
+            </span>
+            <span v-if="row.status === 'reached' || (row.status === 'active' && state.attempts > 0)" class="ladder__mark" aria-hidden="true">
+              <template v-if="row.status === 'reached'">
+                <span class="ladder__check">✓</span>
+                <span v-if="row.count != null" class="ladder__in">{{ t('ladder.in_tries', { n: row.count }) }}</span>
+                <svg v-if="canEditRow(row)" class="ladder__pencil" width="14" height="14" viewBox="0 0 16 16" data-test="editable">
+                  <path d="M2.5 13.5 3.2 10.6 10.9 2.9a1.2 1.2 0 0 1 1.7 0l.5.5a1.2 1.2 0 0 1 0 1.7L5.4 12.8Z M9.8 4 12 6.2" />
+                </svg>
+              </template>
+              <template v-else>
+                <svg
+                  class="ladder__tally"
+                  :width="tallyWidth"
+                  height="20"
+                  :viewBox="'0 0 ' + tallyWidth + ' 20'"
+                  data-test="tally"
+                >
+                  <path v-for="(d, i) in tallyPaths" :key="i" :d="d" />
+                </svg>
+                <span class="ladder__count" data-test="count">{{ state.attempts }}</span>
+              </template>
+            </span>
+          </button>
+
+          <!-- Correcting a reached rung: the count it was reached at, or the mark itself. -->
+          <div
+            v-if="openRung === row.rung"
+            class="ladder__edit"
+            :class="{ 'ladder__edit--top': row.isTop }"
+            role="group"
+            :aria-label="t('ladder.edit_rung', { label: rungLabel(row) })"
+            data-test="edit"
+          >
+            <div class="ladder__stepper">
+              <button
+                type="button"
+                class="ladder__nudge"
+                :disabled="!canNudge(row, -1)"
+                :aria-label="t('ladder.fewer_tries')"
+                data-test="edit-fewer"
+                @click="nudge(row, -1)"
               >
-                <path v-for="(d, i) in tallyPaths" :key="i" :d="d" />
-              </svg>
-              <span v-if="state.attempts > 0" class="ladder__count" data-test="count">{{ state.attempts }}</span>
-            </template>
-          </span>
-        </button>
+                −
+              </button>
+              <span class="ladder__edit-count" aria-live="polite" data-test="edit-count">{{ row.count == null ? '–' : t('ladder.in_tries', { n: row.count }) }}</span>
+              <button
+                type="button"
+                class="ladder__nudge"
+                :disabled="!canNudge(row, 1)"
+                :aria-label="t('ladder.more_tries')"
+                data-test="edit-more"
+                @click="nudge(row, 1)"
+              >
+                +
+              </button>
+            </div>
+            <button type="button" class="ladder__quiet ladder__quiet--danger" data-test="unreach" @click="onUnreach(row)">
+              {{ t(removesAbove(row) ? 'ladder.remove_mark_above' : 'ladder.remove_mark') }}
+            </button>
+            <button type="button" class="ladder__quiet ladder__edit-done" data-test="edit-done" @click="editing = null">
+              {{ t('ladder.edit_done') }}
+            </button>
+          </div>
+        </div>
       </div>
 
       <div v-if="!readonly && !state.topped" class="ladder__actions">
@@ -149,13 +200,17 @@ import { computed, ref, onBeforeUnmount } from 'vue'
 import { DOUBLE_TAP_MS } from '@helpers/ladder.js'
 import { useI18n } from 'vue-i18n'
 import { checkpointOptions, checkpointDisplayLabel } from '@helpers/checkpoints.js'
-import { rungView, tallyGroups, canUndo, isEmpty, isTopRung } from '@helpers/ladder.js'
+import { rungView, tallyGroups, canUndo, isEmpty, isTopRung, canEdit, countBounds, marksAbove } from '@helpers/ladder.js'
 
 /**
  * One route's zones as a ladder: Zone 1 … Top drawn upward along the route's
  * tape colour, attempts as chalk tally marks on the rung being tried. Purely
  * presentational: the parent owns the ladder state (helpers/ladder.js) and
- * the saving, and answers the events.
+ * the saving, and answers the events. The only thing kept here is which
+ * reached rung has its editor open.
+ *
+ * Tapping a reached rung opens its editor: − / + emit `edit` (rung, count)
+ * with the corrected count, Remove emits `unreach` (rung).
  */
 const props = defineProps({
   problem: { type: Object, required: true },
@@ -173,7 +228,7 @@ const props = defineProps({
   options: { type: Array, default: null },
   clearLabelKey: { type: String, default: 'comps.clear_checkpoint' },
 })
-const emit = defineEmits(['select', 'try', 'reached', 'top', 'undo', 'retry', 'clear'])
+const emit = defineEmits(['select', 'try', 'reached', 'top', 'undo', 'retry', 'clear', 'edit', 'unreach'])
 const { t } = useI18n()
 
 const options = computed(() => props.options ?? checkpointOptions(props.problem))
@@ -214,8 +269,39 @@ const onTop = () => {
 onBeforeUnmount(() => clearTimeout(holdTimer))
 
 const canSelect = (row) => !props.disabled && !props.readonly && row.status === 'idle'
+
+// Correcting a reached rung. The editor closes by itself when its rung stops
+// being editable (the mark was removed, undone, or the ladder got locked).
+const editing = ref(null)
+const editable = computed(() => !props.disabled && !props.readonly && !!props.state)
+const canEditRow = (row) => editable.value && canEdit(props.state, row.rung)
+const openRung = computed(() => (editing.value != null && editable.value && canEdit(props.state, editing.value) ? editing.value : null))
+const removesAbove = (row) => marksAbove(props.state, row.rung) > 0
+// A count that is not known yet (old data) starts from the lowest it can be.
+const nudged = (row, step) => {
+  const bounds = countBounds(props.state, row.rung)
+  if (!bounds) return null
+  if (row.count == null) return bounds.min
+  const n = row.count + step
+  return n < bounds.min || n > bounds.max ? null : n
+}
+const canNudge = (row, step) => nudged(row, step) != null
+const nudge = (row, step) => {
+  const n = nudged(row, step)
+  if (n != null) emit('edit', row.rung, n)
+}
+const onUnreach = (row) => {
+  editing.value = null
+  emit('unreach', row.rung)
+}
+
 const onRung = (row) => {
-  if (canSelect(row)) emit('select', row.rung)
+  if (canSelect(row)) {
+    editing.value = null
+    emit('select', row.rung)
+  } else if (canEditRow(row)) {
+    editing.value = openRung.value === row.rung ? null : row.rung
+  }
 }
 
 const rungName = (row) => {
@@ -289,8 +375,12 @@ const spineStyle = computed(() => {
   --ladder-tape-edge: rgba(15, 23, 42, 0.18);
 
   width: 100%;
+  min-width: 0;
   color: var(--ladder-ink);
   font-variant-numeric: tabular-nums;
+  /* A Framework7 list title does not wrap and clips with an ellipsis; the
+     ladder lays out its own lines. */
+  white-space: normal;
 }
 html.theme-dark .ladder {
   --ladder-ink: #f1f5f9;
@@ -317,28 +407,64 @@ html.theme-dark .ladder {
   gap: 2px;
 }
 
-/* The route's own tape runs up the ladder. */
-.ladder__spine {
+/* The route's own tape runs up the ladder, node to node. Each step draws its
+   stretch of it, so the tape still ends on the first and the last node when
+   a label wraps or a rung has its editor open underneath. */
+.ladder__spine,
+.ladder__step::before {
   position: absolute;
-  left: 15px;
+  left: 14px;
+  width: 6px;
+  box-sizing: border-box;
+  border-inline: 1px solid var(--ladder-tape-edge);
+  background: var(--ladder-tape);
+}
+.ladder__spine {
   top: 22px;
   bottom: 22px;
-  width: 4px;
   border-radius: 2px;
-  background: var(--ladder-tape);
-  box-shadow: 0 0 0 1px var(--ladder-tape-edge);
 }
 .ladder__spine--idle {
   background: var(--ladder-hold-strong);
 }
+.ladder__step::before {
+  content: '';
+  /* up through the gap to the step above */
+  top: -2px;
+  bottom: 0;
+}
+/* the lowest rung: from its node upward only */
+.ladder__step:first-child::before {
+  bottom: auto;
+  height: 24px;
+  border-radius: 0 0 2px 2px;
+}
+/* the Top: from its node downward only */
+.ladder__step:last-child::before {
+  top: 22px;
+  border-radius: 2px 2px 0 0;
+}
+.ladder__step:only-child::before {
+  content: none;
+}
 
+.ladder__step {
+  position: relative;
+  min-width: 0;
+}
+
+/* One line when there is room: node, label, mark. In a narrow row the mark
+   wraps under the label instead of squeezing it to "T…". */
 .ladder__rung {
   position: relative;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 8px;
+  justify-content: flex-end;
+  gap: 0 8px;
+  width: 100%;
   min-height: 44px;
-  padding: 0 8px 0 7px;
+  padding: 5px 8px 5px 7px;
   border: 1px solid transparent;
   border-radius: 8px;
   background: transparent;
@@ -354,6 +480,7 @@ html.theme-dark .ladder {
 }
 .ladder__rung:focus-visible,
 .ladder__btn:focus-visible,
+.ladder__nudge:focus-visible,
 .ladder__quiet:focus-visible {
   outline: 2px solid var(--ladder-focus);
   outline-offset: 2px;
@@ -364,29 +491,51 @@ html.theme-dark .ladder {
   flex: none;
   width: 18px;
   height: 18px;
+  margin-top: 7px;
   border-radius: 9999px;
   border: 2px solid var(--ladder-idle);
   background: var(--ladder-paper);
   z-index: 1;
 }
 
+/* The node sits on the label's first line, 22px down the step whatever the
+   label's height, which is where the tape expects it. */
+.ladder__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  /* Wants its full width (so the mark wraps away first) and gives way only
+     when the label alone is wider than the row. */
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 32px;
+}
 .ladder__label {
   display: flex;
   align-items: baseline;
   gap: 6px;
   min-width: 0;
   flex: 1;
+  padding: 7px 0;
 }
+/* Routesetter labels run to 40 characters: they wrap (up to three lines)
+   rather than being cut off. */
 .ladder__name {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  min-width: 0;
   font-size: 0.875rem;
   font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
 }
 .ladder__points {
+  flex: none;
   font-size: 0.75rem;
   color: var(--ladder-ink-soft);
+  white-space: nowrap;
 }
 
 .ladder__mark {
@@ -394,8 +543,10 @@ html.theme-dark .ladder {
   align-items: center;
   gap: 6px;
   flex: none;
+  min-height: 22px;
   font-size: 0.875rem;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 /* not yet */
@@ -454,6 +605,86 @@ html.theme-dark .ladder {
 .ladder__in {
   font-weight: 600;
 }
+/* a reached rung can be corrected: a quiet pencil says so */
+.ladder__pencil {
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.6;
+}
+.ladder__step--open .ladder__rung {
+  background: var(--ladder-hold);
+  border-color: var(--ladder-hold-strong);
+}
+.ladder__step--open .ladder__pencil {
+  opacity: 1;
+}
+
+/* the editor of a reached rung, hanging off the spine under its rung */
+.ladder__edit {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 8px;
+  margin: 2px 0 6px 33px;
+  padding: 6px 6px 0 8px;
+  border-left: 2px solid var(--ladder-reached);
+  border-radius: 0 8px 8px 0;
+  background: var(--ladder-hold);
+}
+.ladder__edit--top {
+  border-left-color: var(--ladder-top);
+}
+/* the stepper on a line of its own; Remove and Done share the next one */
+.ladder__stepper {
+  display: flex;
+  flex: 1 0 100%;
+  align-items: center;
+  gap: 4px;
+}
+.ladder__nudge {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 1px solid var(--ladder-hold-strong);
+  background: var(--ladder-paper);
+  color: var(--ladder-ink);
+  font: inherit;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.ladder__nudge:active:not(:disabled) {
+  background: var(--ladder-hold-strong);
+}
+.ladder__edit-count {
+  min-width: 3em;
+  text-align: center;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--ladder-reached-text);
+  white-space: nowrap;
+}
+.ladder__edit--top .ladder__edit-count {
+  color: var(--ladder-top);
+}
+.ladder__edit .ladder__quiet {
+  /* Framework7 stretches every button to its container's width */
+  width: auto;
+  min-height: 40px;
+  padding: 0 2px;
+  font-size: 0.8125rem;
+}
+.ladder__edit-done {
+  margin-left: auto;
+}
 /* topped */
 .ladder__rung--top.ladder__rung--reached .ladder__node {
   border-color: var(--ladder-top);
@@ -466,12 +697,16 @@ html.theme-dark .ladder {
 
 .ladder__actions {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 8px;
 }
+/* side by side when both fit, one under the other in a narrow row */
 .ladder__btn {
-  flex: 1;
+  flex: 1 1 5.25rem;
   min-height: 48px;
+  padding: 0 6px;
+  white-space: nowrap;
   border-radius: 10px;
   border: 1px solid var(--ladder-hold-strong);
   background: var(--ladder-hold);
@@ -484,7 +719,7 @@ html.theme-dark .ladder {
   transition: background-color 0.15s ease, transform 0.08s ease;
 }
 .ladder__btn--try {
-  flex: 1.25;
+  flex-grow: 1.25;
 }
 .ladder__btn:active:not(:disabled) {
   transform: scale(0.98);
@@ -501,6 +736,7 @@ html.theme-dark .ladder {
   color: var(--ladder-top);
 }
 .ladder__btn:disabled,
+.ladder__nudge:disabled,
 .ladder__quiet:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -508,9 +744,10 @@ html.theme-dark .ladder {
 
 .ladder__footer {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
+  gap: 0 8px;
   margin-top: 2px;
   min-height: 44px;
 }
@@ -549,6 +786,12 @@ html.theme-dark .ladder {
 
 .ladder__rung--skeleton {
   cursor: default;
+  flex-wrap: nowrap;
+  justify-content: flex-start;
+  gap: 8px;
+}
+.ladder__rung--skeleton .ladder__node {
+  margin-top: 0;
 }
 .ladder__skeleton-bar {
   height: 10px;

@@ -88,7 +88,7 @@
             </template>
           </f7-list-item>
 
-          <f7-list-item swipeout v-for="prob in sortedProblems" :key="prob.id">
+          <f7-list-item swipeout v-for="prob in sortedProblems" :key="prob.id" :class="ladderRowClass">
             <f7-swipeout-actions right>
               <f7-swipeout-button color="red" close @click="() => onDeleted(prob.id)" confirm-text="Are you sure you want to delete this tick?">Delete</f7-swipeout-button>
             </f7-swipeout-actions>
@@ -129,6 +129,8 @@
                   @reached="() => ladders.act(prob, 'reached')"
                   @top="() => ladders.act(prob, 'top')"
                   @undo="() => ladders.act(prob, 'undo')"
+                  @edit="(rung, count) => ladders.act(prob, 'edit', { rung, count })"
+                  @unreach="(rung) => ladders.act(prob, 'unreach', rung)"
                   @retry="() => ladders.act(prob, 'retry')"
                   @clear="() => ladders.act(prob, 'clear')"
                 />
@@ -165,6 +167,8 @@
                   @reached="() => onZoneLadderAction(prob, 'reached')"
                   @top="() => onZoneLadderAction(prob, 'top')"
                   @undo="() => onZoneLadderAction(prob, 'undo')"
+                  @edit="(rung, count) => onZoneLadderAction(prob, 'edit', { rung, count })"
+                  @unreach="(rung) => onZoneLadderAction(prob, 'unreach', rung)"
                   @clear="() => onZoneLadderAction(prob, 'clear')"
                 />
               </div>
@@ -220,8 +224,7 @@ import { webendpoint } from '@js/api.js'
 import CheckpointLadder from './CheckpointLadder.vue'
 import { useCheckpointLadders } from '@js/useCheckpointLadders.js'
 import { TOP_POINTS_TYPES, TRIES_AND_BONUS_TYPES } from '@helpers/checkpoints.js'
-import * as zoneLadder from '@helpers/ladder.js'
-import { zoneLadderFromTick, zoneLadderToTick } from '@helpers/zoneLadder.js'
+import { zoneLadderFromTick, zoneLadderToTick, applyZoneLadderAction } from '@helpers/zoneLadder.js'
 
 import {  toaster } from '@helpers/notifications.js'
 import { compTickTries } from '@helpers/compTries.js'
@@ -289,6 +292,12 @@ const zoneLadderOptions = computed(() => [
   { label: t('comps.high_zone'), value: 2, points: 10 },
   { label: t('comps.top'), value: 'top', points: 25 },
 ])
+// Both ladder comp types give the ladder the row's spare width; ifsc's also
+// moves the Save button under it (see the styles at the end of this file).
+const ladderRowClass = computed(() => ({
+  'comp-row--ladder': ['checkpoint_points', 'ifsc_2024_bouldering'].includes(props.comp.tyyppi),
+  'comp-row--ladder-stacked': props.comp.tyyppi == 'ifsc_2024_bouldering',
+}))
 const zoneLadders = ref({}) // problemid -> ladder state, this session only
 const zoneLadderFor = (prob) => {
   if (zoneLadders.value[prob.id]) return zoneLadders.value[prob.id]
@@ -314,24 +323,7 @@ const setZoneLadderState = (pid, next) => {
   }
 }
 const onZoneLadderAction = (prob, action, arg) => {
-  const cur = zoneLadderFor(prob)
-  switch (action) {
-    case 'select':
-      return setZoneLadderState(prob.id, zoneLadder.selectRung(cur, arg))
-    case 'try':
-      return setZoneLadderState(prob.id, zoneLadder.addTry(cur))
-    case 'reached':
-      return setZoneLadderState(prob.id, zoneLadder.markReached(cur))
-    case 'top':
-      return setZoneLadderState(prob.id, zoneLadder.top(cur))
-    case 'undo': {
-      const { state } = zoneLadder.undo(cur)
-      return setZoneLadderState(prob.id, state)
-    }
-    case 'clear':
-      return setZoneLadderState(prob.id, zoneLadderFromTick({}))
-    default:
-  }
+  setZoneLadderState(prob.id, applyZoneLadderAction(zoneLadderFor(prob), action, arg))
 }
 const errors = ref("")
 const loaded = ref(false)
@@ -454,6 +446,11 @@ const onDeleted = (id) => {
       const rest = { ...tries.value }
       delete rest[id]
       tries.value = rest
+      // ...and so does its zone ladder, which would otherwise keep showing
+      // the deleted ascent's zones and top for the rest of the session.
+      const restLadders = { ...zoneLadders.value }
+      delete restLadders[id]
+      zoneLadders.value = restLadders
       toaster(t(ret.message))
     })
     .catch((err) => { })
@@ -654,3 +651,26 @@ const sortedProblems = computed(() => {
   return probs
 })
 </script>
+
+<style>
+/* A row whose entry control is a ladder. Framework7 sizes a list title to
+   its content, so a ladder with short labels came out narrow; here it takes
+   whatever the row has left. */
+.comp-row--ladder .item-title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+/* ...and where the Save button sits beside it (ifsc_2024_bouldering) that
+   was only ~120px on a phone, too little for the labels: the ladder takes
+   the row's full width and the buttons go on a line of their own under it. */
+.comp-row--ladder-stacked .item-inner {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+.comp-row--ladder-stacked .item-title {
+  flex-basis: 100%;
+}
+.comp-row--ladder-stacked .item-after {
+  margin-left: auto;
+}
+</style>

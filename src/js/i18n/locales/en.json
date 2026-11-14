@@ -954,6 +954,12 @@
     "undo": "Undo last",
     "saving": "Saving…",
     "retry": "Retry",
-    "not_saved": "Not saved."
+    "not_saved": "Not saved.",
+    "edit_rung": "Correct {label}",
+    "fewer_tries": "One try fewer",
+    "more_tries": "One try more",
+    "remove_mark": "Remove",
+    "remove_mark_above": "Remove this and above",
+    "edit_done": "Done"
   }
 }

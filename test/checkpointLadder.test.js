@@ -117,6 +117,42 @@ describe('CheckpointLadder', () => {
     expect(html).not.toContain('data-test="clear"')
   })
 
+  describe('correcting a reached rung', () => {
+    const reachedA = markReached(addTry(fromServer({ zones: 2 })))
+
+    it('a reached rung is a closed disclosure with a pencil; the others are not', async () => {
+      const html = await render({ state: reachedA })
+      expect(count(html, 'data-test="editable"')).toBe(1)
+      expect(html).toMatch(/aria-expanded="false"[^>]*data-test="rung-1"/)
+      expect(count(html, 'aria-expanded')).toBe(1)
+      // the editor only opens on a tap
+      expect(html).not.toContain('data-test="edit"')
+      // the active rung is neither selectable nor editable; the idle Top can be chosen
+      expect(count(html, 'aria-disabled="true"')).toBe(1)
+    })
+
+    it('every mark of a topped route can be corrected, the top included', async () => {
+      const html = await render({ state: top(reachedA) })
+      expect(count(html, 'data-test="editable"')).toBe(3)
+      expect(html).toMatch(/aria-expanded="false"[^>]*data-test="rung-top"/)
+      expect(html).not.toContain('aria-disabled')
+    })
+
+    it('a count that is not known can still be corrected', async () => {
+      const html = await render({ state: fromServer({ zones: 2, checkpoint: 1 }) })
+      expect(count(html, 'data-test="editable"')).toBe(1)
+    })
+
+    it('not when read-only or locked', async () => {
+      for (const props of [{ readonly: true }, { disabled: true }]) {
+        const html = await render({ state: top(reachedA), ...props })
+        expect(html).not.toContain('data-test="editable"')
+        expect(html).not.toContain('aria-expanded')
+        expect(count(html, 'aria-disabled="true"')).toBe(3)
+      }
+    })
+  })
+
   it('uses the numbered fallback for unlabeled checkpoints', async () => {
     const app = createSSRApp({
       render: () => h(CheckpointLadder, { problem: { ...problem, pivot: { ...problem.pivot, checkpoints: [{ points: 5 }] } }, state: fromServer({ zones: 1 }) }),
