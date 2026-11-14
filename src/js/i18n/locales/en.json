@@ -603,6 +603,7 @@
     "back": "Back",
     "loading": "Loading...",
     "save": "Save",
+    "saving": "Saving...",
     "cancel": "Cancel",
     "retry": "Retry"
   },
