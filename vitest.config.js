@@ -1,4 +1,5 @@
 import { defineConfig } from 'vitest/config'
+import vue from '@vitejs/plugin-vue'
 import path from 'path'
 
 const SRC_DIR = path.resolve(__dirname, './src')
@@ -11,6 +12,9 @@ const SRC_DIR = path.resolve(__dirname, './src')
  * way the app does.
  */
 export default defineConfig({
+  // Compiles .vue files so components can be server-rendered in tests
+  // (there is no DOM environment here).
+  plugins: [vue()],
   resolve: {
     alias: {
       '@': SRC_DIR,

@@ -108,6 +108,8 @@
     "registered_paid": "Reģistrēts, apmaksāts",
     "pay_comp": "Maksāt tagad",
     "tick_saved": "Atzīme saglabāta",
+    "delete_ascent": "Dzēst uzkāpienu",
+    "delete_ascent_hint": "Lai dzēstu uzkāpienu, pavelciet pa kreisi vai pieskarieties miskastei",
     "problems": "Problēmas",
     "timespan": "Laika periods",
     "participants": "Dalībnieki",

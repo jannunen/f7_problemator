@@ -127,6 +127,8 @@
     "registered_paid": "Registered, paid",
     "pay_comp": "Pay now",
     "tick_saved": "Tick saved",
+    "delete_ascent": "Delete ascent",
+    "delete_ascent_hint": "Swipe left, or tap the trash can, to delete an ascent",
     "problems": "Problems",
     "timespan": "Time span",
     "participants": "Participants",

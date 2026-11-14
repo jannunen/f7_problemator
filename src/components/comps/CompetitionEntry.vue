@@ -77,7 +77,8 @@
         <div class="text-center">
           <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
         </div>
-        <p class="text-center">Swipe left to delete an ascent</p>
+        <p v-if="comp.tyyppi != 'checkpoint_points'" class="text-center">{{ t('comps.delete_ascent_hint') }}</p>
+        <p v-else class="text-center">Swipe left to delete an ascent</p>
         <f7-list class="m-0">
           <f7-list-item>
             <template #title>
@@ -103,7 +104,7 @@
             </template>
             <template #title>
               <div v-if="comp.tyyppi == 'variable_points'">
-                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
               <div v-if="comp.tyyppi == 'predefined_plus_flashcomp'" class="flex flex-row ">
                 
@@ -112,7 +113,7 @@
                   {{ getPointsPerProblem(prob.pivot.num) }} 
                 </div>
                 </div>
-                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
               <div v-else-if="comp.tyyppi=='checkpoint_points'" class="w-full">
                 <check-point-row
@@ -130,7 +131,7 @@
                     {{ prob.pivot.max_points }}
                   </div>
                 </div>
-                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
               <div v-else-if="comp.tyyppi=='sport'">
                 <input :value="tries[prob.id]?.sport_points" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
@@ -138,11 +139,11 @@
               <div v-else-if="isTriesAndBonusType" class="flex flex-row gap-3">
                 <div class="flex flex-col items-center">
                   <div class="text-xs">{{ t('comps.tries_to_bonus') }}</div>
-                  <f7-stepper fill :value="tries[prob.id]?.tries_bonus || 1" @stepper:change="(num) => setAttempt(prob.id, 'tries_bonus', num)"></f7-stepper>
+                  <f7-stepper fill :min="1" :value="tries[prob.id]?.tries_bonus || 1" @stepper:change="(num) => setAttempt(prob.id, 'tries_bonus', num)"></f7-stepper>
                 </div>
                 <div class="flex flex-col items-center">
                   <div class="text-xs">{{ t('comps.tries_to_top') }}</div>
-                  <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                  <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
                 </div>
               </div>
               <div v-else-if="comp.tyyppi=='ifsc_2024_bouldering'" class="flex flex-row gap-2">
@@ -159,13 +160,14 @@
                   </select>
                   <f7-stepper
                     fill
+                    :min="1"
                     :value="tries[prob.id]?.[zoneFor(prob.id)] || 1"
                     @stepper:change="(num) => setAttempt(prob.id, zoneFor(prob.id), num)"
                   ></f7-stepper>
                 </div>
                 <div class="flex flex-col items-center">
                   <div class="text-xs">{{ t('comps.tries_to_top') }}</div>
-                  <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                  <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
                 </div>
               </div>
               <div v-else>
@@ -173,9 +175,18 @@
               </div>
             </template>
             <template #after>
-              <p-button v-if="comp.tyyppi != 'checkpoint_points'" @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">tick</p-button>
+              <p-button v-if="comp.tyyppi != 'checkpoint_points'" @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">{{ t('global.save') }}</p-button>
               <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
               <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
+              <button
+                v-if="comp.tyyppi != 'checkpoint_points' && isTicked(prob.id)"
+                type="button"
+                data-test="delete-ascent"
+                class="w-11 h-11 shrink-0 flex items-center justify-center rounded-md text-red-600 dark:text-red-400 active:bg-red-500/20"
+                :aria-label="t('comps.delete_ascent')"
+                :title="t('comps.delete_ascent')"
+                @click="() => confirmDelete(prob.id)"
+              ><i class="icon f7-icons" style="font-size: 22px;" aria-hidden="true">trash</i></button>
             </template>
           </f7-list-item>
         </f7-list>
@@ -192,6 +203,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { f7 } from 'framework7-vue'
 
 import { onUnmounted,  computed, ref } from 'vue'
 import PButton from '@components/PButton.vue'
@@ -206,6 +218,7 @@ import CheckPointRow from './CheckpointRow.vue'
 import { TOP_POINTS_TYPES, TRIES_AND_BONUS_TYPES, myCheckpointFor as myCheckpointForHelper } from '@helpers/checkpoints.js'
 
 import {  toaster } from '@helpers/notifications.js'
+import { compTickTries } from '@helpers/compTries.js'
 import { toLocalTime } from '@helpers/component.helpers'
 import { isCompRunning, msUntilEnd, windowLabel } from '@helpers/compWindow'
 import { handleValidationErrors } from '@helpers'
@@ -331,7 +344,7 @@ const openPaymentWindow = () => {
 }
 const onChangeSportPoints = (pid, e) => {
   if (tries.value[pid] == null) {
-    tries.value[pid] = { tries: 0, sport_points: 0 }
+    tries.value[pid] = { tries: 1, sport_points: 0 }
   }
   tries.value[pid].sport_points = e.target.value
 }
@@ -407,13 +420,21 @@ const onDeleted = (id) => {
   store
     .dispatch('deleteTickByProblem', payload)
     .then((ret) => {
+      // Forget the row's entered tries so it starts again from 1.
+      const rest = { ...tries.value }
+      delete rest[id]
+      tries.value = rest
       toaster(t(ret.message))
     })
     .catch((err) => { })
 }
+// Trash button on a ticked row: same delete as the swipe action, behind a confirm.
+const confirmDelete = (id) => {
+  f7.dialog.confirm(t('problem.tick_delete_are_you_sure'), t('comps.delete_ascent'), () => onDeleted(id))
+}
 const setAttempt = (id, field, amount) => {
   if (!(id in tries.value)) {
-    tries.value[id] = { tries: 0, sport_points: 0 }
+    tries.value[id] = { tries: 1, sport_points: 0 }
   }
   tries.value[id] = { ...tries.value[id], [field]: amount }
 }
@@ -477,18 +498,12 @@ const timeLeft = ref(null)
 
 const doTick = (id) => {
 
-  let aTries = 1
   let aSportPoints = 0
-  let aTriesBonus = 0
-  let aAttemptsLowZone = null
-  let aAttemptsHighZone = null
   if (tries.value[id] != null) {
-    aTries = tries.value[id].tries
     aSportPoints = tries.value[id].sport_points
-    aTriesBonus = tries.value[id].tries_bonus ?? 0
-    aAttemptsLowZone = tries.value[id].attempts_low_zone ?? null
-    aAttemptsHighZone = tries.value[id].attempts_high_zone ?? null
   }
+  // At least one try; bonus and zones keep their "not recorded" values.
+  const { tries: aTries, tries_bonus: aTriesBonus, attempts_low_zone: aAttemptsLowZone, attempts_high_zone: aAttemptsHighZone } = compTickTries(tries.value[id])
 
   const payload = {
     ticktype: 'tick',

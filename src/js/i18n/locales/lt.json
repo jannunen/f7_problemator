@@ -108,6 +108,8 @@
     "registered_paid": "Užregistruotas, sumokėta",
     "pay_comp": "Mokėti dabar",
     "tick_saved": "Tikinimas išsaugotas",
+    "delete_ascent": "Ištrinti įkopimą",
+    "delete_ascent_hint": "Norėdami ištrinti įkopimą, perbraukite kairėn arba bakstelėkite šiukšliadėžę",
     "problems": "Problemos",
     "timespan": "Laikotarpis",
     "participants": "Dalyviai",

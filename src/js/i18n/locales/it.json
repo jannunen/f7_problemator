@@ -108,6 +108,8 @@
     "registered_paid": "Iscritto, pagato",
     "pay_comp": "Paga ora",
     "tick_saved": "Salita registrata",
+    "delete_ascent": "Elimina salita",
+    "delete_ascent_hint": "Scorri a sinistra o tocca il cestino per eliminare una salita",
     "problems": "Problemi",
     "timespan": "Periodo",
     "participants": "Partecipanti",

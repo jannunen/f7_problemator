@@ -108,6 +108,8 @@
     "registered_paid": "Angemeldet, bezahlt",
     "pay_comp": "Jetzt bezahlen",
     "tick_saved": "Tick gespeichert",
+    "delete_ascent": "Begehung löschen",
+    "delete_ascent_hint": "Nach links wischen oder auf den Papierkorb tippen, um eine Begehung zu löschen",
     "problems": "Probleme",
     "timespan": "Zeitraum",
     "participants": "Teilnehmer",
