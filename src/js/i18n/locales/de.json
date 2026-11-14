@@ -535,5 +535,27 @@
     "manage_pending": "Wird geöffnet…",
     "manage_error": "Das Rechnungsportal konnte nicht geöffnet werden. Versuch es erneut.",
     "manage_unavailable": "Noch nichts zu verwalten."
+  },
+  "ladder": {
+    "group_label": "Zonen und Top für Route {route}",
+    "loading": "Zonen werden geladen",
+    "add_try": "+ Versuch",
+    "add_try_on": "Versuch auf {label} hinzufügen",
+    "reached_button": "✓ erreicht",
+    "mark_reached": "{label} als erreicht markieren",
+    "top_button": "✓ Top",
+    "mark_top": "Top als erreicht markieren",
+    "in_tries": "im {n}.",
+    "rung_idle": "{label}, {points} Punkte, nicht erreicht",
+    "rung_active": "{label}, {points} Punkte, aktuell, 1 Versuch | {label}, {points} Punkte, aktuell, {n} Versuche",
+    "rung_reached": "{label}, {points} Punkte, erreicht im 1. Versuch | {label}, {points} Punkte, erreicht im {n}. Versuch",
+    "rung_reached_unknown": "{label}, {points} Punkte, erreicht",
+    "rung_topped": "{label}, {points} Punkte, getoppt im 1. Versuch | {label}, {points} Punkte, getoppt im {n}. Versuch",
+    "live_count": "{label}: 1 Versuch | {label}: {n} Versuche",
+    "live_topped": "Getoppt im 1. Versuch | Getoppt im {n}. Versuch",
+    "undo": "Letzte rückgängig",
+    "saving": "Speichern…",
+    "retry": "Erneut versuchen",
+    "not_saved": "Nicht gespeichert."
   }
 }

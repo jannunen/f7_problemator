@@ -118,11 +118,10 @@
                 <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
               <div v-else-if="comp.tyyppi=='checkpoint_points'" class="w-full">
-                <check-point-row
+                <checkpoint-ladder
                   :problem="prob"
-                  :my-checkpoint="myCheckpointFor(prob.id)"
-                  :has-top="isTicked(prob.id)"
-                  :disabled="true"
+                  :state="ladderFor(prob)"
+                  readonly
                 />
               </div>
               <div v-else-if="comp.tyyppi=='fixed_points_best_n'" class="flex flex-row">
@@ -225,7 +224,8 @@ import duration from 'dayjs/plugin/duration'
 import isBetween from 'dayjs/plugin/isBetween'
 import PBadge from '@components/PBadge.vue'
 import PointsPerRoute from './PointsPerRoute.vue'
-import CheckPointRow from './CheckpointRow.vue'
+import CheckpointLadder from './CheckpointLadder.vue'
+import { fromServer as ladderFromServer } from '@helpers/ladder.js'
 import { TOP_POINTS_TYPES, TRIES_AND_BONUS_TYPES, myCheckpointFor as myCheckpointForHelper } from '@helpers/checkpoints.js'
 import ShowResults from './ShowResults.vue'
 import { webendpoint } from '@js/api.js'
@@ -264,6 +264,16 @@ const toppedIds = computed(() => Object.keys(store.state.competition?.userticks 
 const isTopPointsType = computed(() => TOP_POINTS_TYPES.includes(props.comp.tyyppi))
 const isTriesAndBonusType = computed(() => TRIES_AND_BONUS_TYPES.includes(props.comp.tyyppi))
 const myCheckpointFor = (pid) => myCheckpointForHelper(store.state.competition?.my_checkpoints, pid)
+// Read-only here: the checkpoint endpoints need a signed-in climber.
+const ladderFor = (prob) => {
+  const tries = store.state.competition?.my_checkpoint_tries
+  return ladderFromServer({
+    zones: prob?.pivot?.checkpoints?.length ?? 0,
+    checkpoint: myCheckpointFor(prob.id),
+    tries: tries == null || Array.isArray(tries) ? null : tries[prob.id],
+    topTick: store.state.competition?.userticks?.[prob.id] ?? null,
+  })
+}
 // Which zone (low/high) each ifsc_2024_bouldering row's single stepper is
 // currently pointed at. Purely local UI state — not submitted — the tries
 // value for each zone still lives in tries[prob.id], so switching the

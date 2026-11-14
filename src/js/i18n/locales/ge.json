@@ -535,5 +535,27 @@
     "manage_pending": "იხსნება…",
     "manage_error": "ბილინგის პორტალის გახსნა ვერ მოხერხდა. სცადეთ ისევ.",
     "manage_unavailable": "ჯერ არაფერია სამართავი."
+  },
+  "ladder": {
+    "group_label": "მარშრუტის {route} ზონები და ტოპი",
+    "loading": "ზონები იტვირთება",
+    "add_try": "+ ცდა",
+    "add_try_on": "ცდის დამატება: {label}",
+    "reached_button": "✓ მიღწეულია",
+    "mark_reached": "{label} მონიშნე მიღწეულად",
+    "top_button": "✓ ტოპი",
+    "mark_top": "ტოპი მონიშნე მიღწეულად",
+    "in_tries": "{n} ცდით",
+    "rung_idle": "{label}, {points} ქულა, არ არის მიღწეული",
+    "rung_active": "{label}, {points} ქულა, მიმდინარე, 1 ცდა | {label}, {points} ქულა, მიმდინარე, {n} ცდა",
+    "rung_reached": "{label}, {points} ქულა, მიღწეულია 1 ცდით | {label}, {points} ქულა, მიღწეულია {n} ცდით",
+    "rung_reached_unknown": "{label}, {points} ქულა, მიღწეულია",
+    "rung_topped": "{label}, {points} ქულა, ტოპი 1 ცდით | {label}, {points} ქულა, ტოპი {n} ცდით",
+    "live_count": "{label}: 1 ცდა | {label}: {n} ცდა",
+    "live_topped": "ტოპი 1 ცდით | ტოპი {n} ცდით",
+    "undo": "ბოლოს გაუქმება",
+    "saving": "ინახება…",
+    "retry": "ხელახლა ცდა",
+    "not_saved": "არ შეინახა."
   }
 }

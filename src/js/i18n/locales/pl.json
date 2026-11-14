@@ -535,5 +535,27 @@
     "manage_pending": "Otwieranie…",
     "manage_error": "Nie udało się otworzyć portalu rozliczeniowego. Spróbuj ponownie.",
     "manage_unavailable": "Na razie nie ma czym zarządzać."
+  },
+  "ladder": {
+    "group_label": "Strefy i top drogi {route}",
+    "loading": "Wczytywanie stref",
+    "add_try": "+ próba",
+    "add_try_on": "Dodaj próbę na {label}",
+    "reached_button": "✓ osiągnięta",
+    "mark_reached": "Oznacz {label} jako osiągniętą",
+    "top_button": "✓ Top",
+    "mark_top": "Oznacz top jako osiągnięty",
+    "in_tries": "w {n}.",
+    "rung_idle": "{label}, {points} pkt, nieosiągnięta",
+    "rung_active": "{label}, {points} pkt, w trakcie, 1 próba | {label}, {points} pkt, w trakcie, prób: {n}",
+    "rung_reached": "{label}, {points} pkt, osiągnięta w 1. próbie | {label}, {points} pkt, osiągnięta w {n}. próbie",
+    "rung_reached_unknown": "{label}, {points} pkt, osiągnięta",
+    "rung_topped": "{label}, {points} pkt, top w 1. próbie | {label}, {points} pkt, top w {n}. próbie",
+    "live_count": "{label}: 1 próba | {label}: prób: {n}",
+    "live_topped": "Top w 1. próbie | Top w {n}. próbie",
+    "undo": "Cofnij ostatnie",
+    "saving": "Zapisywanie…",
+    "retry": "Ponów",
+    "not_saved": "Nie zapisano."
   }
 }

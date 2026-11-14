@@ -117,13 +117,20 @@
                 <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
               <div v-else-if="comp.tyyppi=='checkpoint_points'" class="w-full">
-                <check-point-row
+                <checkpoint-ladder
                   :problem="prob"
-                  :my-checkpoint="myCheckpointFor(prob.id)"
-                  :has-top="isTicked(prob.id)"
-                  :disabled="busy[prob.id] || !compOngoing"
-                  @select="(v) => onSelectCheckpoint(prob, v)"
-                  @clear="() => onClearCheckpoint(prob)"
+                  :state="ladders.stateFor(prob)"
+                  :disabled="!compOngoing || !!ladders.lockedReason.value"
+                  :locked-reason="ladders.lockedReason.value"
+                  :saving="ladders.isSaving(prob.id)"
+                  :error="ladders.errors.value[prob.id] ?? null"
+                  @select="(r) => ladders.act(prob, 'select', r)"
+                  @try="() => ladders.act(prob, 'try')"
+                  @reached="() => ladders.act(prob, 'reached')"
+                  @top="() => ladders.act(prob, 'top')"
+                  @undo="() => ladders.act(prob, 'undo')"
+                  @retry="() => ladders.act(prob, 'retry')"
+                  @clear="() => ladders.act(prob, 'clear')"
                 />
               </div>
               <div v-else-if="comp.tyyppi=='fixed_points_best_n'" class="flex flex-row">
@@ -229,8 +236,9 @@ import PBadge from '@components/PBadge.vue'
 import PointsPerRoute from './PointsPerRoute.vue'
 import ShowResults from './ShowResults.vue'
 import { webendpoint } from '@js/api.js'
-import CheckPointRow from './CheckpointRow.vue'
-import { TOP_POINTS_TYPES, TRIES_AND_BONUS_TYPES, myCheckpointFor as myCheckpointForHelper } from '@helpers/checkpoints.js'
+import CheckpointLadder from './CheckpointLadder.vue'
+import { useCheckpointLadders } from '@js/useCheckpointLadders.js'
+import { TOP_POINTS_TYPES, TRIES_AND_BONUS_TYPES } from '@helpers/checkpoints.js'
 
 import {  toaster } from '@helpers/notifications.js'
 import { compTickTries } from '@helpers/compTries.js'
@@ -287,7 +295,6 @@ const isTicked = (pid) => {
 const toppedIds = computed(() => Object.keys(store.state.competition?.userticks || {}).map(Number))
 const isTopPointsType = computed(() => TOP_POINTS_TYPES.includes(props.comp.tyyppi))
 const isTriesAndBonusType = computed(() => TRIES_AND_BONUS_TYPES.includes(props.comp.tyyppi))
-const myCheckpointFor = (pid) => myCheckpointForHelper(store.state.competition?.my_checkpoints, pid)
 const busy = ref({})
 // Which zone (low/high) each ifsc_2024_bouldering row's single stepper is
 // currently pointed at. Purely local UI state — not submitted — the tries
@@ -297,35 +304,6 @@ const selectedZone = ref({})
 const zoneFor = (pid) => selectedZone.value[pid] ?? 'attempts_low_zone'
 const setZone = (pid, field) => {
   selectedZone.value = { ...selectedZone.value, [pid]: field }
-}
-const checkpointError = (err) => {
-  const status = err?.response?.status
-  if (status == 400) {
-    return /not ongoing/.test(err?.response?.data?.message ?? '') ? t('comps.checkpoint_not_ongoing') : t('comps.checkpoint_locked')
-  }
-  if (status == 403) return t('comps.checkpoint_not_participant')
-  if (status == 422) return t('comps.checkpoint_invalid')
-  return t('comps.checkpoint_failed')
-}
-const onSelectCheckpoint = (prob, value) => {
-  if (value === 'top') {
-    // Reaching the top is the ordinary tick flow.
-    doTick(prob.id)
-    return
-  }
-  busy.value = { ...busy.value, [prob.id]: true }
-  store
-    .dispatch('saveCheckpoint', { compid: props.comp.id, problemid: prob.id, checkpoint: value })
-    .then(() => toaster(t('comps.checkpoint_saved')))
-    .catch((err) => toaster(checkpointError(err)))
-    .finally(() => { busy.value = { ...busy.value, [prob.id]: false } })
-}
-const onClearCheckpoint = (prob) => {
-  busy.value = { ...busy.value, [prob.id]: true }
-  store
-    .dispatch('deleteCheckpoint', { compid: props.comp.id, problemid: prob.id })
-    .catch((err) => toaster(checkpointError(err)))
-    .finally(() => { busy.value = { ...busy.value, [prob.id]: false } })
 }
 const errors = ref("")
 const loaded = ref(false)
@@ -550,10 +528,29 @@ setInterval(() => {
 }, 1000)
 const timeLeft = ref(null)
 
+// Checkpoint comps: zones + tries on a ladder per route; the Top is the
+// ordinary tick with tries = the route's running attempt count. The ladder
+// tracks its own per-row saving state (ladders.isSaving), so saveTickFor is
+// called directly here, bypassing the generic Save button's busy lock below.
+const ladders = useCheckpointLadders({
+  store,
+  compId: () => props.comp.id,
+  t,
+  saveTop: (pid, triesToTop) => {
+    setTries(pid, triesToTop)
+    return saveTickFor(pid)
+  },
+  deleteTop: (pid) => store.dispatch('deleteTickByProblem', { problemid: pid, point_entry_key: climber.value?.point_entry_key }),
+})
+
 const doTick = (id) => {
   if (busy.value[id]) return
   busy.value = { ...busy.value, [id]: true }
-
+  saveTickFor(id)
+    .catch(() => { })
+    .finally(() => { busy.value = { ...busy.value, [id]: false } })
+}
+const saveTickFor = (id) => {
   let aSportPoints = 0
   if (tries.value[id] != null) {
     aSportPoints = tries.value[id].sport_points
@@ -572,7 +569,7 @@ const doTick = (id) => {
     sport_points: aSportPoints,
     grade_opinion: null,
   }
-  store
+  return store
     .dispatch('saveTick', payload)
     .then((ret) => {
       tries.value[id] = { ...tries.value[id], ticked: true }
@@ -582,9 +579,8 @@ const doTick = (id) => {
           setTimeout(() => toaster('You earned: ' + badge.name, 'Badge Unlocked!'), 500)
         })
       }
+      return ret
     })
-    .catch((err) => { })
-    .finally(() => { busy.value = { ...busy.value, [id]: false } })
 }
 const getStyles = (prob) => {
   const htmlcolour = prob.colour.code

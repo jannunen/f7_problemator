@@ -535,5 +535,27 @@
     "manage_pending": "Atveriama…",
     "manage_error": "Nepavyko atverti atsiskaitymų portalo. Bandyk dar kartą.",
     "manage_unavailable": "Kol kas nėra ko tvarkyti."
+  },
+  "ladder": {
+    "group_label": "Trasos {route} zonos ir viršus",
+    "loading": "Įkeliamos zonos",
+    "add_try": "+ bandymas",
+    "add_try_on": "Pridėti bandymą: {label}",
+    "reached_button": "✓ pasiekta",
+    "mark_reached": "Pažymėti {label} kaip pasiektą",
+    "top_button": "✓ Viršus",
+    "mark_top": "Pažymėti viršų kaip pasiektą",
+    "in_tries": "per {n}",
+    "rung_idle": "{label}, {points} taškai, nepasiekta",
+    "rung_active": "{label}, {points} taškai, bandoma, 1 bandymas | {label}, {points} taškai, bandoma, bandymų: {n}",
+    "rung_reached": "{label}, {points} taškai, pasiekta per 1 bandymą | {label}, {points} taškai, pasiekta per {n} bandymus",
+    "rung_reached_unknown": "{label}, {points} taškai, pasiekta",
+    "rung_topped": "{label}, {points} taškai, viršus per 1 bandymą | {label}, {points} taškai, viršus per {n} bandymus",
+    "live_count": "{label}: 1 bandymas | {label}: bandymų: {n}",
+    "live_topped": "Viršus per 1 bandymą | Viršus per {n} bandymus",
+    "undo": "Atšaukti paskutinį",
+    "saving": "Saugoma…",
+    "retry": "Bandyti dar kartą",
+    "not_saved": "Neišsaugota."
   }
 }

@@ -240,10 +240,15 @@ const api = {
     return ret.data
   },
   async saveCheckpoint(payload) {
-    const ret = await axios.post(endpoint+"/competitions/"+payload.compid+"/checkpoints",{
-      problemid: payload.problemid,
-      checkpoint: payload.checkpoint,
-    })
+    // attempts/zone_tries/replace are the zone tries full-state write; leaving
+    // them out is the old checkpoint-only write (server keeps the max).
+    const body = { problemid: payload.problemid, checkpoint: payload.checkpoint }
+    if (payload.attempts != null) {
+      body.attempts = payload.attempts
+      body.zone_tries = payload.zone_tries ?? {}
+      body.replace = !!payload.replace
+    }
+    const ret = await axios.post(endpoint+"/competitions/"+payload.compid+"/checkpoints", body)
     return ret.data
   },
   async deleteCheckpoint(payload) {

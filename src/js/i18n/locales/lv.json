@@ -535,5 +535,27 @@
     "manage_pending": "Tiek atvērts…",
     "manage_error": "Neizdevās atvērt rēķinu portālu. Mēģini vēlreiz.",
     "manage_unavailable": "Pagaidām nav ko pārvaldīt."
+  },
+  "ladder": {
+    "group_label": "Trases {route} zonas un tops",
+    "loading": "Ielādē zonas",
+    "add_try": "+ mēģinājums",
+    "add_try_on": "Pievienot mēģinājumu: {label}",
+    "reached_button": "✓ sasniegta",
+    "mark_reached": "Atzīmēt {label} kā sasniegtu",
+    "top_button": "✓ Tops",
+    "mark_top": "Atzīmēt topu kā sasniegtu",
+    "in_tries": "{n}. mēģ.",
+    "rung_idle": "{label}, {points} punkti, nav sasniegta",
+    "rung_active": "{label}, {points} punkti, tiek mēģināta, 1 mēģinājums | {label}, {points} punkti, tiek mēģināta, mēģinājumi: {n}",
+    "rung_reached": "{label}, {points} punkti, sasniegta 1. mēģinājumā | {label}, {points} punkti, sasniegta {n}. mēģinājumā",
+    "rung_reached_unknown": "{label}, {points} punkti, sasniegta",
+    "rung_topped": "{label}, {points} punkti, tops 1. mēģinājumā | {label}, {points} punkti, tops {n}. mēģinājumā",
+    "live_count": "{label}: 1 mēģinājums | {label}: mēģinājumi: {n}",
+    "live_topped": "Tops 1. mēģinājumā | Tops {n}. mēģinājumā",
+    "undo": "Atsaukt pēdējo",
+    "saving": "Saglabā…",
+    "retry": "Mēģināt vēlreiz",
+    "not_saved": "Nav saglabāts."
   }
 }
