@@ -121,6 +121,7 @@
     "tick_saved": "Tikki tallennettu",
     "delete_ascent": "Poista nousu",
     "delete_ascent_hint": "Pyyhkäise vasemmalle tai napauta roskakoria poistaaksesi nousun",
+    "sport_points_hint": "Syötä otteen numero, johon pääsit, esim. 33. Lisää + hallitusta otteesta (33+) tai - hallitsemattomasta (33-). Kirjoita TOP, jos läpäisit reitin.",
     "points_preview_toggle": "Näytä, mitä saisin noususta",
     "problems": "Reitit",
     "timespan": "Aikaväli",
