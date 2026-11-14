@@ -151,14 +151,19 @@ const renderLive = async (comp) => {
     return { new_badges: [] }
   })
   const saveCheckpoint = vi.fn(async (_ctx, p) => ({ ok: true, applied: true, checkpoint: p.checkpoint, attempts: p.attempts ?? 0, zone_tries: p.zone_tries ?? {} }))
-  const deleteTickByProblem = vi.fn(async () => ({ message: 'ok' }))
+  const deleteTickByProblem = vi.fn(async ({ state }, p) => {
+    const rest = { ...state.competition.userticks }
+    delete rest[p.problemid]
+    state.competition.userticks = rest
+    return { message: 'ok' }
+  })
   const html = await render(CompetitionEntry, comp, 'en', { actions: { saveTick, saveCheckpoint, deleteTickByProblem }, onRow: (vnodes) => rows.push(vnodes) })
   const ladder = (pid) => walk(rows).find((n) => n.type === CheckpointLadder && n.props?.problem?.id === pid).props
   // Rows that have a problem in them, in the page's order (problem 1, problem 2).
   const problemRows = rows.filter((r) => walk(r).some((n) => n.type === PButton || n.type === CheckpointLadder))
   const input = (i) => walk(problemRows[i]).find((n) => n.type === 'input').props
   const saveButton = (i) => walk(problemRows[i]).find((n) => n.type === PButton).props
-  return { html, ladder, input, saveButton, saveTick, saveCheckpoint }
+  return { html, ladder, input, saveButton, saveTick, saveCheckpoint, deleteTickByProblem }
 }
 const sportComp = () => ({
   ...makeComp('sport'),
@@ -278,6 +283,34 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     await vi.waitFor(() => expect(live.saveCheckpoint).toHaveBeenCalledTimes(1))
     expect(live.saveCheckpoint.mock.calls[0][1]).toEqual({ compid: 9, problemid: 1, score: 25.5 })
     expect(live.saveTick).not.toHaveBeenCalled()
+  })
+
+  it.each([['33+', 33.25], ['33-', 32.75], ['25,5', 25.5]])('sport: %s is saved as the score %s, as the backend parses it', async (raw, score) => {
+    const live = await renderLive(sportComp())
+    live.input(0).onChange({ target: { value: raw } })
+    await live.saveButton(0).onClick()
+    expect(live.saveCheckpoint).toHaveBeenCalledTimes(1)
+    expect(live.saveCheckpoint.mock.calls[0][1]).toEqual({ compid: 9, problemid: 1, score })
+    expect(live.saveTick).not.toHaveBeenCalled()
+  })
+
+  it('sport: lowering a topped route deletes its tick, then saves the score', async () => {
+    const comp = { ...sportComp(), userticks: { 1: { problemid: 1, tries: 1, tries_bonus: 0, sport_points: 1000 } } }
+    const live = await renderLive(comp)
+    live.input(0).onChange({ target: { value: '33+' } })
+    await live.saveButton(0).onClick()
+    expect(live.deleteTickByProblem).toHaveBeenCalledTimes(1)
+    expect(live.deleteTickByProblem.mock.calls[0][1]).toMatchObject({ problemid: 1 })
+    expect(live.saveCheckpoint.mock.calls[0][1]).toEqual({ compid: 9, problemid: 1, score: 33.25 })
+    expect(live.deleteTickByProblem.mock.invocationCallOrder[0]).toBeLessThan(live.saveCheckpoint.mock.invocationCallOrder[0])
+    expect(live.saveTick).not.toHaveBeenCalled()
+  })
+
+  it('sport: a lower height on an untopped route deletes nothing', async () => {
+    const live = await renderLive(sportComp())
+    live.input(0).onChange({ target: { value: '20' } })
+    await live.saveButton(0).onClick()
+    expect(live.deleteTickByProblem).not.toHaveBeenCalled()
   })
 
   it('sport: saving the top (1000) saves a real tick', async () => {

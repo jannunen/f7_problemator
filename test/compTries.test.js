@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { minOneTries, compTickTries } from '../src/js/helpers/compTries.js'
+import { minOneTries, compTickTries, parseSportPoints } from '../src/js/helpers/compTries.js'
 
 describe('minOneTries', () => {
   it.each([[1, 1], [2, 2], [17, 17], ['3', 3], [2.9, 2]])('keeps %s as %s', (v, out) => {
@@ -32,5 +32,29 @@ describe('compTickTries', () => {
   it('zones stay null until entered, then are at least 1', () => {
     expect(compTickTries({ tries: 2, attempts_low_zone: null, attempts_high_zone: NaN })).toMatchObject({ attempts_low_zone: null, attempts_high_zone: null })
     expect(compTickTries({ tries: 2, attempts_low_zone: 0, attempts_high_zone: 3 })).toMatchObject({ attempts_low_zone: 1, attempts_high_zone: 3 })
+  })
+})
+
+describe('parseSportPoints (mirrors the backend SportPointsParser)', () => {
+  it.each([
+    ['33', 33],
+    ['25.5', 25.5],
+    ['25,5', 25.5],
+    ['33+', 33.25],
+    ['33-', 32.75],
+    [' 33+ ', 33.25],
+    ['25.5+', 25.25],
+    ['TOP', 1000],
+    ['1000', 1000],
+    [1000, 1000],
+    ['', ''],
+    [undefined, ''],
+  ])('%j -> %j', (raw, expected) => {
+    expect(parseSportPoints(raw)).toBe(expected)
+  })
+
+  it('leaves anything else unparsed, as the backend does', () => {
+    expect(parseSportPoints('abc')).toBe('abc')
+    expect(parseSportPoints('top')).toBe('top')
   })
 })

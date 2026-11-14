@@ -220,7 +220,7 @@ import { useCheckpointLadders } from '@js/useCheckpointLadders.js'
 import { TOP_POINTS_TYPES, TRIES_AND_BONUS_TYPES } from '@helpers/checkpoints.js'
 
 import {  toaster } from '@helpers/notifications.js'
-import { compTickTries } from '@helpers/compTries.js'
+import { compTickTries, parseSportPoints } from '@helpers/compTries.js'
 import { toLocalTime } from '@helpers/component.helpers'
 import { isCompRunning, msUntilEnd, windowLabel } from '@helpers/compWindow'
 import { handleValidationErrors } from '@helpers'
@@ -542,11 +542,10 @@ const ladders = useCheckpointLadders({
 
 // sport: only the top (1000) is a tick. A lower height is partial credit,
 // saved as the route's score so it never counts as an ascent.
-const isSportTop = (value) => Number(value) === 1000 || String(value).trim().toUpperCase() === 'TOP'
 const onSave = (id) => {
-  const value = tries.value[id]?.sport_points
-  if (props.comp.tyyppi != 'sport' || isSportTop(value)) return doTick(id)
-  return saveSportScore(id, Number(value ?? 0))
+  const points = parseSportPoints(tries.value[id]?.sport_points)
+  if (props.comp.tyyppi != 'sport' || points === 1000) return doTick(id)
+  return saveSportScore(id, points === '' ? 0 : points)
 }
 const saveSportScore = (id, score) => {
   if (busy.value[id]) return
@@ -555,8 +554,13 @@ const saveSportScore = (id, score) => {
     return
   }
   busy.value = { ...busy.value, [id]: true }
-  return store
-    .dispatch('saveCheckpoint', { compid: props.comp.id, problemid: id, score })
+  // A route already topped is being lowered: the top tick would outrank the
+  // new score, so it goes first.
+  const untop = isTicked(id)
+    ? store.dispatch('deleteTickByProblem', { problemid: id, point_entry_key: climber.value?.point_entry_key })
+    : Promise.resolve()
+  return untop
+    .then(() => store.dispatch('saveCheckpoint', { compid: props.comp.id, problemid: id, score }))
     .then(() => toaster(t('comps.score_saved')))
     .catch(() => toaster(t('ladder.not_saved')))
     .finally(() => { busy.value = { ...busy.value, [id]: false } })

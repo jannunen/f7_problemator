@@ -27,3 +27,22 @@ export const compTickTries = (row) => {
     attempts_high_zone: isMissing(r.attempts_high_zone) ? null : minOneTries(r.attempts_high_zone),
   }
 }
+
+// PHP intval: the leading integer of a string, 0 when there is none.
+const intval = (v) => (typeof v === 'number' ? Math.trunc(v) : parseInt(v, 10) || 0)
+
+/**
+ * A sport/lead height as climbers type it, parsed the way the backend's
+ * SportPointsParser does: "33" plain, "33+" controlled (+0.25), "33-"
+ * uncontrolled (-0.25), "TOP" = 1000, comma as the decimal separator.
+ * Numbers come back as numbers; an empty entry as ''; anything else as typed.
+ */
+export const parseSportPoints = (raw) => {
+  let p = String(raw ?? '').trim().replace(/,/g, '.')
+  if (p === '') return p
+  if (/\+/.test(p)) p = intval(p) + 0.25
+  if (/-/.test(String(p))) p = intval(p) - 0.25
+  if (p === 'TOP') p = 1000
+  if (typeof p === 'string' && p !== '' && Number.isFinite(Number(p))) p = Number(p)
+  return p
+}
