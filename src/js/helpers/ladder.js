@@ -21,7 +21,10 @@
  *   history   [{ action, snapshot }]  per-session undo stack, newest last
  */
 
-export const ACTIONS = { TRY: 'try', REACHED: 'reached', TOP: 'top' }
+export const ACTIONS = { TRY: 'try', REACHED: 'reached', TOP: 'top', EDIT: 'edit', UNREACH: 'unreach' }
+
+/** The highest count a correction can be set to (the server stores far more; a ladder never needs it). */
+export const MAX_TRIES = 999
 
 /** A Top within this many ms of a ✓ on the same route is a double tap, not a top. */
 export const DOUBLE_TAP_MS = 400
@@ -185,15 +188,107 @@ export const canUndo = (state) => (state.history?.length ?? 0) > 0
 
 /**
  * Undo the last action of this session. Returns { state, undone } where
- * `undone` is the action that was reverted ('try' | 'reached' | 'top') or null
- * when there was nothing to undo. Undoing 'top' means the caller removes the
- * top tick through the existing delete path.
+ * `undone` is the action that was reverted ('try' | 'reached' | 'top' | 'edit'
+ * | 'unreach') or null when there was nothing to undo. The caller compares
+ * `topped`/`topTries` before and after: an undo can take the top away (remove
+ * the top tick), bring it back (undoing an unreach) or change its tries.
  */
 export function undo(state) {
   if (!canUndo(state)) return { state, undone: null }
   const history = state.history.slice(0, -1)
   const { action, snapshot: prev } = state.history[state.history.length - 1]
   return { state: { ...prev, reached: { ...prev.reached }, history }, undone: action }
+}
+
+/**
+ * Can this rung's mark be corrected (its count changed, or the mark removed)?
+ * True for a reached zone, and for the Top of a topped route.
+ */
+export function canEdit(state, rung) {
+  const r = toInt(rung)
+  if (r == null) return false
+  if (isTopRung(state, r)) return !!state.topped
+  return r >= 1 && r <= state.zones && r in state.reached
+}
+
+/**
+ * The range a reached rung's count can be corrected within, or null when the
+ * rung cannot be edited. Counts never decrease going up the route, so a rung
+ * is held between the KNOWN counts below it and above it (the top's tries
+ * count as the rung above the last zone). The highest mark on the route has
+ * nothing above it and is only capped by MAX_TRIES.
+ */
+export function countBounds(state, rung) {
+  const r = toInt(rung)
+  if (!canEdit(state, r)) return null
+  let min = 1
+  let max = MAX_TRIES
+  for (const [k, v] of Object.entries(state.reached)) {
+    if (v == null) continue
+    if (Number(k) < r && v > min) min = v
+    if (Number(k) > r && v < max) max = v
+  }
+  if (!isTopRung(state, r) && state.topped && state.topTries != null && state.topTries < max) max = state.topTries
+  return { min, max: Math.max(min, max) }
+}
+
+/**
+ * Correct the count a reached rung was reached at ("zone 1 in 3, not 2"), or
+ * the tries of the top. The count is clamped into countBounds, so the route
+ * stays in order whatever is asked for. The running total follows where it
+ * must: it is never left below a count, and when the corrected rung is the
+ * last thing that happened on the route (no tries since), the total moves
+ * with it, down as well as up. Zones whose count is unknown (old data) are
+ * stamped the way a try stamps them, so the result is always a complete
+ * state that can be written as it is.
+ */
+export function setReachedCount(state, rung, count) {
+  const r = toInt(rung)
+  const want = toInt(count)
+  const bounds = countBounds(state, r)
+  if (bounds == null || want == null) return state
+  const c = Math.min(bounds.max, Math.max(bounds.min, want))
+  if (isTopRung(state, r)) {
+    if (c === state.topTries) return state
+    const next = { ...state, attempts: c, topTries: c }
+    next.reached = stampBelow(next, state.zones, c)
+    return withHistory(state, next, ACTIONS.EDIT)
+  }
+  const old = state.reached[r]
+  if (c === old) return state
+  const isLastMark = !state.topped && highestReached(state) === r
+  const attempts = isLastMark && old != null && state.attempts === old ? c : Math.max(state.attempts, c)
+  const next = { ...state, attempts, reached: { ...state.reached, [r]: c } }
+  next.reached = stampBelow(next, highestReached(state), Math.max(attempts, 1))
+  return withHistory(state, next, ACTIONS.EDIT)
+}
+
+/**
+ * Take a reached mark away again ("I marked zone 2 by mistake"). Zones are
+ * reached in order, so the marks above go with it, the top included; the
+ * zones below stay as they are. On the Top rung only the top is removed.
+ * The tries stay counted (they were made), and the rung becomes the one
+ * being attempted. The caller removes the top tick when `topped` went false.
+ */
+export function unreach(state, rung) {
+  const r = toInt(rung)
+  if (!canEdit(state, r)) return state
+  const reached = {}
+  for (const [k, v] of Object.entries(state.reached)) {
+    if (Number(k) < r) reached[k] = v
+  }
+  return withHistory(state, { ...state, reached, topped: false, topTries: null, active: r }, ACTIONS.UNREACH)
+}
+
+/** How many marks unreach(state, rung) takes away besides the rung's own (0 when it is the highest). */
+export function marksAbove(state, rung) {
+  const r = toInt(rung)
+  if (!canEdit(state, r) || isTopRung(state, r)) return 0
+  let n = state.topped ? 1 : 0
+  for (const k of Object.keys(state.reached)) {
+    if (Number(k) > r) n++
+  }
+  return n
 }
 
 /** Some reached zone has no known count (data from before zone tries existed). */

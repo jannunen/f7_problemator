@@ -1,4 +1,4 @@
-import { fromServer, toWrite } from './ladder.js'
+import { fromServer, toWrite, selectRung, addTry, markReached, top, undo, setReachedCount, unreach } from './ladder.js'
 
 /**
  * ifsc_2024_bouldering's zones (low, high) as a ladder, reusing the same
@@ -40,5 +40,36 @@ export function zoneLadderToTick(state) {
     // Top's tries is the running attempt count once topped; before that, the
     // "tries to top" field is not meaningful yet and is left to the caller.
     topTries: state.topped ? state.topTries : null,
+  }
+}
+
+/**
+ * One CheckpointLadder event applied to a zone ladder: the whole driver for
+ * ifsc_2024_bouldering, where nothing is sent per tap. Returns the next state
+ * (the same object when the event changes nothing); the caller keeps it and
+ * mirrors it into the tick fields with zoneLadderToTick.
+ *   'edit'     arg = { rung, count }   correct the count a rung was reached at
+ *   'unreach'  arg = rung              take a reached mark away again
+ */
+export function applyZoneLadderAction(state, action, arg) {
+  switch (action) {
+    case 'select':
+      return selectRung(state, arg)
+    case 'try':
+      return addTry(state)
+    case 'reached':
+      return markReached(state)
+    case 'top':
+      return top(state)
+    case 'undo':
+      return undo(state).state
+    case 'edit':
+      return setReachedCount(state, arg?.rung, arg?.count)
+    case 'unreach':
+      return unreach(state, arg)
+    case 'clear':
+      return zoneLadderFromTick({})
+    default:
+      return state
   }
 }

@@ -556,6 +556,12 @@
     "undo": "Annulla ultimo",
     "saving": "Salvataggio…",
     "retry": "Riprova",
-    "not_saved": "Non salvato."
+    "not_saved": "Non salvato.",
+    "edit_rung": "Correggi {label}",
+    "fewer_tries": "Un tentativo in meno",
+    "more_tries": "Un tentativo in più",
+    "remove_mark": "Rimuovi",
+    "remove_mark_above": "Rimuovi questa e quelle sopra",
+    "edit_done": "Fatto"
   }
 }

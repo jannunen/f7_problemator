@@ -556,6 +556,12 @@
     "undo": "Atsaukt pēdējo",
     "saving": "Saglabā…",
     "retry": "Mēģināt vēlreiz",
-    "not_saved": "Nav saglabāts."
+    "not_saved": "Nav saglabāts.",
+    "edit_rung": "Labot {label}",
+    "fewer_tries": "Par vienu mēģinājumu mazāk",
+    "more_tries": "Par vienu mēģinājumu vairāk",
+    "remove_mark": "Noņemt",
+    "remove_mark_above": "Noņemt šo un augstākos",
+    "edit_done": "Gatavs"
   }
 }

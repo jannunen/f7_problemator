@@ -556,6 +556,12 @@
     "undo": "Angre siste",
     "saving": "Lagrer…",
     "retry": "Prøv igjen",
-    "not_saved": "Ikke lagret."
+    "not_saved": "Ikke lagret.",
+    "edit_rung": "Rett {label}",
+    "fewer_tries": "Ett forsøk færre",
+    "more_tries": "Ett forsøk til",
+    "remove_mark": "Fjern",
+    "remove_mark_above": "Fjern denne og de over",
+    "edit_done": "Ferdig"
   }
 }

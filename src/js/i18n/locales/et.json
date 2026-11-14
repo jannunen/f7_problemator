@@ -556,6 +556,12 @@
     "undo": "Võta viimane tagasi",
     "saving": "Salvestamine…",
     "retry": "Proovi uuesti",
-    "not_saved": "Salvestamata."
+    "not_saved": "Salvestamata.",
+    "edit_rung": "Paranda {label}",
+    "fewer_tries": "Üks katse vähem",
+    "more_tries": "Üks katse rohkem",
+    "remove_mark": "Eemalda",
+    "remove_mark_above": "Eemalda see ja ülemised",
+    "edit_done": "Valmis"
   }
 }

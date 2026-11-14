@@ -16,6 +16,11 @@ import { myCheckpointFor } from '@helpers/checkpoints.js'
  * zone stamps are saved; undoing it deletes that tick, then writes the
  * previous state with replace.
  *
+ * Corrections (edit a reached rung's count, remove a mark, undo) can lower
+ * what is stored, so they are full-state writes with replace. When one also
+ * moves the top (removes it, brings it back, changes its tries) the top tick
+ * is deleted or saved again to match.
+ *
  *   store        the Vuex store (competition, my_checkpoints, my_checkpoint_tries, userticks)
  *   compId       () => competition id
  *   t            vue-i18n t
@@ -30,6 +35,7 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
   const version = ref(0) // bumped whenever the writer's busy state may have changed
   const failed = {} // problemid -> { kind: 'write' | 'top', state }
   const lastReach = {} // problemid -> time of the ✓ that just turned the button into ✓ Top
+  const retopTimers = {} // problemid -> { timer, run }: a corrected top waiting to be saved again
   // A Top straight after a ✓ on the same route is the second tap of a double
   // tap on ✓ (the button became ✓ Top under the finger): ignore it.
   const isDoubleTap = (pid) => lastReach[pid] != null && Date.now() - lastReach[pid] < ladder.DOUBLE_TAP_MS
@@ -133,11 +139,11 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
     version.value++
   }
 
-  const top = async (prob, next) => {
+  const top = async (prob, next, { replace = false } = {}) => {
     const pid = prob.id
     setTopBusy(pid, true)
     setLocal(pid, next)
-    sync.queue(pid, next)
+    sync.queue(pid, next, { replace })
     await sync.flush(pid)
     version.value++
     if (errors.value[pid]) {
@@ -145,7 +151,7 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
       return
     }
     try {
-      await saveTop(pid, next.attempts)
+      await saveTop(pid, next.topTries ?? next.attempts)
     } catch (err) {
       // The zones are saved; only the top tick is missing. Keep the zones,
       // offer the top again.
@@ -172,6 +178,44 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
     }
     setTopBusy(pid, false)
     write(prob, prev, { replace: true })
+  }
+
+  const cancelRetop = (pid) => {
+    if (!retopTimers[pid]) return
+    clearTimeout(retopTimers[pid].timer)
+    delete retopTimers[pid]
+  }
+  // The tries of a top were corrected. Saving the tick again replaces the
+  // old one, so taps on the stepper are coalesced like any other write and
+  // only the last value is sent, one save at a time.
+  let retopChain = Promise.resolve()
+  const retop = (prob, next) => {
+    const pid = prob.id
+    cancelRetop(pid)
+    setTopBusy(pid, true)
+    setLocal(pid, next)
+    const run = () => {
+      delete retopTimers[pid]
+      retopChain = retopChain.then(() => {
+        const latest = local.value[pid]
+        if (retopTimers[pid]) return undefined // corrected again meanwhile: that save follows
+        if (!latest?.topped) return setTopBusy(pid, false)
+        return top(prob, latest, { replace: true })
+      })
+      return retopChain
+    }
+    retopTimers[pid] = { run, timer: setTimeout(run, delay) }
+  }
+
+  /** Store a corrected state (edit, remove, undo): `next` replaces what the server has. */
+  const correct = (prob, cur, next) => {
+    // A corrected top still waiting to be saved goes out with this one.
+    const topUnsaved = !!retopTimers[prob.id]
+    cancelRetop(prob.id)
+    if (cur.topped && !next.topped) return untop(prob, cur, next)
+    if (next.topped && !cur.topped) return top(prob, next, { replace: true })
+    if (next.topped && (topUnsaved || next.topTries !== cur.topTries)) return retop(prob, next)
+    write(prob, next, { replace: true })
   }
 
   /** Handle one CheckpointLadder event for a problem. */
@@ -214,9 +258,17 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
       case 'undo': {
         const { state, undone } = ladder.undo(cur)
         if (!undone) return
-        if (undone === ladder.ACTIONS.TOP) return untop(prob, cur, state)
-        write(prob, state, { replace: true })
-        return
+        return correct(prob, cur, state)
+      }
+      case 'edit': {
+        const next = ladder.setReachedCount(cur, arg?.rung, arg?.count)
+        if (next === cur) return
+        return correct(prob, cur, next)
+      }
+      case 'unreach': {
+        const next = ladder.unreach(cur, arg)
+        if (next === cur) return
+        return correct(prob, cur, next)
       }
       case 'retry': {
         const f = failed[pid]
@@ -246,6 +298,10 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
 
   onUnmounted(() => {
     // Taps made just before leaving the page still count.
+    Object.values(retopTimers).forEach(({ timer, run }) => {
+      clearTimeout(timer)
+      run()
+    })
     sync.flushAll()
   })
 

@@ -85,6 +85,17 @@ describe.each([['CompetitionEntry', CompetitionEntry], ['PublicCompetitionEntry'
     expect(html).toContain('High zone')
   })
 
+  it('a ladder beside a Save button gets the row to itself (the buttons go under it)', async () => {
+    const ifsc = await render(Component, makeComp('ifsc_2024_bouldering'))
+    expect(count(ifsc, 'comp-row--ladder-stacked')).toBe(2)
+    // the signed-in checkpoint row has no Save button; the public one does
+    const checkpoints = await render(Component, makeComp('checkpoint_points'))
+    expect(count(checkpoints, 'comp-row--ladder ') + count(checkpoints, 'comp-row--ladder"')).toBe(2)
+    expect(count(checkpoints, 'comp-row--ladder-stacked')).toBe(checkpoints.includes('>Save</button>') ? 2 : 0)
+    // other comp types keep the ordinary row
+    expect(await render(Component, makeComp('fixed_points_best_n'))).not.toContain('comp-row--ladder')
+  })
+
   it('an old tick stored with 0 tries shows 1 in the stepper', async () => {
     const html = await render(Component, makeComp('fixed_points_best_n', ticked))
     expect(html).not.toContain('value="0"')

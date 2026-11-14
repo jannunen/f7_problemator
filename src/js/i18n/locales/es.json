@@ -556,6 +556,12 @@
     "undo": "Deshacer último",
     "saving": "Guardando…",
     "retry": "Reintentar",
-    "not_saved": "No guardado."
+    "not_saved": "No guardado.",
+    "edit_rung": "Corregir {label}",
+    "fewer_tries": "Un intento menos",
+    "more_tries": "Un intento más",
+    "remove_mark": "Quitar",
+    "remove_mark_above": "Quitar esta y las de arriba",
+    "edit_done": "Listo"
   }
 }
