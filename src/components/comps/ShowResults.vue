@@ -38,6 +38,99 @@
     </div>
   </div>
 
+  <!-- This is for ifsc 2024 bouldering: phased like sport (qualifying/semifinal/final/overall),
+       but each result is a boulder tally (amountTops/olympicPoints), not per-route sport_points. -->
+  <div v-if="type == 'ifsc_2024_bouldering' && results != null">
+    <f7-toolbar tabbar bottom>
+      <f7-link tab-link="#tab-ifsc-1" tab-link-active>Qualification</f7-link>
+      <f7-link tab-link="#tab-ifsc-2">Semifinal</f7-link>
+      <f7-link tab-link="#tab-ifsc-3">Finals</f7-link>
+      <f7-link tab-link="#tab-ifsc-4">Overall</f7-link>
+    </f7-toolbar>
+    <f7-tabs>
+      <f7-tab id="tab-ifsc-1" tab-active>
+        Qualification
+        <div v-if="ifscHasResults(results.qualifying)">
+          <div class="w-full" v-for="serie in results.qualifying" :key="serie.category.id">
+            <div class="font-bold my-1">{{ serie.category.nimi }}</div>
+            <table width="100%" class="text-gray-500 dark:text-gray-400">
+              <tbody>
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+result.climber.id">
+                  <td class="w-1/12">{{ result.standing }}</td>
+                  <td class="w-4/12">{{ climberName(result) }}</td>
+                  <td class="w-3/12">{{ result.climber?.team }}</td>
+                  <td class="w-2/12">{{ result.amountTops ?? 0 }} tops</td>
+                  <td class="w-2/12">{{ fmtPoints(result.olympicPoints) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div v-else>No qualification results</div>
+      </f7-tab>
+      <f7-tab id="tab-ifsc-2">
+        Semifinals
+        <div v-if="ifscHasResults(results.semifinal)">
+          <div class="w-full" v-for="serie in results.semifinal" :key="serie.category.id">
+            <div class="font-bold my-1">{{ serie.category.nimi }}</div>
+            <table width="100%" class="text-gray-500 dark:text-gray-400">
+              <tbody>
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+result.climber.id">
+                  <td class="w-1/12">{{ result.standing }}</td>
+                  <td class="w-4/12">{{ climberName(result) }}</td>
+                  <td class="w-3/12">{{ result.climber?.team }}</td>
+                  <td class="w-2/12">{{ result.amountTops ?? 0 }} tops</td>
+                  <td class="w-2/12">{{ fmtPoints(result.olympicPoints) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div v-else>No semifinal results</div>
+      </f7-tab>
+      <f7-tab id="tab-ifsc-3">
+        Finals
+        <div v-if="ifscHasResults(results.final)">
+          <div class="w-full" v-for="serie in results.final" :key="serie.category.id">
+            <div class="font-bold my-1">{{ serie.category.nimi }}</div>
+            <table width="100%" class="text-gray-500 dark:text-gray-400">
+              <tbody>
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+result.climber.id">
+                  <td class="w-1/12">{{ result.standing }}</td>
+                  <td class="w-4/12">{{ climberName(result) }}</td>
+                  <td class="w-3/12">{{ result.climber?.team }}</td>
+                  <td class="w-2/12">{{ result.amountTops ?? 0 }} tops</td>
+                  <td class="w-2/12">{{ fmtPoints(result.olympicPoints) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div v-else>No final results</div>
+      </f7-tab>
+      <f7-tab id="tab-ifsc-4">
+        Overall
+        <div v-if="ifscHasResults(results.overall)">
+          <div class="w-full" v-for="serie in results.overall" :key="serie.category.id">
+            <div class="font-bold my-1">{{ serie.category.nimi }}</div>
+            <table width="100%" class="text-gray-500 dark:text-gray-400">
+              <tbody>
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+result.climber.id">
+                  <td class="w-1/12">{{ result.standing }}</td>
+                  <td class="w-4/12">{{ climberName(result) }}</td>
+                  <td class="w-3/12">{{ result.climber?.team }}</td>
+                  <td class="w-2/12">{{ result.amountTops ?? 0 }} tops</td>
+                  <td class="w-2/12">{{ fmtPoints(result.olympicPoints) }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div v-else>No overall results</div>
+      </f7-tab>
+    </f7-tabs>
+  </div>
+
   <!-- This is for sport comps -->
   <div v-if="type == 'sport'">
     <f7-toolbar tabbar bottom>
@@ -155,6 +248,11 @@ const climberName = (result) => {
   return result.climbername ?? ''
 }
 const sortResults = (keyedResults) =>  Object.keys(keyedResults).map(key => keyedResults[key]).sort((a,b) => { return parseInt(a.standing) - parseInt(b.standing)})
+// IFSC phase results are keyed by serieid and may be an empty object ({}) rather than [] when nothing has been climbed yet.
+const ifscHasResults = (phase) => phase != null && Object.keys(phase).length > 0
+// olympicPoints is a running total of fractional deductions (0.1 per failed attempt);
+// floating-point subtraction leaves noise like 173.39999999999998.
+const fmtPoints = (points) => points == null ? points : Math.round(points * 100) / 100
 const reloadInterval = 45
 
 const secsToReload = ref(reloadInterval)
