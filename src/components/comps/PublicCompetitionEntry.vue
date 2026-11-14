@@ -104,7 +104,7 @@
             </template>
             <template #title>
               <div v-if="comp.tyyppi == 'variable_points'">
-                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
               <div v-if="comp.tyyppi == 'predefined_plus_flashcomp'" class="flex flex-row ">
                 
@@ -113,7 +113,7 @@
                   {{ getPointsPerProblem(prob.pivot.num) }} 
                 </div>
                 </div>
-                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
               <div v-else-if="comp.tyyppi=='checkpoint_points'" class="w-full">
                 <check-point-row
@@ -129,7 +129,7 @@
                     {{ prob.pivot.max_points }}
                   </div>
                 </div>
-                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
               <div v-else-if="comp.tyyppi=='sport'">
                 <input :value="tries[prob.id]?.sport_points" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
@@ -137,11 +137,11 @@
               <div v-else-if="isTriesAndBonusType" class="flex flex-row gap-3">
                 <div class="flex flex-col items-center">
                   <div class="text-xs">{{ t('comps.tries_to_bonus') }}</div>
-                  <f7-stepper fill :value="tries[prob.id]?.tries_bonus || 1" @stepper:change="(num) => setAttempt(prob.id, 'tries_bonus', num)"></f7-stepper>
+                  <f7-stepper fill :min="1" :value="tries[prob.id]?.tries_bonus || 1" @stepper:change="(num) => setAttempt(prob.id, 'tries_bonus', num)"></f7-stepper>
                 </div>
                 <div class="flex flex-col items-center">
                   <div class="text-xs">{{ t('comps.tries_to_top') }}</div>
-                  <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                  <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
                 </div>
               </div>
               <div v-else-if="comp.tyyppi=='ifsc_2024_bouldering'" class="flex flex-row gap-2">
@@ -157,13 +157,14 @@
                   </select>
                   <f7-stepper
                     fill
+                    :min="1"
                     :value="tries[prob.id]?.[zoneFor(prob.id)] || 1"
                     @stepper:change="(num) => setAttempt(prob.id, zoneFor(prob.id), num)"
                   ></f7-stepper>
                 </div>
                 <div class="flex flex-col items-center">
                   <div class="text-xs">{{ t('comps.tries_to_top') }}</div>
-                  <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                  <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
                 </div>
               </div>
               <div v-else>
@@ -205,6 +206,7 @@ import ShowResults from './ShowResults.vue'
 import { webendpoint } from '@js/api.js'
 
 import {  toaster } from '@helpers/notifications.js'
+import { compTickTries } from '@helpers/compTries.js'
 import { toLocalTime } from '@helpers/component.helpers'
 import { isCompRunning, msUntilEnd, windowLabel } from '@helpers/compWindow'
 import { handleValidationErrors } from '@helpers'
@@ -273,7 +275,7 @@ const openPaymentWindow = () => {
 }
 const onChangeSportPoints = (pid, e) => {
   if (tries.value[pid] == null) {
-    tries.value[pid] = { tries: 0, sport_points: 0 }
+    tries.value[pid] = { tries: 1, sport_points: 0 }
   }
   tries.value[pid].sport_points = e.target.value
 }
@@ -351,7 +353,7 @@ const onDeleted = (id) => {
 }
 const setAttempt = (id, field, amount) => {
   if (!(id in tries.value)) {
-    tries.value[id] = { tries: 0, sport_points: 0 }
+    tries.value[id] = { tries: 1, sport_points: 0 }
   }
   tries.value[id] = { ...tries.value[id], [field]: amount }
 }
@@ -415,18 +417,12 @@ const timeLeft = ref(null)
 
 const doTick = (id) => {
 
-  let aTries = 1
   let aSportPoints = 0
-  let aTriesBonus = 0
-  let aAttemptsLowZone = null
-  let aAttemptsHighZone = null
   if (tries.value[id] != null) {
-    aTries = tries.value[id].tries
     aSportPoints = tries.value[id].sport_points
-    aTriesBonus = tries.value[id].tries_bonus ?? 0
-    aAttemptsLowZone = tries.value[id].attempts_low_zone ?? null
-    aAttemptsHighZone = tries.value[id].attempts_high_zone ?? null
   }
+  // At least one try; bonus and zones keep their "not recorded" values.
+  const { tries: aTries, tries_bonus: aTriesBonus, attempts_low_zone: aAttemptsLowZone, attempts_high_zone: aAttemptsHighZone } = compTickTries(tries.value[id])
 
   const payload = {
     ticktype: 'tick',
