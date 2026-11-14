@@ -43,7 +43,7 @@
               <span class="ladder__node" aria-hidden="true"></span>
               <span class="ladder__label">
                 <span class="ladder__name">{{ rungLabel(row) }}</span>
-                <span class="ladder__points">{{ rungPoints(row) }}</span>
+                <span v-if="rungPoints(row) != null" class="ladder__points">{{ rungPoints(row) }}</span>
               </span>
             </span>
             <span v-if="row.status === 'reached' || (row.status === 'active' && state.attempts > 0)" class="ladder__mark" aria-hidden="true">
@@ -237,7 +237,11 @@ const routeName = computed(() => [props.problem?.pivot?.num, props.problem?.tag]
 
 const optionFor = (row) => (row.isTop ? options.value[options.value.length - 1] : options.value[row.rung - 1])
 const rungLabel = (row) => checkpointDisplayLabel(options.value, row.isTop ? 'top' : row.rung, t)
-const rungPoints = (row) => optionFor(row)?.points ?? 0
+// An option with points: null has no fixed value (it depends on the tries), so none is shown.
+const rungPoints = (row) => {
+  const points = optionFor(row)?.points
+  return points === null ? null : points ?? 0
+}
 
 const activeRow = computed(() => rows.value.find((r) => r.status === 'active') ?? null)
 const activeLabel = computed(() => (activeRow.value ? rungLabel(activeRow.value) : ''))
@@ -306,15 +310,16 @@ const onRung = (row) => {
 
 const rungName = (row) => {
   const named = { label: rungLabel(row), points: rungPoints(row) }
+  const key = (name) => (named.points == null ? `ladder.${name}_unscored` : `ladder.${name}`)
   if (row.status === 'reached') {
-    if (row.count == null) return t('ladder.rung_reached_unknown', named)
-    return t(row.isTop ? 'ladder.rung_topped' : 'ladder.rung_reached', { ...named, n: row.count }, row.count)
+    if (row.count == null) return t(key('rung_reached_unknown'), named)
+    return t(key(row.isTop ? 'rung_topped' : 'rung_reached'), { ...named, n: row.count }, row.count)
   }
   if (row.status === 'active') {
     const n = props.state.attempts
-    return t('ladder.rung_active', { ...named, n }, n)
+    return t(key('rung_active'), { ...named, n }, n)
   }
-  return t('ladder.rung_idle', named)
+  return t(key('rung_idle'), named)
 }
 
 const announcement = computed(() => {
