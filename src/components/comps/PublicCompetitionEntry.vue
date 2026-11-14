@@ -24,7 +24,7 @@
           </f7-nav-right>
         </f7-navbar>
         <f7-block>
-          <points-per-route :last-update="lastUpdate" :points-per-route="comp.points_per_route" />
+          <points-per-route :last-update="lastUpdate" :points-per-route="comp.points_per_route" :topped-ids="toppedIds" :tries-by-id="tries" />
         </f7-block>
       </f7-page>
     </f7-popup>
@@ -244,6 +244,8 @@ const isTicked = (pid) => {
   return tick != null
 }
 
+// Route ids the climber has already topped in this comp (the preview only applies to the rest).
+const toppedIds = computed(() => Object.keys(store.state.competition?.userticks || {}).map(Number))
 const isTopPointsType = computed(() => TOP_POINTS_TYPES.includes(props.comp.tyyppi))
 const isTriesAndBonusType = computed(() => TRIES_AND_BONUS_TYPES.includes(props.comp.tyyppi))
 const myCheckpointFor = (pid) => myCheckpointForHelper(store.state.competition?.my_checkpoints, pid)

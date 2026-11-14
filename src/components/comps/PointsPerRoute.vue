@@ -1,6 +1,10 @@
 <template>
   <small>Last update {{ lastUpdate.format("YYYY-MM-DD HH:mm.ss") }}<br /></small>
   Points per route updates automatically ever 30 secs.
+  <label class="flex items-center gap-2 my-2" data-test="preview-toggle">
+    <input type="checkbox" v-model="showPreview" />
+    <span>{{ t('comps.points_preview_toggle') }}</span>
+  </label>
   <div class="flex flex-row flex-wrap" v-if="pointsPerRoute != null">
     <div class="w-1/3 p-2" v-for="(cat) in pointsPerRoute" :key="cat.category.id">
       <h2 class="font-bold ">{{ cat.category.nimi }}</h2>
@@ -9,7 +13,10 @@
           <span class="font-bold font-mono flex-1">{{ problem?.tag?.substr(7) }}</span>
           <div class="font-bold ml-1 text-yellow-400 flex-1">{{ problem.pivot.num }}</div>
           <div class="font-bold text-right text-green-500 flex-1 "> 
-            <div v-if="problem.ascents == 1">
+            <div v-if="showPreview && preview(problem) !== null" data-test="preview-points">
+            {{ preview(problem) }}
+            </div>
+            <div v-else-if="problem.ascents == 1">
             {{ problem.points /2  }} 
             </div>
             <div v-else>
@@ -26,13 +33,22 @@ import dayjs from 'dayjs'
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
 import { right } from '@js/helpers'
+import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
+import { previewPoints } from '@js/helpers/pointsPreview.js'
 dayjs.extend(utc)
 dayjs.extend(timezone)
 
 const props = defineProps({
   lastUpdate : Object,
   pointsPerRoute: Object,
+  toppedIds: { type: Array, default: () => [] },
+  triesById: { type: Object, default: () => ({}) },
 })
+const { t } = useI18n()
+const showPreview = ref(true)
+const preview = (problem) =>
+  previewPoints(problem, props.triesById?.[problem.id]?.tries, props.toppedIds.includes(problem.id))
 const sortByNum = (points) => {
     if (points == null) {
       return []
