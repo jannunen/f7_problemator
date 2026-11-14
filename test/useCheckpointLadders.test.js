@@ -423,6 +423,25 @@ describe('useCheckpointLadders', () => {
       expect(saveTop).toHaveBeenCalledTimes(1)
       expect(saveTop).toHaveBeenCalledWith(7, 4, 4)
     })
+
+    // A Top saved before the ladders existed has no checkpoint row, so its
+    // bonus count is only on the tick itself.
+    it('test_correcting_a_legacy_tops_tries_keeps_the_ticks_own_tries_bonus', async () => {
+      const { ladders, calls, saveTop, competition } = setup({}, { bonusAffectsTop: true, zonesFor: () => 1 })
+      competition.userticks = { 7: { problemid: 7, tries: 5, tries_bonus: 2 } }
+      expect(ladders.stateFor(prob)).toMatchObject({ topped: true, topTries: 5, reached: { 1: 2 } })
+      ladders.act(prob, 'edit', { rung: 2, count: 4 })
+      await vi.advanceTimersByTimeAsync(300)
+      expect(saveTop).toHaveBeenCalledTimes(1)
+      expect(saveTop).toHaveBeenLastCalledWith(7, 4, 2)
+      expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 1, attempts: 4, zone_tries: { 1: 2 }, replace: true })
+    })
+
+    it('test_a_legacy_ticks_tries_bonus_is_not_used_when_the_type_does_not_store_the_bonus_on_the_tick', () => {
+      const { ladders, competition } = setup({}, { zonesFor: () => 1 })
+      competition.userticks = { 7: { problemid: 7, tries: 5, tries_bonus: 2 } }
+      expect(ladders.stateFor(prob).reached).toEqual({ 1: null })
+    })
   })
 
   describe('injected dependencies', () => {

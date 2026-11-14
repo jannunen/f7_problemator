@@ -177,6 +177,27 @@ const sportComp = () => ({
 const ADDITIVE_TYPES = ['ifsc_2018_bouldering', 'traditional', 'flashcomp']
 const RUNG_TYPES = ['ifsc_2024_bouldering', ...ADDITIVE_TYPES]
 
+// Tops saved by the old stepper UI: no checkpoint row, the counts are on the tick only.
+describe.each([
+  ['CompetitionEntry', CompetitionEntry, {}],
+  ['PublicCompetitionEntry', PublicCompetitionEntry, PUBLIC_ACTIONS],
+])('%s: correcting a Top saved before the ladders', (_, Component, names) => {
+  it.each(ADDITIVE_TYPES)('%s keeps the tick\'s own tries_bonus', async (tyyppi) => {
+    const live = await renderLive(makeComp(tyyppi, { 1: { problemid: 1, tries: 5, tries_bonus: 2 } }), { Component, names })
+    live.ladder(1).onEdit(2, 4)
+    await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(1), { timeout: 2000 })
+    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 4, tries_bonus: 2 })
+  })
+
+  it('ifsc_2024_bouldering: the old zone fields do not push the corrected tries above the ladder', async () => {
+    const legacy = { 1: { problemid: 1, tries: 5, tries_bonus: 0, attempts_low_zone: 3, attempts_high_zone: 4 } }
+    const live = await renderLive(makeComp('ifsc_2024_bouldering', legacy), { Component, names })
+    live.ladder(1).onEdit(3, 2)
+    await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(1), { timeout: 2000 })
+    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 2 })
+  })
+})
+
 describe('CompetitionEntry: partial credit vs a genuine top', () => {
   it.each(ADDITIVE_TYPES)('%s renders a Bonus + Top ladder per problem, not the stepper pair', async (tyyppi) => {
     const html = await render(CompetitionEntry, makeComp(tyyppi))

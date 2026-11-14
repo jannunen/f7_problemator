@@ -427,43 +427,11 @@ const onDeleted = (id) => {
 const confirmDelete = (id) => {
   f7.dialog.confirm(t('problem.tick_delete_are_you_sure'), t('comps.delete_ascent'), () => onDeleted(id))
 }
-const setAttempt = (id, field, amount) => {
-  if (!(id in tries.value)) {
-    tries.value[id] = { tries: 1, sport_points: 0 }
-  }
-  const next = { ...tries.value[id], [field]: amount }
-  // Tries to top can never be fewer than tries to bonus — the bonus hold
-  // sits before the top on the route, so reaching it can't take more tries
-  // than finishing it. Raising bonus past the stored top pulls top up with
-  // it; the stepper's own :min stops top being pulled below bonus directly.
-  if (field === 'tries_bonus' && (next.tries ?? 1) < amount) {
-    next.tries = amount
-  }
-  // ifsc_2024_bouldering: low zone, then high zone, then top — each sits
-  // further up the route, so reaching a later one can never take fewer
-  // tries than an earlier one. Raising an earlier value pulls later ones
-  // up with it; each stepper's own :min stops a later value being pulled
-  // below an earlier one directly.
-  if (field === 'attempts_low_zone') {
-    if ((next.attempts_high_zone ?? 1) < amount) next.attempts_high_zone = amount
-    if ((next.tries ?? 1) < amount) next.tries = amount
-  } else if (field === 'attempts_high_zone') {
-    // The stepper's :min isn't reactive to the zone dropdown switching
-    // underneath it, so this clamp is the real enforcement, not just a
-    // backstop for a decrement :min already should have blocked.
-    const lowFloor = next.attempts_low_zone ?? 1
-    if (amount < lowFloor) {
-      amount = lowFloor
-      next.attempts_high_zone = lowFloor
-    }
-    if ((next.tries ?? 1) < amount) next.tries = amount
-  } else if (field === 'tries') {
-    const floor = Math.max(next.attempts_low_zone ?? 1, next.attempts_high_zone ?? 1)
-    if (amount < floor) next.tries = floor
-  }
-  tries.value[id] = next
+// Only the tries to top are set here: the ladder types keep their zone and
+// bonus counts on the ladder, and the steppers left have no bonus or zones.
+const setTries = (id, triesAmount) => {
+  tries.value[id] = { ...(tries.value[id] ?? { sport_points: 0 }), tries: triesAmount }
 }
-const setTries = (id, triesAmount) => setAttempt(id, 'tries', triesAmount)
 const lastUpdate = ref(dayjs())
 const lastResultUpdate = ref(dayjs())
 

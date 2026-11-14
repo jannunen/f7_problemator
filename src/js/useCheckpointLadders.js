@@ -64,13 +64,30 @@ export function useCheckpointLadders({
     return all[pid] ?? null
   }
 
-  const serverState = (prob) =>
-    ladder.fromServer({
+  // The bonus count stored on the top tick, when it is a usable one.
+  const tickBonus = (pid) => {
+    if (!bonusAffectsTop) return null
+    const tick = comp()?.userticks?.[pid]
+    const bonus = parseInt(tick?.tries_bonus)
+    const tries = parseInt(tick?.tries)
+    return bonus >= 1 && !(bonus > tries) ? bonus : null
+  }
+
+  const serverState = (prob) => {
+    const state = ladder.fromServer({
       zones: zonesFor(prob),
       checkpoint: myCheckpointFor(comp()?.my_checkpoints, prob.id),
       tries: triesFor(prob.id),
       topTick: comp()?.userticks?.[prob.id] ?? null,
     })
+    // A Top saved before the ladders has no checkpoint row; its bonus count
+    // is on the tick only. Left unknown, a correction would stamp over it.
+    const bonus = tickBonus(prob.id)
+    if (state.topped && state.zones >= 1 && state.reached[1] == null && bonus != null) {
+      return { ...state, reached: { ...state.reached, 1: bonus } }
+    }
+    return state
+  }
 
   /** The ladder to show for a problem. A local state whose Top disagrees with
    * the tick list (e.g. the ascent was swiped away) gives way to the server's. */
@@ -168,7 +185,7 @@ export function useCheckpointLadders({
     }
     try {
       const tries = next.topTries ?? next.attempts
-      await saveTop(pid, tries, next.reached[1] ?? tries)
+      await saveTop(pid, tries, next.reached[1] ?? tickBonus(pid) ?? tries)
     } catch (err) {
       // The zones are saved; only the top tick is missing. Keep the zones,
       // offer the top again.
