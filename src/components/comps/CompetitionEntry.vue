@@ -24,7 +24,7 @@
           </f7-nav-right>
         </f7-navbar>
         <f7-block>
-          <points-per-route :last-update="lastUpdate" :points-per-route="comp.points_per_route" />
+          <points-per-route :last-update="lastUpdate" :points-per-route="comp.points_per_route" :topped-ids="toppedIds" :tries-by-id="tries" />
         </f7-block>
       </f7-page>
     </f7-popup>
@@ -77,7 +77,9 @@
         <div class="text-center">
           <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
         </div>
-        <p class="text-center">Swipe left to delete an ascent</p>
+        <p v-if="comp.tyyppi != 'checkpoint_points'" class="text-center">{{ t('comps.delete_ascent_hint') }}</p>
+        <p v-else class="text-center">Swipe left to delete an ascent</p>
+        <p v-if="comp.tyyppi == 'sport'" class="text-center text-sm text-gray-400">{{ t('comps.sport_points_hint') }}</p>
         <f7-list class="m-0">
           <f7-list-item>
             <template #title>
@@ -103,16 +105,16 @@
             </template>
             <template #title>
               <div v-if="comp.tyyppi == 'variable_points'">
-                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
-              <div v-if="comp.tyyppi == 'predefined_plus_flashcomp'" class="flex flex-row ">
+              <div v-else-if="comp.tyyppi == 'predefined_plus_flashcomp'" class="flex flex-row ">
                 
                 <div class="flex flex-row items-center mr-2">
                 <div class="text-sm font-bold bg-blue-500 text-white rounded-md p-1 dark:bg-blue-600 mr-1 w-8 h-8 flex items-center justify-center">
                   {{ getPointsPerProblem(prob.pivot.num) }} 
                 </div>
                 </div>
-                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
               <div v-else-if="comp.tyyppi=='checkpoint_points'" class="w-full">
                 <checkpoint-ladder
@@ -137,23 +139,23 @@
                     {{ prob.pivot.max_points }}
                   </div>
                 </div>
-                <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
               <div v-else-if="comp.tyyppi=='sport'">
-                <input :value="tries[prob.id]?.sport_points" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
+                <input :value="sportPointsDisplay(prob.id)" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
               </div>
               <div v-else-if="isTriesAndBonusType" class="flex flex-row gap-3">
                 <div class="flex flex-col items-center">
                   <div class="text-xs">{{ t('comps.tries_to_bonus') }}</div>
-                  <f7-stepper fill :value="tries[prob.id]?.tries_bonus || 1" @stepper:change="(num) => setAttempt(prob.id, 'tries_bonus', num)"></f7-stepper>
+                  <f7-stepper fill :min="1" :value="tries[prob.id]?.tries_bonus || 1" @stepper:change="(num) => setAttempt(prob.id, 'tries_bonus', num)"></f7-stepper>
                 </div>
                 <div class="flex flex-col items-center">
                   <div class="text-xs">{{ t('comps.tries_to_top') }}</div>
-                  <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                  <f7-stepper fill :min="tries[prob.id]?.tries_bonus || 1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
                 </div>
               </div>
-              <div v-else-if="comp.tyyppi=='ifsc_2024_bouldering'" class="flex flex-row gap-2">
-                <div class="flex flex-col items-center">
+              <div v-else-if="comp.tyyppi=='ifsc_2024_bouldering'" class="flex flex-col gap-1">
+                <div class="flex flex-col items-start">
                   <select
                     class="p-select mb-1 w-24"
                     style="font-size: 0.75rem; line-height: 1.1; height: auto; padding-top: 0.25rem; padding-bottom: 0.25rem"
@@ -165,14 +167,24 @@
                     <option value="attempts_high_zone">{{ t('comps.high_zone') }}</option>
                   </select>
                   <f7-stepper
+                    :key="`${prob.id}-${zoneFor(prob.id)}-${tries[prob.id]?.[zoneFor(prob.id)] || 1}`"
+                    small
                     fill
+                    :min="zoneFor(prob.id) === 'attempts_high_zone' ? (tries[prob.id]?.attempts_low_zone || 1) : 1"
                     :value="tries[prob.id]?.[zoneFor(prob.id)] || 1"
                     @stepper:change="(num) => setAttempt(prob.id, zoneFor(prob.id), num)"
                   ></f7-stepper>
                 </div>
-                <div class="flex flex-col items-center">
+                <div class="flex flex-col items-start">
                   <div class="text-xs">{{ t('comps.tries_to_top') }}</div>
-                  <f7-stepper fill :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
+                  <f7-stepper
+                    :key="`${prob.id}-top-${tries[prob.id]?.tries || 1}`"
+                    small
+                    fill
+                    :min="Math.max(tries[prob.id]?.attempts_low_zone || 1, tries[prob.id]?.attempts_high_zone || 1)"
+                    :value="tries[prob.id]?.tries || 1"
+                    @stepper:change="(num) => setTries(prob.id, num)"
+                  ></f7-stepper>
                 </div>
               </div>
               <div v-else>
@@ -180,9 +192,23 @@
               </div>
             </template>
             <template #after>
-              <p-button v-if="comp.tyyppi != 'checkpoint_points'" @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">tick</p-button>
+              <p-button
+                v-if="comp.tyyppi != 'checkpoint_points'"
+                :disabled="busy[prob.id]"
+                @click="() => doTick(prob.id)"
+                class="w-20 py-2 dark:bg-green-500 bg-green-600 disabled:opacity-50"
+              >{{ busy[prob.id] ? t('global.saving') : t('global.save') }}</p-button>
               <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
               <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
+              <button
+                v-if="comp.tyyppi != 'checkpoint_points' && isTicked(prob.id)"
+                type="button"
+                data-test="delete-ascent"
+                class="w-11 h-11 shrink-0 flex items-center justify-center rounded-md text-red-600 dark:text-red-400 active:bg-red-500/20"
+                :aria-label="t('comps.delete_ascent')"
+                :title="t('comps.delete_ascent')"
+                @click="() => confirmDelete(prob.id)"
+              ><i class="icon f7-icons" style="font-size: 22px;" aria-hidden="true">trash</i></button>
             </template>
           </f7-list-item>
         </f7-list>
@@ -199,6 +225,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { f7 } from 'framework7-vue'
 
 import { onUnmounted,  computed, ref } from 'vue'
 import PButton from '@components/PButton.vue'
@@ -214,6 +241,7 @@ import { useCheckpointLadders } from '@js/useCheckpointLadders.js'
 import { TOP_POINTS_TYPES, TRIES_AND_BONUS_TYPES } from '@helpers/checkpoints.js'
 
 import {  toaster } from '@helpers/notifications.js'
+import { compTickTries } from '@helpers/compTries.js'
 import { toLocalTime } from '@helpers/component.helpers'
 import { isCompRunning, msUntilEnd, windowLabel } from '@helpers/compWindow'
 import { handleValidationErrors } from '@helpers'
@@ -263,8 +291,11 @@ const isTicked = (pid) => {
   return tick != null
 }
 
+// Route ids the climber has already topped in this comp (the preview only applies to the rest).
+const toppedIds = computed(() => Object.keys(store.state.competition?.userticks || {}).map(Number))
 const isTopPointsType = computed(() => TOP_POINTS_TYPES.includes(props.comp.tyyppi))
 const isTriesAndBonusType = computed(() => TRIES_AND_BONUS_TYPES.includes(props.comp.tyyppi))
+const busy = ref({})
 // Which zone (low/high) each ifsc_2024_bouldering row's single stepper is
 // currently pointed at. Purely local UI state — not submitted — the tries
 // value for each zone still lives in tries[prob.id], so switching the
@@ -308,9 +339,16 @@ const openPaymentWindow = () => {
 }
 const onChangeSportPoints = (pid, e) => {
   if (tries.value[pid] == null) {
-    tries.value[pid] = { tries: 0, sport_points: 0 }
+    tries.value[pid] = { tries: 1, sport_points: 0 }
   }
   tries.value[pid].sport_points = e.target.value
+}
+// A saved TOP is stored (and returned by the backend) as 1000, same as the
+// results table already shows it — the entry field should read the same
+// way rather than showing the raw number back at the climber.
+const sportPointsDisplay = (pid) => {
+  const value = tries.value[pid]?.sport_points
+  return Number(value) === 1000 ? 'TOP' : value
 }
 const tries = ref({})
 const getJudgingLink = computed(() => {
@@ -384,15 +422,53 @@ const onDeleted = (id) => {
   store
     .dispatch('deleteTickByProblem', payload)
     .then((ret) => {
+      // Forget the row's entered tries so it starts again from 1.
+      const rest = { ...tries.value }
+      delete rest[id]
+      tries.value = rest
       toaster(t(ret.message))
     })
     .catch((err) => { })
 }
+// Trash button on a ticked row: same delete as the swipe action, behind a confirm.
+const confirmDelete = (id) => {
+  f7.dialog.confirm(t('problem.tick_delete_are_you_sure'), t('comps.delete_ascent'), () => onDeleted(id))
+}
 const setAttempt = (id, field, amount) => {
   if (!(id in tries.value)) {
-    tries.value[id] = { tries: 0, sport_points: 0 }
+    tries.value[id] = { tries: 1, sport_points: 0 }
   }
-  tries.value[id] = { ...tries.value[id], [field]: amount }
+  const next = { ...tries.value[id], [field]: amount }
+  // Tries to top can never be fewer than tries to bonus — the bonus hold
+  // sits before the top on the route, so reaching it can't take more tries
+  // than finishing it. Raising bonus past the stored top pulls top up with
+  // it; the stepper's own :min stops top being pulled below bonus directly.
+  if (field === 'tries_bonus' && (next.tries ?? 1) < amount) {
+    next.tries = amount
+  }
+  // ifsc_2024_bouldering: low zone, then high zone, then top — each sits
+  // further up the route, so reaching a later one can never take fewer
+  // tries than an earlier one. Raising an earlier value pulls later ones
+  // up with it; each stepper's own :min stops a later value being pulled
+  // below an earlier one directly.
+  if (field === 'attempts_low_zone') {
+    if ((next.attempts_high_zone ?? 1) < amount) next.attempts_high_zone = amount
+    if ((next.tries ?? 1) < amount) next.tries = amount
+  } else if (field === 'attempts_high_zone') {
+    // The stepper's :min isn't reactive to the zone dropdown switching
+    // underneath it, so this clamp is the real enforcement, not just a
+    // backstop for a decrement :min already should have blocked.
+    const lowFloor = next.attempts_low_zone ?? 1
+    if (amount < lowFloor) {
+      amount = lowFloor
+      next.attempts_high_zone = lowFloor
+    }
+    if ((next.tries ?? 1) < amount) next.tries = amount
+  } else if (field === 'tries') {
+    const floor = Math.max(next.attempts_low_zone ?? 1, next.attempts_high_zone ?? 1)
+    if (amount < floor) next.tries = floor
+  }
+  tries.value[id] = next
 }
 const setTries = (id, triesAmount) => setAttempt(id, 'tries', triesAmount)
 const lastUpdate = ref(dayjs())
@@ -453,7 +529,9 @@ setInterval(() => {
 const timeLeft = ref(null)
 
 // Checkpoint comps: zones + tries on a ladder per route; the Top is the
-// ordinary tick with tries = the route's running attempt count.
+// ordinary tick with tries = the route's running attempt count. The ladder
+// tracks its own per-row saving state (ladders.isSaving), so saveTickFor is
+// called directly here, bypassing the generic Save button's busy lock below.
 const ladders = useCheckpointLadders({
   store,
   compId: () => props.comp.id,
@@ -466,21 +544,19 @@ const ladders = useCheckpointLadders({
 })
 
 const doTick = (id) => {
-  saveTickFor(id).catch(() => { })
+  if (busy.value[id]) return
+  busy.value = { ...busy.value, [id]: true }
+  saveTickFor(id)
+    .catch(() => { })
+    .finally(() => { busy.value = { ...busy.value, [id]: false } })
 }
 const saveTickFor = (id) => {
-  let aTries = 1
   let aSportPoints = 0
-  let aTriesBonus = 0
-  let aAttemptsLowZone = null
-  let aAttemptsHighZone = null
   if (tries.value[id] != null) {
-    aTries = tries.value[id].tries
     aSportPoints = tries.value[id].sport_points
-    aTriesBonus = tries.value[id].tries_bonus ?? 0
-    aAttemptsLowZone = tries.value[id].attempts_low_zone ?? null
-    aAttemptsHighZone = tries.value[id].attempts_high_zone ?? null
   }
+  // At least one try; bonus and zones keep their "not recorded" values.
+  const { tries: aTries, tries_bonus: aTriesBonus, attempts_low_zone: aAttemptsLowZone, attempts_high_zone: aAttemptsHighZone } = compTickTries(tries.value[id])
 
   const payload = {
     ticktype: 'tick',

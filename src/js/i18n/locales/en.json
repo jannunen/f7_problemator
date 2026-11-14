@@ -127,6 +127,10 @@
     "registered_paid": "Registered, paid",
     "pay_comp": "Pay now",
     "tick_saved": "Tick saved",
+    "delete_ascent": "Delete ascent",
+    "delete_ascent_hint": "Swipe left, or tap the trash can, to delete an ascent",
+    "sport_points_hint": "Enter the hold number you reached, e.g. 33. Add + for a controlled hold (33+) or - for an uncontrolled one (33-). Type TOP if you topped the route.",
+    "points_preview_toggle": "Show what I would get from the ascent",
     "problems": "Problems",
     "timespan": "Time span",
     "participants": "Participants",
@@ -600,6 +604,7 @@
     "back": "Back",
     "loading": "Loading...",
     "save": "Save",
+    "saving": "Saving...",
     "cancel": "Cancel",
     "retry": "Retry"
   },

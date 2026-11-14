@@ -1,5 +1,4 @@
 <template>
-  {{ type }}
   <!-- If competition is variable points, this works.. -->
   <div v-if="isPointsType && results != null">
     <div>
@@ -149,7 +148,7 @@ const props = defineProps({
   type: String, 
   results: Object, 
 })
-const isPointsType = computed(() => ['variable_points', 'checkpoint_points', 'fixed_points_best_n'].includes(props.type))
+const isPointsType = computed(() => ['variable_points', 'checkpoint_points', 'fixed_points_best_n', 'predefined_plus_flashcomp'].includes(props.type))
 // Rows from the new scorers may carry only climbername; the older shape has climber.etunimi/sukunimi.
 const climberName = (result) => {
   if (result.climber?.etunimi != null) return `${result.climber.etunimi} ${result.climber.sukunimi}`
