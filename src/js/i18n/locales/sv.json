@@ -108,6 +108,8 @@
     "registered_paid": "Registrerad, betald",
     "pay_comp": "Betala nu",
     "tick_saved": "Tick sparad",
+    "delete_ascent": "Ta bort bestigning",
+    "delete_ascent_hint": "Svep åt vänster eller tryck på papperskorgen för att ta bort en bestigning",
     "problems": "Problem",
     "timespan": "Tidsperiod",
     "participants": "Deltagare",

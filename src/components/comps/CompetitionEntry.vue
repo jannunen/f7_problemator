@@ -77,7 +77,8 @@
         <div class="text-center">
           <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
         </div>
-        <p class="text-center">Swipe left to delete an ascent</p>
+        <p v-if="comp.tyyppi != 'checkpoint_points'" class="text-center">{{ t('comps.delete_ascent_hint') }}</p>
+        <p v-else class="text-center">Swipe left to delete an ascent</p>
         <f7-list class="m-0">
           <f7-list-item>
             <template #title>
@@ -177,6 +178,15 @@
               <p-button v-if="comp.tyyppi != 'checkpoint_points'" @click="() => doTick(prob.id)" class="w-20 py-2 dark:bg-green-500 bg-green-600">{{ t('global.save') }}</p-button>
               <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
               <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
+              <button
+                v-if="comp.tyyppi != 'checkpoint_points' && isTicked(prob.id)"
+                type="button"
+                data-test="delete-ascent"
+                class="w-11 h-11 shrink-0 flex items-center justify-center rounded-md text-red-600 dark:text-red-400 active:bg-red-500/20"
+                :aria-label="t('comps.delete_ascent')"
+                :title="t('comps.delete_ascent')"
+                @click="() => confirmDelete(prob.id)"
+              ><i class="icon f7-icons" style="font-size: 22px;" aria-hidden="true">trash</i></button>
             </template>
           </f7-list-item>
         </f7-list>
@@ -193,6 +203,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { f7 } from 'framework7-vue'
 
 import { onUnmounted,  computed, ref } from 'vue'
 import PButton from '@components/PButton.vue'
@@ -409,9 +420,17 @@ const onDeleted = (id) => {
   store
     .dispatch('deleteTickByProblem', payload)
     .then((ret) => {
+      // Forget the row's entered tries so it starts again from 1.
+      const rest = { ...tries.value }
+      delete rest[id]
+      tries.value = rest
       toaster(t(ret.message))
     })
     .catch((err) => { })
+}
+// Trash button on a ticked row: same delete as the swipe action, behind a confirm.
+const confirmDelete = (id) => {
+  f7.dialog.confirm(t('problem.tick_delete_are_you_sure'), t('comps.delete_ascent'), () => onDeleted(id))
 }
 const setAttempt = (id, field, amount) => {
   if (!(id in tries.value)) {

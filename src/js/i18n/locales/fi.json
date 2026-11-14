@@ -119,6 +119,8 @@
     "registered_paid": "Ilmoittautunut, maksettu",
     "pay_comp": "Maksa nyt",
     "tick_saved": "Tikki tallennettu",
+    "delete_ascent": "Poista nousu",
+    "delete_ascent_hint": "Pyyhkäise vasemmalle tai napauta roskakoria poistaaksesi nousun",
     "problems": "Reitit",
     "timespan": "Aikaväli",
     "participants": "Osallistujat",

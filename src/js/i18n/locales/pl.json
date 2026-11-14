@@ -108,6 +108,8 @@
     "registered_paid": "Zarejestrowany, opłacony",
     "pay_comp": "Zapłać teraz",
     "tick_saved": "Przejście zapisane",
+    "delete_ascent": "Usuń przejście",
+    "delete_ascent_hint": "Przesuń w lewo lub dotknij kosza, aby usunąć przejście",
     "problems": "Problemy",
     "timespan": "Okres",
     "participants": "Uczestnicy",

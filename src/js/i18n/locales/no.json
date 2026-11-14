@@ -108,6 +108,8 @@
     "registered_paid": "Registrert, betalt",
     "pay_comp": "Betal nå",
     "tick_saved": "Tick lagret",
+    "delete_ascent": "Slett bestigning",
+    "delete_ascent_hint": "Sveip til venstre eller trykk på søppelbøtta for å slette en bestigning",
     "problems": "Problemer",
     "timespan": "Tidsperiode",
     "participants": "Deltakere",
