@@ -134,7 +134,7 @@
                 <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
               <div v-else-if="comp.tyyppi=='sport'">
-                <input :value="tries[prob.id]?.sport_points" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
+                <input :value="sportPointsDisplay(prob.id)" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
               </div>
               <div v-else-if="isTriesAndBonusType" class="flex flex-row gap-3">
                 <div class="flex flex-col items-center">
@@ -295,6 +295,13 @@ const onChangeSportPoints = (pid, e) => {
     tries.value[pid] = { tries: 1, sport_points: 0 }
   }
   tries.value[pid].sport_points = e.target.value
+}
+// A saved TOP is stored (and returned by the backend) as 1000, same as the
+// results table already shows it — the entry field should read the same
+// way rather than showing the raw number back at the climber.
+const sportPointsDisplay = (pid) => {
+  const value = tries.value[pid]?.sport_points
+  return Number(value) === 1000 ? 'TOP' : value
 }
 const tries = ref({})
 const busy = ref({})
