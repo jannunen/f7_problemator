@@ -78,7 +78,7 @@
         <div class="text-center">
           <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
         </div>
-        <p v-if="comp.tyyppi != 'checkpoint_points'" class="text-center">{{ t('comps.delete_ascent_hint') }}</p>
+        <p v-if="!isLadderType" class="text-center">{{ t('comps.delete_ascent_hint') }}</p>
         <p v-else class="text-center">Swipe left to delete an ascent</p>
         <p v-if="comp.tyyppi == 'sport'" class="text-center text-sm text-gray-400">{{ t('comps.sport_points_hint') }}</p>
         <f7-list class="m-0">
@@ -135,30 +135,24 @@
               <div v-else-if="comp.tyyppi=='sport'">
                 <input :value="sportPointsDisplay(prob.id)" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
               </div>
-              <div v-else-if="isTriesAndBonusType" class="flex flex-row gap-3">
-                <div class="flex flex-col items-center">
-                  <div class="text-xs">{{ t('comps.tries_to_bonus') }}</div>
-                  <f7-stepper fill :min="1" :value="tries[prob.id]?.tries_bonus || 1" @stepper:change="(num) => setAttempt(prob.id, 'tries_bonus', num)"></f7-stepper>
-                </div>
-                <div class="flex flex-col items-center">
-                  <div class="text-xs">{{ t('comps.tries_to_top') }}</div>
-                  <f7-stepper fill :min="tries[prob.id]?.tries_bonus || 1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
-                </div>
-              </div>
-              <div v-else-if="comp.tyyppi=='ifsc_2024_bouldering'" class="w-full">
+              <div v-else-if="isZoneLadderType" class="w-full">
                 <checkpoint-ladder
                   :problem="prob"
-                  :state="zoneLadderFor(prob)"
+                  :state="ladders.stateFor(prob)"
                   :options="zoneLadderOptions"
-                  :disabled="!compOngoing || busy[prob.id]"
-                  @select="(r) => onZoneLadderAction(prob, 'select', r)"
-                  @try="() => onZoneLadderAction(prob, 'try')"
-                  @reached="() => onZoneLadderAction(prob, 'reached')"
-                  @top="() => onZoneLadderAction(prob, 'top')"
-                  @undo="() => onZoneLadderAction(prob, 'undo')"
-                  @edit="(rung, count) => onZoneLadderAction(prob, 'edit', { rung, count })"
-                  @unreach="(rung) => onZoneLadderAction(prob, 'unreach', rung)"
-                  @clear="() => onZoneLadderAction(prob, 'clear')"
+                  :disabled="!compOngoing || !!ladders.lockedReason.value"
+                  :locked-reason="ladders.lockedReason.value"
+                  :saving="ladders.isSaving(prob.id)"
+                  :error="ladders.errors.value[prob.id] ?? null"
+                  @select="(r) => ladders.act(prob, 'select', r)"
+                  @try="() => ladders.act(prob, 'try')"
+                  @reached="() => ladders.act(prob, 'reached')"
+                  @top="() => ladders.act(prob, 'top')"
+                  @undo="() => ladders.act(prob, 'undo')"
+                  @edit="(rung, count) => ladders.act(prob, 'edit', { rung, count })"
+                  @unreach="(rung) => ladders.act(prob, 'unreach', rung)"
+                  @retry="() => ladders.act(prob, 'retry')"
+                  @clear="() => ladders.act(prob, 'clear')"
                 />
               </div>
               <div v-else>
@@ -167,14 +161,15 @@
             </template>
             <template #after>
               <p-button
+                v-if="!isZoneLadderType"
                 :disabled="busy[prob.id]"
-                @click="() => doTick(prob.id)"
+                @click="() => onSave(prob.id)"
                 class="w-20 py-2 dark:bg-green-500 bg-green-600 disabled:opacity-50"
               >{{ busy[prob.id] ? t('global.saving') : t('global.save') }}</p-button>
               <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
               <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
               <button
-                v-if="comp.tyyppi != 'checkpoint_points' && isTicked(prob.id)"
+                v-if="!isLadderType && isTicked(prob.id)"
                 type="button"
                 data-test="delete-ascent"
                 class="w-11 h-11 shrink-0 flex items-center justify-center rounded-md text-red-600 dark:text-red-400 active:bg-red-500/20"
@@ -209,13 +204,13 @@ import PBadge from '@components/PBadge.vue'
 import PointsPerRoute from './PointsPerRoute.vue'
 import CheckpointLadder from './CheckpointLadder.vue'
 import { fromServer as ladderFromServer } from '@helpers/ladder.js'
-import { zoneLadderFromTick, zoneLadderToTick, applyZoneLadderAction } from '@helpers/zoneLadder.js'
+import { useCheckpointLadders } from '@js/useCheckpointLadders.js'
 import { TOP_POINTS_TYPES, TRIES_AND_BONUS_TYPES, myCheckpointFor as myCheckpointForHelper } from '@helpers/checkpoints.js'
 import ShowResults from './ShowResults.vue'
 import { webendpoint } from '@js/api.js'
 
 import {  toaster } from '@helpers/notifications.js'
-import { compTickTries } from '@helpers/compTries.js'
+import { compTickTries, parseSportPoints } from '@helpers/compTries.js'
 import { toLocalTime } from '@helpers/component.helpers'
 import { isCompRunning, msUntilEnd, windowLabel } from '@helpers/compWindow'
 import { handleValidationErrors } from '@helpers'
@@ -258,50 +253,34 @@ const ladderFor = (prob) => {
     topTick: store.state.competition?.userticks?.[prob.id] ?? null,
   })
 }
-// ifsc_2024_bouldering's low/high zones + top, as a ladder (same presentation
-// and state machine as checkpoint_points' CheckpointLadder), but the zone
-// data lives on the climber's own tick row, not a side-effect-free table —
-// so unlike checkpoints, taps stay purely local and only reach the server
-// when the existing Save button submits the whole tick (doTick/saveTickFor).
-const zoneLadderOptions = computed(() => [
-  { label: t('comps.low_zone'), value: 1, points: 5 },
-  { label: t('comps.high_zone'), value: 2, points: 10 },
-  { label: t('comps.top'), value: 'top', points: 25 },
-])
-// A ladder row: the ladder takes the row's full width and the Save button,
-// which this page shows for both ladder comp types, goes under it (see the
-// styles at the end of this file).
-const ladderRowClass = computed(() => {
-  const ladder = ['checkpoint_points', 'ifsc_2024_bouldering'].includes(props.comp.tyyppi)
-  return { 'comp-row--ladder': ladder, 'comp-row--ladder-stacked': ladder }
-})
-const zoneLadders = ref({}) // problemid -> ladder state, this session only
-const zoneLadderFor = (prob) => {
-  if (zoneLadders.value[prob.id]) return zoneLadders.value[prob.id]
-  const t0 = tries.value[prob.id] ?? {}
-  const state = zoneLadderFromTick({
-    attempts_low_zone: t0.attempts_low_zone,
-    attempts_high_zone: t0.attempts_high_zone,
-    tries: t0.tries,
-    topped: isTicked(prob.id),
-  })
-  zoneLadders.value = { ...zoneLadders.value, [prob.id]: state }
-  return state
-}
-const setZoneLadderState = (pid, next) => {
-  zoneLadders.value = { ...zoneLadders.value, [pid]: next }
-  // Mirror into tries[pid] so Save (doTick/saveTickFor) sends it unchanged.
-  const { attempts_low_zone, attempts_high_zone, topTries } = zoneLadderToTick(next)
-  tries.value[pid] = {
-    ...tries.value[pid],
-    attempts_low_zone,
-    attempts_high_zone,
-    tries: topTries ?? tries.value[pid]?.tries ?? 1,
+// Zones/bonus + top on a ladder, saved like checkpoint_points' on the
+// signed-in page: a zone or bonus goes to the comp's checkpoint results, only
+// the Top is a real tick. Rungs below the top, per type.
+const ZONE_COUNTS = { ifsc_2024_bouldering: 2, ifsc_2018_bouldering: 1, traditional: 1, flashcomp: 1 }
+const isZoneLadderType = computed(() => ZONE_COUNTS[props.comp.tyyppi] != null)
+const isLadderType = computed(() => props.comp.tyyppi == 'checkpoint_points' || isZoneLadderType.value)
+const zoneLadderOptions = computed(() => {
+  if (props.comp.tyyppi == 'ifsc_2024_bouldering') {
+    return [
+      { label: t('comps.low_zone'), value: 1, points: 5 },
+      { label: t('comps.high_zone'), value: 2, points: 10 },
+      { label: t('comps.top'), value: 'top', points: 25 },
+    ]
   }
-}
-const onZoneLadderAction = (prob, action, arg) => {
-  setZoneLadderState(prob.id, applyZoneLadderAction(zoneLadderFor(prob), action, arg))
-}
+  // flashcomp's points depend on the tries taken, so its rungs show none.
+  const flash = props.comp.tyyppi == 'flashcomp'
+  return [
+    { label: t('comps.bonus'), value: 1, points: flash ? null : 3 },
+    { label: t('comps.top'), value: 'top', points: flash ? null : 25 },
+  ]
+})
+// A ladder takes the row's spare width. checkpoint_points' read-only ladder
+// still has the Save button beside it, so that row stacks the button under
+// the ladder (see the styles at the end of this file).
+const ladderRowClass = computed(() => {
+  const stacked = props.comp.tyyppi == 'checkpoint_points'
+  return { 'comp-row--ladder': isLadderType.value, 'comp-row--ladder-stacked': stacked }
+})
 const errors = ref("")
 const loaded = ref(false)
 const showPointsPerRoute = ref(false)
@@ -415,11 +394,6 @@ const onDeleted = (id) => {
       const rest = { ...tries.value }
       delete rest[id]
       tries.value = rest
-      // ...and so does its zone ladder, which would otherwise keep showing
-      // the deleted ascent's zones and top for the rest of the session.
-      const restLadders = { ...zoneLadders.value }
-      delete restLadders[id]
-      zoneLadders.value = restLadders
       toaster(t(ret.message))
     })
     .catch((err) => { })
@@ -522,10 +496,62 @@ setInterval(() => {
 }, 1000)
 const timeLeft = ref(null)
 
+// Ladder comps: zones + tries on a ladder per route; the Top is the
+// ordinary tick with tries = the route's running attempt count. The ladder
+// tracks its own per-row saving state, so saveTickFor is called directly,
+// bypassing the Save button's busy lock. The bonus + top types score the
+// tick's own tries_bonus, so their Top carries the bonus rung's count.
+const withKey = (payload) => ({ ...payload, point_entry_key: climber.value?.point_entry_key })
+const ladders = useCheckpointLadders({
+  store,
+  compId: () => props.comp.id,
+  t,
+  saveTop: (pid, triesToTop, triesBonus) => {
+    setTries(pid, triesToTop)
+    return saveTickFor(pid, isTriesAndBonusType.value ? triesBonus : undefined)
+  },
+  deleteTop: (pid) => store.dispatch('publicDeleteTickByProblem', withKey({ problemid: pid })),
+  zonesFor: () => ZONE_COUNTS[props.comp.tyyppi] ?? 0,
+  saveCheckpoint: (payload) => store.dispatch('publicSaveCheckpoint', withKey(payload)),
+  deleteCheckpoint: (payload) => store.dispatch('publicDeleteCheckpoint', withKey(payload)),
+  bonusAffectsTop: isTriesAndBonusType.value,
+})
+
+// sport: only the top (1000) is a tick. A lower height is partial credit,
+// saved as the route's score so it never counts as an ascent.
+const onSave = (id) => {
+  const points = parseSportPoints(tries.value[id]?.sport_points)
+  if (props.comp.tyyppi != 'sport' || points === 1000) return doTick(id)
+  return saveSportScore(id, points)
+}
+const saveSportScore = (id, score) => {
+  if (busy.value[id]) return
+  if (!Number.isFinite(score)) {
+    toaster(t('ladder.not_saved'))
+    return
+  }
+  busy.value = { ...busy.value, [id]: true }
+  // A route already topped is being lowered: the top tick would outrank the
+  // new score, so it goes first.
+  const untop = isTicked(id)
+    ? store.dispatch('publicDeleteTickByProblem', withKey({ problemid: id }))
+    : Promise.resolve()
+  return untop
+    .then(() => store.dispatch('publicSaveCheckpoint', withKey({ compid: props.comp.id, problemid: id, score })))
+    .then(() => toaster(t('comps.score_saved')))
+    .catch(() => toaster(t('ladder.not_saved')))
+    .finally(() => { busy.value = { ...busy.value, [id]: false } })
+}
+
 const doTick = (id) => {
   if (busy.value[id]) return
   busy.value = { ...busy.value, [id]: true }
-
+  saveTickFor(id)
+    .catch(() => { })
+    .finally(() => { busy.value = { ...busy.value, [id]: false } })
+}
+// triesBonus, when given, replaces the tries_bonus derived from the row.
+const saveTickFor = (id, triesBonus) => {
   let aSportPoints = 0
   if (tries.value[id] != null) {
     aSportPoints = tries.value[id].sport_points
@@ -536,7 +562,7 @@ const doTick = (id) => {
   const payload = {
     ticktype: 'tick',
     tries: aTries,
-    tries_bonus: aTriesBonus,
+    tries_bonus: triesBonus === undefined ? aTriesBonus : triesBonus,
     attempts_low_zone: aAttemptsLowZone,
     attempts_high_zone: aAttemptsHighZone,
     created: new Date(),
@@ -545,14 +571,13 @@ const doTick = (id) => {
     grade_opinion: null,
     point_entry_key: climber.value.point_entry_key,
   }
-  store
+  return store
     .dispatch('publicSaveTick', payload)
     .then((ret) => {
       tries.value[id] = { ...tries.value[id], ticked: true }
       toaster(t('comps.tick_saved'))
+      return ret
     })
-    .catch((err) => { })
-    .finally(() => { busy.value = { ...busy.value, [id]: false } })
 }
 const getPointsPerProblem = (num) => {
   if (pointRules.value == null) {

@@ -143,7 +143,10 @@ const walk = (nodes, out = []) => {
   }
   return out
 }
-const renderLive = async (comp) => {
+// The point-entry-key page dispatches the public* variants of the same actions.
+const PUBLIC_ACTIONS = { saveTick: 'publicSaveTick', saveCheckpoint: 'publicSaveCheckpoint', deleteTickByProblem: 'publicDeleteTickByProblem' }
+const renderLive = async (comp, { Component = CompetitionEntry, names = {} } = {}) => {
+  const name = (n) => names[n] ?? n
   const rows = []
   // Like the real actions: a saved tick lands in userticks, a checkpoint answers like the backend.
   const saveTick = vi.fn(async ({ state }, p) => {
@@ -157,7 +160,8 @@ const renderLive = async (comp) => {
     state.competition.userticks = rest
     return { message: 'ok' }
   })
-  const html = await render(CompetitionEntry, comp, 'en', { actions: { saveTick, saveCheckpoint, deleteTickByProblem }, onRow: (vnodes) => rows.push(vnodes) })
+  const actions = { [name('saveTick')]: saveTick, [name('saveCheckpoint')]: saveCheckpoint, [name('deleteTickByProblem')]: deleteTickByProblem }
+  const html = await render(Component, comp, 'en', { actions, onRow: (vnodes) => rows.push(vnodes) })
   const ladder = (pid) => walk(rows).find((n) => n.type === CheckpointLadder && n.props?.problem?.id === pid).props
   // Rows that have a problem in them, in the page's order (problem 1, problem 2).
   const problemRows = rows.filter((r) => walk(r).some((n) => n.type === PButton || n.type === CheckpointLadder))
@@ -328,6 +332,159 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     live.saveButton(1).onClick()
     await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(1))
     expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 2, sport_points: '1000' })
+    expect(live.saveCheckpoint).not.toHaveBeenCalled()
+  })
+})
+
+describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
+  const livePublic = (comp) => renderLive(comp, { Component: PublicCompetitionEntry, names: PUBLIC_ACTIONS })
+
+  it.each(ADDITIVE_TYPES)('%s renders a Bonus + Top ladder per problem, not the stepper pair', async (tyyppi) => {
+    const html = await render(PublicCompetitionEntry, makeComp(tyyppi))
+    expect(count(html, 'data-stub="f7-stepper"')).toBe(0)
+    expect(count(html, 'data-test="ladder"')).toBe(2)
+    expect(count(html, 'data-test="rung-1"')).toBe(2)
+    expect(html).not.toContain('data-test="rung-2"')
+    expect(html).toContain('Bonus')
+  })
+
+  it.each(RUNG_TYPES)('%s has no Save button and no trash, even when ticked', async (tyyppi) => {
+    const html = await render(PublicCompetitionEntry, makeComp(tyyppi, ticked))
+    expect(html).not.toContain('>Save</button>')
+    expect(html).not.toContain('data-test="delete-ascent"')
+    expect(html).toContain('Swipe left to delete an ascent')
+  })
+
+  it('checkpoint_points keeps its read-only ladder and its Save button', async () => {
+    const html = await render(PublicCompetitionEntry, makeComp('checkpoint_points'))
+    expect(count(html, 'data-test="ladder"')).toBe(2)
+    expect(count(html, '>Save</button>')).toBe(2)
+    expect(count(html, 'comp-row--ladder-stacked')).toBe(2)
+  })
+
+  it.each(['traditional', 'ifsc_2018_bouldering'])('%s shows the fixed bonus and top points', async (tyyppi) => {
+    const html = await render(PublicCompetitionEntry, makeComp(tyyppi))
+    expect(html).toContain('aria-label="Bonus, 3 points, trying now, 0 tries so far"')
+    expect(html).toContain('aria-label="Top, 25 points, not reached"')
+  })
+
+  it('flashcomp shows no points on its rungs (they depend on the tries), rather than a 0', async () => {
+    const html = await render(PublicCompetitionEntry, makeComp('flashcomp'))
+    expect(html).not.toContain('ladder__points')
+    expect(html).toContain('aria-label="Bonus, trying now, 0 tries so far"')
+    expect(html).toContain('aria-label="Top, not reached"')
+  })
+
+  it('the old ifsc_2024_bouldering zone ladder plumbing is gone, the read-only checkpoint ladder stays', () => {
+    const src = readFileSync(new URL('../src/components/comps/PublicCompetitionEntry.vue', import.meta.url), 'utf8')
+    expect(src).not.toMatch(/zoneLadderFor|setZoneLadderState|onZoneLadderAction|zoneLadders|helpers\/zoneLadder/)
+    expect(src).toMatch(/:state="ladderFor\(prob\)"\s+readonly/)
+  })
+
+  it.each(RUNG_TYPES)('tapping Top on a %s ladder saves a real public tick for that problem, with the key', async (tyyppi) => {
+    const live = await livePublic(makeComp(tyyppi))
+    await live.ladder(2).onTop()
+    expect(live.saveTick).toHaveBeenCalledTimes(1)
+    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 2, tries: 1, ticktype: 'tick', point_entry_key: 'k' })
+  })
+
+  it.each(RUNG_TYPES)('reaching only the first %s rung saves a public checkpoint with the key, never a tick', async (tyyppi) => {
+    const live = await livePublic(makeComp(tyyppi))
+    const l = live.ladder(1)
+    l.onTry()
+    l.onReached()
+    await vi.waitFor(() => expect(live.saveCheckpoint).toHaveBeenCalled(), { timeout: 2000 })
+    expect(live.saveCheckpoint.mock.calls.at(-1)[1]).toMatchObject({ compid: 9, problemid: 1, checkpoint: 1, point_entry_key: 'k' })
+    expect(live.saveTick).not.toHaveBeenCalled()
+  })
+
+  it.each(RUNG_TYPES)('undoing a %s Top deletes the public tick with the key', async (tyyppi) => {
+    const live = await livePublic(makeComp(tyyppi))
+    const l = live.ladder(1)
+    await l.onTop()
+    await live.ladder(1).onUndo()
+    expect(live.deleteTickByProblem).toHaveBeenCalledTimes(1)
+    expect(live.deleteTickByProblem.mock.calls[0][1]).toEqual({ problemid: 1, point_entry_key: 'k' })
+  })
+
+  it.each(ADDITIVE_TYPES)('%s: a Top after the bonus carries the bonus tries', async (tyyppi) => {
+    const live = await livePublic(makeComp(tyyppi))
+    const l = live.ladder(1)
+    l.onTry()
+    l.onTry()
+    l.onReached()
+    l.onTry()
+    await l.onTop()
+    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 2 })
+  })
+
+  it.each(ADDITIVE_TYPES)('%s: correcting the bonus after a Top saves the tick again', async (tyyppi) => {
+    const live = await livePublic(makeComp(tyyppi))
+    const l = live.ladder(1)
+    l.onTry()
+    l.onTry()
+    l.onTry()
+    await l.onTop()
+    l.onEdit(1, 2)
+    await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(2), { timeout: 2000 })
+    expect(live.saveTick.mock.calls[1][1]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 2 })
+  })
+
+  it('ifsc_2024_bouldering: the top tick keeps its old tries_bonus, and a zone correction does not save it again', async () => {
+    const live = await livePublic(makeComp('ifsc_2024_bouldering'))
+    const l = live.ladder(1)
+    l.onTry()
+    l.onTry()
+    l.onTry()
+    await l.onTop()
+    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 0 })
+    l.onEdit(1, 2)
+    await vi.waitFor(() => expect(live.saveCheckpoint.mock.calls.some((c) => c[1].replace)).toBe(true), { timeout: 2000 })
+    expect(live.saveTick).toHaveBeenCalledTimes(1)
+  })
+
+  it('sport keeps its points field and its Save button', async () => {
+    const html = await render(PublicCompetitionEntry, sportComp())
+    expect(count(html, 'placeholder="Enter points"')).toBe(2)
+    expect(count(html, '>Save</button>')).toBe(2)
+  })
+
+  it.each([['25.5', 25.5], ['33+', 33.25], ['33-', 32.75], ['25,5', 25.5]])('sport: %s is saved as the public score %s with the key, not a tick', async (raw, score) => {
+    const live = await livePublic(sportComp())
+    live.input(0).onChange({ target: { value: raw } })
+    await live.saveButton(0).onClick()
+    expect(live.saveCheckpoint).toHaveBeenCalledTimes(1)
+    expect(live.saveCheckpoint.mock.calls[0][1]).toEqual({ compid: 9, problemid: 1, score, point_entry_key: 'k' })
+    expect(live.saveTick).not.toHaveBeenCalled()
+    expect(live.deleteTickByProblem).not.toHaveBeenCalled()
+  })
+
+  it('sport: lowering a topped route deletes its public tick first, then saves the score', async () => {
+    const comp = { ...sportComp(), userticks: { 1: { problemid: 1, tries: 1, tries_bonus: 0, sport_points: 1000 } } }
+    const live = await livePublic(comp)
+    live.input(0).onChange({ target: { value: '33+' } })
+    await live.saveButton(0).onClick()
+    expect(live.deleteTickByProblem.mock.calls[0][1]).toEqual({ problemid: 1, point_entry_key: 'k' })
+    expect(live.saveCheckpoint.mock.calls[0][1]).toEqual({ compid: 9, problemid: 1, score: 33.25, point_entry_key: 'k' })
+    expect(live.deleteTickByProblem.mock.invocationCallOrder[0]).toBeLessThan(live.saveCheckpoint.mock.invocationCallOrder[0])
+    expect(live.saveTick).not.toHaveBeenCalled()
+  })
+
+  it.each(['', 'abc'])('sport: Save on %j saves nothing', async (raw) => {
+    const live = await livePublic(sportComp())
+    live.input(0).onChange({ target: { value: raw } })
+    await live.saveButton(0).onClick()
+    expect(live.saveCheckpoint).not.toHaveBeenCalled()
+    expect(live.saveTick).not.toHaveBeenCalled()
+    expect(live.deleteTickByProblem).not.toHaveBeenCalled()
+  })
+
+  it('sport: saving TOP saves a real public tick with the key', async () => {
+    const live = await livePublic(sportComp())
+    live.input(1).onChange({ target: { value: 'TOP' } })
+    live.saveButton(1).onClick()
+    await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(1))
+    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 2, sport_points: 'TOP', point_entry_key: 'k' })
     expect(live.saveCheckpoint).not.toHaveBeenCalled()
   })
 })
