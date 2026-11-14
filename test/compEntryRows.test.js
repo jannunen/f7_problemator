@@ -313,6 +313,15 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     expect(live.deleteTickByProblem).not.toHaveBeenCalled()
   })
 
+  it.each(['', 'abc'])('sport: Save on %j saves nothing', async (raw) => {
+    const live = await renderLive(sportComp())
+    live.input(0).onChange({ target: { value: raw } })
+    await live.saveButton(0).onClick()
+    expect(live.saveCheckpoint).not.toHaveBeenCalled()
+    expect(live.saveTick).not.toHaveBeenCalled()
+    expect(live.deleteTickByProblem).not.toHaveBeenCalled()
+  })
+
   it('sport: saving the top (1000) saves a real tick', async () => {
     const live = await renderLive(sportComp())
     live.input(1).onChange({ target: { value: '1000' } })

@@ -545,7 +545,7 @@ const ladders = useCheckpointLadders({
 const onSave = (id) => {
   const points = parseSportPoints(tries.value[id]?.sport_points)
   if (props.comp.tyyppi != 'sport' || points === 1000) return doTick(id)
-  return saveSportScore(id, points === '' ? 0 : points)
+  return saveSportScore(id, points)
 }
 const saveSportScore = (id, score) => {
   if (busy.value[id]) return
