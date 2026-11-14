@@ -24,10 +24,23 @@ import { myCheckpointFor } from '@helpers/checkpoints.js'
  *   store        the Vuex store (competition, my_checkpoints, my_checkpoint_tries, userticks)
  *   compId       () => competition id
  *   t            vue-i18n t
- *   saveTop      (problemid, tries) => Promise   records the top tick
+ *   saveTop      (problemid, tries, bonus) => Promise   records the top tick; bonus is
+ *                rung 1's reached count, or tries when the route has no rung 1
  *   deleteTop    (problemid) => Promise          removes the top tick
+ *   zonesFor     (prob) => number of zones       default: the problem's checkpoints
+ *   saveCheckpoint / deleteCheckpoint (payload) => Promise   default: the store actions
  */
-export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, delay = 500 }) {
+export function useCheckpointLadders({
+  store,
+  compId,
+  t,
+  saveTop,
+  deleteTop,
+  delay = 500,
+  zonesFor = (prob) => prob?.pivot?.checkpoints?.length ?? 0,
+  saveCheckpoint = (payload) => store.dispatch('saveCheckpoint', payload),
+  deleteCheckpoint = (payload) => store.dispatch('deleteCheckpoint', payload),
+}) {
   const local = ref({}) // problemid -> ladder state for this session (holds the undo stack)
   const errors = ref({}) // problemid -> inline message
   const topBusy = ref({}) // problemid -> a top/untop is in progress
@@ -50,7 +63,7 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
 
   const serverState = (prob) =>
     ladder.fromServer({
-      zones: prob?.pivot?.checkpoints?.length ?? 0,
+      zones: zonesFor(prob),
       checkpoint: myCheckpointFor(comp()?.my_checkpoints, prob.id),
       tries: triesFor(prob.id),
       topTick: comp()?.userticks?.[prob.id] ?? null,
@@ -96,10 +109,10 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
 
   const sync = createLadderSync({
     delay,
-    save: (pid, write, replace) => store.dispatch('saveCheckpoint', { compid: compId(), problemid: pid, ...write, replace }),
+    save: (pid, write, replace) => saveCheckpoint({ compid: compId(), problemid: pid, ...write, replace }),
     restoreLegacy: async (pid, checkpoint) => {
-      await store.dispatch('deleteCheckpoint', { compid: compId(), problemid: pid })
-      if (checkpoint > 0) return store.dispatch('saveCheckpoint', { compid: compId(), problemid: pid, checkpoint })
+      await deleteCheckpoint({ compid: compId(), problemid: pid })
+      if (checkpoint > 0) return saveCheckpoint({ compid: compId(), problemid: pid, checkpoint })
       return { ok: true, checkpoint: 0, attempts: 0, zone_tries: {} }
     },
     onSaved: (pid, response, sent) => {
@@ -151,7 +164,8 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
       return
     }
     try {
-      await saveTop(pid, next.topTries ?? next.attempts)
+      const tries = next.topTries ?? next.attempts
+      await saveTop(pid, tries, next.reached[1] ?? tries)
     } catch (err) {
       // The zones are saved; only the top tick is missing. Keep the zones,
       // offer the top again.
@@ -214,7 +228,7 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
     cancelRetop(prob.id)
     if (cur.topped && !next.topped) return untop(prob, cur, next)
     if (next.topped && !cur.topped) return top(prob, next, { replace: true })
-    if (next.topped && (topUnsaved || next.topTries !== cur.topTries)) return retop(prob, next)
+    if (next.topped && (topUnsaved || next.topTries !== cur.topTries || next.reached[1] !== cur.reached[1])) return retop(prob, next)
     write(prob, next, { replace: true })
   }
 
@@ -281,8 +295,7 @@ export function useCheckpointLadders({ store, compId, t, saveTop, deleteTop, del
       }
       case 'clear':
         setLocal(pid, ladder.fromServer({ zones: cur.zones }))
-        return store
-          .dispatch('deleteCheckpoint', { compid: compId(), problemid: pid })
+        return deleteCheckpoint({ compid: compId(), problemid: pid })
           .then(() => {
             const next = { ...local.value }
             delete next[pid]

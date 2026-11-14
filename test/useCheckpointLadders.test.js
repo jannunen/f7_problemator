@@ -44,9 +44,9 @@ const makeStore = ({ fail = null } = {}) => {
   return { store, competition, calls, saveTop, deleteTop }
 }
 
-const setup = (opts) => {
+const setup = (opts, overrides = {}) => {
   const env = makeStore(opts)
-  const ladders = useCheckpointLadders({ store: env.store, compId: () => 3, t, saveTop: env.saveTop, deleteTop: env.deleteTop, delay: 300 })
+  const ladders = useCheckpointLadders({ store: env.store, compId: () => 3, t, saveTop: env.saveTop, deleteTop: env.deleteTop, delay: 300, ...overrides })
   return { ...env, ladders }
 }
 const writes = (calls) => calls.filter((c) => c.name === 'saveCheckpoint').map((c) => c.payload)
@@ -122,7 +122,7 @@ describe('useCheckpointLadders', () => {
     ladders.act(prob, 'select', 3)
     await ladders.act(prob, 'reached') // ✓ on the Top rung is the top
     expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 2, attempts: 3, zone_tries: { 1: 2, 2: 3 } })
-    expect(saveTop).toHaveBeenCalledWith(7, 3)
+    expect(saveTop).toHaveBeenCalledWith(7, 3, 2)
     expect(ladders.stateFor(prob)).toMatchObject({ topped: true, topTries: 3 })
   })
 
@@ -260,7 +260,7 @@ describe('useCheckpointLadders', () => {
       await reachBoth(ladders)
       ladders.act(prob, 'try')
       await ladders.act(prob, 'top') // top in 4
-      expect(saveTop).toHaveBeenLastCalledWith(7, 4)
+      expect(saveTop).toHaveBeenLastCalledWith(7, 4, 2)
       await ladders.act(prob, 'unreach', 3)
       expect(deleteTop).toHaveBeenCalledWith(7)
       await vi.advanceTimersByTimeAsync(300)
@@ -269,7 +269,7 @@ describe('useCheckpointLadders', () => {
       expect(competition.userticks[7]).toBeUndefined()
       await ladders.act(prob, 'undo')
       expect(saveTop).toHaveBeenCalledTimes(2)
-      expect(saveTop).toHaveBeenLastCalledWith(7, 4)
+      expect(saveTop).toHaveBeenLastCalledWith(7, 4, 2)
       expect(ladders.stateFor(prob)).toMatchObject({ topped: true, topTries: 4 })
     })
 
@@ -308,7 +308,7 @@ describe('useCheckpointLadders', () => {
       expect(saveTop).toHaveBeenCalledTimes(1)
       await vi.advanceTimersByTimeAsync(300)
       expect(saveTop).toHaveBeenCalledTimes(2)
-      expect(saveTop).toHaveBeenLastCalledWith(7, 6)
+      expect(saveTop).toHaveBeenLastCalledWith(7, 6, 2)
       expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 2, attempts: 6, zone_tries: { 1: 2, 2: 3 }, replace: true })
       expect(competition.userticks[7].tries).toBe(6)
       expect(ladders.isSaving(7)).toBe(false)
@@ -321,7 +321,7 @@ describe('useCheckpointLadders', () => {
       ladders.act(prob, 'edit', { rung: 3, count: 5 })
       ladders.act(prob, 'edit', { rung: 1, count: 1 })
       await vi.advanceTimersByTimeAsync(300)
-      expect(saveTop).toHaveBeenLastCalledWith(7, 5)
+      expect(saveTop).toHaveBeenLastCalledWith(7, 5, 1)
       expect(writes(calls).at(-1)).toMatchObject({ attempts: 5, zone_tries: { 1: 1, 2: 3 }, replace: true })
       expect(ladders.isSaving(7)).toBe(false)
     })
@@ -336,6 +336,22 @@ describe('useCheckpointLadders', () => {
       expect(deleteTop).toHaveBeenCalledTimes(1)
       expect(saveTop).toHaveBeenCalledTimes(1)
       expect(ladders.stateFor(prob)).toMatchObject({ topped: false, attempts: 5, active: 3 })
+      expect(ladders.isSaving(7)).toBe(false)
+    })
+
+    it('test_editing_a_reached_bonus_rungs_count_after_a_top_resaves_the_tick', async () => {
+      const { ladders, calls, saveTop, competition } = setup()
+      await reachBoth(ladders)
+      await ladders.act(prob, 'top') // top in 3, bonus in 2
+      expect(saveTop).toHaveBeenLastCalledWith(7, 3, 2)
+      ladders.act(prob, 'edit', { rung: 1, count: 1 })
+      expect(ladders.isSaving(7)).toBe(true)
+      await vi.advanceTimersByTimeAsync(300)
+      expect(saveTop).toHaveBeenCalledTimes(2)
+      expect(saveTop).toHaveBeenLastCalledWith(7, 3, 1)
+      expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 2, attempts: 3, zone_tries: { 1: 1, 2: 3 }, replace: true })
+      expect(competition.userticks[7].tries).toBe(3)
+      expect(ladders.stateFor(prob)).toMatchObject({ topped: true, topTries: 3, reached: { 1: 1, 2: 3 } })
       expect(ladders.isSaving(7)).toBe(false)
     })
 
@@ -367,6 +383,54 @@ describe('useCheckpointLadders', () => {
       await vi.advanceTimersByTimeAsync(300)
       expect(writes(calls).at(-1)).toMatchObject({ checkpoint: 1, attempts: 5, zone_tries: { 1: 2 }, replace: true })
       expect(ladders.stateFor(prob).active).toBe(2)
+    })
+  })
+
+  describe('bonus rung through saveTop', () => {
+    it('test_top_tapped_after_a_reached_bonus_rung_passes_the_bonus_tries_as_saveTops_third_argument', async () => {
+      const { ladders, saveTop } = setup()
+      ladders.act(prob, 'try')
+      ladders.act(prob, 'try')
+      ladders.act(prob, 'try')
+      ladders.act(prob, 'reached') // bonus (rung 1) in 3
+      ladders.act(prob, 'try')
+      ladders.act(prob, 'try')
+      await ladders.act(prob, 'top') // top in 5
+      expect(saveTop).toHaveBeenCalledTimes(1)
+      expect(saveTop).toHaveBeenCalledWith(7, 5, 3)
+    })
+
+    it('test_top_tapped_directly_without_a_bonus_tap_passes_the_top_tries_as_the_bonus_value_too', async () => {
+      const { ladders, saveTop } = setup()
+      ladders.act(prob, 'try')
+      ladders.act(prob, 'try')
+      ladders.act(prob, 'try')
+      ladders.act(prob, 'try')
+      await ladders.act(prob, 'top') // top in 4, rung 1 never marked
+      expect(saveTop).toHaveBeenCalledTimes(1)
+      expect(saveTop).toHaveBeenCalledWith(7, 4, 4)
+    })
+  })
+
+  describe('injected dependencies', () => {
+    it('test_zonesFor_override_changes_the_rung_count_without_affecting_the_default_caller', () => {
+      const { ladders: overridden } = setup({}, { zonesFor: () => 1 })
+      expect(overridden.stateFor(prob)).toMatchObject({ zones: 1, active: 1 })
+      const { ladders: plain } = setup()
+      expect(plain.stateFor(prob)).toMatchObject({ zones: 2, active: 1 })
+    })
+
+    it('test_saveCheckpoint_and_deleteCheckpoint_overrides_are_used_instead_of_the_default_dispatch', async () => {
+      const saveCheckpoint = vi.fn(async (p) => ({ ok: true, applied: true, checkpoint: p.checkpoint, attempts: p.attempts, zone_tries: p.zone_tries }))
+      const deleteCheckpoint = vi.fn(async () => ({ ok: true }))
+      const { ladders, store } = setup({}, { saveCheckpoint, deleteCheckpoint })
+      ladders.act(prob, 'try')
+      ladders.act(prob, 'reached')
+      await vi.advanceTimersByTimeAsync(300)
+      expect(saveCheckpoint).toHaveBeenCalledWith({ compid: 3, problemid: 7, checkpoint: 1, attempts: 1, zone_tries: { 1: 1 }, replace: false })
+      await ladders.act(prob, 'clear')
+      expect(deleteCheckpoint).toHaveBeenCalledWith({ compid: 3, problemid: 7 })
+      expect(store.dispatch).not.toHaveBeenCalled()
     })
   })
 
