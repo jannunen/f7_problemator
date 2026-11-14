@@ -25,7 +25,7 @@ const stub = (name) => ({
   },
 })
 const F7 = ['f7-popup', 'f7-page', 'f7-navbar', 'f7-nav-right', 'f7-link', 'f7-block', 'f7-block-title',
-  'f7-list', 'f7-list-item', 'f7-swipeout-actions', 'f7-swipeout-button', 'f7-stepper', 'check-point-row']
+  'f7-list', 'f7-list-item', 'f7-swipeout-actions', 'f7-swipeout-button', 'f7-stepper']
 
 const problem = (id, num) => ({ id, tag: `B00${num}`, colour: { code: '#e11d48', textcolor: '#fff' }, pivot: { num, max_points: 100 } })
 const makeComp = (tyyppi, userticks = {}) => ({
@@ -70,11 +70,19 @@ describe.each([['CompetitionEntry', CompetitionEntry], ['PublicCompetitionEntry'
     expect(fi).toContain('>Tallenna</button>')
   })
 
-  it.each(['fixed_points_best_n', 'variable_points', 'ifsc_2024_bouldering', 'ifsc_2018_bouldering'])('every tries stepper has min 1 (%s)', async (tyyppi) => {
+  it.each(['fixed_points_best_n', 'variable_points', 'ifsc_2018_bouldering'])('every tries stepper has min 1 (%s)', async (tyyppi) => {
     const html = await render(Component, makeComp(tyyppi))
     const steppers = count(html, 'data-stub="f7-stepper"')
     expect(steppers).toBeGreaterThan(0)
     expect(count(html, 'min="1"')).toBe(steppers)
+  })
+
+  it('ifsc_2024_bouldering renders a ladder per problem, not steppers', async () => {
+    const html = await render(Component, makeComp('ifsc_2024_bouldering'))
+    expect(count(html, 'data-stub="f7-stepper"')).toBe(0)
+    expect(count(html, 'data-test="ladder"')).toBe(2)
+    expect(html).toContain('Low zone')
+    expect(html).toContain('High zone')
   })
 
   it('an old tick stored with 0 tries shows 1 in the stepper', async () => {

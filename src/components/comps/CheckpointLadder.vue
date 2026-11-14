@@ -119,7 +119,7 @@
           data-test="clear"
           @click="emit('clear')"
         >
-          {{ t('comps.clear_checkpoint') }}
+          {{ t(props.clearLabelKey) }}
         </button>
         <span class="ladder__status">
           <template v-if="error">
@@ -167,11 +167,16 @@ const props = defineProps({
   loading: { type: Boolean, default: false },
   saving: { type: Boolean, default: false },
   error: { type: String, default: null },
+  // Rung labels/points for a non-checkpoint ladder (e.g. ifsc_2024_bouldering's
+  // fixed low/high/top), same shape as checkpointOptions' return value.
+  // Defaults to the routesetter-configured checkpoints when not given.
+  options: { type: Array, default: null },
+  clearLabelKey: { type: String, default: 'comps.clear_checkpoint' },
 })
 const emit = defineEmits(['select', 'try', 'reached', 'top', 'undo', 'retry', 'clear'])
 const { t } = useI18n()
 
-const options = computed(() => checkpointOptions(props.problem))
+const options = computed(() => props.options ?? checkpointOptions(props.problem))
 const rows = computed(() => (props.state ? rungView(props.state) : []))
 const routeName = computed(() => [props.problem?.pivot?.num, props.problem?.tag].filter((v) => v != null && v !== '').join(' '))
 
