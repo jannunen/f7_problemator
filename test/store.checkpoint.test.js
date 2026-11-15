@@ -63,3 +63,26 @@ describe('saveCheckpoint', () => {
     expect(api.saveCheckpoint).toHaveBeenCalledWith({ compid: 7, problemid: 42, score: 25.25 })
   })
 })
+
+describe('a sport score save', () => {
+  it.each(['saveCheckpoint', 'publicSaveCheckpoint'])('%s records the stored score, and leaves the checkpoints alone', async (action) => {
+    api.saveCheckpoint.mockResolvedValue({ ok: true, score: 25.25 })
+    store.state.competition = { my_checkpoints: { 7: 2 }, my_checkpoint_tries: { 7: { attempts: 3, zone_tries: { 1: 1 } } }, my_checkpoint_scores: {} }
+
+    await store.dispatch(action, { compid: 7, problemid: 42, score: 25.25 })
+
+    expect(store.state.competition.my_checkpoint_scores).toEqual({ 42: 25.25 })
+    expect(store.state.competition.my_checkpoints).toEqual({ 7: 2 })
+    expect(store.state.competition.my_checkpoint_tries).toEqual({ 7: { attempts: 3, zone_tries: { 1: 1 } } })
+  })
+
+  it('replaces an empty-array payload (PHP\'s empty map) with an object', async () => {
+    api.saveCheckpoint.mockResolvedValue({ ok: true, score: 30 })
+    store.state.competition = { my_checkpoints: [], my_checkpoint_scores: [] }
+
+    await store.dispatch('saveCheckpoint', { compid: 7, problemid: 42, score: 30 })
+
+    expect(store.state.competition.my_checkpoint_scores).toEqual({ 42: 30 })
+    expect(store.state.competition.my_checkpoints).toEqual([])
+  })
+})

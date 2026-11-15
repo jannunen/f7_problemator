@@ -406,6 +406,13 @@ tries.value = Object.keys(props.comp.userticks).reduce((acc, key) => {
   }
   return acc
 }, {})
+// sport: a saved partial height has no tick. A tick, when there is one, wins.
+const savedScores = store.state.competition?.my_checkpoint_scores ?? {}
+Object.keys(savedScores).forEach((pid) => {
+  if (tries.value[pid] == null) {
+    tries.value[pid] = { tries: 1, sport_points: savedScores[pid] }
+  }
+})
 
 const onDeleted = (id) => {
   const payload = {

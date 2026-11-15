@@ -24,6 +24,11 @@ const getFromLocalStorage = (key, defaultValue) => {
 
 // The server keeps the highest checkpoint: show what it stored, not what was tapped.
 const commitSavedCheckpoint = (commit, problemid, ret) => {
+  // sport: a partial height, stored as the route's score. It has no checkpoint.
+  if (ret.score != null) {
+    commit('setMyCheckpointScore', { problemid, score: ret.score })
+    return
+  }
   if (ret.attempts != null && ret.zone_tries != null) {
     // A zone tries write. checkpoint 0 + attempts 0 means the row is gone (undo back to empty).
     if (!(parseInt(ret.checkpoint) > 0) && !(parseInt(ret.attempts) > 0)) {
@@ -171,6 +176,17 @@ export default createStore({
         const tries = Array.isArray(state.competition.my_checkpoint_tries) ? {} : { ...(state.competition.my_checkpoint_tries ?? {}) }
         delete tries[payload]
         state.competition.my_checkpoint_tries = tries
+        const scores = Array.isArray(state.competition.my_checkpoint_scores) ? {} : { ...(state.competition.my_checkpoint_scores ?? {}) }
+        delete scores[payload]
+        state.competition.my_checkpoint_scores = scores
+      }
+    },
+    // sport's partial height for one route, as the server stored it.
+    setMyCheckpointScore(state, payload) {
+      if (state.competition) {
+        const scores = Array.isArray(state.competition.my_checkpoint_scores) ? {} : { ...(state.competition.my_checkpoint_scores ?? {}) }
+        scores[payload.problemid] = payload.score
+        state.competition.my_checkpoint_scores = scores
       }
     },
     // Zone tries for one route ({attempts, zone_tries}), as the server stored them.

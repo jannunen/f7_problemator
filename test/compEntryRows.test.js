@@ -177,6 +177,30 @@ const sportComp = () => ({
 const ADDITIVE_TYPES = ['ifsc_2018_bouldering', 'traditional', 'flashcomp']
 const RUNG_TYPES = ['ifsc_2024_bouldering', ...ADDITIVE_TYPES]
 
+// A partial height is a checkpoint score, not a tick: it has to come back after a reload.
+describe.each([['CompetitionEntry', CompetitionEntry], ['PublicCompetitionEntry', PublicCompetitionEntry]])('%s: sport field on load', (_, Component) => {
+  const pointsValues = (html) => [...html.matchAll(/<input value="([^"]*)"[^>]*placeholder="Enter points"/g)].map((m) => m[1])
+  const inputs = (html) => [...html.matchAll(/<input([^>]*)placeholder="Enter points"/g)].map((m) => m[1])
+
+  it('a saved score with no tick shows in the field', async () => {
+    const html = await render(Component, { ...sportComp(), my_checkpoint_scores: { 1: 25.25 } })
+    expect(pointsValues(html)).toEqual(['25.25'])
+    expect(inputs(html)[1]).not.toContain('value=')
+  })
+
+  it('a tick wins over a saved score', async () => {
+    const comp = { ...sportComp(), userticks: { 1: { problemid: 1, tries: 1, tries_bonus: 0, sport_points: 1000 } }, my_checkpoint_scores: { 1: 25.25 } }
+    const html = await render(Component, comp)
+    expect(pointsValues(html)).toEqual(['TOP'])
+  })
+
+  it('neither a tick nor a score leaves the field empty', async () => {
+    const html = await render(Component, { ...sportComp(), my_checkpoint_scores: {} })
+    expect(inputs(html)).toHaveLength(2)
+    inputs(html).forEach((attrs) => expect(attrs).not.toContain('value='))
+  })
+})
+
 // Tops saved by the old stepper UI: no checkpoint row, the counts are on the tick only.
 describe.each([
   ['CompetitionEntry', CompetitionEntry, {}],
