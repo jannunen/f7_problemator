@@ -15,7 +15,6 @@ vi.mock('@js/queryClient', () => ({
     setQueryData: vi.fn(),
     invalidateQueries: vi.fn(),
   },
-  invalidateAfter: vi.fn(),
 }))
 
 // The rankings store's fetchRankings is mocked rather than exercised for
@@ -32,7 +31,7 @@ vi.mock('@js/stores/rankings.store.js', () => ({
 }))
 
 import api from '@js/api'
-import { queryClient, invalidateAfter } from '@js/queryClient'
+import { queryClient } from '@js/queryClient'
 import { mutations } from '@js/mutations'
 import { useClimberStore } from '@js/stores/climber.store.js'
 import { useGymStore } from '@js/stores/gym.store.js'
@@ -46,7 +45,6 @@ beforeEach(() => {
   api.requestSync.mockReset()
   queryClient.setQueryData.mockReset()
   queryClient.invalidateQueries.mockReset()
-  invalidateAfter.mockReset()
   rankingsStoreMock.fetchRankings.mockReset()
   useClimberStore(pinia).setFromProfile(null)
   useGymStore(pinia).setGymid(42)
@@ -174,7 +172,8 @@ describe('mutations.saveTick', () => {
   it('invalidates feed/newProblems/badges/rankings/publicAscents, matching the old action', () => {
     mutations.saveTick().onSuccess({ problem: { id: 5 }, tick: { id: 1, problemid: 5 } }, { ticktype: 'tick' })
 
-    expect(invalidateAfter).toHaveBeenCalledWith('saveTick')
+    const keys = queryClient.invalidateQueries.mock.calls.map(([{ queryKey }]) => queryKey[0])
+    expect(keys).toEqual(expect.arrayContaining(['feed', 'new-problems', 'badges', 'ranking-top10', 'public-ascents']))
   })
 })
 
@@ -216,7 +215,7 @@ describe('mutations.publicSaveTick', () => {
   it('does not invalidate anything, matching the old action', () => {
     mutations.publicSaveTick().onSuccess({ problem: { id: 5 }, tick: { id: 1, problemid: 5 } }, { ticktype: 'tick' })
 
-    expect(invalidateAfter).not.toHaveBeenCalled()
+    expect(queryClient.invalidateQueries).not.toHaveBeenCalled()
   })
 })
 
@@ -255,7 +254,8 @@ describe('mutations.deleteTick', () => {
   it('invalidates feed/newProblems/badges/rankings/publicAscents, matching the old action', () => {
     mutations.deleteTick().onSuccess({ message: 'ok', problem: { id: 5 } })
 
-    expect(invalidateAfter).toHaveBeenCalledWith('deleteTick')
+    const keys = queryClient.invalidateQueries.mock.calls.map(([{ queryKey }]) => queryKey[0])
+    expect(keys).toEqual(expect.arrayContaining(['feed', 'new-problems', 'badges', 'ranking-top10', 'public-ascents']))
   })
 })
 
@@ -295,7 +295,8 @@ describe('mutations.deleteTickByProblem', () => {
   it('invalidates feed/newProblems/badges/rankings/publicAscents, matching the old action', () => {
     mutations.deleteTickByProblem().onSuccess({ message: 'ok' }, { problemid: 5, compid: 7 })
 
-    expect(invalidateAfter).toHaveBeenCalledWith('deleteTickByProblem')
+    const keys = queryClient.invalidateQueries.mock.calls.map(([{ queryKey }]) => queryKey[0])
+    expect(keys).toEqual(expect.arrayContaining(['feed', 'new-problems', 'badges', 'ranking-top10', 'public-ascents']))
   })
 })
 
@@ -326,7 +327,7 @@ describe('mutations.publicDeleteTickByProblem', () => {
   it('does not invalidate anything, matching the old action', () => {
     mutations.publicDeleteTickByProblem().onSuccess({ message: 'ok' }, { problemid: 5, compid: 7 })
 
-    expect(invalidateAfter).not.toHaveBeenCalled()
+    expect(queryClient.invalidateQueries).not.toHaveBeenCalled()
   })
 })
 

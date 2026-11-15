@@ -17,11 +17,10 @@ vi.mock('@js/queryClient', () => ({
     setQueryData: vi.fn(),
     invalidateQueries: vi.fn(),
   },
-  invalidateAfter: vi.fn(),
 }))
 
 import api from '@js/api'
-import { queryClient, invalidateAfter } from '@js/queryClient'
+import { queryClient } from '@js/queryClient'
 import { mutations } from '@js/mutations'
 import { useGymStore } from '@js/stores/gym.store.js'
 import { pinia } from '@js/stores/index.js'
@@ -42,7 +41,6 @@ beforeEach(() => {
   api.deleteProject.mockReset()
   queryClient.setQueryData.mockReset()
   queryClient.invalidateQueries.mockReset()
-  invalidateAfter.mockReset()
   useGymStore(pinia).setGymid(42)
 })
 
@@ -82,7 +80,8 @@ describe('mutations.likeProblem', () => {
   it('invalidates publicAscents and newProblems, matching the old action', () => {
     mutations.likeProblem().onSuccess({ likeCount: 3, dislikeCount: 1 }, 5)
 
-    expect(invalidateAfter).toHaveBeenCalledWith('likeProblem')
+    const keys = queryClient.invalidateQueries.mock.calls.map(([{ queryKey }]) => queryKey[0])
+    expect(keys).toEqual(expect.arrayContaining(['public-ascents', 'new-problems']))
   })
 
   it('does nothing when the profile cache has no gym.problems yet', () => {
@@ -126,7 +125,8 @@ describe('mutations.dislikeProblem', () => {
   it('invalidates publicAscents and newProblems, matching the old action', () => {
     mutations.dislikeProblem().onSuccess({ likeCount: 2, dislikeCount: 4 }, 5)
 
-    expect(invalidateAfter).toHaveBeenCalledWith('dislikeProblem')
+    const keys = queryClient.invalidateQueries.mock.calls.map(([{ queryKey }]) => queryKey[0])
+    expect(keys).toEqual(expect.arrayContaining(['public-ascents', 'new-problems']))
   })
 })
 
@@ -150,7 +150,7 @@ describe('mutations.commentProblem', () => {
   it('does not invalidate anything, matching the old action', () => {
     mutations.commentProblem().onSuccess({ messages: [] }, { id: 5, comment: 'x' })
 
-    expect(invalidateAfter).not.toHaveBeenCalled()
+    expect(queryClient.invalidateQueries).not.toHaveBeenCalled()
   })
 })
 
@@ -253,7 +253,8 @@ describe('mutations.deleteProject', () => {
   it('invalidates newProblems, matching the old action', () => {
     mutations.deleteProject().onSuccess({ message: 'ok', problem: { id: 5 } })
 
-    expect(invalidateAfter).toHaveBeenCalledWith('deleteProject')
+    const keys = queryClient.invalidateQueries.mock.calls.map(([{ queryKey }]) => queryKey[0])
+    expect(keys).toEqual(['new-problems'])
   })
 })
 

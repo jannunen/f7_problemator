@@ -1,5 +1,4 @@
 import { QueryClient } from '@tanstack/vue-query'
-import { keysInvalidatedBy } from '@js/invalidation'
 
 /**
  * One QueryClient, configured on purpose.
@@ -39,28 +38,3 @@ export const queryClient = new QueryClient({
     },
   },
 })
-
-/**
- * Mark every cached read a write made stale.
- *
- * Called by the Vuex write actions rather than from components. The actions
- * do real local work — saveTick alone commits four mutations and dispatches
- * rankings — that components still read, so replacing the call sites with
- * bare useMutation would have quietly dropped it. Invalidating from inside
- * the action means all nine tick call sites get this without changing any of
- * them, and the local state updates survive untouched.
- *
- * Never throws: a write that succeeded must not be reported as failed because
- * the cache could not be told about it.
- */
-export function invalidateAfter(action) {
-  try {
-    for (const queryKey of keysInvalidatedBy(action)) {
-      queryClient.invalidateQueries({ queryKey })
-    }
-  } catch (e) {
-    // Worst case the data stays stale until staleTime lapses, which is the
-    // behaviour this app had before invalidation existed at all.
-    console.warn(`[query] could not invalidate after ${action}`, e)
-  }
-}

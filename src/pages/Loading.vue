@@ -34,7 +34,6 @@
 </template>
 <script setup>
 import { ref } from 'vue'
-import store from '../js/store.js'
 import { onMounted } from 'vue'
 import { f7 } from 'framework7-vue'
 

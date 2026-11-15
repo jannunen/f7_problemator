@@ -60,8 +60,7 @@
     "vue-chartjs": "^4.1.2",
     "vue-i18n": "^9.2.0-beta.33",
     "vue-select": "^4.0.0-beta.6",
-    "vue3-qrcode-reader": "^0.0.1",
-    "vuex": "^4.0.2"
+    "vue3-qrcode-reader": "^0.0.1"
   },
   "devDependencies": {
     "@babel/eslint-parser": "^7.29.7",

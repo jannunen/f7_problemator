@@ -44,8 +44,6 @@ import { useI18n } from 'vue-i18n'
 import { showAgo } from '@helpers'
 import { computed, ref, onMounted } from 'vue'
 import {  toLocalTime } from '@helpers/component.helpers'
-import { useStore } from 'vuex'
-const store = useStore()
 const { t } = useI18n()
 
 const props = defineProps({

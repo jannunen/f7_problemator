@@ -185,7 +185,6 @@ import FloorMap from '@components/ui/FloorMap.vue'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
 import { tipShown, left, getRandom } from '@js/helpers'
 import { maxSnap } from '@js/constants.js'
-import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 import { useProfileGrades, useProfileGym, useProfileProblems, useProfileStyles, useProfileWalls } from '@js/useProfileSlice.js'
@@ -204,7 +203,6 @@ import {
   sortFunction,
   problemStyleFilter,
 } from '@components/ui/problemlist/sortFunctions.js'
-const store = useStore()
 const uiStore = useUiStore()
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
@@ -255,21 +253,14 @@ onMounted(() => {
     const wall = walls.value.find(x => x.wallchar === wallChar)
     if (wall != null) {
       selectedWalls.value = [wall.id]
-      store.dispatch('setSelectedWalls', [wall.id])
     }
   }
 })
 const { t, d, locale } = useI18n()
 const problems = useProfileProblems(gymid)
-watch(problems, (newValue) => {
-  if (problems.value.length == 0) {
-    store.dispatch('getProblems')
-  }
-})
 const walls = useProfileWalls(gymid)
 const grades = useProfileGrades(gymid)
 const tipShowStatus = computed(() => uiStore.tipShowStatus)
-const loading = computed(() => store.state.loading)
 
 const allTime = useAllTimeTicks()
 const ticks = computed(() => allTime.value.ticks)
@@ -304,7 +295,6 @@ const selectRoutetype = (rt) => {
 }
 const onClearWalls = () => {
   selectedWalls.value = []
-  store.dispatch('setFilterWalls', [])
 }
 /*
 const onWallSelect = (selection) => {

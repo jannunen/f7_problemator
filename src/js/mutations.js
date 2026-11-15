@@ -1,20 +1,48 @@
 import api from '@js/api'
-import { queryClient, invalidateAfter } from '@js/queryClient'
+import { queryClient } from '@js/queryClient'
 import { useClimberStore } from '@js/stores/climber.store.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 import { useRankingsStore } from '@js/stores/rankings.store.js'
 import { pinia } from '@js/stores/index.js'
-import { asCompId } from '@js/queryKeyNames'
+import { asCompId, invalidate } from '@js/queryKeyNames'
 
 /**
  * Every server write the app makes through TanStack Query, in one place.
  *
  * Mirrors queryKeys.js's shape: each factory returns the options object
  * `useMutation` takes. Preferring invalidation over hand-merging a response
- * into the cache (as queryClient.invalidateAfter already does for the Vuex
- * write actions) means a write and a read can never quietly disagree about
+ * into the cache means a write and a read can never quietly disagree about
  * what the cache should hold.
  */
+
+/**
+ * Invalidate a fixed list of query-key prefixes after a write.
+ *
+ * Replaces the old invalidateAfter/keysInvalidatedBy indirection (an
+ * action-name -> key-list lookup that existed only because these calls used
+ * to arrive from Vuex actions identified by name). Every call site below IS
+ * the mutation now, so there is nothing left to look up by name — each one
+ * just lists the keys it dirties directly.
+ */
+const invalidateKeys = (keys) => {
+  for (const queryKey of keys) {
+    queryClient.invalidateQueries({ queryKey })
+  }
+}
+
+/**
+ * What a send/un-send dirties: the feed shows it to followers, the
+ * new-problems list marks it climbed, badges may be earned, rankings move,
+ * and it's visible publicly. Shared by saveTick/deleteTick/deleteTickByProblem
+ * below, matching the old INVALIDATES map's identical entries for all three.
+ */
+const tickInvalidationKeys = () => [
+  invalidate.feed(),
+  invalidate.newProblems(),
+  invalidate.badges(),
+  invalidate.rankings(),
+  invalidate.publicAscents(),
+]
 
 // An empty map that arrived from PHP as `[]` (json_encode of an empty
 // associative array) reads back as an Array, not an Object — same guard the
@@ -416,7 +444,7 @@ export const mutations = {
             : p
         )
       )
-      invalidateAfter('likeProblem')
+      invalidateKeys([invalidate.publicAscents(), invalidate.newProblems()])
     },
   }),
 
@@ -428,7 +456,7 @@ export const mutations = {
     mutationFn: (id) => api.dislikeProblem(id),
     onSuccess: (data, id) => {
       patchGymProblems((problems) => problems.map((p) => (p.id == id ? { ...p, likeCount: data.likeCount, dislikeCount: data.dislikeCount } : p)))
-      invalidateAfter('dislikeProblem')
+      invalidateKeys([invalidate.publicAscents(), invalidate.newProblems()])
     },
   }),
 
@@ -511,7 +539,7 @@ export const mutations = {
         if (idx === -1) return [...problems, data.problem]
         return problems.map((p, i) => (i === idx ? data.problem : p))
       })
-      invalidateAfter('deleteProject')
+      invalidateKeys([invalidate.newProblems()])
     },
   }),
 
@@ -554,7 +582,7 @@ export const mutations = {
         patchAllTimeTicks((old) => ({ ...old, tries: [...old.tries, data.tick] }))
       }
       useRankingsStore(pinia).fetchRankings()
-      invalidateAfter('saveTick')
+      invalidateKeys(tickInvalidationKeys())
     },
   }),
 
@@ -598,7 +626,7 @@ export const mutations = {
     onSuccess: (data) => {
       patchTickedProblem(data?.problem)
       useRankingsStore(pinia).fetchRankings()
-      invalidateAfter('deleteTick')
+      invalidateKeys(tickInvalidationKeys())
     },
   }),
 
@@ -623,7 +651,7 @@ export const mutations = {
     onSuccess: (data, payload) => {
       patchAllTimeTicks((old) => ({ ...old, ticks: old.ticks.filter((t) => t.problemid != payload.problemid) }))
       removeCompetitionUserTick('competition', payload.compid, payload.problemid)
-      invalidateAfter('deleteTickByProblem')
+      invalidateKeys(tickInvalidationKeys())
     },
   }),
 
