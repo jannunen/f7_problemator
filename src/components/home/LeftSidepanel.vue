@@ -1,5 +1,5 @@
 <template>
-  <f7-panel left v-model:opened="sidePanelOpen" @panel:close="store.commit('setSidePanel', false)">
+  <f7-panel left v-model:opened="sidePanelOpen" @panel:close="uiStore.setSidePanel(false)">
     <f7-view>
       <show-tick-help :opened="showTickHelpDialog" />
       <show-tips :opened="showTipsDialog" @close="showTipsDialog = false" />
@@ -15,7 +15,7 @@
 
         <div v-if="isAuthenticated" class="px-2">
           <!-- Nav items -->
-          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'home' }" @click="() => store.commit('setSelectedLeftPanelItem', 'home')">
+          <button class="p-nav-item" :class="{ 'p-nav-item--active': selectedItem === 'home' }" @click="() => uiStore.setSelectedLeftPanelItem('home')">
             <span class="material-icons p-nav-item__icon">home</span>
             <span class="p-nav-item__label">{{ t('sidepanel.home') }}</span>
           </button>
@@ -129,6 +129,7 @@ import { waitingWorkerAvailable } from '@js/helpers/registerServiceWorker.js'
 import { isUpdateAvailable, shouldShowUpdateBanner } from '@js/version.js'
 import { BUILD_STAMP } from '@js/buildInfo.js'
 import { useStore } from 'vuex'
+import { useUiStore } from '@js/stores/ui.store.js'
 import { f7 } from 'framework7-vue'
 import { ref, watch, computed } from 'vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
@@ -137,12 +138,13 @@ import ShowChangelog from '@components/home/ShowChangelog.vue'
 import $ from 'dom7'
 import logo from '../../assets/images/logo.png'
 const store = useStore()
+const uiStore = useUiStore()
 const showTickHelpDialog = ref(false)
 const showTipsDialog = ref(false)
 const showChangeLogDialog = ref(false)
 
 const gym = computed(() => store.state.gym)
-const version = computed(() => store.state.version)
+const version = computed(() => uiStore.version)
 // Display only — never compared against the server, which only knows plain
 // semver (see isUpdateAvailable below). Constant per build, so no need to
 // make it reactive.
@@ -164,7 +166,7 @@ const updateAvailable = computed(() => shouldShowUpdateBanner({
 }))
 const climber = computed(() => store.state.climber)
 const isAuthenticated = computed(() => store.state.isAuthenticated)
-const serverVersion = computed(() => store.state.server_version)
+const serverVersion = computed(() => uiStore.serverVersion)
 
 const { t, locale } = useI18n()
 const darkMode = localStorage.getItem('dark') === 'true'
@@ -194,23 +196,23 @@ watch(currentLocale, (newLocale) => {
 })
 
 const openSettings = () => {
-  store.commit('setSelectedLeftPanelItem', 'settings')
-  store.commit('setSidePanel', false)
+  uiStore.setSelectedLeftPanelItem('settings')
+  uiStore.setSidePanel(false)
   f7.views.main.router.navigate("/settings")
 }
 const openArchive = () => {
-  store.commit('setSelectedLeftPanelItem', 'archive')
-  store.commit('setSidePanel', false)
+  uiStore.setSelectedLeftPanelItem('archive')
+  uiStore.setSidePanel(false)
   f7.views.main.router.navigate("/archive")
 }
 const openMessages = () => {
-  store.commit('setSelectedLeftPanelItem', 'messages')
-  store.commit('setSidePanel', false)
+  uiStore.setSelectedLeftPanelItem('messages')
+  uiStore.setSidePanel(false)
   f7.views.main.router.navigate("/messages")
 }
 const openBoardSession = () => {
-  store.commit('setSelectedLeftPanelItem', 'board')
-  store.commit('setSidePanel', false)
+  uiStore.setSelectedLeftPanelItem('board')
+  uiStore.setSidePanel(false)
   f7.views.main.router.navigate("/board-session")
 }
 const updateVersion = () => {
@@ -235,10 +237,10 @@ watch(localDarkMode, (isDarkTheme, oldValue) => {
 
 
 const doVersionCheck = () => {
-  store.dispatch('version')
+  uiStore.fetchVersion()
 }
 const doReloadApp = async () => {
-  store.commit('setSidePanel', false)
+  uiStore.setSidePanel(false)
   // Unregister all service workers
   if ('serviceWorker' in navigator) {
     const registrations = await navigator.serviceWorker.getRegistrations()
@@ -257,10 +259,10 @@ const doReloadApp = async () => {
   window.location.reload(true)
 }
 const doLogout = () => {
-  store.commit('setSidePanel', false)
+  uiStore.setSidePanel(false)
   store.dispatch('logout')
 }
-const sidePanelOpen = computed(() => store.state.sidePanelOpen)
+const sidePanelOpen = computed(() => uiStore.sidePanelOpen)
 const selectedItem = computed(() => store.state.selectedItem)
 
 </script>

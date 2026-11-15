@@ -186,6 +186,7 @@ import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
 import { tipShown, left, getRandom } from '@js/helpers'
 import { maxSnap } from '@js/constants.js'
 import { useStore } from 'vuex'
+import { useUiStore } from '@js/stores/ui.store.js'
 import { useI18n } from 'vue-i18n'
 import GradeFilter from '@components/ui/problemlist/GradeFilter.vue'
 import StyleFilter from '@components/ui/problemlist/StyleFilter.vue'
@@ -201,9 +202,10 @@ import {
   problemStyleFilter,
 } from '@components/ui/problemlist/sortFunctions.js'
 const store = useStore()
+const uiStore = useUiStore()
 dayjs.extend(relativeTime)
 const gym = computed(() => store.state.gym)
-const routeTypes = computed(() => store.state.routetypes)
+const routeTypes = computed(() => uiStore.routetypes)
 const onAreaSelected = (area) => {
   // Bound to <floor-map @area-selected>, so this runs whenever someone taps a
   // wall region on the floor plan. It used to throw three ways over: .find()
@@ -220,7 +222,7 @@ const onAreaSelected = (area) => {
 
 const tipDismiss = (which) => {
   const payload = { ...tipShowStatus.value, [which]: true }
-  store.dispatch('tipShowStatus', payload)
+  uiStore.setTipShowStatus(payload)
 }
 const showFilters = ref(false)
 const wallsDropdown = computed(() => {
@@ -261,16 +263,16 @@ watch(problems, (newValue) => {
 })
 const walls = computed(() => store.state.gym.walls)
 const grades = computed(() => store.state.grades)
-const tipShowStatus = computed(() => store.state.tipShowStatus)
+const tipShowStatus = computed(() => uiStore.tipShowStatus)
 const loading = computed(() => store.state.loading)
 
 const ticks = computed(() => store.state.alltime.ticks)
 const tries = computed(() => store.state.alltime.tries)
 const selectedWalls = ref([])
-const filters = computed(() => store.state.filters)
+const filters = computed(() => uiStore.filters)
 const nameFilter = ref('')
 const styles = computed(() => store.state.styles)
-const storeNameFilter = computed(() => store.state.filters.nameFilter)
+const storeNameFilter = computed(() => uiStore.filters.nameFilter)
 const ascentTypeFilter = ref('all')
 const soonToBeRemovedFilter = ref(false)
 const unfilteredProblemsExist = computed(() => {
@@ -291,7 +293,7 @@ const selectRoutetype = (rt) => {
   } else {
     payload = [...payload, rt]
   }
-  store.commit('setFilterRoutetype', payload)
+  uiStore.setFilterRoutetype(payload)
 
 }
 const onClearWalls = () => {
@@ -314,21 +316,21 @@ const sortedWalls = computed(() => {
 */
 
 const minChanged = debounce((value) => {
-  store.commit('setFilterGradeMin', value)
+  uiStore.setFilterGradeMin(value)
 }, 100)
 const maxChanged = debounce((value) => {
-  store.commit('setFilterGradeMax', value)
+  uiStore.setFilterGradeMax(value)
 }, 100)
 const onStylesChanged = (changedStyles) => {
   // set active filters.
-  store.commit('setFilterStyles', changedStyles)
+  uiStore.setFilterStyles(changedStyles)
 }
 const filteredProblems = computed(() => {
   let probs = Object.keys(problems.value).map(key => problems.value[key])
   if (probs == null) {
     return []
   }
-  const filters = computed(() => store.state.filters)
+  const filters = computed(() => uiStore.filters)
 
   let { problemFilters, styles, gradeMin, gradeMax, walls, sort } = toRefs(filters.value)
   if (gradeMax.value != 'max') {
@@ -394,7 +396,7 @@ const filteredProblems = computed(() => {
   return probs
 })
 const onSortChanged = (sort) => {
-  store.commit('setFilterSort', sort)
+  uiStore.setFilterSort(sort)
   // TODO: Save to localStorage
 }
 
@@ -432,15 +434,15 @@ const resetFilters = () => {
   nameFilter.value = ''
   selectedWalls.value = []
   soonToBeRemovedFilter.value = false
-  store.commit('resetFilters')
+  uiStore.resetFilters()
 }
 watch(nameFilter, (newValue) => {
  // propagate to store
-  store.commit('setNameFilter', newValue)
+  uiStore.setNameFilter(newValue)
 })
 watch(selectedWalls, (newValue) => {
  // propagate to store
-  store.commit('setFilterWalls', newValue)
+  uiStore.setFilterWalls(newValue)
 })
 const getSelectedWalls = computed(() => {
   return filters.value.walls.map((wallid) => {

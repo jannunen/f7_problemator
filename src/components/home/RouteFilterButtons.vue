@@ -3,7 +3,7 @@
     <div
       v-for="routeType in routeTypes"
       :key="routeType"
-      @click="store.commit('setFilterProblems', routeType)"
+      @click="uiStore.setFilterProblems(routeType)"
       style="color: #5e4955"
       :class="classes(routeType)"
     >
@@ -12,12 +12,12 @@
   </div>
 </template>
 <script>
-import { useStore } from "vuex";
+import { useUiStore } from "@js/stores/ui.store.js";
 import { ref, computed } from "vue";
 export default {
   setup() {
-    const store = useStore();
-    const activeFilter = computed(() => store.state.filters.problemFilters);
+    const uiStore = useUiStore();
+    const activeFilter = computed(() => uiStore.filters.problemFilters);
     const classes = (currentFilter) => {
       return {
         "m-1": true,
@@ -44,7 +44,7 @@ export default {
       "ticked",
     ]);
     return {
-      store,
+      uiStore,
       routeTypes,
       classes,
     };

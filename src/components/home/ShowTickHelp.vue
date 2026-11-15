@@ -50,11 +50,13 @@ import { useI18n } from 'vue-i18n'
 import { tipShown } from '@js/helpers'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
+import { useUiStore } from '@js/stores/ui.store.js'
 import { f7  } from 'framework7-vue'
 
 const store = useStore()
+const uiStore = useUiStore()
 const climber = computed(() => store.state.climber)
-const tipShowStatus = computed(() => store.state.tipShowStatus)
+const tipShowStatus = computed(() => uiStore.tipShowStatus)
 const ret = ref({message : null})
 const email = ref(null)
 const requestDone = ref(false)

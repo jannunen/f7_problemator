@@ -57,6 +57,7 @@ import { useI18n } from 'vue-i18n'
 import { useQueryClient } from '@tanstack/vue-query'
 import { watch, computed, ref } from 'vue'
 import { useStore } from 'vuex'
+import { useUiStore } from '@js/stores/ui.store.js'
 import $ from 'dom7'
 import { f7, f7ready } from 'framework7-vue'
 
@@ -68,6 +69,7 @@ export default {
   setup() {
     const { t } = useI18n()
     const store = useStore()
+    const uiStore = useUiStore()
     const queryClient = useQueryClient()
     const allTime = computed(() => store.state.alltime)
     const profile = computed(() => store.state.profile)
@@ -123,7 +125,7 @@ export default {
 
     const onTabSelect = (id) => {
       if (id === 'menu') {
-        store.commit('setSidePanel', true)
+        uiStore.setSidePanel(true)
         return
       }
       const tab = TABS.find((x) => x.id === id)
@@ -137,7 +139,7 @@ export default {
       router.navigate(tab.path, { animate: true, ...(tab.options ?? {}) })
     }
 
-    store.dispatch('version')
+    uiStore.fetchVersion()
 
     // No-ops on the web. On native: dismiss the splash, keep the status bar
     // from overlaying our header, and make Android's back button pop the
@@ -173,12 +175,12 @@ export default {
     // Save tip showing status in localStorage.
     const tipShowStatus = JSON.parse(localStorage.getItem('tipShowStatus'))
     const access_token = computed(() => store.state.access_token)
-    store.dispatch('tipShowStatus', tipShowStatus)
-    store.commit('setInitializing', false)
+    uiStore.setTipShowStatus(tipShowStatus)
+    uiStore.setInitializing(false)
 
     // Get app local version
     const version = import.meta.env.PACKAGE_VERSION
-    store.commit('setVersion', version)
+    uiStore.setVersion(version)
 
     const isDark = localStorage.getItem('dark')
     if (isDark != 'false') {
@@ -199,13 +201,13 @@ export default {
             console.log('Loading ticks')
             store.dispatch('loadAllTimeTicks')
           }
-          store.commit('setReady', true)
+          uiStore.setReady(true)
         } catch (err) {
           console.warn('Session expired or invalid token, redirecting to login', err)
           store.dispatch('logout')
         }
       }
-      store.commit('setInitializing', false)
+      uiStore.setInitializing(false)
     }, {
       // immediate, because access_token no longer starts null. It is seeded
       // from storage, so a reload with a stored token commits the value it
@@ -223,7 +225,7 @@ export default {
     if (existingToken) {
       store.commit('setToken', existingToken)
     } else {
-      store.commit('setReady', true)
+      uiStore.setReady(true)
     }
 
     return {

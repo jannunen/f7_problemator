@@ -6,22 +6,6 @@ import { setAuthToken, readStoredToken } from './authToken.js'
 import home from "./store/home.store.js"
 import climbers from './store/climber.store.js'
 
-export const filtersInitial = {
-  gradeMin: 'min',
-  gradeMax: 'max',
-  sort: 'sector_asc',
-  problemFilters : 'all',
-  routetypes :['boulder','sport'],
-  nameFilter : null,
-  styles: [],
-  walls: [],
-  problemStates: ['all'], // all, ticked, projects
-}
-
-const getFromLocalStorage = (key, defaultValue) => {
-  return localStorage[key] ? JSON.parse(localStorage[key]) : defaultValue;
-};
-
 // The server keeps the highest checkpoint: show what it stored, not what was tapped.
 const commitSavedCheckpoint = (commit, problemid, ret) => {
   // sport: a partial height, stored as the route's score. It has no checkpoint.
@@ -47,24 +31,10 @@ export default createStore({
   },
   namespaced: true,
   state: {
-    routetypes : ['boulder','sport'],
     rankings : null,
     rankingTarget : 'global',
-    settings : {
-      darkMode : true,
-    },
     competition : null,
     compResults : null,
-    tipShowStatus : {},
-    searchQuery: '',
-    searchState: 'idle',
-    initializing : true,
-    ready : false,
-    searchResults: [],
-    sidePanelOpen : false,
-    selectedLeftPanelItem : 'home',
-    backlog: getFromLocalStorage('backlog', []),
-    wishlist: getFromLocalStorage('wishlist', []),
     isAuthenticated : !!readStoredToken(),
     gymid : null,
     profile : {
@@ -88,7 +58,6 @@ export default createStore({
     authEmail: '',
     authType: 'signin',
     authError: null,
-    filters : {...filtersInitial},
     problems : [],
     gym : { 
       problems :[],
@@ -101,8 +70,6 @@ export default createStore({
       dates : {},
       dateDetails : {}
     },
-    version : "",
-    server_version : "",
   },
 
   mutations: {
@@ -114,18 +81,6 @@ export default createStore({
     },
     ticksLoaded (state, payload) {
       state.ticksLoaded = payload
-    },
-    serverVersion(state, payload) {
-      state.server_version = payload
-    },
-    setVersion(state, payload) {
-      state.version = payload
-    },
-    setTipShowStatus (state, payload) {
-      state.tipShowStatus = payload
-    },
-    setSelectedLeftPanelItem (state, payload) {
-      state.selectedLeftPanelItem = payload
     },
     compResults(state, payload) {
       state.compResults = payload
@@ -210,9 +165,6 @@ export default createStore({
     expires_in(state, payload) {
       state.expires_in = payload
     },
-    setInitializing(state, payload) {
-      state.initializing = payload
-    },
     user(state, payload) {
       state.user = payload
     },
@@ -231,9 +183,6 @@ export default createStore({
     gym(state, payload) {
       state.gym = payload
     },
-    setReady(state, payload) {
-      state.ready = payload
-    },
     profile(state, payload) {
       state.profile = payload
     },
@@ -243,40 +192,6 @@ export default createStore({
       // waiting on sign-in is watching, and it refuses to store the string
       // "null" the way this used to on logout.
       setAuthToken(payload)
-    },
-    setSidePanel (state, payload) {
-      state.sidePanelOpen = payload
-    },
-    setDarkMode(state, payload) {
-      state.settings.darkMode = payload
-    },
-    setFilterRoutetype(state, payload) {
-      state.filters = { ...state.filters, ['routetypes']: payload }
-    },
-    setFilterProblems(state, payload) {
-      state.filters = { ...state.filters, ['problemFilters']: payload }
-    },
-    setFilterStyles(state, payload) {
-      state.filters = { ...state.filters, ['styles']: payload }
-    },
-    setFilterGradeMin(state, payload) {
-      state.filters = { ...state.filters, ['gradeMin']: payload }
-    },
-    setFilterGradeMax(state, payload) {
-      state.filters = { ...state.filters, ['gradeMax']: payload }
-    },
-    setNameFilter(state, payload) {
-      state.filters = { ...state.filters, ['nameFilter']: payload }
-    },
-    setFilterWalls(state, payload) {
-      state.filters = { ...state.filters, ['walls']: payload }
-    },
-    setFilterSort(state, payload) {
-      console.log("Changing sorting to",payload)
-      state.filters = { ...state.filters, ['sort']: payload }
-    },
-    resetFilters( state) {
-      state.filters = {...filtersInitial}
     },
     setIsAuthenticated (state, payload) {
       state.isAuthenticated = payload
@@ -384,20 +299,9 @@ export default createStore({
       commit('rankings',ret)
       return ret
     },
-    async version({commit}) {
-      const ret = await api.version()
-      commit('serverVersion',ret.version)
-      return ret
-    },
     async requestSync({ state}, payload) {
       const ret = await api.requestSync(payload)
       return ret
-    },
-    tipShowStatus({commit, state}, payload) {
-      // When status change, save to localStorage and 
-      // update state.
-      localStorage.setItem('tipShowStatus', JSON.stringify(payload))
-      commit('setTipShowStatus', payload)
     },
     async getProfile({ commit, state } , payload) {
       commit('profileLoaded', false)

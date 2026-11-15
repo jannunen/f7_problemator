@@ -148,6 +148,7 @@ import { f7 } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
 import { ref, computed } from 'vue'
 import { useStore } from 'vuex'
+import { useUiStore } from '@js/stores/ui.store.js'
 import { estimateGrade } from '@js/helpers'
 import dayjs from 'dayjs'
 import ClimbedProblemListItem from '@components/profile/ClimbedProblemListItem.vue'
@@ -156,6 +157,7 @@ import ClimberBadges from '@components/profile/ClimberBadges.vue'
 
 const { t } = useI18n()
 const store = useStore()
+const uiStore = useUiStore()
 const props = defineProps({
   id: Number,
 })
@@ -192,8 +194,8 @@ const formatGrade = (name) => {
 }
 
 const openSettings = () => {
-  store.commit('setSelectedLeftPanelItem', 'settings')
-  store.commit('setSidePanel', false)
+  uiStore.setSelectedLeftPanelItem('settings')
+  uiStore.setSidePanel(false)
   f7.views.main.router.navigate("/settings")
 }
 

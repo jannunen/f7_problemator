@@ -189,16 +189,18 @@ import PButton from '@components/PButton.vue'
 import { computed, ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { useUiStore } from '@js/stores/ui.store.js'
 const store = useStore()
+const uiStore = useUiStore()
 const showTickHelpDialog = ref(false)
-const ready = computed(() => store.state.ready)
+const ready = computed(() => uiStore.ready)
 const profile = computed(() => store.state.profile)
 const gym = computed(() => store.state.gym)
 const gymid = computed(() => store.state.gymid)
 const alltime = computed(() => store.state.alltime)
 const ticksLoaded = computed(() => store.state.ticksLoaded)
-const version = computed(() => store.state.version)
-const serverVersion = computed(() => store.state.server_version)
+const version = computed(() => uiStore.version)
+const serverVersion = computed(() => uiStore.serverVersion)
 // Same fix as LeftSidepanel: a string inequality that was permanently true,
 // so this banner never went away.
 const updateAvailable = computed(() => isUpdateAvailable(version.value, serverVersion.value))

@@ -6,7 +6,7 @@
           <div style="display: flex; flex-direction: column; align-content: center">
             <small>{{ $t("pts.you_ticked") }}</small>
             <round-badge
-              @click="store.commit('setFilterProblems', 'ticked')"
+              @click="uiStore.setFilterProblems('ticked')"
               :width="38"
               border-color="#5fda5f"
               >{{ getOwnTickCount }}</round-badge
@@ -18,14 +18,14 @@
             <round-badge
               :width="38"
               border-color="#f08d0c"
-              @click="store.commit('setFilterProblems', 'projects')"
+              @click="uiStore.setFilterProblems('projects')"
               >{{ getTriedCount }}</round-badge
             >
           </div>
 
           <div style="display: flex; flex-direction: column; align-content: center">
             <small>{{ $t("pts.total") }}</small>
-            <round-badge @click="store.commit('setFilterProblems', 'all')" :width="38">{{
+            <round-badge @click="uiStore.setFilterProblems('all')" :width="38">{{
               getTotalRoutes
             }}</round-badge>
           </div>
@@ -48,11 +48,13 @@
 import RoundBadge from "@components/ui/RoundBadge.vue";
 import { computed } from "vue";
 import { useStore } from "vuex";
+import { useUiStore } from "@js/stores/ui.store.js";
 import HorizontalBarGraph from "../ui/HorizontalBarGraph.vue";
 
 export default {
   setup() {
     const store = useStore();
+    const uiStore = useUiStore();
     const profile = store.state.profile;
     const gym = store.state.gym;
 
@@ -91,7 +93,7 @@ export default {
       getTotalRoutes,
       profile,
       gym,
-      store,
+      uiStore,
     };
   },
   methods: {},
