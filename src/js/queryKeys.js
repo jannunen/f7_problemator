@@ -242,6 +242,16 @@ export const queries = {
       return ret
     },
     enabled: isAuthenticated,
+
+    // Fetched once per sign-in and per gym, like the getProfile action it
+    // replaces — not every 30s. ~30 components observe this query, so under
+    // the global default any navigation past 30s re-downloaded the whole
+    // bootstrap and overwrote Vuex state.problems through the bridge above
+    // (able to revert a tick committed locally mid-session). A gym change is
+    // a new key and fetches on its own; saveSettings invalidates ['profile']
+    // explicitly. app.vue keeps an observer mounted all session, so gcTime
+    // never evicts it.
+    staleTime: Infinity,
   }),
 }
 
