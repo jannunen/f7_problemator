@@ -175,3 +175,33 @@ describe('publicDeleteTickByProblem: the public-competition-cache bridge', () =>
     expect(api.deleteTickByProblem.mock.calls[0][0]).toMatchObject({ point_entry_key: 'abc' })
   })
 })
+
+/**
+ * Regression coverage for a bug a re-review caught: this bridge's compid
+ * (threaded from CompetitionEntry.vue's props.comp.id, a Number) and
+ * queries.competition's compid (a Framework7 route param, a string — see
+ * test/queryKeys.compidTypeConsistency.test.js) must land on the exact
+ * same cache entry. A string compid reaching this bridge (not expected
+ * from today's two callers, but not guaranteed never to happen either)
+ * must still produce the same Number-keyed entry a string-fed
+ * queries.competition instance would observe.
+ */
+describe('compid normalization: a string compid still addresses the Number-keyed cache entry', () => {
+  it('saveTick', async () => {
+    api.saveTick.mockResolvedValue({ problem: { id: 1 }, tick: { problemid: 42 } })
+
+    await store.dispatch('saveTick', { ticktype: 'tick', problemid: 42, compid: '7' })
+
+    const [key] = queryClient.setQueryData.mock.calls.at(-1)
+    expect(key).toEqual(['competition', 7])
+  })
+
+  it('deleteTickByProblem', async () => {
+    api.deleteTickByProblem.mockResolvedValue({ message: 'ok' })
+
+    await store.dispatch('deleteTickByProblem', { problemid: 42, compid: '7' })
+
+    const [key] = queryClient.setQueryData.mock.calls.at(-1)
+    expect(key).toEqual(['competition', 7])
+  })
+})

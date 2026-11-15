@@ -1,10 +1,11 @@
-import { computed, unref } from 'vue'
+import { computed, unref, toValue } from 'vue'
 import api from '@js/api'
 import { isAuthenticated } from './authToken.js'
 import store from './store.js'
 import { useClimberStore } from './stores/climber.store.js'
 import { useRankingsStore } from './stores/rankings.store.js'
 import { pinia } from './stores/index.js'
+import { asCompId } from './queryKeyNames.js'
 
 /**
  * Every server query the app makes, in one place.
@@ -34,12 +35,20 @@ import { pinia } from './stores/index.js'
 
 // Keys are built as a computed so a ref passed in stays reactive: when the
 // gym changes the key changes, and Query refetches on its own.
-const key = (...parts) => computed(() => parts.map((p) => unref(p)))
+//
+// toValue, not unref: every existing caller passes a ref, a computed, or a
+// plain value, for which the two behave identically — but toValue also
+// resolves a plain getter function (`() => props.x`), which unref leaves
+// untouched (it only ever unwraps a Ref). Using toValue here means a
+// factory added later that gets called with that getter pattern (as this
+// task's own competition/compResults factories below were) builds a
+// correct key without needing to know the difference.
+const key = (...parts) => computed(() => parts.map((p) => toValue(p)))
 
 // Some queries are meaningless until something is chosen. Guarding here
 // rather than in each component keeps "this needs a gym" next to the call
 // that needs it.
-const needs = (...vals) => computed(() => vals.every((v) => !!unref(v)))
+const needs = (...vals) => computed(() => vals.every((v) => !!toValue(v)))
 
 /**
  * For lists that are effectively static within a session.
@@ -195,11 +204,19 @@ export const queries = {
    * `comp` stayed null forever there. The other two call sites
    * (SingleCompetitionPage.vue, SimpleEntryPage.vue) are only reachable once
    * already signed in, so this changes nothing for them.
+   *
+   * Built with asCompId (queryKeyNames.js), not key()/unref: `compid` here
+   * is a Framework7 route param read off a component prop, always a
+   * string, while mutations.js/store.js patch this same cache entry keyed
+   * by an already-fetched competition's numeric `.id`. asCompId normalizes
+   * both to the same Number so they address the same entry — see its own
+   * doc comment for the full story (a real bug this task shipped and a
+   * review caught).
    */
   competition: (compid) => ({
-    queryKey: key('competition', compid),
-    queryFn: () => api.getCompetition({ compid: unref(compid) }),
-    enabled: computed(() => needs(compid).value && isAuthenticated.value),
+    queryKey: computed(() => ['competition', asCompId(compid)]),
+    queryFn: () => api.getCompetition({ compid: asCompId(compid) }),
+    enabled: computed(() => !!asCompId(compid) && isAuthenticated.value),
   }),
 
   /**
@@ -214,23 +231,23 @@ export const queries = {
    * works without one.
    */
   publicCompetition: (compid, pointEntryKey) => ({
-    queryKey: key('public-competition', compid),
-    queryFn: () => api.getCompetition({ compid: unref(compid), point_entry_key: unref(pointEntryKey) }, '/compkey'),
-    enabled: needs(compid),
+    queryKey: computed(() => ['public-competition', asCompId(compid)]),
+    queryFn: () => api.getCompetition({ compid: asCompId(compid), point_entry_key: toValue(pointEntryKey) }, '/compkey'),
+    enabled: computed(() => !!asCompId(compid)),
   }),
 
   /** One competition's results table. */
   compResults: (compid) => ({
-    queryKey: key('comp-results', compid),
-    queryFn: () => api.getCompResults({ compid: unref(compid) }),
-    enabled: computed(() => needs(compid).value && isAuthenticated.value),
+    queryKey: computed(() => ['comp-results', asCompId(compid)]),
+    queryFn: () => api.getCompResults({ compid: asCompId(compid) }),
+    enabled: computed(() => !!asCompId(compid) && isAuthenticated.value),
   }),
 
   /** Same, through the public comp-key route — see publicCompetition above. */
   publicCompResults: (compid, pointEntryKey) => ({
-    queryKey: key('public-comp-results', compid),
-    queryFn: () => api.getCompResults({ compid: unref(compid), point_entry_key: unref(pointEntryKey) }, '/compkey'),
-    enabled: needs(compid),
+    queryKey: computed(() => ['public-comp-results', asCompId(compid)]),
+    queryFn: () => api.getCompResults({ compid: asCompId(compid), point_entry_key: toValue(pointEntryKey) }, '/compkey'),
+    enabled: computed(() => !!asCompId(compid)),
   }),
 
   /** Every date this climber has a tick on record, for the calendar highlight. */

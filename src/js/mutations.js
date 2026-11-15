@@ -2,6 +2,7 @@ import api from '@js/api'
 import { queryClient } from '@js/queryClient'
 import { useClimberStore } from '@js/stores/climber.store.js'
 import { pinia } from '@js/stores/index.js'
+import { asCompId } from '@js/queryKeyNames'
 
 /**
  * Every server write the app makes through TanStack Query, in one place.
@@ -156,28 +157,28 @@ export const mutations = {
   saveCheckpoint: () => ({
     mutationFn: (payload) => api.saveCheckpoint(payload),
     onSuccess: (data, payload) =>
-      queryClient.setQueryData(['competition', payload.compid], (old) => patchSavedCheckpoint(old, payload.problemid, data)),
+      queryClient.setQueryData(['competition', asCompId(payload.compid)], (old) => patchSavedCheckpoint(old, payload.problemid, data)),
   }),
 
   /** Same, through the public comp-key route. `payload` already carries point_entry_key (the caller attaches it). */
   publicSaveCheckpoint: () => ({
     mutationFn: (payload) => api.saveCheckpoint(payload, '/compkey'),
     onSuccess: (data, payload) =>
-      queryClient.setQueryData(['public-competition', payload.compid], (old) => patchSavedCheckpoint(old, payload.problemid, data)),
+      queryClient.setQueryData(['public-competition', asCompId(payload.compid)], (old) => patchSavedCheckpoint(old, payload.problemid, data)),
   }),
 
   /** Deletes a route's checkpoint row outright (the ladder's 'clear' action). */
   deleteCheckpoint: () => ({
     mutationFn: (payload) => api.deleteCheckpoint(payload),
     onSuccess: (data, payload) =>
-      queryClient.setQueryData(['competition', payload.compid], (old) => patchRemovedCheckpoint(old, payload.problemid)),
+      queryClient.setQueryData(['competition', asCompId(payload.compid)], (old) => patchRemovedCheckpoint(old, payload.problemid)),
   }),
 
   /** Same, through the public comp-key route. */
   publicDeleteCheckpoint: () => ({
     mutationFn: (payload) => api.deleteCheckpoint(payload, '/compkey'),
     onSuccess: (data, payload) =>
-      queryClient.setQueryData(['public-competition', payload.compid], (old) => patchRemovedCheckpoint(old, payload.problemid)),
+      queryClient.setQueryData(['public-competition', asCompId(payload.compid)], (old) => patchRemovedCheckpoint(old, payload.problemid)),
   }),
 
   /**
@@ -190,14 +191,14 @@ export const mutations = {
   getPointsPerRoute: () => ({
     mutationFn: (payload) => api.getPointsPerRoute(payload),
     onSuccess: (data, payload) =>
-      queryClient.setQueryData(['competition', payload.compid], (old) => (old == null ? old : { ...old, points_per_route: data })),
+      queryClient.setQueryData(['competition', asCompId(payload.compid)], (old) => (old == null ? old : { ...old, points_per_route: data })),
   }),
 
   /** Same, through the public comp-key route. */
   publicGetPointsPerRoute: () => ({
     mutationFn: (payload) => api.getPointsPerRoute(payload, '/compkey'),
     onSuccess: (data, payload) =>
-      queryClient.setQueryData(['public-competition', payload.compid], (old) => (old == null ? old : { ...old, points_per_route: data })),
+      queryClient.setQueryData(['public-competition', asCompId(payload.compid)], (old) => (old == null ? old : { ...old, points_per_route: data })),
   }),
 
   /**
@@ -211,7 +212,7 @@ export const mutations = {
   registerToComp: () => ({
     mutationFn: (payload) => api.registerToComp(payload),
     onSuccess: (data, payload) =>
-      queryClient.setQueryData(['competition', payload.compid], (old) => {
+      queryClient.setQueryData(['competition', asCompId(payload.compid)], (old) => {
         if (old == null) return old
         const row = data.participates
         return row.pivot.paid
@@ -229,7 +230,7 @@ export const mutations = {
   unRegisterToComp: () => ({
     mutationFn: (payload) => api.unRegisterToComp(payload),
     onSuccess: (data, payload) =>
-      queryClient.setQueryData(['competition', payload.compid], (old) => {
+      queryClient.setQueryData(['competition', asCompId(payload.compid)], (old) => {
         if (old == null) return old
         return {
           ...old,

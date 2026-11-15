@@ -4,6 +4,7 @@ import api from './api'
 import { useClimberStore } from './stores/climber.store.js'
 import { useRankingsStore } from './stores/rankings.store.js'
 import { pinia } from './stores/index.js'
+import { asCompId } from '@js/queryKeyNames'
 
 // The signed-in-or-public-point-entry climber's point_entry_key, if any —
 // read from the Pinia climber store (Task 1 of the Activity-group migration
@@ -41,16 +42,27 @@ const pointEntryKeyOf = () => useClimberStore(pinia).climber?.point_entry_key ??
 // no competition context and doesn't, so this is a no-op for them — the
 // same as the old addTickToCompetition/removeTickFromCompetition mutations'
 // `if (state.competition && ...)` guard being falsy on those pages.
+//
+// compid goes through asCompId (queryKeyNames.js) before it builds either
+// cache key: CompetitionEntry.vue/PublicCompetitionEntry.vue currently
+// always send a Number here (props.comp.id, off the fetched competition
+// JSON), but the query side of this same cache entry is keyed off a
+// Framework7 route param — always a string. Without normalizing both sides
+// the same way, this bridge would silently patch a cache entry the page's
+// own useQuery never observes (exactly the bug a review caught in
+// mutations.js's own cache patches — same fix, applied here too).
 const patchTickIntoCompetitionCache = (queryKeyName, compid, tick) => {
-  if (compid == null) return
-  queryClient.setQueryData([queryKeyName, compid], (old) => {
+  const id = asCompId(compid)
+  if (id == null) return
+  queryClient.setQueryData([queryKeyName, id], (old) => {
     if (old == null || old.userticks == null) return old
     return { ...old, userticks: { ...old.userticks, [tick.problemid]: tick } }
   })
 }
 const removeTickFromCompetitionCache = (queryKeyName, compid, problemid) => {
-  if (compid == null) return
-  queryClient.setQueryData([queryKeyName, compid], (old) => {
+  const id = asCompId(compid)
+  if (id == null) return
+  queryClient.setQueryData([queryKeyName, id], (old) => {
     if (old == null || old.userticks == null) return old
     const userticks = { ...old.userticks }
     delete userticks[problemid]

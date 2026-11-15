@@ -303,3 +303,41 @@ describe('mutations.addCheckpointJudging', () => {
     expect(ret).toEqual({ ok: true, checkpoint: 2 })
   })
 })
+
+/**
+ * Regression coverage for a bug a re-review caught in this file's own
+ * cache patches: `payload.compid` is not guaranteed to be a Number by the
+ * time it reaches one of these mutations — a caller that threaded a
+ * Framework7 route param straight through (always a string) rather than
+ * an already-fetched competition's `.id` would send a string. Without
+ * normalizing both sides the same way, `queries.competition`'s
+ * string-keyed entry (see test/queryKeys.compidTypeConsistency.test.js)
+ * and one of these mutations' setQueryData call would address two
+ * different cache entries. Every mutation that builds a
+ * ['competition'|'public-competition', compid] key goes through
+ * asCompId; these three (one per distinct cache-key shape this file
+ * writes — a checkpoint-style object patch, a plain field patch, and a
+ * list patch) stand in for all eight.
+ */
+describe('compid normalization: a string payload.compid still addresses the Number-keyed cache entry', () => {
+  it('saveCheckpoint', () => {
+    mutations.saveCheckpoint().onSuccess({ checkpoint: 1 }, { compid: '7', problemid: 42 })
+
+    const [key] = queryClient.setQueryData.mock.calls.at(-1)
+    expect(key).toEqual(['competition', 7])
+  })
+
+  it('getPointsPerRoute', () => {
+    mutations.getPointsPerRoute().onSuccess({}, { compid: '7' })
+
+    const [key] = queryClient.setQueryData.mock.calls.at(-1)
+    expect(key).toEqual(['competition', 7])
+  })
+
+  it('registerToComp', () => {
+    mutations.registerToComp().onSuccess({ participates: { pivot: { paid: true } } }, { compid: '7', category: 2 })
+
+    const [key] = queryClient.setQueryData.mock.calls.at(-1)
+    expect(key).toEqual(['competition', 7])
+  })
+})
