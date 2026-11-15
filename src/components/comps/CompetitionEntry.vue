@@ -429,6 +429,7 @@ const onDeleted = (id) => {
   const payload = {
     problemid: id,
     point_entry_key: climber.value.point_entry_key,
+    compid: props.comp.id,
   }
   store
     .dispatch('deleteTickByProblem', payload)
@@ -509,7 +510,7 @@ const ladders = useCheckpointLadders({
     setTries(pid, triesToTop)
     return saveTickFor(pid, isTriesAndBonusType.value ? triesBonus : undefined)
   },
-  deleteTop: (pid) => store.dispatch('deleteTickByProblem', { problemid: pid, point_entry_key: climber.value?.point_entry_key }),
+  deleteTop: (pid) => store.dispatch('deleteTickByProblem', { problemid: pid, point_entry_key: climber.value?.point_entry_key, compid: props.comp.id }),
   zonesFor: (prob) => ZONE_COUNTS[props.comp.tyyppi] ?? prob?.pivot?.checkpoints?.length ?? 0,
   saveCheckpoint: (payload) => saveCheckpointMutate(payload),
   deleteCheckpoint: (payload) => deleteCheckpointMutate(payload),
@@ -536,7 +537,7 @@ const saveSportScore = (id, score) => {
   // A route already topped is being lowered: the top tick would outrank the
   // new score, so it goes first.
   const untop = isTicked(id)
-    ? store.dispatch('deleteTickByProblem', { problemid: id, point_entry_key: climber.value?.point_entry_key })
+    ? store.dispatch('deleteTickByProblem', { problemid: id, point_entry_key: climber.value?.point_entry_key, compid: props.comp.id })
     : Promise.resolve()
   return untop
     .then(() => saveCheckpointMutate({ compid: props.comp.id, problemid: id, score }))
@@ -572,6 +573,7 @@ const saveTickFor = (id, triesBonus) => {
     problemid: id,
     sport_points: aSportPoints,
     grade_opinion: null,
+    compid: props.comp.id,
   }
   return store
     .dispatch('saveTick', payload)

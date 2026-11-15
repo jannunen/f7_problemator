@@ -1,5 +1,5 @@
 import { createStore } from "vuex";
-import { invalidateAfter } from '@js/queryClient'
+import { invalidateAfter, queryClient } from '@js/queryClient'
 import api from './api'
 import { useClimberStore } from './stores/climber.store.js'
 import { useRankingsStore } from './stores/rankings.store.js'
@@ -11,6 +11,52 @@ import { pinia } from './stores/index.js'
 // public-comp-key actions below need this; everything else about climber
 // identity now lives in useClimberStore.
 const pointEntryKeyOf = () => useClimberStore(pinia).climber?.point_entry_key ?? null
+
+// TEMPORARY bridge (Task 3 of the Activity-group migration plan added this;
+// Task 5 removes it entirely when it migrates saveTick/deleteTick/
+// deleteTickByProblem to mutations.js with their own onSuccess cache
+// updates into the homes Task 3 built).
+//
+// A tick write used to patch state.competition.userticks via the
+// addTickToCompetition/removeTickFromCompetition Vuex mutations just above.
+// Task 3 moved state.competition to the ['competition', compid] (or
+// ['public-competition', compid]) query cache and left those two mutations
+// in place, guarded on state.competition — which no longer exists, so they
+// silently became permanent no-ops. Without this bridge, ticking a route on
+// a competition page would never update the on-screen "ticked" state, and a
+// ladder Top would visibly revert once its optimistic local state yields
+// back to the (stale) server state.
+//
+// setQueryData, not invalidateQueries: useCheckpointLadders.js's optimistic
+// state falls back to serverState(prob) (which reads comp()?.userticks)
+// the instant topBusy clears, right after this save resolves — an
+// invalidate-and-refetch would leave a window, however short, where the
+// cache still shows the old userticks and the Top visibly reverts before
+// the refetch lands. A direct patch has no such window.
+//
+// Only callers that know which competition they're on
+// (CompetitionEntry.vue/PublicCompetitionEntry.vue) pass payload.compid;
+// every other saveTick/deleteTickByProblem caller (AddTick.vue,
+// SearchHitItem.vue, NewProblemItem.vue, TickList.vue, ArchivePage.vue) has
+// no competition context and doesn't, so this is a no-op for them — the
+// same as the old addTickToCompetition/removeTickFromCompetition mutations'
+// `if (state.competition && ...)` guard being falsy on those pages.
+const patchTickIntoCompetitionCache = (queryKeyName, compid, tick) => {
+  if (compid == null) return
+  queryClient.setQueryData([queryKeyName, compid], (old) => {
+    if (old == null || old.userticks == null) return old
+    return { ...old, userticks: { ...old.userticks, [tick.problemid]: tick } }
+  })
+}
+const removeTickFromCompetitionCache = (queryKeyName, compid, problemid) => {
+  if (compid == null) return
+  queryClient.setQueryData([queryKeyName, compid], (old) => {
+    if (old == null || old.userticks == null) return old
+    const userticks = { ...old.userticks }
+    delete userticks[problemid]
+    return { ...old, userticks }
+  })
+}
 
 export default createStore({
   namespaced: true,
@@ -39,9 +85,12 @@ export default createStore({
     // Still here for saveTick/deleteTick (Task 5's domain) to finish moving
     // and then remove — see this plan's Task 3/Task 5 coordination note.
     // state.competition no longer exists (Task 3 moved it to the
-    // ['competition', compid] query cache), so these are inert no-ops
-    // until Task 5 rewires them: harmless, since nothing reads
-    // state.competition any more either.
+    // ['competition', compid] query cache), so these two mutations
+    // themselves are now permanent no-ops — the actions below that commit
+    // them also call patchTickIntoCompetitionCache/
+    // removeTickFromCompetitionCache (defined above) as a temporary bridge
+    // into that cache, since leaving these as silent no-ops would mean a
+    // tick never updates the on-screen "ticked" state on a competition page.
     addTickToCompetition(state, payload) {
       if (state.competition && state.competition.userticks) {
         state.competition.userticks = {...state.competition.userticks, [payload.problemid] : payload}
@@ -73,12 +122,16 @@ export default createStore({
       if (pointEntryKeyOf() != null) {
         payload.point_entry_key = pointEntryKeyOf()
       }
-      const ret = await api.saveTick(payload,'/compkey')
+      // compid (see patchTickIntoCompetitionCache above) identifies the
+      // cache entry to patch; it is not part of the API's own tick payload.
+      const { compid, ...apiPayload } = payload
+      const ret = await api.saveTick(apiPayload,'/compkey')
       commit('updateProblem', ret.problem)
       // Update also tries in profile
       if (payload.ticktype=='tick') {
-        commit('addTicksAllTime',ret.tick) 
+        commit('addTicksAllTime',ret.tick)
         commit('addTickToCompetition',ret.tick)
+        patchTickIntoCompetitionCache('public-competition', compid, ret.tick)
       } else {
         commit('addTriesAllTime',ret.tick)
       }
@@ -86,9 +139,11 @@ export default createStore({
       return ret
     },
      async publicDeleteTickByProblem({ state,commit}, payload) {
-      const ret = await api.deleteTickByProblem(payload,'/compkey')
+      const { compid, ...apiPayload } = payload
+      const ret = await api.deleteTickByProblem(apiPayload,'/compkey')
       commit('removeTick',payload.problemid)
       commit('removeTickFromCompetition',payload.problemid)
+      removeTickFromCompetitionCache('public-competition', compid, payload.problemid)
       return ret
     },
     // These actions use the normal oauth
@@ -118,9 +173,11 @@ export default createStore({
       return ret
     },
      async deleteTickByProblem({ state,commit}, payload) {
-      const ret = await api.deleteTickByProblem(payload)
+      const { compid, ...apiPayload } = payload
+      const ret = await api.deleteTickByProblem(apiPayload)
       commit('removeTick',payload.problemid)
       commit('removeTickFromCompetition',payload.problemid)
+      removeTickFromCompetitionCache('competition', compid, payload.problemid)
       invalidateAfter('deleteTickByProblem')
       return ret
     },
@@ -136,12 +193,16 @@ export default createStore({
       if (pointEntryKeyOf() != null) {
         payload.point_entry_key = pointEntryKeyOf()
       }
-      const ret = await api.saveTick(payload)
+      // compid (see patchTickIntoCompetitionCache above) identifies the
+      // cache entry to patch; it is not part of the API's own tick payload.
+      const { compid, ...apiPayload } = payload
+      const ret = await api.saveTick(apiPayload)
       commit('updateProblem', ret.problem)
       // Update also tries in profile
       if (payload.ticktype=='tick') {
         commit('addTicksAllTime',ret.tick)
         commit('addTickToCompetition',ret.tick)
+        patchTickIntoCompetitionCache('competition', compid, ret.tick)
       } else {
         commit('addTriesAllTime',ret.tick)
       }

@@ -4,7 +4,7 @@ import { createSSRApp, h } from 'vue'
 import { renderToString } from '@vue/server-renderer'
 import { createI18n } from 'vue-i18n'
 import { createStore } from 'vuex'
-import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
+import { VueQueryPlugin } from '@tanstack/vue-query'
 import messages from '../src/js/i18n/messages.js'
 import { useClimberStore } from '../src/js/stores/climber.store.js'
 import { pinia } from '../src/js/stores/index.js'
@@ -33,6 +33,7 @@ vi.mock('@js/api.js', () => ({
 vi.mock('framework7-vue', () => ({ f7: { dialog: { confirm: vi.fn() }, notification: { create: () => ({ open() {} }) } } }))
 
 import api from '@js/api.js'
+import { queryClient } from '@js/queryClient'
 
 const CompetitionEntry = (await import('../src/components/comps/CompetitionEntry.vue')).default
 const PublicCompetitionEntry = (await import('../src/components/comps/PublicCompetitionEntry.vue')).default
@@ -81,21 +82,33 @@ const makeComp = (tyyppi, userticks = {}) => ({
 
 const render = async (Component, comp, locale = 'en', { actions = {}, onRow = null } = {}) => {
   // saveTick/deleteTickByProblem (Task 5's domain) still go through this
-  // fake Vuex store, and their fakes below still mutate state.competition.userticks
-  // the way the real actions do. state.competition is literally the SAME
-  // object as the `comp` prop passed to the component (not a copy), so that
-  // mutation is visible through props.comp too, with no separate bridging
-  // needed. Everything else competition-shaped (my_checkpoint*, points_per_route,
-  // results) now goes through the real queryKeys.js/mutations.js instead of
-  // this store (see the VueQueryPlugin install below).
+  // fake Vuex store. state.competition is deliberately NOT given here, and
+  // is NOT the same object as the `comp` prop below — production has no
+  // state.competition any more either (Task 3 removed it). A fake action
+  // that needs its write to be visible on screen has to say so explicitly
+  // (patching the query cache, or in this SSR harness, mutating `comp`
+  // directly — see renderLive below), the same way the real store.js
+  // bridge now does, rather than relying on the two objects coincidentally
+  // being the same reference the way an earlier version of this harness did
+  // (a test-only accident a real reviewer caught: it would have passed even
+  // if the real bridge were missing entirely).
   const store = createStore({
-    state: () => ({ competition: comp, alltime: { ticks: [] } }),
+    state: () => ({ alltime: { ticks: [] } }),
     actions: { ...actions },
   })
-  // A fresh client per render: nothing here needs the cache to survive past
-  // one render, and a shared one would leak saveCheckpoint/getCompResults
-  // call tracking between unrelated test cases.
-  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
+  // The real app-wide singleton (matching app.js's own
+  // app.use(VueQueryPlugin, { queryClient }) installation), not a fresh
+  // instance: mutations.js's saveCheckpoint/deleteCheckpoint/
+  // getPointsPerRoute onSuccess and store.js's tick-cache bridge both
+  // import and write to this exact singleton directly (not through Vue's
+  // provide/inject), so a fresh instance here would never see their
+  // writes. Cleared (not just overwritten) per render so unrelated test
+  // cases don't leak into each other, then re-seeded with this render's own
+  // `comp` under the key the real SingleCompetitionPage.vue/
+  // PublicSingleCompetitionPage.vue would cache it under.
+  const queryKeyName = Component === PublicCompetitionEntry ? 'public-competition' : 'competition'
+  queryClient.clear()
+  queryClient.setQueryData([queryKeyName, comp.id], comp)
   const app = createSSRApp({ render: () => h(Component, { comp }) })
   app.use(store)
   app.use(VueQueryPlugin, { queryClient })
@@ -194,18 +207,43 @@ const PUBLIC_ACTIONS = { saveTick: 'publicSaveTick', deleteTickByProblem: 'publi
 const renderLive = async (comp, { Component = CompetitionEntry, names = {} } = {}) => {
   const name = (n) => names[n] ?? n
   const rows = []
-  // Like the real actions: a saved tick lands in userticks, a checkpoint answers like the backend.
-  const saveTick = vi.fn(async ({ state }, p) => {
-    state.competition.userticks = { ...state.competition.userticks, [p.problemid]: { problemid: p.problemid, tries: p.tries, tries_bonus: p.tries_bonus } }
+  const queryKeyName = Component === PublicCompetitionEntry ? 'public-competition' : 'competition'
+  // There is no real DOM here to re-render after a cache patch (this is a
+  // single renderToString pass; see render() above), so `comp` itself —
+  // the exact object handed to the component as its `comp` prop — is
+  // mutated directly, standing in for "whatever a live useQuery observer
+  // would have re-rendered the component with." This is a deliberate
+  // test-harness device, not a rediscovery of the old
+  // state.competition === comp accident: there is no Vuex state involved
+  // in this mutation at all any more (state.competition does not exist,
+  // matching production), and the matching queryClient.setQueryData call
+  // below is a second, independent assertion surface proving the fakes
+  // mirror the real bridge's cache-key contract (store.js's
+  // patchTickIntoCompetitionCache/removeTickFromCompetitionCache), not just
+  // the component's own close-reading of a prop. (render() below seeds the
+  // cache with this same `comp`, under this same key, after its own
+  // queryClient.clear() — seeding here too would just be wiped by that.)
+  const patchUserticks = (tick) => {
+    comp.userticks = { ...comp.userticks, [tick.problemid]: tick }
+    queryClient.setQueryData([queryKeyName, comp.id], (old) => (old == null ? old : { ...old, userticks: comp.userticks }))
+  }
+  const removeUsertick = (problemid) => {
+    const rest = { ...comp.userticks }
+    delete rest[problemid]
+    comp.userticks = rest
+    queryClient.setQueryData([queryKeyName, comp.id], (old) => (old == null ? old : { ...old, userticks: comp.userticks }))
+  }
+  // Like the real actions (store.js's saveTick/deleteTickByProblem, plus
+  // the cache bridge they call): a saved tick lands in userticks.
+  const saveTick = vi.fn(async (_ctx, p) => {
+    patchUserticks({ problemid: p.problemid, tries: p.tries, tries_bonus: p.tries_bonus })
     return { new_badges: [] }
   })
   const saveCheckpoint = vi.fn(async (p) => ({ ok: true, applied: true, checkpoint: p.checkpoint, attempts: p.attempts ?? 0, zone_tries: p.zone_tries ?? {} }))
   api.saveCheckpoint.mockReset()
   api.saveCheckpoint.mockImplementation((payload) => saveCheckpoint(payload))
-  const deleteTickByProblem = vi.fn(async ({ state }, p) => {
-    const rest = { ...state.competition.userticks }
-    delete rest[p.problemid]
-    state.competition.userticks = rest
+  const deleteTickByProblem = vi.fn(async (_ctx, p) => {
+    removeUsertick(p.problemid)
     return { message: 'ok' }
   })
   const actions = { [name('saveTick')]: saveTick, [name('deleteTickByProblem')]: deleteTickByProblem }
@@ -324,6 +362,11 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     await live.ladder(2).onTop()
     expect(live.saveTick).toHaveBeenCalledTimes(1)
     expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 2, tries: 1, ticktype: 'tick' })
+    // The regression this task's review caught: a tick write used to be a
+    // silent no-op on the ['competition', compid] query cache (see
+    // store.tickCompetitionCache.test.js for the store-level proof of the
+    // real bridge). This checks the fake action mirrors that same contract.
+    expect(queryClient.getQueryData(['competition', 9]).userticks).toHaveProperty('2')
   })
 
   it.each(RUNG_TYPES)('reaching only the first %s rung saves a checkpoint, never a tick', async (tyyppi) => {
@@ -493,6 +536,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     await live.ladder(2).onTop()
     expect(live.saveTick).toHaveBeenCalledTimes(1)
     expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 2, tries: 1, ticktype: 'tick', point_entry_key: 'k' })
+    expect(queryClient.getQueryData(['public-competition', 9]).userticks).toHaveProperty('2')
   })
 
   it.each(RUNG_TYPES)('reaching only the first %s rung saves a public checkpoint with the key, never a tick', async (tyyppi) => {
@@ -511,7 +555,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     await l.onTop()
     await live.ladder(1).onUndo()
     expect(live.deleteTickByProblem).toHaveBeenCalledTimes(1)
-    expect(live.deleteTickByProblem.mock.calls[0][1]).toEqual({ problemid: 1, point_entry_key: 'k' })
+    expect(live.deleteTickByProblem.mock.calls[0][1]).toEqual({ problemid: 1, point_entry_key: 'k', compid: 9 })
   })
 
   it.each(ADDITIVE_TYPES)('%s: a Top after the bonus carries the bonus tries', async (tyyppi) => {
@@ -571,7 +615,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     const live = await livePublic(comp)
     live.input(0).onChange({ target: { value: '33+' } })
     await live.saveButton(0).onClick()
-    expect(live.deleteTickByProblem.mock.calls[0][1]).toEqual({ problemid: 1, point_entry_key: 'k' })
+    expect(live.deleteTickByProblem.mock.calls[0][1]).toEqual({ problemid: 1, point_entry_key: 'k', compid: 9 })
     expect(live.saveCheckpoint.mock.calls[0][0]).toEqual({ compid: 9, problemid: 1, score: 33.25, point_entry_key: 'k' })
     expect(live.deleteTickByProblem.mock.invocationCallOrder[0]).toBeLessThan(live.saveCheckpoint.mock.invocationCallOrder[0])
     expect(live.saveTick).not.toHaveBeenCalled()
