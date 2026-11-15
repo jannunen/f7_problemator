@@ -5,6 +5,8 @@ import api from './api'
 import { setAuthToken, readStoredToken } from './authToken.js'
 import home from "./store/home.store.js"
 import climbers from './store/climber.store.js'
+import { useUiStore } from './stores/ui.store.js'
+import { pinia } from './stores/index.js'
 
 // The server keeps the highest checkpoint: show what it stored, not what was tapped.
 const commitSavedCheckpoint = (commit, problemid, ret) => {
@@ -326,7 +328,7 @@ export default createStore({
         commit('climber', ret.climber)
         commit('profileLoaded', true )
         commit('setIsAuthenticated', true )
-        commit('setReady',true)
+        useUiStore(pinia).setReady(true)
         commit('serverVersion',ret.version)
         return state.profile
       }
@@ -582,7 +584,7 @@ export default createStore({
       commit('setAuthStep', 'idle')
       commit('setAuthEmail', '')
       commit('setAuthError', null)
-      commit('setReady', true)
+      useUiStore(pinia).setReady(true)
       clearSupabaseSession()
     },
     setUser({  commit}, payload) {
@@ -614,7 +616,7 @@ export default createStore({
     },
     async changeGym({state, commit, dispatch}, gymid) {
       localStorage.setItem('gymid', gymid)
-      commit('setReady',false)
+      useUiStore(pinia).setReady(false)
       commit('gymid' ,gymid)
       dispatch('getProfile')
     },
