@@ -155,7 +155,6 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 import { useMutation, useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
 import { mutations } from '@js/mutations'
@@ -173,8 +172,8 @@ import { tickPlace, tickGradeName } from '@js/helpers/tickPlace.js'
 import { right } from '@js/helpers'
 
 import { Bar } from 'vue-chartjs'
-const store = useStore()
 const { mutateAsync: deleteProject } = useMutation(mutations.deleteProject())
+const { mutateAsync: deleteTick } = useMutation(mutations.deleteTick())
 
 dayjs.extend(relativeTime)
 dayjs.extend(utc)
@@ -375,7 +374,7 @@ const onProjectDeleted = async (tick) => {
     await refreshArchiveDate()
 }
 const onDeleted = async (tick) => {
-    const resp = await store.dispatch('deleteTick', tick.id)
+    const resp = await deleteTick(tick.id)
     toaster(resp.message)
     await refreshArchiveDate()
 }

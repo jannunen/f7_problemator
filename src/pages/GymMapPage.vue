@@ -312,16 +312,15 @@
 <script setup>
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { f7 } from 'framework7-vue'
-import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { useProfileGym, useProfileProblems, useProfileStyles, useProfileWalls } from '@js/useProfileSlice.js'
+import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 const props = defineProps({
   f7router: Object,
 })
 
 const { t } = useI18n()
-const store = useStore()
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
 const svgRef = ref(null)
@@ -421,8 +420,9 @@ const filterTodo = ref(false)
 
 const allProblems = computed(() => Object.values(problems.value))
 const styles = useProfileStyles(gymid)
-const allTimeTicks = computed(() => store.state.alltime?.ticks || [])
-const allTimeTries = computed(() => store.state.alltime?.tries || [])
+const allTime = useAllTimeTicks()
+const allTimeTicks = computed(() => allTime.value.ticks)
+const allTimeTries = computed(() => allTime.value.tries)
 
 const tickedProblemIds = computed(() => new Set(allTimeTicks.value.map(t => String(t.problemid))))
 const projectProblemIds = computed(() => {

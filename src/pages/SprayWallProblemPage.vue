@@ -303,13 +303,13 @@ import GradeOpinions from '@components/ui/problem/GradeOpinions.vue'
 import { f7 } from 'framework7-vue'
 import PhotoAdjustControls from '@components/ui/PhotoAdjustControls.vue'
 import { usePhotoAdjust } from '@js/usePhotoAdjust'
-import { useStore } from 'vuex'
+import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 import { useAuthStore } from '@js/stores/auth.store.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 import AddTick from '@components/problem/AddTick.vue'
 
 const { t } = useI18n()
-const store = useStore()
+const allTime = useAllTimeTicks()
 const authStore = useAuthStore()
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
@@ -515,7 +515,7 @@ const canTick = computed(() => {
 const alreadyTicked = computed(() => {
   const id = problem.value?.id
   if (!id) return false
-  return (store.state.alltime?.ticks || []).some((tick) => tick.problemid == id)
+  return allTime.value.ticks.some((tick) => tick.problemid == id)
 })
 
 // `added` is a plain datetime string from the API; toLocaleDateString gives the

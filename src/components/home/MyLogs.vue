@@ -80,7 +80,6 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import { getAscentsByGrade } from '@helpers/component.helpers.js'
 import { Bar, Line } from 'vue-chartjs'
@@ -112,9 +111,9 @@ dayjs.extend(advancedFormat)
 dayjs.extend(weekOfYear)
 dayjs.extend(customParseFormat)
 import { useProfileGrades } from '@js/useProfileSlice.js'
+import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 
-const store = useStore()
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
 const props = defineProps({
@@ -125,8 +124,9 @@ const props = defineProps({
 })
 const { t } = useI18n()
 const grades = useProfileGrades(gymid)
-const ticks = computed(() => store.state.alltime.ticks)
-const tries = computed(() => store.state.alltime.tries)
+const allTime = useAllTimeTicks()
+const ticks = computed(() => allTime.value.ticks)
+const tries = computed(() => allTime.value.tries)
 const lastDays = ref(30)
 const showOfType = ref('boulder')
 const showDaysDropdown = ref(false)

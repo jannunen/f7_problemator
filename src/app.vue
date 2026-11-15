@@ -57,7 +57,6 @@ import { invalidate, queries } from '@js/queryKeys.js'
 import { useI18n } from 'vue-i18n'
 import { useQueryClient, useQuery } from '@tanstack/vue-query'
 import { watch, computed, ref } from 'vue'
-import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { useAuthStore } from '@js/stores/auth.store.js'
 import { useGymStore } from '@js/stores/gym.store.js'
@@ -71,20 +70,23 @@ export default {
   },
   setup() {
     const { t } = useI18n()
-    const store = useStore()
     const uiStore = useUiStore()
     const authStore = useAuthStore()
     const gymStore = useGymStore()
     const queryClient = useQueryClient()
-    const allTime = computed(() => store.state.alltime)
     const gymid = computed(() => gymStore.gymid)
     // No data read off this here — app.vue is the one place guaranteed to be
     // mounted for the whole authenticated session, so this is what makes
-    // sure the profile fetch (and its climber/rankingTarget/problems bridge
-    // into the still-live Vuex store — see queryKeys.js) starts the moment
-    // sign-in lands, rather than only incidentally whenever some page that
-    // happens to read gym/styles/grades/walls happens to mount.
+    // sure the profile fetch (and its climber/rankingTarget bridge into
+    // Pinia — see queryKeys.js) starts the moment sign-in lands, rather than
+    // only incidentally whenever some page that happens to read gym/styles/
+    // grades/walls happens to mount.
     const profileQuery = useQuery(queries.profile(gymid))
+    // Same reasoning for queries.allTimeTicks: this is the one place
+    // guaranteed to stay mounted for the whole session, so its gcTime never
+    // evicts the cache entry mutations.js's saveTick/deleteTick/
+    // deleteTickByProblem patch directly.
+    useQuery(queries.allTimeTicks())
     // The old getProfile dispatch's try/catch logged the climber out on ANY
     // rejection — a network error, a 500, not only an expired/invalid token
     // (a 401 that can't be refreshed already logs out on its own, via the
@@ -225,9 +227,6 @@ export default {
     // or failed fetch cannot strand it.
     watch(access_token, (newValue, oldValue) => {
       if (newValue != null && newValue != "" && newValue != "null") {
-        if (allTime.value.ticks.length == 0 && allTime.value.tries.length == 0) {
-          store.dispatch('loadAllTimeTicks')
-        }
         uiStore.setReady(true)
       }
       uiStore.setInitializing(false)
@@ -256,7 +255,6 @@ export default {
       activeTab,
       onTabSelect,
       t,
-      store,
       routes,
       isAuthenticated,
       historyRoot,

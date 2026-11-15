@@ -2,6 +2,7 @@ import api from '@js/api'
 import { queryClient, invalidateAfter } from '@js/queryClient'
 import { useClimberStore } from '@js/stores/climber.store.js'
 import { useGymStore } from '@js/stores/gym.store.js'
+import { useRankingsStore } from '@js/stores/rankings.store.js'
 import { pinia } from '@js/stores/index.js'
 import { asCompId } from '@js/queryKeyNames'
 
@@ -120,6 +121,87 @@ export const patchGymProblems = (updateProblems) => {
   queryClient.setQueryData(['profile', gymid], (old) => {
     if (old?.gym?.problems == null) return old
     return { ...old, gym: { ...old.gym, problems: updateProblems(old.gym.problems) } }
+  })
+}
+
+/**
+ * Attaches the signed-in (or public point-entry) climber's point_entry_key
+ * to a tick-save payload — the precondition saveTick/publicSaveTick's old
+ * actions both ran before calling the API:
+ * `if (state.climber?.point_entry_key != null) payload.point_entry_key = ...`.
+ *
+ * Reads Task 1's climber store directly (not threaded through the payload):
+ * every current saveTick/publicSaveTick caller already builds its own
+ * payload without this field, the same way the old action's callers did —
+ * this is the one place that attaches it, not each of the nine call sites.
+ *
+ * Returns the original payload unchanged (same reference) when there is no
+ * key to attach, so a mutation with no climber yet sends exactly the
+ * payload it was given.
+ */
+const withPointEntryKey = (payload) => {
+  const key = useClimberStore(pinia).climber?.point_entry_key
+  return key != null ? { ...payload, point_entry_key: key } : payload
+}
+
+/**
+ * Ported from store.js's patchProblemIntoProfileCache (the Task 4 bridge
+ * this task absorbs and removes): replaces the cached problem wholesale
+ * when found — matching the old `updateProblem`/`deleteTick` commits' own
+ * semantics, a plain replace, not a merge — and upserts it when not already
+ * cached, matching deleteProject's own patchGymProblems use just above.
+ */
+const patchTickedProblem = (problem) => {
+  if (problem == null) return
+  patchGymProblems((problems) => {
+    const idx = problems.findIndex((p) => p.id == problem.id)
+    if (idx === -1) return [...problems, problem]
+    return problems.map((p, i) => (i === idx ? problem : p))
+  })
+}
+
+/**
+ * Patches the cached `['alltime-ticks']` payload — `queries.allTimeTicks`'s
+ * own cache entry, replacing the Vuex `addTicksAllTime`/`addTriesAllTime`/
+ * `removeTick` mutations. `updateAllTime` gets the current `{ticks, tries}`
+ * and returns the next one; a no-op (returns `old` unchanged) while the
+ * query has not fetched yet, same safety every other setQueryData updater
+ * in this file has.
+ */
+const patchAllTimeTicks = (updateAllTime) => {
+  queryClient.setQueryData(['alltime-ticks'], (old) => (old == null ? old : updateAllTime(old)))
+}
+
+/**
+ * Ported from store.js's patchTickIntoCompetitionCache (the Task 3 bridge
+ * this task absorbs and removes): patches a tick into a cached
+ * competition's `userticks`, by problem id. `compid` goes through asCompId
+ * first — see queryKeyNames.js's own doc comment for why (a route-param
+ * string and an already-fetched competition's numeric `.id` must hash to
+ * the same cache entry).
+ *
+ * Only CompetitionEntry.vue/PublicCompetitionEntry.vue pass a compid; every
+ * other saveTick/publicSaveTick caller doesn't, and `asCompId(undefined)` is
+ * `undefined`, so this is a no-op for them.
+ */
+const patchCompetitionUserTick = (queryKeyName, compid, tick) => {
+  const id = asCompId(compid)
+  if (id == null) return
+  queryClient.setQueryData([queryKeyName, id], (old) => {
+    if (old == null || old.userticks == null) return old
+    return { ...old, userticks: { ...old.userticks, [tick.problemid]: tick } }
+  })
+}
+
+/** Ported from store.js's removeTickFromCompetitionCache — the other half of patchCompetitionUserTick above. */
+const removeCompetitionUserTick = (queryKeyName, compid, problemid) => {
+  const id = asCompId(compid)
+  if (id == null) return
+  queryClient.setQueryData([queryKeyName, id], (old) => {
+    if (old == null || old.userticks == null) return old
+    const userticks = { ...old.userticks }
+    delete userticks[problemid]
+    return { ...old, userticks }
   })
 }
 
@@ -431,5 +513,145 @@ export const mutations = {
       })
       invalidateAfter('deleteProject')
     },
+  }),
+
+  /**
+   * Log a send or a try/project. `payload` carries `ticktype` ('tick' for a
+   * send, anything else — 'pretick', or absent — for a try/project),
+   * `problemid`, and optionally `compid` when the caller is a competition
+   * page (CompetitionEntry.vue) rather than a plain route page. `compid`
+   * identifies which cached competition's `userticks` to patch below; it is
+   * not part of the API's own tick payload, so it is stripped before the
+   * call, exactly as the old action's `const {compid, ...apiPayload} = payload`
+   * did.
+   *
+   * onSuccess does everything the old saveTick action's four commits plus
+   * its two Task 3/Task 4 bridge calls did, now as this mutation's own
+   * permanent cache writes:
+   *   - patches the ticked problem into the profile cache (replaces
+   *     store.js's updateProblem commit + its patchProblemIntoProfileCache
+   *     bridge)
+   *   - pushes the new tick onto `['alltime-ticks']`'s ticks array (a send)
+   *     or tries array (a try/project) (replaces addTicksAllTime/
+   *     addTriesAllTime)
+   *   - for a send with a compid, patches it into the cached competition's
+   *     userticks (replaces addTickToCompetition + its
+   *     patchTickIntoCompetitionCache bridge)
+   *   - refetches rankings (replaces dispatch('rankings', {country: ...}))
+   *   - invalidates feed/newProblems/badges/rankings/publicAscents
+   */
+  saveTick: () => ({
+    mutationFn: (payload) => {
+      const { compid: _compid, ...rest } = withPointEntryKey(payload)
+      return api.saveTick(rest)
+    },
+    onSuccess: (data, payload) => {
+      patchTickedProblem(data.problem)
+      if (payload.ticktype === 'tick') {
+        patchAllTimeTicks((old) => ({ ...old, ticks: [...old.ticks, data.tick] }))
+        patchCompetitionUserTick('competition', payload.compid, data.tick)
+      } else {
+        patchAllTimeTicks((old) => ({ ...old, tries: [...old.tries, data.tick] }))
+      }
+      useRankingsStore(pinia).fetchRankings()
+      invalidateAfter('saveTick')
+    },
+  }),
+
+  /**
+   * Same, through the public comp-key route (the anonymous point-entry
+   * flow). Unlike `saveTick`, the old `publicSaveTick` action never called
+   * `invalidateAfter` — preserved as-is here, not newly added.
+   */
+  publicSaveTick: () => ({
+    mutationFn: (payload) => {
+      const { compid: _compid, ...rest } = withPointEntryKey(payload)
+      return api.saveTick(rest, '/compkey')
+    },
+    onSuccess: (data, payload) => {
+      patchTickedProblem(data.problem)
+      if (payload.ticktype === 'tick') {
+        patchAllTimeTicks((old) => ({ ...old, ticks: [...old.ticks, data.tick] }))
+        patchCompetitionUserTick('public-competition', payload.compid, data.tick)
+      } else {
+        patchAllTimeTicks((old) => ({ ...old, tries: [...old.tries, data.tick] }))
+      }
+      useRankingsStore(pinia).fetchRankings()
+    },
+  }),
+
+  /**
+   * Delete a tick by its own id (TickList.vue/ArchivePage.vue, where the
+   * climber is looking at a list of their own ticks and already has the
+   * tick id). `payload` is the bare tick id — api.deleteTick's own shape.
+   *
+   * Ported verbatim from store.js's deleteTick action: unlike
+   * deleteTickByProblem below, this never touched `['alltime-ticks']` even
+   * in the old action (no `removeTick` commit here) — not a regression to
+   * add now. It does patch the profile cache (replacing the old action's
+   * dead `commit('problems', ...)` — there was no `problems` mutation left
+   * for it to hit — plus its patchProblemIntoProfileCache bridge) and
+   * refetch rankings.
+   */
+  deleteTick: () => ({
+    mutationFn: (payload) => api.deleteTick(payload),
+    onSuccess: (data) => {
+      patchTickedProblem(data?.problem)
+      useRankingsStore(pinia).fetchRankings()
+      invalidateAfter('deleteTick')
+    },
+  }),
+
+  /**
+   * Delete a tick by problem id instead (competition ladders/steppers,
+   * where only the route is known, not a specific tick id — see
+   * CompetitionEntry.vue). `payload` is `{problemid, compid?}`; `compid`
+   * is stripped before the API call, same as saveTick above.
+   *
+   * Ported verbatim from store.js's deleteTickByProblem action: unlike
+   * saveTick/deleteTick, this never refetched rankings in the old action
+   * either — preserved as-is. Does remove the problem from
+   * `['alltime-ticks']` (replacing the old `removeTick` commit) and from
+   * the cached competition's userticks (replacing removeTickFromCompetition
+   * + its removeTickFromCompetitionCache bridge).
+   */
+  deleteTickByProblem: () => ({
+    mutationFn: (payload) => {
+      const { compid: _compid, ...rest } = payload
+      return api.deleteTickByProblem(rest)
+    },
+    onSuccess: (data, payload) => {
+      patchAllTimeTicks((old) => ({ ...old, ticks: old.ticks.filter((t) => t.problemid != payload.problemid) }))
+      removeCompetitionUserTick('competition', payload.compid, payload.problemid)
+      invalidateAfter('deleteTickByProblem')
+    },
+  }),
+
+  /**
+   * Same, through the public comp-key route. Like publicSaveTick, the old
+   * `publicDeleteTickByProblem` action never called `invalidateAfter`.
+   */
+  publicDeleteTickByProblem: () => ({
+    mutationFn: (payload) => {
+      const { compid: _compid, ...rest } = payload
+      return api.deleteTickByProblem(rest, '/compkey')
+    },
+    onSuccess: (data, payload) => {
+      patchAllTimeTicks((old) => ({ ...old, ticks: old.ticks.filter((t) => t.problemid != payload.problemid) }))
+      removeCompetitionUserTick('public-competition', payload.compid, payload.problemid)
+    },
+  }),
+
+  /**
+   * A climber with no ticks asks to have their pre-OTP (Auth0/social-login)
+   * ascent history re-linked to their account by email (ShowTickHelp.vue).
+   * No onSuccess: ShowTickHelp.vue reads the response itself (the message to
+   * show, before logging the climber out) and nothing else observes this
+   * mutation's pending/success state, so there is nothing for a cache patch
+   * or invalidation to do here — same as removeCompAscent/addCheckpointJudging
+   * above.
+   */
+  requestSync: () => ({
+    mutationFn: (payload) => api.requestSync(payload),
   }),
 }

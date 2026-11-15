@@ -26,10 +26,10 @@
   </f7-page>
 </template>
 <script setup>
-import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
 import { useProfileGrades, useProfileProblems } from '@js/useProfileSlice.js'
+import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 import CompletionBarChart from '@components/gym_completion/CompletionBarChart.vue'
 
@@ -37,10 +37,10 @@ const { t } = useI18n()
 const props = defineProps({
   f7router: Object,
 })
-const store = useStore()
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
-const ticks = computed(() => store.state.alltime.ticks)
+const allTime = useAllTimeTicks()
+const ticks = computed(() => allTime.value.ticks)
 const problems = useProfileProblems(gymid)
 const grades = useProfileGrades(gymid)
 

@@ -9,12 +9,12 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 import { useProfileProblems } from '@js/useProfileSlice.js'
+import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 import { Radar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -28,12 +28,12 @@ import {
 
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
 
-const store = useStore()
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
 const { t } = useI18n()
 
-const ticks = computed(() => store.state.alltime.ticks || [])
+const allTime = useAllTimeTicks()
+const ticks = computed(() => allTime.value.ticks)
 const problems = useProfileProblems(gymid)
 const { data: styles } = useQuery({ ...queries.profile(gymid), select: (data) => data.styles ?? [] })
 

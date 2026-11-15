@@ -3,12 +3,12 @@ import ScoreToday from '@components/home/ScoreToday.vue'
 import QrSearchSheet from '@components/ui/problem/QrSearchSheet.vue'
 import { f7 } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 import { ref, computed } from 'vue'
 import dayjs from 'dayjs'
+import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 const { t } = useI18n()
-const store = useStore()
-const allTicks = computed(() => store.state.alltime?.ticks || [])
+const allTime = useAllTimeTicks()
+const allTicks = computed(() => allTime.value.ticks)
 const ticksTodayLength = computed(() => allTicks.value.filter(x => dayjs(x.tstamp).isSame(dayjs(), 'date')).length)
 const navigateToArchive = () => {
   f7.views.main.router.navigate({ url: '/archive' })

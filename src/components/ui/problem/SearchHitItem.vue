@@ -92,7 +92,9 @@ import dayjs from 'dayjs'
 import relativeTime from "dayjs/plugin/relativeTime"
 import { toaster, alert } from '@js/helpers/notifications.js'
 import { ref,computed } from 'vue'
-import store from '@js/store.js'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations'
+import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 import { likeCount } from '@helpers/likes.js'
 
 dayjs.extend(relativeTime)
@@ -104,8 +106,10 @@ export default {
   setup(props, context) {
     const { t, tc } = useI18n()
     const swipingout = ref(false)
-    const ticks = computed(() => store.state.alltime.ticks)
-    const tries = computed(() => store.state.alltime.tries)
+    const allTime = useAllTimeTicks()
+    const ticks = computed(() => allTime.value.ticks)
+    const tries = computed(() => allTime.value.tries)
+    const { mutateAsync: saveTickMutate } = useMutation(mutations.saveTick())
 
     const isMyProject = (pid) => {
       return tries.value.find(x => x.problemid == pid)
@@ -127,7 +131,7 @@ export default {
       if (actualTick) {
         payload['ticktype'] = 'tick'
     }
-      store.dispatch('saveTick', payload)
+      saveTickMutate(payload)
         .then((resp) => {
           toaster(resp.message)
           if (resp.new_badges && resp.new_badges.length > 0) {

@@ -24,7 +24,7 @@
 <script setup>
 import { f7  } from 'framework7-vue'
 import { computed } from 'vue'
-import store from '@js/store.js'
+import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 import { useI18n } from 'vue-i18n'
 const { t } = useI18n()
 
@@ -32,7 +32,8 @@ const props = defineProps({
     gym: Object,
 })
 const problems = computed(() => props.gym?.problems ?? [])
-const ticks = computed(() => store.state.alltime.ticks ?? [])
+const allTime = useAllTimeTicks()
+const ticks = computed(() => allTime.value.ticks)
 
 // Computed rather than calculated once in setup. This card used to read its
 // numbers at mount and never again, so ticking a boulder left the percentage

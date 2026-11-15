@@ -249,6 +249,31 @@ export const queries = {
     enabled: computed(() => !!asCompId(compid)),
   }),
 
+  /**
+   * Every tick and try this climber has ever logged, across every gym —
+   * `loadAllTimeTicks`, moved here from store.js's `actions` block (Task 5 of
+   * the Activity-group migration plan). It never wrote anything of its own;
+   * it only fetched and committed, which makes it a read, not a write,
+   * despite having lived among the write actions until now.
+   *
+   * Behind auth:api, like gyms/competitions/feed/virtualCoach — same gate,
+   * same reason (a call before sign-in gets an unrecoverable 401).
+   *
+   * Fetched once per sign-in, like the old action it replaces (which only
+   * ever dispatched once, guarded on both arrays still being empty).
+   * mutations.js's saveTick/deleteTick/deleteTickByProblem (and their
+   * public-key siblings) patch this cache directly via setQueryData rather
+   * than invalidating it — the same "patches, not refetches" precedent
+   * queries.profile above already set, for the same reason: nothing here
+   * needs a round trip to the server to know what a write it just made did.
+   */
+  allTimeTicks: () => ({
+    queryKey: key('alltime-ticks'),
+    queryFn: () => api.loadAllTimeTicks(),
+    enabled: isAuthenticated,
+    staleTime: Infinity,
+  }),
+
   /** Every date this climber has a tick on record, for the calendar highlight. */
   archiveDates: () => ({
     queryKey: key('archive-dates'),

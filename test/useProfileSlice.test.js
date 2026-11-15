@@ -2,7 +2,6 @@ import { describe, it, expect, vi } from 'vitest'
 import { createSSRApp, h, effectScope, ref } from 'vue'
 import { renderToString } from '@vue/server-renderer'
 import { createI18n } from 'vue-i18n'
-import { createStore } from 'vuex'
 import { createPinia } from 'pinia'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import messages from '../src/js/i18n/messages.js'
@@ -108,14 +107,20 @@ describe('useProfileSlice', () => {
 })
 
 describe('components render with no profile data yet', () => {
-  const render = async (Component, state = {}) => {
-    const store = createStore({
-      state: () => ({ alltime: { ticks: [], tries: [] }, problems: {}, ...state }),
-    })
+  // Neither component reads Vuex any more (GymCompletionPage/ScoreToday
+  // both moved their alltime-ticks read to useAllTimeTicks.js, this plan's
+  // Task 5) — seeding goes into the ['alltime-ticks'] TanStack cache
+  // instead of a fake Vuex store's state.alltime. The cache is read
+  // regardless of queries.allTimeTicks's own isAuthenticated gate (there is
+  // no token in this test env, so the query itself never runs) — the same
+  // "seed the cache directly" pattern queryKeys.profile.test.js's render
+  // tests use.
+  const render = async (Component, { ticks = [], tries = [] } = {}) => {
+    const client = new QueryClient()
+    client.setQueryData(['alltime-ticks'], { ticks, tries })
     const app = createSSRApp({ render: () => h(Component) })
-    app.use(store)
     app.use(createPinia())
-    app.use(VueQueryPlugin, { queryClient: new QueryClient() })
+    app.use(VueQueryPlugin, { queryClient: client })
     app.use(createI18n({ legacy: false, locale: 'en', fallbackLocale: 'en', messages, missingWarn: false, fallbackWarn: false }))
     ;['f7-page', 'f7-navbar', 'f7-nav-left', 'f7-link', 'f7-nav-title', 'f7-block'].forEach((n) => app.component(n, stub(n)))
     app.config.warnHandler = () => {}
@@ -129,7 +134,7 @@ describe('components render with no profile data yet', () => {
 
   it('ScoreToday with a tick today (grades.value.find during render)', async () => {
     const tick = { tstamp: new Date().toISOString(), gradeid: 3, routetype: 'boulder', tries: 1 }
-    const html = await render(ScoreToday, { alltime: { ticks: [tick], tries: [] } })
+    const html = await render(ScoreToday, { ticks: [tick] })
     expect(html).toContain('score-today__block')
   })
 })

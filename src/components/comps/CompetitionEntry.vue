@@ -203,7 +203,6 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 import { useQuery, useMutation } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
 import { mutations } from '@js/mutations.js'
@@ -256,11 +255,12 @@ const getPointsPerProblem = (num) => {
   }
   return rule.points
 }
-const store = useStore()
 const climberStore = useClimberStore()
 const { mutateAsync: saveCheckpointMutate } = useMutation(mutations.saveCheckpoint())
 const { mutateAsync: deleteCheckpointMutate } = useMutation(mutations.deleteCheckpoint())
 const { mutateAsync: getPointsPerRouteMutate } = useMutation(mutations.getPointsPerRoute())
+const { mutateAsync: saveTickMutate } = useMutation(mutations.saveTick())
+const { mutateAsync: deleteTickByProblemMutate } = useMutation(mutations.deleteTickByProblem())
 const pointRules = computed(() => {
   const comp = props.comp
   if (comp.pointsharingobj == null) {
@@ -431,8 +431,7 @@ const onDeleted = (id) => {
     point_entry_key: climber.value.point_entry_key,
     compid: props.comp.id,
   }
-  store
-    .dispatch('deleteTickByProblem', payload)
+  deleteTickByProblemMutate(payload)
     .then((ret) => {
       // Forget the row's entered tries so it starts again from 1.
       const rest = { ...tries.value }
@@ -510,7 +509,7 @@ const ladders = useCheckpointLadders({
     setTries(pid, triesToTop)
     return saveTickFor(pid, isTriesAndBonusType.value ? triesBonus : undefined)
   },
-  deleteTop: (pid) => store.dispatch('deleteTickByProblem', { problemid: pid, point_entry_key: climber.value?.point_entry_key, compid: props.comp.id }),
+  deleteTop: (pid) => deleteTickByProblemMutate({ problemid: pid, point_entry_key: climber.value?.point_entry_key, compid: props.comp.id }),
   zonesFor: (prob) => ZONE_COUNTS[props.comp.tyyppi] ?? prob?.pivot?.checkpoints?.length ?? 0,
   saveCheckpoint: (payload) => saveCheckpointMutate(payload),
   deleteCheckpoint: (payload) => deleteCheckpointMutate(payload),
@@ -537,7 +536,7 @@ const saveSportScore = (id, score) => {
   // A route already topped is being lowered: the top tick would outrank the
   // new score, so it goes first.
   const untop = isTicked(id)
-    ? store.dispatch('deleteTickByProblem', { problemid: id, point_entry_key: climber.value?.point_entry_key, compid: props.comp.id })
+    ? deleteTickByProblemMutate({ problemid: id, point_entry_key: climber.value?.point_entry_key, compid: props.comp.id })
     : Promise.resolve()
   return untop
     .then(() => saveCheckpointMutate({ compid: props.comp.id, problemid: id, score }))
@@ -575,8 +574,7 @@ const saveTickFor = (id, triesBonus) => {
     grade_opinion: null,
     compid: props.comp.id,
   }
-  return store
-    .dispatch('saveTick', payload)
+  return saveTickMutate(payload)
     .then((ret) => {
       tries.value[id] = { ...tries.value[id], ticked: true }
       toaster(t('comps.tick_saved'))

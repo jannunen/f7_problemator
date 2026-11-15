@@ -26,19 +26,19 @@ import { calculatePoints } from '@/js/helpers'
 import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 import { useProfileGrades } from '@js/useProfileSlice.js'
+import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 
 const { t } = useI18n()
-const store = useStore()
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
 const grades = useProfileGrades(gymid)
 const ticksTodayLength = computed(() => ticks.value.length)
 const triesTodayLength = computed(() => tries.value.length)
-const allTicks = computed(() => store.state.alltime.ticks)
-const allTries = computed(() => store.state.alltime.tries)
+const allTime = useAllTimeTicks()
+const allTicks = computed(() => allTime.value.ticks)
+const allTries = computed(() => allTime.value.tries)
 const ticks = computed(() => allTicks.value.filter(x => {
   return  dayjs(x.tstamp).isSame(dayjs(),'date')
 }))

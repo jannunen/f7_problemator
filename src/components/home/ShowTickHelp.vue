@@ -49,13 +49,14 @@
 import { useI18n } from 'vue-i18n'
 import { tipShown } from '@js/helpers'
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { useAuthStore } from '@js/stores/auth.store.js'
 import { useClimberStore } from '@js/stores/climber.store.js'
 import { f7  } from 'framework7-vue'
 
-const store = useStore()
+const { mutateAsync: requestSyncMutate } = useMutation(mutations.requestSync())
 const uiStore = useUiStore()
 const authStore = useAuthStore()
 const climberStore = useClimberStore()
@@ -70,7 +71,7 @@ const startSync = (which) => {
     climberid : climber.value.id,
     email : email.value
   }
-  store.dispatch('requestSync', payload)
+  requestSyncMutate(payload)
   .then(resp => {
     ret.value = resp
     requestDone.value = true

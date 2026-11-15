@@ -1,5 +1,6 @@
 <script setup>
-import { useStore } from 'vuex'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations'
 import dayjs from 'dayjs'
 import { f7 } from 'framework7-vue'
 import { ref, computed, onMounted } from 'vue'
@@ -9,7 +10,7 @@ import PopupGradeOpinion from '@components/problem/GradeOpinion.vue'
 import PopupTickDate from '@components/problem/TickDate.vue'
 import { useProfileGrades } from '@js/useProfileSlice.js'
 import { useGymStore } from '@js/stores/gym.store.js'
-const store = useStore()
+const { mutateAsync: saveTickMutate } = useMutation(mutations.saveTick())
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
 
@@ -59,7 +60,7 @@ const saveTick = () => {
   if (missingGrade.value) return
 
   let payload = { ...tick.value }
-  store.dispatch('saveTick', payload)
+  saveTickMutate(payload)
     .then((resp) => {
       toaster(resp.message)
       // Show badge earned notifications

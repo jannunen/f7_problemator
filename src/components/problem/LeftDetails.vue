@@ -81,7 +81,6 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import {f7 } from 'framework7-vue'
-import { useStore } from 'vuex'
 import { useMutation } from '@tanstack/vue-query'
 import { mutations } from '@js/mutations'
 import { useAuthStore } from '@js/stores/auth.store.js'
@@ -91,7 +90,7 @@ import { confirm } from '@js/helpers/notifications.js'
 import RoundBadge from '@components/ui/RoundBadge.vue'
 import PopupListTicks from '@components/ui/problem/TickList.vue'
 import { getSessionCount } from '@helpers/component.helpers.js'
-const store = useStore()
+import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 const authStore = useAuthStore()
 const { mutate: likeProblem } = useMutation(mutations.likeProblem())
 const { mutate: dislikeProblem } = useMutation(mutations.dislikeProblem())
@@ -103,8 +102,9 @@ const props = defineProps({
   problem: Object,
 })
 const emit = defineEmits(['open-my-ticks', 'show-public-ascents','show-comments'])
-const ticks = computed(() => store.state.alltime.ticks)
-const tries = computed(() => store.state.alltime.tries)
+const allTime = useAllTimeTicks()
+const ticks = computed(() => allTime.value.ticks)
+const tries = computed(() => allTime.value.tries)
 const showPublicAscents = () => {
   emit('show-public-ascents', props.problem.id)
 }

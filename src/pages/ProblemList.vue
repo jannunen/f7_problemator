@@ -189,6 +189,7 @@ import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 import { useProfileGrades, useProfileGym, useProfileProblems, useProfileStyles, useProfileWalls } from '@js/useProfileSlice.js'
+import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 import { useI18n } from 'vue-i18n'
 import GradeFilter from '@components/ui/problemlist/GradeFilter.vue'
 import StyleFilter from '@components/ui/problemlist/StyleFilter.vue'
@@ -270,8 +271,9 @@ const grades = useProfileGrades(gymid)
 const tipShowStatus = computed(() => uiStore.tipShowStatus)
 const loading = computed(() => store.state.loading)
 
-const ticks = computed(() => store.state.alltime.ticks)
-const tries = computed(() => store.state.alltime.tries)
+const allTime = useAllTimeTicks()
+const ticks = computed(() => allTime.value.ticks)
+const tries = computed(() => allTime.value.tries)
 const selectedWalls = ref([])
 const filters = computed(() => uiStore.filters)
 const nameFilter = ref('')

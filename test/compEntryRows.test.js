@@ -3,7 +3,6 @@ import { readFileSync } from 'fs'
 import { createSSRApp, h } from 'vue'
 import { renderToString } from '@vue/server-renderer'
 import { createI18n } from 'vue-i18n'
-import { createStore } from 'vuex'
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import messages from '../src/js/i18n/messages.js'
 import { useClimberStore } from '../src/js/stores/climber.store.js'
@@ -13,12 +12,14 @@ import { pinia } from '../src/js/stores/index.js'
 // Framework7's components stubbed, and the HTML inspected.
 // The helpers barrel pulls in auth/browser-only code; the rows only need
 // right() from it. The api module needs real functions now too: saveCheckpoint/
-// deleteCheckpoint/getCompResults/getPointsPerRoute all go through
-// mutations.js/queryKeys.js (real, unmocked, so their own onSuccess cache
-// patches and queryFn bodies run for real) rather than through a Vuex
-// dispatch stand-in, as saveCheckpoint/getCompResults/getPointsPerRoute used
-// to. saveTick/deleteTickByProblem (Task 5's domain) still go through the
-// fake Vuex store below, unaffected by this task.
+// deleteCheckpoint/getCompResults/getPointsPerRoute/saveTick/
+// deleteTickByProblem/ranking all go through mutations.js/queryKeys.js
+// (real, unmocked, so their own onSuccess cache patches and queryFn bodies
+// run for real) rather than through a Vuex dispatch stand-in, as
+// saveTick/deleteTickByProblem used to before Task 5 of the Activity-group
+// migration plan moved them off Vuex too. `ranking` is mocked only because
+// saveTick/publicSaveTick's real onSuccess calls useRankingsStore(pinia).
+// fetchRankings(), which would otherwise hit this unmocked endpoint.
 vi.mock('@js/helpers', async () => ({ right: (await import('../src/js/helpers/utils.js')).right, handleValidationErrors: () => '' }))
 vi.mock('@js/api.js', () => ({
   webendpoint: '',
@@ -28,6 +29,9 @@ vi.mock('@js/api.js', () => ({
     getPointsPerRoute: vi.fn().mockResolvedValue({}),
     saveCheckpoint: vi.fn(),
     deleteCheckpoint: vi.fn().mockResolvedValue({ ok: true }),
+    saveTick: vi.fn(),
+    deleteTickByProblem: vi.fn(),
+    ranking: vi.fn().mockResolvedValue({}),
   },
 }))
 vi.mock('framework7-vue', () => ({ f7: { dialog: { confirm: vi.fn() }, notification: { create: () => ({ open() {} }) } } }))
@@ -80,27 +84,12 @@ const makeComp = (tyyppi, userticks = {}) => ({
   nbest: 3,
 })
 
-const render = async (Component, comp, locale = 'en', { actions = {}, onRow = null } = {}) => {
-  // saveTick/deleteTickByProblem (Task 5's domain) still go through this
-  // fake Vuex store. state.competition is deliberately NOT given here, and
-  // is NOT the same object as the `comp` prop below — production has no
-  // state.competition any more either (Task 3 removed it). A fake action
-  // that needs its write to be visible on screen has to say so explicitly
-  // (patching the query cache, or in this SSR harness, mutating `comp`
-  // directly — see renderLive below), the same way the real store.js
-  // bridge now does, rather than relying on the two objects coincidentally
-  // being the same reference the way an earlier version of this harness did
-  // (a test-only accident a real reviewer caught: it would have passed even
-  // if the real bridge were missing entirely).
-  const store = createStore({
-    state: () => ({ alltime: { ticks: [] } }),
-    actions: { ...actions },
-  })
+const render = async (Component, comp, locale = 'en', { onRow = null } = {}) => {
   // The real app-wide singleton (matching app.js's own
   // app.use(VueQueryPlugin, { queryClient }) installation), not a fresh
   // instance: mutations.js's saveCheckpoint/deleteCheckpoint/
-  // getPointsPerRoute onSuccess and store.js's tick-cache bridge both
-  // import and write to this exact singleton directly (not through Vue's
+  // getPointsPerRoute/saveTick/deleteTickByProblem onSuccess all import and
+  // write to this exact singleton directly (not through Vue's
   // provide/inject), so a fresh instance here would never see their
   // writes. Cleared (not just overwritten) per render so unrelated test
   // cases don't leak into each other, then re-seeded with this render's own
@@ -110,7 +99,6 @@ const render = async (Component, comp, locale = 'en', { actions = {}, onRow = nu
   queryClient.clear()
   queryClient.setQueryData([queryKeyName, comp.id], comp)
   const app = createSSRApp({ render: () => h(Component, { comp }) })
-  app.use(store)
   app.use(VueQueryPlugin, { queryClient })
   // missingWarn: the sport row's placeholder is the untranslated literal t('Enter points').
   app.use(createI18n({ legacy: false, locale, fallbackLocale: 'en', messages, missingWarn: false }))
@@ -198,62 +186,52 @@ const walk = (nodes, out = []) => {
   }
   return out
 }
-// The point-entry-key page dispatches the public* variants of saveTick/
-// deleteTickByProblem (Task 5's domain, still real Vuex actions). saveCheckpoint
-// is no longer a Vuex action for either page — both now call the same
-// api.saveCheckpoint (mutations.saveCheckpoint/publicSaveCheckpoint differ
-// only in the prefix argument, which this test does not need to distinguish).
-const PUBLIC_ACTIONS = { saveTick: 'publicSaveTick', deleteTickByProblem: 'publicDeleteTickByProblem' }
-const renderLive = async (comp, { Component = CompetitionEntry, names = {} } = {}) => {
-  const name = (n) => names[n] ?? n
+const renderLive = async (comp, { Component = CompetitionEntry } = {}) => {
   const rows = []
-  const queryKeyName = Component === PublicCompetitionEntry ? 'public-competition' : 'competition'
   // There is no real DOM here to re-render after a cache patch (this is a
   // single renderToString pass; see render() above), so `comp` itself —
   // the exact object handed to the component as its `comp` prop — is
-  // mutated directly, standing in for "whatever a live useQuery observer
-  // would have re-rendered the component with." This is a deliberate
-  // test-harness device, not a rediscovery of the old
-  // state.competition === comp accident: there is no Vuex state involved
-  // in this mutation at all any more (state.competition does not exist,
-  // matching production), and the matching queryClient.setQueryData call
-  // below is a second, independent assertion surface proving the fakes
-  // mirror the real bridge's cache-key contract (store.js's
-  // patchTickIntoCompetitionCache/removeTickFromCompetitionCache), not just
-  // the component's own close-reading of a prop. (render() below seeds the
-  // cache with this same `comp`, under this same key, after its own
-  // queryClient.clear() — seeding here too would just be wiped by that.)
+  // mutated directly here, standing in for what a live useQuery observer
+  // bound to `props.comp` would have re-rendered the component with once
+  // mutations.saveTick/deleteTickByProblem's REAL onSuccess (exercised for
+  // real below, via the mocked api.saveTick/api.deleteTickByProblem) patched
+  // the ['competition'|'public-competition', compid] query cache.
+  // useCheckpointLadders.js's `comp()?.userticks` (comp is a getter,
+  // `() => props.comp`) reads this live on every call — e.g. to decide undo
+  // vs top on a ladder's next action — so without this the ladder would
+  // keep acting on stale userticks for the rest of this render.
   const patchUserticks = (tick) => {
     comp.userticks = { ...comp.userticks, [tick.problemid]: tick }
-    queryClient.setQueryData([queryKeyName, comp.id], (old) => (old == null ? old : { ...old, userticks: comp.userticks }))
   }
   const removeUsertick = (problemid) => {
     const rest = { ...comp.userticks }
     delete rest[problemid]
     comp.userticks = rest
-    queryClient.setQueryData([queryKeyName, comp.id], (old) => (old == null ? old : { ...old, userticks: comp.userticks }))
   }
-  // Like the real actions (store.js's saveTick/deleteTickByProblem, plus
-  // the cache bridge they call): a saved tick lands in userticks.
-  const saveTick = vi.fn(async (_ctx, p) => {
-    patchUserticks({ problemid: p.problemid, tries: p.tries, tries_bonus: p.tries_bonus })
-    return { new_badges: [] }
+  api.saveTick.mockReset()
+  api.deleteTickByProblem.mockReset()
+  // Mirrors what the real endpoint returns: {problem, tick, new_badges}.
+  // Only a real tick (ticktype 'tick') lands in userticks — a try/project
+  // never does, matching mutations.saveTick's own ticktype branch.
+  api.saveTick.mockImplementation(async (payload) => {
+    const tick = { problemid: payload.problemid, tries: payload.tries, tries_bonus: payload.tries_bonus, sport_points: payload.sport_points }
+    if (payload.ticktype === 'tick') patchUserticks(tick)
+    return { problem: { id: payload.problemid }, tick, new_badges: [] }
+  })
+  api.deleteTickByProblem.mockImplementation(async (payload) => {
+    removeUsertick(payload.problemid)
+    return { message: 'ok' }
   })
   const saveCheckpoint = vi.fn(async (p) => ({ ok: true, applied: true, checkpoint: p.checkpoint, attempts: p.attempts ?? 0, zone_tries: p.zone_tries ?? {} }))
   api.saveCheckpoint.mockReset()
   api.saveCheckpoint.mockImplementation((payload) => saveCheckpoint(payload))
-  const deleteTickByProblem = vi.fn(async (_ctx, p) => {
-    removeUsertick(p.problemid)
-    return { message: 'ok' }
-  })
-  const actions = { [name('saveTick')]: saveTick, [name('deleteTickByProblem')]: deleteTickByProblem }
-  const html = await render(Component, comp, 'en', { actions, onRow: (vnodes) => rows.push(vnodes) })
+  const html = await render(Component, comp, 'en', { onRow: (vnodes) => rows.push(vnodes) })
   const ladder = (pid) => walk(rows).find((n) => n.type === CheckpointLadder && n.props?.problem?.id === pid).props
   // Rows that have a problem in them, in the page's order (problem 1, problem 2).
   const problemRows = rows.filter((r) => walk(r).some((n) => n.type === PButton || n.type === CheckpointLadder))
   const input = (i) => walk(problemRows[i]).find((n) => n.type === 'input').props
   const saveButton = (i) => walk(problemRows[i]).find((n) => n.type === PButton).props
-  return { html, ladder, input, saveButton, saveTick, saveCheckpoint, deleteTickByProblem }
+  return { html, ladder, input, saveButton, saveTick: api.saveTick, saveCheckpoint: api.saveCheckpoint, deleteTickByProblem: api.deleteTickByProblem }
 }
 const sportComp = () => ({
   ...makeComp('sport'),
@@ -289,23 +267,23 @@ describe.each([['CompetitionEntry', CompetitionEntry], ['PublicCompetitionEntry'
 
 // Tops saved by the old stepper UI: no checkpoint row, the counts are on the tick only.
 describe.each([
-  ['CompetitionEntry', CompetitionEntry, {}],
-  ['PublicCompetitionEntry', PublicCompetitionEntry, PUBLIC_ACTIONS],
-])('%s: correcting a Top saved before the ladders', (_, Component, names) => {
+  ['CompetitionEntry', CompetitionEntry],
+  ['PublicCompetitionEntry', PublicCompetitionEntry],
+])('%s: correcting a Top saved before the ladders', (_, Component) => {
   it.each(ADDITIVE_TYPES)('%s keeps the tick\'s own tries_bonus', async (tyyppi) => {
-    const live = await renderLive(makeComp(tyyppi, { 1: { problemid: 1, tries: 5, tries_bonus: 2 } }), { Component, names })
+    const live = await renderLive(makeComp(tyyppi, { 1: { problemid: 1, tries: 5, tries_bonus: 2 } }), { Component })
     live.ladder(1).onEdit(2, 4)
     await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(1), { timeout: 2000 })
-    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 4, tries_bonus: 2 })
+    expect(live.saveTick.mock.calls[0][0]).toMatchObject({ problemid: 1, tries: 4, tries_bonus: 2 })
   })
 
   // Unusable old zones (above the tries) are not loaded, so nothing holds the correction up.
   it('ifsc_2024_bouldering: the top tick is saved without the old zone fields', async () => {
     const legacy = { 1: { problemid: 1, tries: 5, tries_bonus: 0, attempts_low_zone: 3, attempts_high_zone: 6 } }
-    const live = await renderLive(makeComp('ifsc_2024_bouldering', legacy), { Component, names })
+    const live = await renderLive(makeComp('ifsc_2024_bouldering', legacy), { Component })
     live.ladder(1).onEdit(3, 2)
     await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(1), { timeout: 2000 })
-    const payload = live.saveTick.mock.calls[0][1]
+    const payload = live.saveTick.mock.calls[0][0]
     expect(payload).toMatchObject({ problemid: 1, tries: 2 })
     expect(payload).not.toHaveProperty('attempts_low_zone')
     expect(payload).not.toHaveProperty('attempts_high_zone')
@@ -313,12 +291,12 @@ describe.each([
 
   it('ifsc_2024_bouldering: a Top correction writes the old zone counts, not the corrected tries', async () => {
     const legacy = { 1: { problemid: 1, tries: 5, tries_bonus: 0, attempts_low_zone: 2, attempts_high_zone: 3 } }
-    const live = await renderLive(makeComp('ifsc_2024_bouldering', legacy), { Component, names })
+    const live = await renderLive(makeComp('ifsc_2024_bouldering', legacy), { Component })
     live.ladder(1).onEdit(3, 4)
     await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(1), { timeout: 2000 })
     expect(live.saveCheckpoint.mock.calls.at(-1)[0]).toMatchObject({ problemid: 1, checkpoint: 2, attempts: 4, zone_tries: { 1: 2, 2: 3 }, replace: true })
-    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 4 })
-    expect(live.saveTick.mock.calls[0][1]).not.toHaveProperty('attempts_high_zone')
+    expect(live.saveTick.mock.calls[0][0]).toMatchObject({ problemid: 1, tries: 4 })
+    expect(live.saveTick.mock.calls[0][0]).not.toHaveProperty('attempts_high_zone')
   })
 })
 
@@ -361,7 +339,7 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     const live = await renderLive(makeComp(tyyppi))
     await live.ladder(2).onTop()
     expect(live.saveTick).toHaveBeenCalledTimes(1)
-    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 2, tries: 1, ticktype: 'tick' })
+    expect(live.saveTick.mock.calls[0][0]).toMatchObject({ problemid: 2, tries: 1, ticktype: 'tick' })
     // The regression this task's review caught: a tick write used to be a
     // silent no-op on the ['competition', compid] query cache (see
     // store.tickCompetitionCache.test.js for the store-level proof of the
@@ -385,7 +363,7 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     l.onTry()
     l.onTry()
     await l.onTop()
-    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 2, tries_bonus: 2 })
+    expect(live.saveTick.mock.calls[0][0]).toMatchObject({ problemid: 1, tries: 2, tries_bonus: 2 })
   })
 
   it.each(ADDITIVE_TYPES)('%s: a Top after the bonus carries the bonus tries', async (tyyppi) => {
@@ -396,7 +374,7 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     l.onReached()
     l.onTry()
     await l.onTop()
-    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 2 })
+    expect(live.saveTick.mock.calls[0][0]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 2 })
   })
 
   it.each(ADDITIVE_TYPES)('%s: correcting the bonus after a Top saves the tick again', async (tyyppi) => {
@@ -408,7 +386,7 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     await l.onTop()
     l.onEdit(1, 2)
     await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(2), { timeout: 2000 })
-    expect(live.saveTick.mock.calls[1][1]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 2 })
+    expect(live.saveTick.mock.calls[1][0]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 2 })
   })
 
   it('ifsc_2024_bouldering: the top tick keeps its old tries_bonus, and a zone correction does not save it again', async () => {
@@ -418,7 +396,7 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     l.onTry()
     l.onTry()
     await l.onTop()
-    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 0 })
+    expect(live.saveTick.mock.calls[0][0]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 0 })
     l.onEdit(1, 2)
     await vi.waitFor(() => expect(live.saveCheckpoint.mock.calls.some((c) => c[0].replace)).toBe(true), { timeout: 2000 })
     expect(live.saveTick).toHaveBeenCalledTimes(1)
@@ -454,7 +432,7 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     live.input(0).onChange({ target: { value: '33+' } })
     await live.saveButton(0).onClick()
     expect(live.deleteTickByProblem).toHaveBeenCalledTimes(1)
-    expect(live.deleteTickByProblem.mock.calls[0][1]).toMatchObject({ problemid: 1 })
+    expect(live.deleteTickByProblem.mock.calls[0][0]).toMatchObject({ problemid: 1 })
     expect(live.saveCheckpoint.mock.calls[0][0]).toEqual({ compid: 9, problemid: 1, score: 33.25 })
     expect(live.deleteTickByProblem.mock.invocationCallOrder[0]).toBeLessThan(live.saveCheckpoint.mock.invocationCallOrder[0])
     expect(live.saveTick).not.toHaveBeenCalled()
@@ -481,13 +459,13 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     live.input(1).onChange({ target: { value: '1000' } })
     live.saveButton(1).onClick()
     await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(1))
-    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 2, sport_points: '1000' })
+    expect(live.saveTick.mock.calls[0][0]).toMatchObject({ problemid: 2, sport_points: '1000' })
     expect(live.saveCheckpoint).not.toHaveBeenCalled()
   })
 })
 
 describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
-  const livePublic = (comp) => renderLive(comp, { Component: PublicCompetitionEntry, names: PUBLIC_ACTIONS })
+  const livePublic = (comp) => renderLive(comp, { Component: PublicCompetitionEntry })
 
   it.each(ADDITIVE_TYPES)('%s renders a Bonus + Top ladder per problem, not the stepper pair', async (tyyppi) => {
     const html = await render(PublicCompetitionEntry, makeComp(tyyppi))
@@ -535,7 +513,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     const live = await livePublic(makeComp(tyyppi))
     await live.ladder(2).onTop()
     expect(live.saveTick).toHaveBeenCalledTimes(1)
-    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 2, tries: 1, ticktype: 'tick', point_entry_key: 'k' })
+    expect(live.saveTick.mock.calls[0][0]).toMatchObject({ problemid: 2, tries: 1, ticktype: 'tick', point_entry_key: 'k' })
     expect(queryClient.getQueryData(['public-competition', 9]).userticks).toHaveProperty('2')
   })
 
@@ -555,7 +533,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     await l.onTop()
     await live.ladder(1).onUndo()
     expect(live.deleteTickByProblem).toHaveBeenCalledTimes(1)
-    expect(live.deleteTickByProblem.mock.calls[0][1]).toEqual({ problemid: 1, point_entry_key: 'k', compid: 9 })
+    expect(live.deleteTickByProblem.mock.calls[0][0]).toEqual({ problemid: 1, point_entry_key: 'k' })
   })
 
   it.each(ADDITIVE_TYPES)('%s: a Top after the bonus carries the bonus tries', async (tyyppi) => {
@@ -566,7 +544,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     l.onReached()
     l.onTry()
     await l.onTop()
-    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 2 })
+    expect(live.saveTick.mock.calls[0][0]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 2 })
   })
 
   it.each(ADDITIVE_TYPES)('%s: correcting the bonus after a Top saves the tick again', async (tyyppi) => {
@@ -578,7 +556,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     await l.onTop()
     l.onEdit(1, 2)
     await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(2), { timeout: 2000 })
-    expect(live.saveTick.mock.calls[1][1]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 2 })
+    expect(live.saveTick.mock.calls[1][0]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 2 })
   })
 
   it('ifsc_2024_bouldering: the top tick keeps its old tries_bonus, and a zone correction does not save it again', async () => {
@@ -588,7 +566,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     l.onTry()
     l.onTry()
     await l.onTop()
-    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 0 })
+    expect(live.saveTick.mock.calls[0][0]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 0 })
     l.onEdit(1, 2)
     await vi.waitFor(() => expect(live.saveCheckpoint.mock.calls.some((c) => c[0].replace)).toBe(true), { timeout: 2000 })
     expect(live.saveTick).toHaveBeenCalledTimes(1)
@@ -615,7 +593,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     const live = await livePublic(comp)
     live.input(0).onChange({ target: { value: '33+' } })
     await live.saveButton(0).onClick()
-    expect(live.deleteTickByProblem.mock.calls[0][1]).toEqual({ problemid: 1, point_entry_key: 'k', compid: 9 })
+    expect(live.deleteTickByProblem.mock.calls[0][0]).toEqual({ problemid: 1, point_entry_key: 'k' })
     expect(live.saveCheckpoint.mock.calls[0][0]).toEqual({ compid: 9, problemid: 1, score: 33.25, point_entry_key: 'k' })
     expect(live.deleteTickByProblem.mock.invocationCallOrder[0]).toBeLessThan(live.saveCheckpoint.mock.invocationCallOrder[0])
     expect(live.saveTick).not.toHaveBeenCalled()
@@ -635,7 +613,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     live.input(1).onChange({ target: { value: 'TOP' } })
     live.saveButton(1).onClick()
     await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(1))
-    expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 2, sport_points: 'TOP', point_entry_key: 'k' })
+    expect(live.saveTick.mock.calls[0][0]).toMatchObject({ problemid: 2, sport_points: 'TOP', point_entry_key: 'k' })
     expect(live.saveCheckpoint).not.toHaveBeenCalled()
   })
 })

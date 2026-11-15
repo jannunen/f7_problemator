@@ -199,13 +199,12 @@ import CompleteProfilePopup from '@components/home/CompleteProfilePopup.vue'
 import PButton from '@components/PButton.vue'
 import { computed, ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
+import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { useAuthStore } from '@js/stores/auth.store.js'
 import { useGymStore } from '@js/stores/gym.store.js'
-const store = useStore()
 const uiStore = useUiStore()
 const gymStore = useGymStore()
 const authStore = useAuthStore()
@@ -222,8 +221,12 @@ const profileQuery = useQuery(queries.profile(gymid))
 const { isSuccess } = profileQuery
 const profile = computed(() => profileQuery.data.value?.profile)
 const gym = computed(() => profileQuery.data.value?.gym)
-const alltime = computed(() => store.state.alltime)
-const ticksLoaded = computed(() => store.state.ticksLoaded)
+const alltime = useAllTimeTicks()
+// Same destructuring reasoning as isSuccess above, for the same reason:
+// queries.allTimeTicks's own isSuccess, replacing the old ticksLoaded Vuex
+// mutation — redundant with a query's own success state, same as
+// profileLoaded was before it (see useAllTimeTicks.js).
+const { isSuccess: ticksLoaded } = useQuery(queries.allTimeTicks())
 const version = computed(() => uiStore.version)
 const serverVersion = computed(() => uiStore.serverVersion)
 // Same fix as LeftSidepanel: a string inequality that was permanently true,

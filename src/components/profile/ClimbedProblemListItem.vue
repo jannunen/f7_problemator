@@ -55,14 +55,14 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { ref, computed, watch, onMounted } from 'vue'
 import { left, getGrade, getTagShort } from '@js/helpers'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 const { t } = useI18n()
 const props = defineProps({
   problem: Object,
 })
-const store = useStore()
-const ticks = computed(() => store.state.alltime.ticks)
-const tries = computed(() => store.state.alltime.tries)
+const allTime = useAllTimeTicks()
+const ticks = computed(() => allTime.value.ticks)
+const tries = computed(() => allTime.value.tries)
 const isMyProject = (pid) => {
   return tries.value.find((x) => x.problemid == pid)
 }
