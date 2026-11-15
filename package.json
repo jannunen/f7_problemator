@@ -48,6 +48,7 @@
     "lodash": "^4.17.21",
     "mapbox-gl": "^3.18.1",
     "material-icons": "^1.2.1",
+    "pinia": "^4.1.0",
     "rxjs": "^7.5.5",
     "skeleton-elements": "^3.5.0",
     "swiper": "^6.8.4",
