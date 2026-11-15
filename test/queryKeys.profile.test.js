@@ -6,16 +6,30 @@ vi.mock('@js/api', () => ({
   },
 }))
 
-// store.js is the still-live Vuex store. rankingTarget/problems are
-// Activity-owned fields this migration plan deliberately leaves on it (see
-// the plan's "climber boundary", narrowed by Task 1 to these two — climber
-// itself moved to the Pinia climber store below) — queries.profile's
-// queryFn bridges them in exactly the shape the old getProfile action did.
-// Mocked the same way test/stores/auth.store.test.js and
+// store.js is the still-live Vuex store. `problems` is the one
+// Activity-owned field this migration plan deliberately leaves on it (see
+// the plan's "climber boundary", narrowed by Task 1 to climber, and by
+// Task 2 to just `problems` — climber moved to the Pinia climber store,
+// rankingTarget to the Pinia rankings store, both below) — queries.profile's
+// queryFn bridges `problems` in exactly the shape the old getProfile action
+// did. Mocked the same way test/stores/auth.store.test.js and
 // test/mutations.followUnFollow.test.js mock the one Vuex call each of
 // those leaves behind.
 vi.mock('../src/js/store.js', () => ({
   default: { commit: vi.fn() },
+}))
+
+// The rankings store's seedFromProfile is mocked rather than exercised for
+// real here: its seed-once guard is store-instance state that would leak
+// across this file's tests through the shared `pinia` singleton (there is
+// no public reset for a setup store's internal `seeded` ref). What this
+// file needs to verify is only that queries.profile's queryFn calls it with
+// the gym country — the guard itself is covered by rankings.store.test.js.
+const { rankingsStoreMock } = vi.hoisted(() => ({
+  rankingsStoreMock: { seedFromProfile: vi.fn() },
+}))
+vi.mock('@js/stores/rankings.store.js', () => ({
+  useRankingsStore: () => rankingsStoreMock,
 }))
 
 import api from '@js/api'
@@ -29,6 +43,7 @@ import { pinia } from '@js/stores/index.js'
 beforeEach(() => {
   api.getProfile.mockReset()
   store.commit.mockReset()
+  rankingsStoreMock.seedFromProfile.mockReset()
   useClimberStore(pinia).setFromProfile(null)
   setAuthToken(null)
 })
@@ -91,7 +106,7 @@ describe('queries.profile', () => {
     expect(useClimberStore(pinia).climber).toEqual({ id: 7 })
   })
 
-  it('bridges rankingTarget from the gym country', async () => {
+  it('bridges rankingTarget from the gym country via the rankings store seed', async () => {
     api.getProfile.mockResolvedValue({
       profile: { settings: {} },
       climber: null,
@@ -100,7 +115,7 @@ describe('queries.profile', () => {
 
     await queries.profile(42).queryFn()
 
-    expect(store.commit).toHaveBeenCalledWith('rankingTarget', 'de')
+    expect(rankingsStoreMock.seedFromProfile).toHaveBeenCalledWith('de')
   })
 
   it('reduces gym.problems into an id-keyed object, same as the old getProfile action', async () => {

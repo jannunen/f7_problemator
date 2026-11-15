@@ -2,6 +2,7 @@ import { createStore } from "vuex";
 import { invalidateAfter } from '@js/queryClient'
 import api from './api'
 import { useClimberStore } from './stores/climber.store.js'
+import { useRankingsStore } from './stores/rankings.store.js'
 import { pinia } from './stores/index.js'
 
 // The signed-in-or-public-point-entry climber's point_entry_key, if any —
@@ -32,8 +33,6 @@ const commitSavedCheckpoint = (commit, problemid, ret) => {
 export default createStore({
   namespaced: true,
   state: {
-    rankings : null,
-    rankingTarget : 'global',
     competition : null,
     compResults : null,
     ticksLoaded : false,
@@ -45,12 +44,6 @@ export default createStore({
   },
 
   mutations: {
-    rankingTarget(state, payload) {
-      state.rankingTarget = payload
-    },
-    rankings (state, payload) {
-      state.rankings = payload
-    },
     ticksLoaded (state, payload) {
       state.ticksLoaded = payload
     },
@@ -166,7 +159,7 @@ export default createStore({
       }
       return ret
     },
-    async publicSaveTick({ state, commit, dispatch}, payload) {
+    async publicSaveTick({ state, commit}, payload) {
       if (pointEntryKeyOf() != null) {
         payload.point_entry_key = pointEntryKeyOf()
       }
@@ -177,9 +170,9 @@ export default createStore({
         commit('addTicksAllTime',ret.tick) 
         commit('addTickToCompetition',ret.tick)
       } else {
-        commit('addTriesAllTime',ret.tick) 
+        commit('addTriesAllTime',ret.tick)
       }
-      dispatch('rankings', { country: state.rankingTarget })
+      useRankingsStore(pinia).fetchRankings()
       return ret
     },
      async publicDeleteTickByProblem({ state,commit}, payload) {
@@ -194,19 +187,16 @@ export default createStore({
       return ret
     },
     // These actions use the normal oauth
-    async rankings({commit},payload) {
-      const ret = await api.ranking(payload)
-      commit('rankings',ret)
-      return ret
-    },
     async requestSync({ state}, payload) {
       const ret = await api.requestSync(payload)
       return ret
     },
     // getProfile moved to queryKeys.js's `profile` query (Task 7). Its
-    // rankingTarget/problems commits moved with it, into that query's
-    // queryFn; its climber bridge moved to the Pinia climber store directly
-    // (this plan's Task 1) rather than through this still-live Vuex store.
+    // `problems` commit moved with it, into that query's queryFn; its
+    // climber bridge moved to the Pinia climber store directly (this plan's
+    // Task 1), and its rankingTarget bridge to the Pinia rankings store's
+    // seedFromProfile (this plan's Task 2) — both rather than through this
+    // still-live Vuex store.
     async loadAllTimeTicks({ commit, state}, payload) {
       const ret = await api.loadAllTimeTicks(payload)
       commit('allTimeTicks', ret)
@@ -243,15 +233,15 @@ export default createStore({
       invalidateAfter('deleteTickByProblem')
       return ret
     },
-    async deleteTick({ state, commit, dispatch}, payload) {
+    async deleteTick({ state, commit}, payload) {
       const ret = await api.deleteTick(payload)
       commit('problems', {...state.problems,[ret.problem.id] : ret.problem})
-      dispatch('rankings', { country: state.rankingTarget })
+      useRankingsStore(pinia).fetchRankings()
       invalidateAfter('deleteTick')
 
       return ret
     },
-    async saveTick({ state, commit, dispatch}, payload) {
+    async saveTick({ state, commit}, payload) {
       if (pointEntryKeyOf() != null) {
         payload.point_entry_key = pointEntryKeyOf()
       }
@@ -264,7 +254,7 @@ export default createStore({
       } else {
         commit('addTriesAllTime',ret.tick)
       }
-      dispatch('rankings', { country: state.rankingTarget })
+      useRankingsStore(pinia).fetchRankings()
       invalidateAfter('saveTick')
       return ret
     },

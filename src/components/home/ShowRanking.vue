@@ -136,13 +136,13 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { ref, computed } from 'vue'
-import { useStore } from 'vuex'
 import { right } from '@js/helpers'
 import { estimateGrade, toLocalTime, calculatePoints } from '@/js/helpers'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 import { useClimberStore } from '@js/stores/climber.store.js'
+import { useRankingsStore } from '@js/stores/rankings.store.js'
 import api from '@js/api'
 
 
@@ -152,9 +152,9 @@ const props = defineProps({
 })
 
 const { t } = useI18n()
-const store = useStore()
 const gymStore = useGymStore()
 const climberStore = useClimberStore()
+const rankingsStore = useRankingsStore()
 const gymid = computed(() => gymStore.gymid)
 const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
 const showAscents = ref(false)
@@ -176,7 +176,9 @@ const getClimberName = (row) => {
     return row.etunimi + ' ' + row.sukunimi
 }
 const loadRanking = (url) => {
-    store.dispatch('rankings', { url, country: props.country })
+    // `props.country` mirrors the rankings store's own rankingTarget (Ranking.vue
+    // passes it straight through), which fetchRankings already reads internally.
+    rankingsStore.fetchRankings(url)
 }
 const pagination = computed(() => props.ranking.pagination)
 const climber = ref(null)

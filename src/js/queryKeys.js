@@ -3,6 +3,7 @@ import api from '@js/api'
 import { isAuthenticated } from './authToken.js'
 import store from './store.js'
 import { useClimberStore } from './stores/climber.store.js'
+import { useRankingsStore } from './stores/rankings.store.js'
 import { pinia } from './stores/index.js'
 
 /**
@@ -214,10 +215,11 @@ export const queries = {
    * on a gym the way the others are would starve that prompt, and the
    * climber bridge below, of the one call that feeds them both.
    *
-   * The bridge: rankingTarget/problems are Activity-owned pieces this
-   * migration plan deliberately leaves on the still-live Vuex store for now
-   * (see the plan's "climber boundary" — narrowed by this plan's Task 1 to
-   * cover only these two; climber itself moved to the Pinia climber store).
+   * The bridge: `problems` is the one Activity-owned piece this migration
+   * plan deliberately leaves on the still-live Vuex store for now (see the
+   * plan's "climber boundary" — narrowed by this plan's Task 1 to climber,
+   * and by this Task 2 to just `problems`; `rankingTarget` moved to the
+   * Pinia rankings store below, climber to the Pinia climber store).
    * climber is written into that Pinia store directly here (and from
    * mutations.saveSettings's onSuccess) rather than through Vuex, same
    * "whichever source ran most recently wins" overload the old
@@ -226,6 +228,13 @@ export const queries = {
    * onSuccess, so the queryFn's own body — the one place guaranteed to run
    * exactly once per fetch, before the result is handed back — is what the
    * old getProfile action's success path becomes now.
+   *
+   * `rankingTarget` goes through `seedFromProfile`, not a direct set: per
+   * the rankings store's seed-once rule, only the FIRST successful profile
+   * fetch (or an explicit `setRankingTarget` call) gets to choose it. Later
+   * refetches of this same query — a gym switch, saveSettings's
+   * invalidation — must not silently override a climber's already-seeded
+   * or explicitly-chosen ranking scope.
    */
   profile: (gymid) => ({
     queryKey: key('profile', gymid),
@@ -233,7 +242,7 @@ export const queries = {
       const ret = await api.getProfile(unref(gymid))
       if (ret != null && ret.profile != null) {
         if (ret.gym != null) {
-          store.commit('rankingTarget', ret.gym.country)
+          useRankingsStore(pinia).seedFromProfile(ret.gym?.country)
           if (ret.gym.problems != null) {
             const problems = ret.gym.problems.reduce((acc, prob) => {
               acc[prob.id] = prob

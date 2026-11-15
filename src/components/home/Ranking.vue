@@ -139,21 +139,24 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 import { watch, ref, computed } from 'vue'
 import ShowRanking from '@components/home/ShowRanking.vue'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
 import { useGymStore } from '@js/stores/gym.store.js'
+import { useRankingsStore } from '@js/stores/rankings.store.js'
 const { t } = useI18n()
 const rankingTab = ref(0)
-const store = useStore()
 const gymStore = useGymStore()
+const rankingsStore = useRankingsStore()
 const gymid = computed(() => gymStore.gymid)
-const rankingTarget = ref(null)
+// rankingTarget is owned by the rankings store now — seeded once from the
+// profile fetch's gym country (queryKeys.js's `profile` queryFn), then only
+// changed by an explicit `changeTarget` click below.
+const rankingTarget = computed(() => rankingsStore.rankingTarget)
 const routeTypeFilter = ref('all')
 const showRankingSheet = ref(false)
-const rankings = computed(() => store.state.rankings)
+const rankings = computed(() => rankingsStore.rankings)
 const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
 const filteredRankings = computed(() => {
     if (!rankings.value) return null
@@ -172,13 +175,12 @@ watch(routeTypeFilter, (newVal, oldVal) => {
     }
 })
 const changeTarget = (tgt) => {
-    rankingTarget.value = tgt
+    rankingsStore.setRankingTarget(tgt)
     refresh()
 }
 
-rankingTarget.value = gym.value.country
 const refresh = () => {
-    store.dispatch('rankings', { country: rankingTarget.value })
+    rankingsStore.fetchRankings()
 }
 refresh()
 </script>
