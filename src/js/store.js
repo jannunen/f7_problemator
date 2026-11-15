@@ -341,7 +341,14 @@ export default createStore({
     },
      async publicGetCompResults({ state, commit }, payload) {
       const ret = await api.getCompResults(payload,'/compkey')
-      commit('compResults',ret)
+      // A slow response can land after the climber has navigated to a
+      // different competition; committing it then hands ShowResults a
+      // results shape that doesn't match the now-displayed comp's type
+      // (eg. a flat points table under type 'ifsc_2024_bouldering'),
+      // which crashes on result.climber.id.
+      if (state.competition == null || ret?.comp?.id == state.competition.id) {
+        commit('compResults',ret)
+      }
       return ret
     },
     async publicSaveTick({ state, commit, dispatch}, payload) {
@@ -438,7 +445,11 @@ export default createStore({
     },
      async getCompResults({ state, commit }, payload) {
       const ret = await api.getCompResults(payload)
-      commit('compResults',ret)
+      // See publicGetCompResults above: discard a response that arrives
+      // after the climber has navigated to a different competition.
+      if (state.competition == null || ret?.comp?.id == state.competition.id) {
+        commit('compResults',ret)
+      }
       return ret
     },
      async getPointsPerRoute({ commit }, payload) {
