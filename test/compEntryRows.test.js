@@ -4,17 +4,35 @@ import { createSSRApp, h } from 'vue'
 import { renderToString } from '@vue/server-renderer'
 import { createI18n } from 'vue-i18n'
 import { createStore } from 'vuex'
+import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import messages from '../src/js/i18n/messages.js'
 import { useClimberStore } from '../src/js/stores/climber.store.js'
 import { pinia } from '../src/js/stores/index.js'
 
 // No DOM in this test setup: the entry components are server-rendered with
 // Framework7's components stubbed, and the HTML inspected.
-// The helpers barrel and the api module pull in auth/browser-only code; the
-// rows only need right() and webendpoint from them.
+// The helpers barrel pulls in auth/browser-only code; the rows only need
+// right() from it. The api module needs real functions now too: saveCheckpoint/
+// deleteCheckpoint/getCompResults/getPointsPerRoute all go through
+// mutations.js/queryKeys.js (real, unmocked, so their own onSuccess cache
+// patches and queryFn bodies run for real) rather than through a Vuex
+// dispatch stand-in, as saveCheckpoint/getCompResults/getPointsPerRoute used
+// to. saveTick/deleteTickByProblem (Task 5's domain) still go through the
+// fake Vuex store below, unaffected by this task.
 vi.mock('@js/helpers', async () => ({ right: (await import('../src/js/helpers/utils.js')).right, handleValidationErrors: () => '' }))
-vi.mock('@js/api.js', () => ({ webendpoint: '', endpoint: '' }))
+vi.mock('@js/api.js', () => ({
+  webendpoint: '',
+  endpoint: '',
+  default: {
+    getCompResults: vi.fn().mockResolvedValue(null),
+    getPointsPerRoute: vi.fn().mockResolvedValue({}),
+    saveCheckpoint: vi.fn(),
+    deleteCheckpoint: vi.fn().mockResolvedValue({ ok: true }),
+  },
+}))
 vi.mock('framework7-vue', () => ({ f7: { dialog: { confirm: vi.fn() }, notification: { create: () => ({ open() {} }) } } }))
+
+import api from '@js/api.js'
 
 const CompetitionEntry = (await import('../src/components/comps/CompetitionEntry.vue')).default
 const PublicCompetitionEntry = (await import('../src/components/comps/PublicCompetitionEntry.vue')).default
@@ -62,12 +80,25 @@ const makeComp = (tyyppi, userticks = {}) => ({
 })
 
 const render = async (Component, comp, locale = 'en', { actions = {}, onRow = null } = {}) => {
+  // saveTick/deleteTickByProblem (Task 5's domain) still go through this
+  // fake Vuex store, and their fakes below still mutate state.competition.userticks
+  // the way the real actions do. state.competition is literally the SAME
+  // object as the `comp` prop passed to the component (not a copy), so that
+  // mutation is visible through props.comp too, with no separate bridging
+  // needed. Everything else competition-shaped (my_checkpoint*, points_per_route,
+  // results) now goes through the real queryKeys.js/mutations.js instead of
+  // this store (see the VueQueryPlugin install below).
   const store = createStore({
-    state: () => ({ competition: comp, compResults: null, alltime: { ticks: [] } }),
-    actions: { getCompResults: () => null, publicGetCompResults: () => null, getPointsPerRoute: () => null, publicGetPointsPerRoute: () => null, ...actions },
+    state: () => ({ competition: comp, alltime: { ticks: [] } }),
+    actions: { ...actions },
   })
+  // A fresh client per render: nothing here needs the cache to survive past
+  // one render, and a shared one would leak saveCheckpoint/getCompResults
+  // call tracking between unrelated test cases.
+  const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } })
   const app = createSSRApp({ render: () => h(Component, { comp }) })
   app.use(store)
+  app.use(VueQueryPlugin, { queryClient })
   // missingWarn: the sport row's placeholder is the untranslated literal t('Enter points').
   app.use(createI18n({ legacy: false, locale, fallbackLocale: 'en', messages, missingWarn: false }))
   F7.forEach((n) => app.component(n, stub(n, n === 'f7-list-item' ? onRow : null)))
@@ -154,8 +185,12 @@ const walk = (nodes, out = []) => {
   }
   return out
 }
-// The point-entry-key page dispatches the public* variants of the same actions.
-const PUBLIC_ACTIONS = { saveTick: 'publicSaveTick', saveCheckpoint: 'publicSaveCheckpoint', deleteTickByProblem: 'publicDeleteTickByProblem' }
+// The point-entry-key page dispatches the public* variants of saveTick/
+// deleteTickByProblem (Task 5's domain, still real Vuex actions). saveCheckpoint
+// is no longer a Vuex action for either page — both now call the same
+// api.saveCheckpoint (mutations.saveCheckpoint/publicSaveCheckpoint differ
+// only in the prefix argument, which this test does not need to distinguish).
+const PUBLIC_ACTIONS = { saveTick: 'publicSaveTick', deleteTickByProblem: 'publicDeleteTickByProblem' }
 const renderLive = async (comp, { Component = CompetitionEntry, names = {} } = {}) => {
   const name = (n) => names[n] ?? n
   const rows = []
@@ -164,14 +199,16 @@ const renderLive = async (comp, { Component = CompetitionEntry, names = {} } = {
     state.competition.userticks = { ...state.competition.userticks, [p.problemid]: { problemid: p.problemid, tries: p.tries, tries_bonus: p.tries_bonus } }
     return { new_badges: [] }
   })
-  const saveCheckpoint = vi.fn(async (_ctx, p) => ({ ok: true, applied: true, checkpoint: p.checkpoint, attempts: p.attempts ?? 0, zone_tries: p.zone_tries ?? {} }))
+  const saveCheckpoint = vi.fn(async (p) => ({ ok: true, applied: true, checkpoint: p.checkpoint, attempts: p.attempts ?? 0, zone_tries: p.zone_tries ?? {} }))
+  api.saveCheckpoint.mockReset()
+  api.saveCheckpoint.mockImplementation((payload) => saveCheckpoint(payload))
   const deleteTickByProblem = vi.fn(async ({ state }, p) => {
     const rest = { ...state.competition.userticks }
     delete rest[p.problemid]
     state.competition.userticks = rest
     return { message: 'ok' }
   })
-  const actions = { [name('saveTick')]: saveTick, [name('saveCheckpoint')]: saveCheckpoint, [name('deleteTickByProblem')]: deleteTickByProblem }
+  const actions = { [name('saveTick')]: saveTick, [name('deleteTickByProblem')]: deleteTickByProblem }
   const html = await render(Component, comp, 'en', { actions, onRow: (vnodes) => rows.push(vnodes) })
   const ladder = (pid) => walk(rows).find((n) => n.type === CheckpointLadder && n.props?.problem?.id === pid).props
   // Rows that have a problem in them, in the page's order (problem 1, problem 2).
@@ -241,7 +278,7 @@ describe.each([
     const live = await renderLive(makeComp('ifsc_2024_bouldering', legacy), { Component, names })
     live.ladder(1).onEdit(3, 4)
     await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(1), { timeout: 2000 })
-    expect(live.saveCheckpoint.mock.calls.at(-1)[1]).toMatchObject({ problemid: 1, checkpoint: 2, attempts: 4, zone_tries: { 1: 2, 2: 3 }, replace: true })
+    expect(live.saveCheckpoint.mock.calls.at(-1)[0]).toMatchObject({ problemid: 1, checkpoint: 2, attempts: 4, zone_tries: { 1: 2, 2: 3 }, replace: true })
     expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 4 })
     expect(live.saveTick.mock.calls[0][1]).not.toHaveProperty('attempts_high_zone')
   })
@@ -295,7 +332,7 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     l.onTry()
     l.onReached()
     await vi.waitFor(() => expect(live.saveCheckpoint).toHaveBeenCalled(), { timeout: 2000 })
-    expect(live.saveCheckpoint.mock.calls.at(-1)[1]).toMatchObject({ compid: 9, problemid: 1, checkpoint: 1 })
+    expect(live.saveCheckpoint.mock.calls.at(-1)[0]).toMatchObject({ compid: 9, problemid: 1, checkpoint: 1 })
     expect(live.saveTick).not.toHaveBeenCalled()
   })
 
@@ -340,7 +377,7 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     await l.onTop()
     expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 0 })
     l.onEdit(1, 2)
-    await vi.waitFor(() => expect(live.saveCheckpoint.mock.calls.some((c) => c[1].replace)).toBe(true), { timeout: 2000 })
+    await vi.waitFor(() => expect(live.saveCheckpoint.mock.calls.some((c) => c[0].replace)).toBe(true), { timeout: 2000 })
     expect(live.saveTick).toHaveBeenCalledTimes(1)
   })
 
@@ -355,7 +392,7 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     live.input(0).onChange({ target: { value: '25.5' } })
     await live.saveButton(0).onClick()
     await vi.waitFor(() => expect(live.saveCheckpoint).toHaveBeenCalledTimes(1))
-    expect(live.saveCheckpoint.mock.calls[0][1]).toEqual({ compid: 9, problemid: 1, score: 25.5 })
+    expect(live.saveCheckpoint.mock.calls[0][0]).toEqual({ compid: 9, problemid: 1, score: 25.5 })
     expect(live.saveTick).not.toHaveBeenCalled()
   })
 
@@ -364,7 +401,7 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     live.input(0).onChange({ target: { value: raw } })
     await live.saveButton(0).onClick()
     expect(live.saveCheckpoint).toHaveBeenCalledTimes(1)
-    expect(live.saveCheckpoint.mock.calls[0][1]).toEqual({ compid: 9, problemid: 1, score })
+    expect(live.saveCheckpoint.mock.calls[0][0]).toEqual({ compid: 9, problemid: 1, score })
     expect(live.saveTick).not.toHaveBeenCalled()
   })
 
@@ -375,7 +412,7 @@ describe('CompetitionEntry: partial credit vs a genuine top', () => {
     await live.saveButton(0).onClick()
     expect(live.deleteTickByProblem).toHaveBeenCalledTimes(1)
     expect(live.deleteTickByProblem.mock.calls[0][1]).toMatchObject({ problemid: 1 })
-    expect(live.saveCheckpoint.mock.calls[0][1]).toEqual({ compid: 9, problemid: 1, score: 33.25 })
+    expect(live.saveCheckpoint.mock.calls[0][0]).toEqual({ compid: 9, problemid: 1, score: 33.25 })
     expect(live.deleteTickByProblem.mock.invocationCallOrder[0]).toBeLessThan(live.saveCheckpoint.mock.invocationCallOrder[0])
     expect(live.saveTick).not.toHaveBeenCalled()
   })
@@ -464,7 +501,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     l.onTry()
     l.onReached()
     await vi.waitFor(() => expect(live.saveCheckpoint).toHaveBeenCalled(), { timeout: 2000 })
-    expect(live.saveCheckpoint.mock.calls.at(-1)[1]).toMatchObject({ compid: 9, problemid: 1, checkpoint: 1, point_entry_key: 'k' })
+    expect(live.saveCheckpoint.mock.calls.at(-1)[0]).toMatchObject({ compid: 9, problemid: 1, checkpoint: 1, point_entry_key: 'k' })
     expect(live.saveTick).not.toHaveBeenCalled()
   })
 
@@ -509,7 +546,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     await l.onTop()
     expect(live.saveTick.mock.calls[0][1]).toMatchObject({ problemid: 1, tries: 3, tries_bonus: 0 })
     l.onEdit(1, 2)
-    await vi.waitFor(() => expect(live.saveCheckpoint.mock.calls.some((c) => c[1].replace)).toBe(true), { timeout: 2000 })
+    await vi.waitFor(() => expect(live.saveCheckpoint.mock.calls.some((c) => c[0].replace)).toBe(true), { timeout: 2000 })
     expect(live.saveTick).toHaveBeenCalledTimes(1)
   })
 
@@ -524,7 +561,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     live.input(0).onChange({ target: { value: raw } })
     await live.saveButton(0).onClick()
     expect(live.saveCheckpoint).toHaveBeenCalledTimes(1)
-    expect(live.saveCheckpoint.mock.calls[0][1]).toEqual({ compid: 9, problemid: 1, score, point_entry_key: 'k' })
+    expect(live.saveCheckpoint.mock.calls[0][0]).toEqual({ compid: 9, problemid: 1, score, point_entry_key: 'k' })
     expect(live.saveTick).not.toHaveBeenCalled()
     expect(live.deleteTickByProblem).not.toHaveBeenCalled()
   })
@@ -535,7 +572,7 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     live.input(0).onChange({ target: { value: '33+' } })
     await live.saveButton(0).onClick()
     expect(live.deleteTickByProblem.mock.calls[0][1]).toEqual({ problemid: 1, point_entry_key: 'k' })
-    expect(live.saveCheckpoint.mock.calls[0][1]).toEqual({ compid: 9, problemid: 1, score: 33.25, point_entry_key: 'k' })
+    expect(live.saveCheckpoint.mock.calls[0][0]).toEqual({ compid: 9, problemid: 1, score: 33.25, point_entry_key: 'k' })
     expect(live.deleteTickByProblem.mock.invocationCallOrder[0]).toBeLessThan(live.saveCheckpoint.mock.invocationCallOrder[0])
     expect(live.saveTick).not.toHaveBeenCalled()
   })

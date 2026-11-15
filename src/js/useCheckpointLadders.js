@@ -21,29 +21,31 @@ import { myCheckpointFor } from '@helpers/checkpoints.js'
  * moves the top (removes it, brings it back, changes its tries) the top tick
  * is deleted or saved again to match.
  *
- *   store        the Vuex store (competition, my_checkpoints, my_checkpoint_tries, userticks)
+ *   comp         () => the current competition object (my_checkpoints, my_checkpoint_tries,
+ *                userticks — read-only; the caller owns where this comes from)
  *   compId       () => competition id
  *   t            vue-i18n t
  *   saveTop      (problemid, tries, bonus) => Promise   records the top tick; bonus is
  *                rung 1's reached count, or tries when the route has no rung 1
  *   deleteTop    (problemid) => Promise          removes the top tick
  *   zonesFor     (prob) => number of zones       default: the problem's checkpoints
- *   saveCheckpoint / deleteCheckpoint (payload) => Promise   default: the store actions
+ *   saveCheckpoint / deleteCheckpoint (payload) => Promise   required; the caller's own
+ *                mutation (there is no default dispatch any more — see the call sites)
  *   bonusAffectsTop  true when the top tick stores the bonus (rung 1) count, so
  *                correcting that count while topped saves the tick again
  *   legacyZoneTries  (tick) => { rung: count }  zone counts a pre-ladder top tick carries;
  *                default: rung 1 from tries_bonus when bonusAffectsTop, else none
  */
 export function useCheckpointLadders({
-  store,
+  comp,
   compId,
   t,
   saveTop,
   deleteTop,
   delay = 500,
   zonesFor = (prob) => prob?.pivot?.checkpoints?.length ?? 0,
-  saveCheckpoint = (payload) => store.dispatch('saveCheckpoint', payload),
-  deleteCheckpoint = (payload) => store.dispatch('deleteCheckpoint', payload),
+  saveCheckpoint,
+  deleteCheckpoint,
   bonusAffectsTop = false,
   legacyZoneTries = null,
 }) {
@@ -59,7 +61,6 @@ export function useCheckpointLadders({
   // tap on ✓ (the button became ✓ Top under the finger): ignore it.
   const isDoubleTap = (pid) => lastReach[pid] != null && Date.now() - lastReach[pid] < ladder.DOUBLE_TAP_MS
 
-  const comp = () => store.state.competition
   const isTicked = (pid) => comp()?.userticks?.[pid] != null
   const triesFor = (pid) => {
     const all = comp()?.my_checkpoint_tries

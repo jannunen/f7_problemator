@@ -179,6 +179,60 @@ export const queries = {
     enabled: isAuthenticated,
   }),
 
+  /**
+   * One competition's full detail payload: problems, registrations, user
+   * ticks, and this climber's checkpoint state (`my_checkpoints`,
+   * `my_checkpoint_tries`, `my_checkpoint_scores`) — all nested in the same
+   * object the backend already returns in one call. There is nothing left
+   * for `my_checkpoint*` to live in on its own: it arrives here and is
+   * patched here (see mutations.saveCheckpoint/deleteCheckpoint).
+   *
+   * Also gated on isAuthenticated, unlike badges/newProblems/sprayWalls
+   * above (which only need a gym): JudgingComponent.vue can mount on a deep
+   * link before the JWT is restored into axios's headers, and the old
+   * action only re-dispatched on an isAuthenticated CHANGE — which never
+   * fires for a climber who was already signed in when the page mounted, so
+   * `comp` stayed null forever there. The other two call sites
+   * (SingleCompetitionPage.vue, SimpleEntryPage.vue) are only reachable once
+   * already signed in, so this changes nothing for them.
+   */
+  competition: (compid) => ({
+    queryKey: key('competition', compid),
+    queryFn: () => api.getCompetition({ compid: unref(compid) }),
+    enabled: computed(() => needs(compid).value && isAuthenticated.value),
+  }),
+
+  /**
+   * Same payload, fetched through the public comp-key route (the standalone
+   * point-entry flow opened from an emailed link, no sign-in). A key of its
+   * own rather than a shared one with `competition` above: the signed-in and
+   * anonymous views of the same competition id are two different fetches
+   * (different auth, different query params) that must not overwrite each
+   * other's cache entry.
+   *
+   * Not gated on isAuthenticated — the whole point of this route is that it
+   * works without one.
+   */
+  publicCompetition: (compid, pointEntryKey) => ({
+    queryKey: key('public-competition', compid),
+    queryFn: () => api.getCompetition({ compid: unref(compid), point_entry_key: unref(pointEntryKey) }, '/compkey'),
+    enabled: needs(compid),
+  }),
+
+  /** One competition's results table. */
+  compResults: (compid) => ({
+    queryKey: key('comp-results', compid),
+    queryFn: () => api.getCompResults({ compid: unref(compid) }),
+    enabled: computed(() => needs(compid).value && isAuthenticated.value),
+  }),
+
+  /** Same, through the public comp-key route — see publicCompetition above. */
+  publicCompResults: (compid, pointEntryKey) => ({
+    queryKey: key('public-comp-results', compid),
+    queryFn: () => api.getCompResults({ compid: unref(compid), point_entry_key: unref(pointEntryKey) }, '/compkey'),
+    enabled: needs(compid),
+  }),
+
   /** Every date this climber has a tick on record, for the calendar highlight. */
   archiveDates: () => ({
     queryKey: key('archive-dates'),

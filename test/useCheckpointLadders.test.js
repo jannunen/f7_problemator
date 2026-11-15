@@ -5,34 +5,37 @@ import { useCheckpointLadders } from '../src/js/useCheckpointLadders.js'
 const prob = { id: 7, pivot: { max_points: 25, checkpoints: [{ points: 10 }, { points: 15 }] } }
 const t = (k) => k
 
-// A store double that behaves like the real actions: it stores what was
-// written and answers like the backend ({ok, applied, checkpoint, attempts, zone_tries}).
-const makeStore = ({ fail = null } = {}) => {
+// An environment double that behaves like the real mutations: it stores
+// what was written and answers like the backend ({ok, applied, checkpoint,
+// attempts, zone_tries}). `comp`/`saveCheckpoint`/`deleteCheckpoint` are no
+// longer Vuex dispatch stand-ins (there is no default dispatch any more —
+// every caller passes its own mutation explicitly) but plain functions, the
+// same shape the real CompetitionEntry.vue/PublicCompetitionEntry.vue now
+// pass in (wrapping useMutation(...).mutateAsync).
+const makeEnv = ({ fail = null } = {}) => {
   const competition = reactive({ my_checkpoints: [], my_checkpoint_tries: [], userticks: {} })
   const calls = []
-  const store = {
-    state: { competition },
-    dispatch: vi.fn(async (name, payload) => {
-      calls.push({ name, payload })
-      if (fail && fail(name, payload)) {
-        const err = new Error('nope')
-        err.response = typeof fail(name, payload) === 'object' ? fail(name, payload) : undefined
-        throw err
-      }
-      if (name === 'saveCheckpoint') {
-        const ret = { ok: true, applied: true, checkpoint: payload.checkpoint, attempts: payload.attempts ?? 0, zone_tries: payload.zone_tries ?? {} }
-        competition.my_checkpoints = { ...competition.my_checkpoints, [payload.problemid]: ret.checkpoint }
-        competition.my_checkpoint_tries = { ...competition.my_checkpoint_tries, [payload.problemid]: { attempts: ret.attempts, zone_tries: ret.zone_tries } }
-        return ret
-      }
-      if (name === 'deleteCheckpoint') {
-        competition.my_checkpoints = {}
-        competition.my_checkpoint_tries = {}
-        return { ok: true }
-      }
-      return {}
-    }),
+  const maybeFail = (name, payload) => {
+    if (!fail || !fail(name, payload)) return
+    const err = new Error('nope')
+    err.response = typeof fail(name, payload) === 'object' ? fail(name, payload) : undefined
+    throw err
   }
+  const saveCheckpoint = vi.fn(async (payload) => {
+    calls.push({ name: 'saveCheckpoint', payload })
+    maybeFail('saveCheckpoint', payload)
+    const ret = { ok: true, applied: true, checkpoint: payload.checkpoint, attempts: payload.attempts ?? 0, zone_tries: payload.zone_tries ?? {} }
+    competition.my_checkpoints = { ...competition.my_checkpoints, [payload.problemid]: ret.checkpoint }
+    competition.my_checkpoint_tries = { ...competition.my_checkpoint_tries, [payload.problemid]: { attempts: ret.attempts, zone_tries: ret.zone_tries } }
+    return ret
+  })
+  const deleteCheckpoint = vi.fn(async (payload) => {
+    calls.push({ name: 'deleteCheckpoint', payload })
+    maybeFail('deleteCheckpoint', payload)
+    competition.my_checkpoints = {}
+    competition.my_checkpoint_tries = {}
+    return { ok: true }
+  })
   const saveTop = vi.fn(async (pid, tries) => {
     competition.userticks = { ...competition.userticks, [pid]: { problemid: pid, tries } }
   })
@@ -41,12 +44,22 @@ const makeStore = ({ fail = null } = {}) => {
     delete next[pid]
     competition.userticks = next
   })
-  return { store, competition, calls, saveTop, deleteTop }
+  return { competition, calls, saveCheckpoint, deleteCheckpoint, saveTop, deleteTop }
 }
 
 const setup = (opts, overrides = {}) => {
-  const env = makeStore(opts)
-  const ladders = useCheckpointLadders({ store: env.store, compId: () => 3, t, saveTop: env.saveTop, deleteTop: env.deleteTop, delay: 300, ...overrides })
+  const env = makeEnv(opts)
+  const ladders = useCheckpointLadders({
+    comp: () => env.competition,
+    compId: () => 3,
+    t,
+    saveTop: env.saveTop,
+    deleteTop: env.deleteTop,
+    saveCheckpoint: env.saveCheckpoint,
+    deleteCheckpoint: env.deleteCheckpoint,
+    delay: 300,
+    ...overrides,
+  })
   return { ...env, ladders }
 }
 const writes = (calls) => calls.filter((c) => c.name === 'saveCheckpoint').map((c) => c.payload)
@@ -474,17 +487,18 @@ describe('useCheckpointLadders', () => {
       expect(plain.stateFor(prob)).toMatchObject({ zones: 2, active: 1 })
     })
 
-    it('test_saveCheckpoint_and_deleteCheckpoint_overrides_are_used_instead_of_the_default_dispatch', async () => {
+    it('test_saveCheckpoint_and_deleteCheckpoint_overrides_are_used_instead_of_the_setup_defaults', async () => {
       const saveCheckpoint = vi.fn(async (p) => ({ ok: true, applied: true, checkpoint: p.checkpoint, attempts: p.attempts, zone_tries: p.zone_tries }))
       const deleteCheckpoint = vi.fn(async () => ({ ok: true }))
-      const { ladders, store } = setup({}, { saveCheckpoint, deleteCheckpoint })
+      const { ladders, saveCheckpoint: defaultSave, deleteCheckpoint: defaultDelete } = setup({}, { saveCheckpoint, deleteCheckpoint })
       ladders.act(prob, 'try')
       ladders.act(prob, 'reached')
       await vi.advanceTimersByTimeAsync(300)
       expect(saveCheckpoint).toHaveBeenCalledWith({ compid: 3, problemid: 7, checkpoint: 1, attempts: 1, zone_tries: { 1: 1 }, replace: false })
       await ladders.act(prob, 'clear')
       expect(deleteCheckpoint).toHaveBeenCalledWith({ compid: 3, problemid: 7 })
-      expect(store.dispatch).not.toHaveBeenCalled()
+      expect(defaultSave).not.toHaveBeenCalled()
+      expect(defaultDelete).not.toHaveBeenCalled()
     })
   })
 

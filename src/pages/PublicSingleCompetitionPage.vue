@@ -24,20 +24,18 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
-import { useMutation } from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import { mutations } from '@js/mutations.js'
 import { useClimberStore } from '@js/stores/climber.store.js'
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import PublicCompetitionEntry from '@components/comps/PublicCompetitionEntry.vue'
 
 const props = defineProps({
     compid : Number,
 })
 const { t } = useI18n()
-const store = useStore()
 const climberStore = useClimberStore()
-const comp = computed(() => store.state.competition)
 const climber = computed(() => climberStore.climber)
 const url = window.location.href
 const urlParams = new URLSearchParams(url.split('?')[1])
@@ -45,6 +43,11 @@ const notAuthorized = ref(false)
 // this key can be used to open the entry page without logging in
 const key = urlParams.get('key')
 const { mutate: getClimberByKeyMutate } = useMutation(mutations.getClimberByKey())
+// Gates queries.publicCompetition below: the comp fetch only starts once
+// the key has been confirmed to actually authorize this climber, matching
+// the old flow (publicGetCompetition was only dispatched from inside
+// getClimberByKey's own onSuccess, never unconditionally).
+const authorized = ref(false)
 if (key != null) {
   getClimberByKeyMutate({ compid: props.compid, key: key }, {
     onSuccess: (ret) => {
@@ -55,25 +58,17 @@ if (key != null) {
       if (ret != null && typeof ret == 'string' && ret.match(/access.to.this.comp/i)) {
         notAuthorized.value = true
       } else {
-        store.dispatch('publicGetCompetition',{compid:props.compid, point_entry_key: key})
-        .then(() => loading.value=false)
+        authorized.value = true
       }
     },
   })
 } else {
-      /*
-      store.dispatch('getCompetition',{compid:props.compid})
-      .then(() => loading.value=false)
-      */
       alert('no valid competition key')
 }
 
-
-const loading = ref(true)
-watch(key,() => {
-  store.dispatch('publicGetCompetition',{compid:props.compid, point_entry_key: key})
-  .then(() => loading.value=false)
-})
-onMounted(() => {
-})
+const { data: comp } = useQuery(queries.publicCompetition(computed(() => (authorized.value ? props.compid : null)), key))
+// "loading" really means "nothing to show yet" — true while still waiting on
+// the key check, the fetch, or (when the key turned out bad) forever, same
+// as the old flow where loading only ever cleared on a successful fetch.
+const loading = computed(() => comp.value == null)
 </script>

@@ -14,28 +14,24 @@
 }
 </style>
 <script setup>
-import { watch, computed,onMounted,ref } from 'vue'
-import { useStore } from 'vuex'
-import { useAuthStore } from '@js/stores/auth.store.js'
+import { computed,onMounted,ref } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import BoulderJudging from './BoulderJudging.vue'
 import SportJudging from './SportJudging.vue'
 import { useI18n } from 'vue-i18n'
 import { isBoulderingCompType, isSportCompType } from '../../js/helpers/compKind.js'
-const store = useStore()
-const authStore = useAuthStore()
 const { t } = useI18n()
 
 const props = defineProps({
   compid : Number,
 })
-const comp = computed(() => store.state.competition)
-const isAuthenticated = computed(() => authStore.isAuthenticated)
-
-watch(isAuthenticated, (newValue) => {
-  if (newValue) {
-    store.dispatch('getCompetition',props.compid)
-  }
-})
+// queries.competition is also gated on isAuthenticated (see queryKeys.js):
+// this page can mount on a deep link before the JWT is restored, and the
+// old watch(isAuthenticated, ...) here never fired for a climber who was
+// already signed in, so `comp` never loaded for them. The query model fixes
+// both at once.
+const { data: comp } = useQuery(queries.competition(() => props.compid))
 
 const showCollapse = ref(false)
 const routeIds = ref()

@@ -2,12 +2,14 @@
 import { useI18n } from 'vue-i18n'
 import { computed, onMounted, ref, watch } from 'vue'
 import useDebouncedRef, { debounce } from '@helpers/debouncedRef.js'
-import { useStore } from 'vuex'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations.js'
 import axios from 'axios'
 import { checkpointOptions, checkpointDisplayLabel, CHECKPOINT_TYPES } from '@helpers/checkpoints.js'
 import { toaster } from '@helpers/notifications.js'
 const { t } = useI18n()
-const store = useStore()
+const { mutateAsync: addTopJudgingMutate } = useMutation(mutations.addTopJudging())
+const { mutateAsync: addCheckpointJudgingMutate } = useMutation(mutations.addCheckpointJudging())
 const props = defineProps(['comp'])
 const contid = ref(null)
 const selected = ref(null)
@@ -57,8 +59,7 @@ const pickCheckpoint = (opt) => {
   if (opt.value === 'top') {
     // Reaching the top is an ordinary judged ascent (tries etc.) through the
     // same CompetitionsController@addAscent route; toast only once it succeeded.
-    store
-      .dispatch('addTopJudging', {
+    addTopJudgingMutate({
         compid: props.comp.id,
         contender: contid.value,
         problemid: cpProblem.value.id,
@@ -73,8 +74,7 @@ const pickCheckpoint = (opt) => {
   // cpChoices) before this request resolves, which would otherwise label the
   // toast with the NEW problem's checkpoints instead of the recorded one.
   const choicesAtCall = cpChoices.value
-  store
-    .dispatch('addCheckpointJudging', {
+  addCheckpointJudgingMutate({
       compid: props.comp.id,
       contender: contid.value,
       problemid: cpProblem.value.id,

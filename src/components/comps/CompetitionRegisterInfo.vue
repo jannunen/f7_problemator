@@ -102,7 +102,8 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations.js'
 import { useAuthStore } from '@js/stores/auth.store.js'
 import { useClimberStore } from '@js/stores/climber.store.js'
 import { webendpoint } from '@js/api'
@@ -116,7 +117,8 @@ import { hasBound, windowLabel } from '@helpers/compWindow'
 const nowUTC = ref(dayjs().utc())
 setInterval(() => nowUTC.value = dayjs().utc(),1000*30)
 import dayjs from 'dayjs'
-const store = useStore()
+const { mutateAsync: registerToCompMutate } = useMutation(mutations.registerToComp())
+const { mutateAsync: unRegisterToCompMutate } = useMutation(mutations.unRegisterToComp())
 const authStore = useAuthStore()
 const climberStore = useClimberStore()
 // Same host every other call uses, so this cannot drift away from it again.
@@ -179,7 +181,7 @@ const askUnRegister = (cat) => {
             category : cat.id,
             contenderid : climber.value.id
         }
-        store.dispatch('unRegisterToComp',payload)
+        unRegisterToCompMutate(payload)
         .then(ret => {
             toaster(ret.message)
         })
@@ -197,7 +199,7 @@ const askRegister = (cat) => {
             category : cat.id,
         }
         isRegistering.value = true
-        store.dispatch('registerToComp',payload)
+        registerToCompMutate(payload)
         .then(ret => {
             toaster(ret.message)
         })

@@ -193,10 +193,13 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
+import { mutations } from '@js/mutations.js'
 import { useClimberStore } from '@js/stores/climber.store.js'
 import { f7 } from 'framework7-vue'
 
-import { onUnmounted,  computed, ref } from 'vue'
+import { onUnmounted, watch, computed, ref } from 'vue'
 import PButton from '@components/PButton.vue'
 import { right } from '@js/helpers'
 import duration from 'dayjs/plugin/duration'
@@ -229,10 +232,13 @@ const props = defineProps({
 
 const store = useStore()
 const climberStore = useClimberStore()
+const { mutateAsync: saveCheckpointMutate } = useMutation(mutations.publicSaveCheckpoint())
+const { mutateAsync: deleteCheckpointMutate } = useMutation(mutations.publicDeleteCheckpoint())
+const { mutateAsync: getPointsPerRouteMutate } = useMutation(mutations.publicGetPointsPerRoute())
 const ticks = computed(() => store.state.alltime.ticks)
 const isTicked = (pid) => {
   // check this against comp ticks
-  const comp = store.state.competition
+  const comp = props.comp
   if (comp == null) {
     return false
   }
@@ -241,18 +247,18 @@ const isTicked = (pid) => {
 }
 
 // Route ids the climber has already topped in this comp (the preview only applies to the rest).
-const toppedIds = computed(() => Object.keys(store.state.competition?.userticks || {}).map(Number))
+const toppedIds = computed(() => Object.keys(props.comp?.userticks || {}).map(Number))
 const isTopPointsType = computed(() => TOP_POINTS_TYPES.includes(props.comp.tyyppi))
 const isTriesAndBonusType = computed(() => TRIES_AND_BONUS_TYPES.includes(props.comp.tyyppi))
-const myCheckpointFor = (pid) => myCheckpointForHelper(store.state.competition?.my_checkpoints, pid)
+const myCheckpointFor = (pid) => myCheckpointForHelper(props.comp?.my_checkpoints, pid)
 // Read-only here: the checkpoint endpoints need a signed-in climber.
 const ladderFor = (prob) => {
-  const tries = store.state.competition?.my_checkpoint_tries
+  const tries = props.comp?.my_checkpoint_tries
   return ladderFromServer({
     zones: prob?.pivot?.checkpoints?.length ?? 0,
     checkpoint: myCheckpointFor(prob.id),
     tries: tries == null || Array.isArray(tries) ? null : tries[prob.id],
-    topTick: store.state.competition?.userticks?.[prob.id] ?? null,
+    topTick: props.comp?.userticks?.[prob.id] ?? null,
   })
 }
 // Zones/bonus + top on a ladder, saved like checkpoint_points' on the
@@ -284,14 +290,17 @@ const ladderRowClass = computed(() => {
   return { 'comp-row--ladder': isLadderType.value, 'comp-row--ladder-stacked': stacked }
 })
 const errors = ref("")
-const loaded = ref(false)
 const showPointsPerRoute = ref(false)
 const showResultList = ref(false)
 dayjs.extend(duration)
 dayjs.extend(isBetween)
 const { t } = useI18n()
-const compResults = computed(() => store.state.compResults)
 const climber = computed(() => climberStore.climber)
+const compResultsQuery = useQuery({
+  ...queries.publicCompResults(() => props.comp.id, () => climber.value?.point_entry_key),
+  refetchInterval: 45 * 1000,
+})
+const compResults = computed(() => compResultsQuery.data.value ?? null)
 
 const isJudge = computed(() => {
   const comp = props.comp
@@ -384,7 +393,7 @@ tries.value = Object.keys(props.comp.userticks).reduce((acc, key) => {
   return acc
 }, {})
 // sport: a saved partial height has no tick. A tick, when there is one, wins.
-const savedScores = store.state.competition?.my_checkpoint_scores ?? {}
+const savedScores = props.comp?.my_checkpoint_scores ?? {}
 Object.keys(savedScores).forEach((pid) => {
   if (tries.value[pid] == null) {
     tries.value[pid] = { tries: 1, sport_points: savedScores[pid] }
@@ -417,7 +426,11 @@ const setTries = (id, triesAmount) => {
   tries.value[id] = { ...(tries.value[id] ?? { sport_points: 0 }), tries: triesAmount }
 }
 const lastUpdate = ref(dayjs())
+// Driven by the query itself (see compResultsQuery above), which refetches
+// on its own 45s interval; this just stamps whenever a fetch actually lands
+// a new payload.
 const lastResultUpdate = ref(dayjs())
+watch(compResultsQuery.data, () => { lastResultUpdate.value = dayjs() })
 
 let timerID = null
 
@@ -425,7 +438,7 @@ if (props.comp.tyyppi == 'variable_points') {
   const fetchPointsPerRoute = () => {
     // Update points per route
     const payload = { compid: props.comp.id, point_entry_key: climber.value.point_entry_key }
-    store.dispatch('publicGetPointsPerRoute', payload)
+    getPointsPerRouteMutate(payload)
       .then(() => {
         lastUpdate.value = dayjs()
       })
@@ -438,27 +451,11 @@ if (props.comp.tyyppi == 'variable_points') {
   fetchPointsPerRoute()
 }
 
-const fetchResults = () => {
-  // Update points per route
-  const payload = { compid: props.comp.id  , point_entry_key: climber.value.point_entry_key }
-  store.dispatch('publicGetCompResults', payload)
-    .then(() => {
-      lastResultUpdate.value = dayjs()
-      loaded.value = true
-    })
-      .catch(err => {
-        //errors.value = handleValidationErrors(err)
-      })
-}
-const resultTimerID = setInterval(fetchResults, 45 * 1000)
-fetchResults()
-
 onUnmounted(() => {
   // Stop udpates when page unloads
   if (timerID != null) {
     clearInterval(timerID)
   }
-  clearInterval(resultTimerID)
 })
 
 setInterval(() => {
@@ -480,7 +477,7 @@ const timeLeft = ref(null)
 // tick's own tries_bonus, so their Top carries the bonus rung's count.
 const withKey = (payload) => ({ ...payload, point_entry_key: climber.value?.point_entry_key })
 const ladders = useCheckpointLadders({
-  store,
+  comp: () => props.comp,
   compId: () => props.comp.id,
   t,
   saveTop: (pid, triesToTop, triesBonus) => {
@@ -489,8 +486,8 @@ const ladders = useCheckpointLadders({
   },
   deleteTop: (pid) => store.dispatch('publicDeleteTickByProblem', withKey({ problemid: pid })),
   zonesFor: () => ZONE_COUNTS[props.comp.tyyppi] ?? 0,
-  saveCheckpoint: (payload) => store.dispatch('publicSaveCheckpoint', withKey(payload)),
-  deleteCheckpoint: (payload) => store.dispatch('publicDeleteCheckpoint', withKey(payload)),
+  saveCheckpoint: (payload) => saveCheckpointMutate(withKey(payload)),
+  deleteCheckpoint: (payload) => deleteCheckpointMutate(withKey(payload)),
   bonusAffectsTop: isTriesAndBonusType.value,
   legacyZoneTries: props.comp.tyyppi == 'ifsc_2024_bouldering'
     ? (tick) => ({ 1: tick.attempts_low_zone, 2: tick.attempts_high_zone })
@@ -517,7 +514,7 @@ const saveSportScore = (id, score) => {
     ? store.dispatch('publicDeleteTickByProblem', withKey({ problemid: id }))
     : Promise.resolve()
   return untop
-    .then(() => store.dispatch('publicSaveCheckpoint', withKey({ compid: props.comp.id, problemid: id, score })))
+    .then(() => saveCheckpointMutate(withKey({ compid: props.comp.id, problemid: id, score })))
     .then(() => toaster(t('comps.score_saved')))
     .catch(() => toaster(t('ladder.not_saved')))
     .finally(() => { busy.value = { ...busy.value, [id]: false } })
@@ -577,7 +574,7 @@ const getPointsPerProblem = (num) => {
   return rule.points
 }
 const pointRules = computed(() => {
-  const comp = store.state.competition
+  const comp = props.comp
   if (comp.pointsharingobj == null) {
     return null
   }
@@ -593,7 +590,7 @@ const getStyles = (prob) => {
   }
 }
 const tickCount = computed(() => {
-  const comp = store.state.competition
+  const comp = props.comp
   if (comp == null) {
     return 0
   }

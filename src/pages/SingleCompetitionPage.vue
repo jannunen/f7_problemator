@@ -24,8 +24,9 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
-import { ref, onMounted, computed, watch } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
+import { computed } from 'vue'
 import CompetitionRegisterInfo from '@components/comps/CompetitionRegisterInfo.vue'
 import CompetitionEntry from '@components/comps/CompetitionEntry.vue'
 import { useClimberStore } from '@js/stores/climber.store.js'
@@ -34,14 +35,9 @@ const props = defineProps({
     compid : Number,
 })
 const { t } = useI18n()
-const store = useStore()
 const climberStore = useClimberStore()
-const comp = computed(() => store.state.competition)
+const { data: comp, isPending } = useQuery(queries.competition(() => props.compid))
 const climber = computed(() => climberStore.climber)
-const url = window.location.href
-const urlParams = new URLSearchParams(url.split('?')[1])
-store.dispatch('getCompetition', { compid: props.compid })
-  .then(() => loading.value = false)
 
 const isPaidAndRegistered = computed(() => {
   if (climber.value == null) {
@@ -61,11 +57,8 @@ const getJudgingLink = computed(() => {
 const isJudge = computed(() => {
   return comp.value.judges.find(x => {
     return x.id == climber.value.id
-   }) 
+   })
 })
-  
 
-const loading = ref(true)
-onMounted(() => {
-})
+const loading = computed(() => isPending.value)
 </script>
