@@ -46,8 +46,10 @@
  * the climbing; this is the page you come to when you actually want to read
  * them, so it wraps and gives each one room.
  */
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import BadgeMedal from '@components/badges/BadgeMedal.vue'
@@ -60,13 +62,17 @@ const store = useStore()
 const selected = ref(null)
 const sheetOpen = ref(false)
 
-const badges = computed(() => store.state.badges)
 const gymid = computed(() => store.state.gymid)
 const gymName = computed(() => store.state.gym?.name ?? '')
 
-const earnedList = computed(() => badges.value.earned ?? [])
+// Deep-linkable: this page must stand on its own if it is opened first. The
+// query is keyed on gymid, so it fires as soon as the gym is known, with no
+// manual watch/dispatch needed.
+const { data } = useQuery(queries.badges(gymid))
+
+const earnedList = computed(() => data.value?.earned ?? [])
 const earnedIds = computed(() => new Set(earnedList.value.map((e) => e.badge_id)))
-const allBadges = computed(() => badges.value.definitions ?? [])
+const allBadges = computed(() => data.value?.definitions ?? [])
 
 // Ladders rather than rungs. A group shows at most twice: the highest level
 // reached under Earned, and the next one to reach under Not yet. Every rung
@@ -104,9 +110,6 @@ function open(badge) {
   selected.value = badge
   sheetOpen.value = true
 }
-
-// Deep-linkable: this page must stand on its own if it is opened first.
-watch(gymid, (id) => id && store.dispatch('loadBadges', id), { immediate: true })
 </script>
 
 <style scoped>

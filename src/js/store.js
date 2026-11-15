@@ -56,7 +56,6 @@ export default createStore({
     access_token : readStoredToken(),
     authStep: 'idle', // idle, otp_sent, verifying
     debugOtp: null, // dev-only: the code, when the API is running with debug on
-    badges: { earned: [], definitions: [], loading: false, gymid: null },
     authEmail: '',
     authType: 'signin',
     authError: null,
@@ -193,9 +192,6 @@ export default createStore({
     },
     setDebugOtp(state, payload) {
       state.debugOtp = payload
-    },
-    setBadges(state, payload) {
-      state.badges = { ...state.badges, ...payload }
     },
     setAuthStep(state, payload) {
       state.authStep = payload
@@ -457,28 +453,6 @@ export default createStore({
         commit('problems', { ...state.problems, [payload.id]: { ...problem, reports: ret.reports } })
       }
       return ret.reports
-    },
-    async loadBadges({ commit, state }, gymid) {
-      const gym = gymid ?? state.gymid
-      if (!gym) return
-      // Badges belong to a gym, so a gym change invalidates them. Skipping the
-      // refetch only when the gym is unchanged keeps switching gyms honest
-      // without refetching on every visit to the home screen.
-      if (state.badges.gymid === gym && !state.badges.loading) return
-      commit('setBadges', { loading: true })
-      try {
-        const ret = await api.getBadges(gym)
-        commit('setBadges', {
-          earned: ret?.earned ?? [],
-          definitions: ret?.definitions ?? [],
-          gymid: gym,
-          loading: false,
-        })
-      } catch (err) {
-        // A failed badge fetch must not take the home screen down with it.
-        console.warn('badges could not be loaded:', err?.message ?? err)
-        commit('setBadges', { loading: false })
-      }
     },
     async requestOtp({ commit }, payload) {
       commit('setAuthError', null)

@@ -46,8 +46,10 @@
  * a trophy cabinet. An empty cabinet with six things to chase is more use
  * than an empty section.
  */
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import BadgeMedal from './BadgeMedal.vue'
@@ -63,17 +65,20 @@ const store = useStore()
 const selected = ref(null)
 const sheetOpen = ref(false)
 
-const badges = computed(() => store.state.badges)
 const gymid = computed(() => store.state.gymid)
 
+// Badges belong to a gym: the query is keyed on gymid, so switching gym
+// refetches on its own — no manual watch/dispatch needed any more.
+const { data } = useQuery(queries.badges(gymid))
+
 // The earned rows carry badge_id (the definition), not their own id.
-const earnedList = computed(() => badges.value.earned ?? [])
+const earnedList = computed(() => data.value?.earned ?? [])
 const earnedIds = computed(() => new Set(earnedList.value.map((e) => e.badge_id)))
 
 // One medal per ladder: the highest level earned, or the next one to chase.
 // Without this a climber with ten years in the gym would see ten near
 // identical medals for the same award.
-const collapsed = computed(() => collapsedBadges(badges.value.definitions ?? [], earnedIds.value))
+const collapsed = computed(() => collapsedBadges(data.value?.definitions ?? [], earnedIds.value))
 
 // Earned first, then the rest — both already in the gym's sort order.
 const allBadges = computed(() => [
@@ -96,7 +101,7 @@ const earnedAt = computed(() => {
 // The shelf opens the same sheet as the full page, so it explains a ladder
 // the same way — otherwise the same badge would say different things
 // depending on which screen you tapped it from.
-const ladders = computed(() => groupTiers(badges.value.definitions ?? [], earnedIds.value))
+const ladders = computed(() => groupTiers(data.value?.definitions ?? [], earnedIds.value))
 
 const selectedGroup = computed(() =>
   selected.value ? ladders.value.find((g) => g.rungs.some((r) => r.id === selected.value.id)) : null
@@ -122,10 +127,6 @@ function open(badge) {
   selected.value = badge
   sheetOpen.value = true
 }
-
-// Badges belong to a gym, so switching gym reloads them. The action itself
-// skips the request when the gym has not changed.
-watch(gymid, (id) => id && store.dispatch('loadBadges', id), { immediate: true })
 </script>
 
 <style scoped>
