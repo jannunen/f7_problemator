@@ -3,8 +3,6 @@ import { invalidateAfter } from '@js/queryClient'
 import { signInWith, clearSupabaseSession } from '@helpers/socialAuth.js'
 import api from './api'
 import { setAuthToken, readStoredToken } from './authToken.js'
-import home from "./store/home.store.js"
-import climbers from './store/climber.store.js'
 import { useUiStore } from './stores/ui.store.js'
 import { pinia } from './stores/index.js'
 
@@ -27,10 +25,6 @@ const commitSavedCheckpoint = (commit, problemid, ret) => {
 }
 
 export default createStore({
-  modules : {
-    home,
-    climbers,
-  },
   namespaced: true,
   state: {
     rankings : null,

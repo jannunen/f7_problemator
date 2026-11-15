@@ -191,6 +191,13 @@ export const queries = {
       ]).then(([ticks, tries]) => ({ ticks, tries })),
     enabled: needs(span),
   }),
+
+  /** A climber's public profile: stats, follow state, latest ascents. */
+  climberProfile: (id) => ({
+    queryKey: key('climber-profile', id),
+    queryFn: () => api.climber.profile(unref(id)),
+    enabled: needs(id),
+  }),
 }
 
 export { invalidate } from '@js/queryKeyNames'

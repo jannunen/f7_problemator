@@ -146,8 +146,11 @@
 <script setup>
 import { f7 } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
-import { ref, computed } from 'vue'
+import { computed } from 'vue'
 import { useStore } from 'vuex'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys'
+import { mutations } from '@js/mutations'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { estimateGrade } from '@js/helpers'
 import dayjs from 'dayjs'
@@ -162,23 +165,19 @@ const props = defineProps({
   id: Number,
 })
 
-const profile = computed(() => store.state.climbers.profile)
+const { data: profile, isLoading: loading } = useQuery(queries.climberProfile(computed(() => props.id)))
 const climber = computed(() => store.state.climber)
 const isOwnProfile = computed(() => String(props.id) === String(climber.value?.id))
 const grades = computed(() => store.state.grades)
-const loading = ref(true)
-
-store.dispatch('climbers/profile', props.id).then(() => {
-  loading.value = false
-})
 
 const amIFollowing = computed(() => {
   if (!climber.value || !profile.value?.followers) return false
   return profile.value.followers.find(x => x.follow_from == climber.value.id)
 })
 
+const { mutate: followUnFollowMutate } = useMutation(mutations.followUnFollow())
 const followUnFollow = (id) => {
-  store.dispatch('climbers/followUnFollow', id)
+  followUnFollowMutate(id)
 }
 
 const hasSocials = computed(() => {

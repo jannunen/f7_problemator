@@ -23,6 +23,8 @@
 <script setup>
 import { computed } from 'vue'
 import { useStore } from 'vuex'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations'
 const props = defineProps({
   profile: Object,
 })
@@ -34,7 +36,8 @@ const amIFollowing= computed(() => {
   }
   return props.profile.followers.find(x => x.follow_from == climber.value.id)
 })
+const { mutate: followUnFollowMutate } = useMutation(mutations.followUnFollow())
 const followUnFollow = (id) => {
-  store.dispatch('climbers/followUnFollow', id)
+  followUnFollowMutate(id)
 }
 </script>
