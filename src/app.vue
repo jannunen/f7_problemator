@@ -52,6 +52,7 @@ import { pendingWebSession } from '@helpers/socialAuth.js'
 import { useBrowserHistory, browserHistoryRoot } from '@js/platform.js'
 import { readStoredToken } from '@js/authToken.js'
 import { wasReturnedFromStripeCheckout } from '@js/helpers/stripeReturn.js'
+import { handleProfileBootstrapError } from '@js/helpers/profileBootstrapError.js'
 import { invalidate, queries } from '@js/queryKeys.js'
 import { useI18n } from 'vue-i18n'
 import { useQueryClient, useQuery } from '@tanstack/vue-query'
@@ -83,7 +84,17 @@ export default {
     // into the still-live Vuex store — see queryKeys.js) starts the moment
     // sign-in lands, rather than only incidentally whenever some page that
     // happens to read gym/styles/grades/walls happens to mount.
-    useQuery(queries.profile(gymid))
+    const profileQuery = useQuery(queries.profile(gymid))
+    // The old getProfile dispatch's try/catch logged the climber out on ANY
+    // rejection — a network error, a 500, not only an expired/invalid token
+    // (a 401 that can't be refreshed already logs out on its own, via the
+    // jwt interceptor's forceLogout). useQuery has no onError callback in
+    // this TanStack version any more than it has onSuccess, so this watches
+    // the query's own error state instead of awaiting+catching a dispatch —
+    // same behavior, same trigger, new wiring. See
+    // helpers/profileBootstrapError.js for why the logic itself lives there
+    // rather than inline.
+    watch(profileQuery.error, (err) => handleProfileBootstrapError(err, () => authStore.logout()))
     // Read from where the page is actually served rather than configured, so
     // it cannot disagree with the origin pushState will check it against.
     // See platform.js for what that disagreement costs.
