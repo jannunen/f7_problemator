@@ -185,10 +185,13 @@
 import { useI18n } from 'vue-i18n'
 import { onMounted, watch,  ref,  computed } from 'vue'
 import { useStore } from 'vuex'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations.js'
 import { toaster, alert } from '@js/helpers/notifications.js'
 import { getNames } from 'country-list'
 import dayjs from 'dayjs'
 const store = useStore()
+const { mutateAsync: saveSettingsMutate } = useMutation(mutations.saveSettings())
 const { t } = useI18n()
 const props = defineProps({
     f7router: Object,
@@ -218,7 +221,7 @@ const saveSettings = () => {
   if (Array.isArray(payload.birthday)) {
     payload.birthday = payload.birthday[0]
   }
-    store.dispatch('saveSettings',payload)
+    saveSettingsMutate(payload)
         .then(ret => {
             toaster(ret.message)
         })

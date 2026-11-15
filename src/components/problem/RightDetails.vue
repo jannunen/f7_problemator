@@ -56,16 +56,20 @@
 
 <script setup>
 import { useI18n } from 'vue-i18n'
-import store from '@js/store.js'
 import { left, getTagShort } from '@js/helpers'
 import { ref, onMounted, computed } from "vue";
 import GradeOpinions from "@components/ui/problem/GradeOpinions.vue";
 import ListStyles from '@components/ui/problem/ListStyles.vue'
 import { fromNow } from '@helpers/filters.js'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 const { t } = useI18n()
 
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
 const leaveOnBothSides = ref(3);
-const grades = computed(() => store.state.grades)
+const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
 
 const props = defineProps({
   problem: Object,

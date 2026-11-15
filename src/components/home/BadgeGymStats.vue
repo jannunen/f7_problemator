@@ -31,7 +31,7 @@ const { t } = useI18n()
 const props = defineProps({
     gym: Object,
 })
-const problems = computed(() => store.state.gym.problems ?? [])
+const problems = computed(() => props.gym?.problems ?? [])
 const ticks = computed(() => store.state.alltime.ticks ?? [])
 
 // Computed rather than calculated once in setup. This card used to read its

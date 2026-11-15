@@ -1,6 +1,7 @@
 import { computed, unref } from 'vue'
 import api from '@js/api'
 import { isAuthenticated } from './authToken.js'
+import store from './store.js'
 
 /**
  * Every server query the app makes, in one place.
@@ -197,6 +198,50 @@ export const queries = {
     queryKey: key('climber-profile', id),
     queryFn: () => api.climber.profile(unref(id)),
     enabled: needs(id),
+  }),
+
+  /**
+   * This climber's bootstrap payload: their own settings, the selected
+   * gym (which carries styles/grades/walls... — see each call site's
+   * `select`), and country for the ranking they see by default.
+   *
+   * Gated on isAuthenticated rather than needing a gym the way badges/
+   * newProblems/sprayWalls are: GET /profile already answers for a climber
+   * with no gym chosen yet (it is the local gym id, not the API call, that
+   * decides whether Home.vue's "no gym selected" prompt shows). Gating this
+   * on a gym the way the others are would starve that prompt, and the
+   * climber bridge below, of the one call that feeds them both.
+   *
+   * The bridge: climber/rankingTarget/problems are Activity-owned pieces
+   * this migration plan deliberately leaves on the still-live Vuex store
+   * (see the plan's "climber boundary") — same bridge pattern used
+   * elsewhere in this migration (auth.store.js's logout, for one), just
+   * living inside the queryFn rather than an onSuccess callback: TanStack
+   * Query v5 dropped useQuery's onSuccess, so the queryFn's own body — the
+   * one place guaranteed to run exactly once per fetch, before the result
+   * is handed back — is what the old getProfile action's success path
+   * becomes now.
+   */
+  profile: (gymid) => ({
+    queryKey: key('profile', gymid),
+    queryFn: async () => {
+      const ret = await api.getProfile(unref(gymid))
+      if (ret != null && ret.profile != null) {
+        if (ret.gym != null) {
+          store.commit('rankingTarget', ret.gym.country)
+          if (ret.gym.problems != null) {
+            const problems = ret.gym.problems.reduce((acc, prob) => {
+              acc[prob.id] = prob
+              return acc
+            }, {})
+            store.commit('problems', problems)
+          }
+        }
+        store.commit('climber', ret.climber)
+      }
+      return ret
+    },
+    enabled: isAuthenticated,
   }),
 }
 

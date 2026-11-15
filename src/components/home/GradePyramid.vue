@@ -81,8 +81,13 @@ import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 
 const store = useStore()
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
 const { t } = useI18n()
 const routeType = ref('boulder')
 const days = ref(90)
@@ -101,7 +106,7 @@ const selectedDayLabel = computed(() =>
   dayOptions.value.find(o => o.value === days.value)?.label || days.value + ' ' + t('mylogs.days')
 )
 
-const grades = computed(() => store.state.grades || [])
+const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades ?? [] })
 const ticks = computed(() => store.state.alltime.ticks || [])
 
 function segPct(segCount, total) {

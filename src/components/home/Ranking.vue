@@ -142,14 +142,19 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { watch, ref, computed } from 'vue'
 import ShowRanking from '@components/home/ShowRanking.vue'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 const { t } = useI18n()
 const rankingTab = ref(0)
 const store = useStore()
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
 const rankingTarget = ref(null)
 const routeTypeFilter = ref('all')
 const showRankingSheet = ref(false)
 const rankings = computed(() => store.state.rankings)
-const gym = computed(() => store.state.gym)
+const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
 const filteredRankings = computed(() => {
     if (!rankings.value) return null
     return rankings.value.filter(r => r.ranking.route_type === routeTypeFilter.value)

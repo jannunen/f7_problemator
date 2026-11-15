@@ -36,17 +36,17 @@
 
 <script setup>
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import { f7 } from 'framework7-vue'
 import api from '@js/api'
 
 const { t } = useI18n()
-const store = useStore()
+const gymStore = useGymStore()
 
-const gymid = computed(() => store.state.gymid)
+const gymid = computed(() => gymStore.gymid)
 
 // Keyed by gym so switching gyms refetches rather than showing the previous
 // gym's walls, and disabled until a gym is actually chosen.

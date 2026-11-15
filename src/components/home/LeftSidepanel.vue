@@ -131,6 +131,9 @@ import { BUILD_STAMP } from '@js/buildInfo.js'
 import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { useAuthStore } from '@js/stores/auth.store.js'
+import { useGymStore } from '@js/stores/gym.store.js'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import { f7 } from 'framework7-vue'
 import { ref, watch, computed } from 'vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
@@ -141,11 +144,13 @@ import logo from '../../assets/images/logo.png'
 const store = useStore()
 const uiStore = useUiStore()
 const authStore = useAuthStore()
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
 const showTickHelpDialog = ref(false)
 const showTipsDialog = ref(false)
 const showChangeLogDialog = ref(false)
 
-const gym = computed(() => store.state.gym)
+const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
 const version = computed(() => uiStore.version)
 // Display only — never compared against the server, which only knows plain
 // semver (see isUpdateAvailable below). Constant per build, so no need to

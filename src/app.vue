@@ -52,13 +52,14 @@ import { pendingWebSession } from '@helpers/socialAuth.js'
 import { useBrowserHistory, browserHistoryRoot } from '@js/platform.js'
 import { readStoredToken } from '@js/authToken.js'
 import { wasReturnedFromStripeCheckout } from '@js/helpers/stripeReturn.js'
-import { invalidate } from '@js/queryKeys.js'
+import { invalidate, queries } from '@js/queryKeys.js'
 import { useI18n } from 'vue-i18n'
-import { useQueryClient } from '@tanstack/vue-query'
+import { useQueryClient, useQuery } from '@tanstack/vue-query'
 import { watch, computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { useAuthStore } from '@js/stores/auth.store.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import $ from 'dom7'
 import { f7, f7ready } from 'framework7-vue'
 
@@ -72,9 +73,17 @@ export default {
     const store = useStore()
     const uiStore = useUiStore()
     const authStore = useAuthStore()
+    const gymStore = useGymStore()
     const queryClient = useQueryClient()
     const allTime = computed(() => store.state.alltime)
-    const profile = computed(() => store.state.profile)
+    const gymid = computed(() => gymStore.gymid)
+    // No data read off this here — app.vue is the one place guaranteed to be
+    // mounted for the whole authenticated session, so this is what makes
+    // sure the profile fetch (and its climber/rankingTarget/problems bridge
+    // into the still-live Vuex store — see queryKeys.js) starts the moment
+    // sign-in lands, rather than only incidentally whenever some page that
+    // happens to read gym/styles/grades/walls happens to mount.
+    useQuery(queries.profile(gymid))
     // Read from where the page is actually served rather than configured, so
     // it cannot disagree with the origin pushState will check it against.
     // See platform.js for what that disagreement costs.
@@ -192,22 +201,22 @@ export default {
     }
 
     // Set up watch BEFORE bootstrapping token so the watcher fires
-    watch(access_token, async (newValue, oldValue) => {
+    //
+    // No longer awaits (or try/catches) a getProfile dispatch: that action
+    // is gone (see queryKeys.js's `profile` query, started above), and the
+    // one thing the catch here was for — an unrecoverable session — is
+    // already handled centrally by the jwt interceptor's forceLogout, which
+    // calls authStore.logout() on its own whenever a 401 cannot be
+    // refreshed (see jwt.interceptor.js). ready no longer waits on a
+    // profile fetch resolving either: Home.vue's own skeleton/sign-in
+    // choice reads isAuthenticated directly now, not just ready, so a slow
+    // or failed fetch cannot strand it.
+    watch(access_token, (newValue, oldValue) => {
       if (newValue != null && newValue != "" && newValue != "null") {
-        try {
-          if (profile.value.settings == null) {
-            console.log('Loading profile')
-            await store.dispatch('getProfile')
-          }
-          if (allTime.value.ticks.length == 0 && allTime.value.tries.length == 0) {
-            console.log('Loading ticks')
-            store.dispatch('loadAllTimeTicks')
-          }
-          uiStore.setReady(true)
-        } catch (err) {
-          console.warn('Session expired or invalid token, redirecting to login', err)
-          authStore.logout()
+        if (allTime.value.ticks.length == 0 && allTime.value.tries.length == 0) {
+          store.dispatch('loadAllTimeTicks')
         }
+        uiStore.setReady(true)
       }
       uiStore.setInitializing(false)
     }, {

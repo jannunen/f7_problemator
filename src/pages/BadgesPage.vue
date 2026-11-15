@@ -47,9 +47,9 @@
  * them, so it wraps and gives each one room.
  */
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import BadgeMedal from '@components/badges/BadgeMedal.vue'
@@ -57,13 +57,14 @@ import BadgeDetailSheet from '@components/badges/BadgeDetailSheet.vue'
 import { groupTiers } from '@helpers/badgeTiers.js'
 
 const { t } = useI18n()
-const store = useStore()
+const gymStore = useGymStore()
 
 const selected = ref(null)
 const sheetOpen = ref(false)
 
-const gymid = computed(() => store.state.gymid)
-const gymName = computed(() => store.state.gym?.name ?? '')
+const gymid = computed(() => gymStore.gymid)
+const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
+const gymName = computed(() => gym.value?.name ?? '')
 
 // Deep-linkable: this page must stand on its own if it is opened first. The
 // query is keyed on gymid, so it fires as soon as the gym is known, with no

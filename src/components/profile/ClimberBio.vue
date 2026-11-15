@@ -43,12 +43,15 @@
 <script setup>
 import { estimateGrade } from '@/js/helpers'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 import { ref, computed } from 'vue'
 import { f7 } from 'framework7-vue'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 const { t } = useI18n()
-const store = useStore()
-const grades = computed(() => store.state.grades)
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
+const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
 const props = defineProps({
   profile: Object,
 })

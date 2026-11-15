@@ -4,8 +4,10 @@ import api from '@js/api'
 import { signInWith, clearSupabaseSession } from '@helpers/socialAuth.js'
 import { setAuthToken, readStoredToken } from '../authToken.js'
 import { useUiStore } from './ui.store.js'
+import { useGymStore } from './gym.store.js'
 import { pinia } from './index.js'
 import store from '../store.js'
+import { queryClient } from '@js/queryClient'
 
 /**
  * Auth/session state: OTP sign-in, social sign-in, token state, logout.
@@ -25,14 +27,16 @@ import store from '../store.js'
  * backend's Supabase-exchange route was removed months ago, so they
  * currently fail if ever invoked — but are ported faithfully anyway.
  *
- * `logout()` keeps calling into the still-live Vuex `store` for the two
- * pieces of state that remain Vuex's own domain and are out of scope for
- * this migration (`state.climber`, and `state.profile`/`state.profileLoaded`
- * — see the migration plan's Global Constraints "`state.climber` boundary"
- * and Task 7), plus the `ready` flag that already lives in the Pinia ui
- * store (bridged the same way `store.js`'s `getProfile`/`changeGym` already
- * bridge into it). This is the only way to drop logout's Vuex action
- * entirely without changing what climbers see on screen.
+ * `logout()` keeps calling into the still-live Vuex `store` for one piece
+ * of state that remains Vuex's own domain and is out of scope for this
+ * migration (`state.climber` — see the migration plan's Global Constraints
+ * "`state.climber` boundary"). `state.profile`/`state.profileLoaded` moved
+ * off Vuex in Task 7 along with `gymid`, so logout clears those through the
+ * Pinia gym store and the TanStack `profile` query's cache instead, and sets
+ * the `ready` flag that already lives in the Pinia ui store (bridged the
+ * same way `store.js`'s now-removed `getProfile`/`changeGym` used to bridge
+ * into it). This is the only way to drop logout's Vuex action entirely
+ * without changing what climbers see on screen.
  */
 export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(!!readStoredToken())
@@ -156,12 +160,13 @@ export const useAuthStore = defineStore('auth', () => {
     // Vuex store exactly as the old action did.
     store.commit('climber', null)
     isAuthenticated.value = false
-    // profile/profileLoaded belong to the Profile/bootstrap domain (a later
-    // task), not Auth — same reasoning as climber above: keep writing them
-    // through the still-live Vuex store so logging out still clears a now-
-    // stale profile from screen, rather than silently dropping that behavior.
-    store.commit('profile', { settings: null })
-    store.commit('profileLoaded', false)
+    // gymid and the profile payload now live in the Pinia gym store and the
+    // TanStack `profile` query (Task 7), not Vuex — clear both the same way
+    // the commits here used to clear state.profile/state.profileLoaded, so a
+    // stale gym pick or a previous climber's cached profile cannot survive
+    // into whoever signs in next.
+    useGymStore(pinia).setGymid(null)
+    queryClient.removeQueries({ queryKey: ['profile'] })
     authStep.value = 'idle'
     authEmail.value = ''
     authError.value = null

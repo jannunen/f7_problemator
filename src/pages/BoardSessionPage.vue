@@ -172,10 +172,12 @@
 import { computed, nextTick, onMounted, ref } from 'vue'
 import { f7 } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 import dayjs from 'dayjs'
 import api from '@js/api.js'
 import PopupTickDate from '@components/problem/TickDate.vue'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import {
   BOARDS,
   needsAngle,
@@ -187,7 +189,8 @@ import {
 } from '@js/helpers/boardSession.js'
 
 const { t } = useI18n()
-const store = useStore()
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
 
 const ANGLES = [0, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70]
 
@@ -205,17 +208,18 @@ const saving = ref(false)
 const error = ref(null)
 
 // Keyed by id in the store; the screen needs them in order, hardest last.
-const grades = computed(() => store.state.grades ?? {})
+const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades ?? {} })
 const gradeList = computed(() =>
-  Object.values(grades.value)
+  Object.values(grades.value ?? {})
     .filter((g) => g?.id != null && g?.name)
     .sort((a, b) => Number(a.score ?? 0) - Number(b.score ?? 0))
 )
 
 // The gym they are standing in. Recorded as board_gymid, which is not the
 // same column as gymid — a personal send never joins a gym's catalogue.
-const gymId = computed(() => store.state.gym?.id ?? null)
-const gymName = computed(() => store.state.gym?.name ?? '')
+const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
+const gymId = computed(() => gym.value?.id ?? null)
+const gymName = computed(() => gym.value?.name ?? '')
 
 const totals = computed(() => summarise(ascents.value, grades.value))
 const score = computed(() => sessionScore(ascents.value, grades.value))

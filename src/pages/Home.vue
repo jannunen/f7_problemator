@@ -23,12 +23,13 @@
            permanent "Loading gyms…". Once you are in, the dashboard's own
            empty state asks you to choose one.
 
-           Gated on isAuthenticated rather than profileLoaded, and kept
-           OUTSIDE that block: picking a gym flips profileLoaded to false
-           synchronously, so the selector would unmount in the same tick as
-           its own popup closed, and Framework7 destroys a popup on unmount
-           without closing it — stranding the backdrop and the body scroll
-           lock. Signing in is the only thing that changes isAuthenticated. -->
+           Gated on isAuthenticated rather than the profile query's isSuccess,
+           and kept OUTSIDE that block: a gym switch changes queries.profile's
+           key, so isSuccess goes false the moment one is picked — the
+           selector would unmount in the same tick as its own popup closed,
+           and Framework7 destroys a popup on unmount without closing it —
+           stranding the backdrop and the body scroll lock. Signing in is the
+           only thing that changes isAuthenticated. -->
       <div v-if="isAuthenticated" class="home-section">
         <gym-selector />
         <!-- Against the gym it is about. Problems expire from one gym, so the
@@ -38,7 +39,7 @@
         <expiring-problems-alert />
       </div>
 
-      <div v-if="profileLoaded">
+      <div v-if="isSuccess">
         <complete-profile-popup />
         <show-tick-help :opened="showTickHelpDialog" />
 
@@ -112,7 +113,17 @@
 
       </div>
       <div v-else>
-        <div v-if="!ready" class="home-skeleton">
+        <!-- Signed in: always the skeleton here, never the sign-in form,
+             however this branch was reached — including a gym switch, which
+             (same as the very first load) makes isSuccess go false again for
+             the moment the new gym's key has no cached data yet. `ready`
+             alone used to decide this and was wrong for that case: nothing
+             here flips it back to false for a switch any more (the old
+             changeGym action did, as its one job), so by then it would
+             already be true and this would show the sign-in form over an
+             authenticated session. Signed out, `ready` still gates showing
+             it until the very first auth check has actually run. -->
+        <div v-if="isAuthenticated || !ready" class="home-skeleton">
           <!-- Fallback reload prompt -->
           <!-- Skeleton: gym selector -->
           <div class="home-skeleton__row mx-4 mt-3">
@@ -189,16 +200,28 @@ import PButton from '@components/PButton.vue'
 import { computed, ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { useAuthStore } from '@js/stores/auth.store.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 const store = useStore()
 const uiStore = useUiStore()
+const gymStore = useGymStore()
 const authStore = useAuthStore()
 const showTickHelpDialog = ref(false)
 const ready = computed(() => uiStore.ready)
-const profile = computed(() => store.state.profile)
-const gym = computed(() => store.state.gym)
-const gymid = computed(() => store.state.gymid)
+const gymid = computed(() => gymStore.gymid)
+const profileQuery = useQuery(queries.profile(gymid))
+// Destructured to a top-level binding rather than read off profileQuery in
+// the template: useQuery returns toRefs() of its internal state — a plain
+// object of individual refs, not a reactive() proxy — so `profileQuery.
+// isSuccess` in a template would read the Ref object itself (always
+// truthy) rather than its value. Only a ref bound directly at this level
+// gets Vue's template auto-unwrap.
+const { isSuccess } = profileQuery
+const profile = computed(() => profileQuery.data.value?.profile)
+const gym = computed(() => profileQuery.data.value?.gym)
 const alltime = computed(() => store.state.alltime)
 const ticksLoaded = computed(() => store.state.ticksLoaded)
 const version = computed(() => uiStore.version)
@@ -245,7 +268,6 @@ watch(currentLocale, (val) => {
 const props = defineProps({
   f7router: Object,
 })
-const profileLoaded = computed(() => store.state.profileLoaded)
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const onSearchSheetClosed = () => {
   isOpened.value = false

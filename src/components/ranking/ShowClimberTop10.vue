@@ -89,9 +89,9 @@
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { right } from '@js/helpers'
-import { useStore } from 'vuex'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import { estimateGrade, toLocalTime, calculatePoints } from '@/js/helpers'
 import api from '@js/api'
 const { t } = useI18n()
@@ -106,7 +106,6 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['close', 'update:opened'])
-const store = useStore()
 
 const { data: ranking, isLoading: loading } = useQuery({
   ...queries.rankingTop10(
@@ -116,7 +115,9 @@ const { data: ranking, isLoading: loading } = useQuery({
   ),
 })
 
-const grades = computed(() => store.state.grades)
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
+const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
 const filteredProblems = computed(() => {
   if (!ranking.value?.problems) return []
   if (props.route_type === 'all') return ranking.value.problems

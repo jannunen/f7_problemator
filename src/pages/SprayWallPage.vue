@@ -189,14 +189,16 @@ import { ref, computed, watch, onBeforeUnmount } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
-import { useStore } from 'vuex'
+import { useGymStore } from '@js/stores/gym.store.js'
 import { f7 } from 'framework7-vue'
 import api from '@js/api'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
 import GradeFilter from '@components/ui/problemlist/GradeFilter.vue'
 
 const { t } = useI18n()
-const store = useStore()
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
+const { data: profileGrades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
 
 const props = defineProps({
   // Framework7 passes route params as strings.
@@ -281,7 +283,7 @@ const resetFilters = () => {
 // so ordering by it left the dropdowns in whatever order the store happened to
 // hold. score runs 100, 200, 250 ... strictly upward with difficulty.
 const gradesOnWall = computed(() => {
-  const all = store.state.grades || []
+  const all = profileGrades.value || []
   return [...all].sort((a, b) => Number(a.score ?? 0) - Number(b.score ?? 0))
 })
 

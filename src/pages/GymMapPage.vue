@@ -314,12 +314,17 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { f7 } from 'framework7-vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 const props = defineProps({
   f7router: Object,
 })
 
 const { t } = useI18n()
 const store = useStore()
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
 const svgRef = ref(null)
 const containerRef = ref(null)
 
@@ -379,9 +384,9 @@ const showLabel = computed(() => scale.value < 0.4)
 const showDetails = computed(() => scale.value < 0.33)
 
 // Data from store
-const walls = computed(() => store.state.walls || [])
+const { data: walls } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym?.walls ?? [] })
 const problems = computed(() => store.state.problems || {})
-const gym = computed(() => store.state.gym)
+const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
 const backgroundUrl = computed(() => gym.value?.gym_map_config?.background_url || null)
 const backgroundOpacity = computed(() => gym.value?.gym_map_config?.opacity ?? 0.3)
 
@@ -416,7 +421,7 @@ const filterProject = ref(false)
 const filterTodo = ref(false)
 
 const allProblems = computed(() => Object.values(problems.value))
-const styles = computed(() => store.state.styles || [])
+const { data: styles } = useQuery({ ...queries.profile(gymid), select: (data) => data.styles ?? [] })
 const allTimeTicks = computed(() => store.state.alltime?.ticks || [])
 const allTimeTries = computed(() => store.state.alltime?.tries || [])
 

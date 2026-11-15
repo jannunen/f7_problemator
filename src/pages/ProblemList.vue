@@ -187,6 +187,9 @@ import { tipShown, left, getRandom } from '@js/helpers'
 import { maxSnap } from '@js/constants.js'
 import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
+import { useGymStore } from '@js/stores/gym.store.js'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import { useI18n } from 'vue-i18n'
 import GradeFilter from '@components/ui/problemlist/GradeFilter.vue'
 import StyleFilter from '@components/ui/problemlist/StyleFilter.vue'
@@ -203,8 +206,10 @@ import {
 } from '@components/ui/problemlist/sortFunctions.js'
 const store = useStore()
 const uiStore = useUiStore()
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
 dayjs.extend(relativeTime)
-const gym = computed(() => store.state.gym)
+const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
 const routeTypes = computed(() => uiStore.routetypes)
 const onAreaSelected = (area) => {
   // Bound to <floor-map @area-selected>, so this runs whenever someone taps a
@@ -261,8 +266,8 @@ watch(problems, (newValue) => {
     store.dispatch('getProblems')
   }
 })
-const walls = computed(() => store.state.gym.walls)
-const grades = computed(() => store.state.grades)
+const { data: walls } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym.walls })
+const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
 const tipShowStatus = computed(() => uiStore.tipShowStatus)
 const loading = computed(() => store.state.loading)
 
@@ -271,7 +276,7 @@ const tries = computed(() => store.state.alltime.tries)
 const selectedWalls = ref([])
 const filters = computed(() => uiStore.filters)
 const nameFilter = ref('')
-const styles = computed(() => store.state.styles)
+const { data: styles } = useQuery({ ...queries.profile(gymid), select: (data) => data.styles })
 const storeNameFilter = computed(() => uiStore.filters.nameFilter)
 const ascentTypeFilter = ref('all')
 const soonToBeRemovedFilter = ref(false)

@@ -15,12 +15,15 @@
 
 </template>
 <script setup>
-import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
-const store = useStore()
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
 
-const walls = computed(() => store.state.walls)
+const { data: walls } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym?.walls ?? [] })
 const wallsDropdown = computed(() => {
   return walls.value.map(a => ({ id: a.id, label: a.wallchar + " " + a.walldesc }))
 })

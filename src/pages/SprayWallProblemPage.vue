@@ -305,11 +305,15 @@ import PhotoAdjustControls from '@components/ui/PhotoAdjustControls.vue'
 import { usePhotoAdjust } from '@js/usePhotoAdjust'
 import { useStore } from 'vuex'
 import { useAuthStore } from '@js/stores/auth.store.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import AddTick from '@components/problem/AddTick.vue'
 
 const { t } = useI18n()
 const store = useStore()
 const authStore = useAuthStore()
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
+const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
 
 const props = defineProps({
   problemId: [String, Number],
@@ -458,9 +462,9 @@ const opining = ref(false)
 // way rather than trusted to arrive that way.
 const gradeOpinionData = computed(() => {
   const opinions = problem.value?.grade_opinions || []
-  const grades = [...(store.state.grades || [])]
+  const sortedGrades = [...(grades.value || [])]
     .sort((a, b) => Number(a.score ?? 0) - Number(b.score ?? 0))
-  return { grades, opinions }
+  return { grades: sortedGrades, opinions }
 })
 
 // Called directly rather than through the likeProblem / dislikeProblem store

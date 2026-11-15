@@ -4,7 +4,7 @@
 
 <script setup>
 import { ref, onMounted, onBeforeUnmount, watch } from 'vue'
-import { useStore } from 'vuex'
+import { useGymStore } from '@js/stores/gym.store.js'
 import mapboxgl from 'mapbox-gl'
 import 'mapbox-gl/dist/mapbox-gl.css'
 
@@ -13,7 +13,7 @@ const props = defineProps({
   userLocation: { type: Object, default: null },
 })
 const emit = defineEmits(['select'])
-const store = useStore()
+const gymStore = useGymStore()
 
 const mapContainer = ref(null)
 let map = null
@@ -41,7 +41,7 @@ function addMarkers() {
     hasValidCoords = true
     bounds.extend([lng, lat])
 
-    const isActive = String(gym.id) === String(store.state.gymid)
+    const isActive = String(gym.id) === String(gymStore.gymid)
 
     const el = document.createElement('div')
     el.className = 'gym-marker' + (isActive ? ' gym-marker--active' : '')

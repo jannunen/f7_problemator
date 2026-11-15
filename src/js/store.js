@@ -1,8 +1,6 @@
 import { createStore } from "vuex";
 import { invalidateAfter } from '@js/queryClient'
 import api from './api'
-import { useUiStore } from './stores/ui.store.js'
-import { pinia } from './stores/index.js'
 
 // The server keeps the highest checkpoint: show what it stored, not what was tapped.
 const commitSavedCheckpoint = (commit, problemid, ret) => {
@@ -29,10 +27,6 @@ export default createStore({
     rankingTarget : 'global',
     competition : null,
     compResults : null,
-    gymid : null,
-    profile : {
-      settings : null,
-    },
     ticksLoaded : false,
     alltime : {
       ticks : [],
@@ -41,13 +35,6 @@ export default createStore({
     climber : null,
     pointEntryKey : null,
     problems : [],
-    gym : { 
-      problems :[],
-    },
-    styles : [],
-    grades : [],
-    walls : [],
-    profileLoaded : false,
   },
 
   mutations: {
@@ -146,32 +133,11 @@ export default createStore({
     updateProblem(state, payload) {
       state.problems = {...state.problems,[payload.id] : payload}
     },
-    gymid(state, payload) {
-      state.gymid = payload
-    },
-    gym(state, payload) {
-      state.gym = payload
-    },
-    profile(state, payload) {
-      state.profile = payload
-    },
     isAbsolute (state, payload) {
       state.isAbsolute = payload
     },
-    profileLoaded(state, payload) {
-      state.profileLoaded = payload
-    },
     problems(state, payload) {
       state.problems = payload
-    },
-    styles(state, payload) {
-      state.styles = payload
-    },
-    grades(state, payload) {
-      state.grades = payload
-    },
-    walls(state, payload) {
-      state.walls = payload
     },
     climber(state, payload) {
       state.climber = payload
@@ -244,40 +210,10 @@ export default createStore({
       const ret = await api.requestSync(payload)
       return ret
     },
-    async getProfile({ commit, state } , payload) {
-      commit('profileLoaded', false)
-      const gymid = localStorage.gymid
-      commit('gymid',gymid)
-      const ret = await api.getProfile(gymid)
-      if (ret!=null && ret.profile != null) {
-        commit('profile', ret.profile)
-        commit('gym', ret.gym)
-        commit('rankingTarget',ret.gym.country)
-        if (ret.gym.problems != null) {
-          const problems = ret.gym.problems.reduce(( acc, prob) => {
-            acc[prob.id] = prob
-            return acc
-
-          },{})
-          commit('problems',problems)
-        }
-        commit('styles',ret.styles)
-        commit('grades',ret.grades)
-        commit('walls', ret.gym.walls)
-        commit('climber', ret.climber)
-        commit('profileLoaded', true )
-        // No `commit('setIsAuthenticated', true)` here any more — that
-        // mutation moved to Pinia's auth store (Task 6). It was always a
-        // no-op by the time getProfile's success path ran: isAuthenticated
-        // is seeded from storage in step with access_token, and every path
-        // that sets a fresh token (verifyOtp/socialLogin/completeSocialLogin)
-        // already sets isAuthenticated alongside it, before this ever fires.
-        useUiStore(pinia).setReady(true)
-        commit('serverVersion',ret.version)
-        return state.profile
-      }
-      return null
-    },
+    // getProfile moved to queryKeys.js's `profile` query (Task 7). Its
+    // climber/rankingTarget/problems commits moved with it, into that
+    // query's queryFn — the same bridge-into-still-live-Vuex pattern this
+    // file's other out-of-scope fields already use.
     async loadAllTimeTicks({ commit, state}, payload) {
       const ret = await api.loadAllTimeTicks(payload)
       commit('allTimeTicks', ret)
@@ -422,18 +358,7 @@ export default createStore({
       }
       return problem
     },
-    async changeGym({state, commit, dispatch}, gymid) {
-      localStorage.setItem('gymid', gymid)
-      useUiStore(pinia).setReady(false)
-      commit('gymid' ,gymid)
-      dispatch('getProfile')
-    },
-    async saveSettings({state, commit, dispatch}, payload) {
-      const ret =  await api.saveSettings(payload)
-      commit('climber', ret.climber)
-      return ret
-      
-    },
+    // changeGym and saveSettings moved to mutations.js (Task 7).
     async removeCompAscent({state, dispatch}, payload) {
       const ret = await api.removeCompAscent(payload)
       return ret
@@ -459,11 +384,8 @@ export default createStore({
       commit('climber', ret)
       return ret
     },
-    async  saveGymSettings({ commit } ,payload) {
-      const ret = await api.saveGymSettings(payload)
-      commit('gym',ret)
-      return ret
-    },
+    // saveGymSettings dropped (Task 7): zero call sites, same as when it
+    // was last checked.
   },
   getters: {
   }

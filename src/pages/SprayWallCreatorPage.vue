@@ -201,17 +201,18 @@
 <script setup>
 import { ref, computed, watch, nextTick } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 import { useQuery, useQueryClient } from '@tanstack/vue-query'
 import { queries, invalidate } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import { f7 } from 'framework7-vue'
 import api from '@js/api'
 import PhotoAdjustControls from '@components/ui/PhotoAdjustControls.vue'
 import { usePhotoAdjust } from '@js/usePhotoAdjust'
 
 const { t } = useI18n()
-const store = useStore()
-const grades = computed(() => store.state.grades || [])
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
+const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades ?? [] })
 const queryClient = useQueryClient()
 
 const props = defineProps({

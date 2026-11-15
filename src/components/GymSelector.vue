@@ -107,14 +107,16 @@
 
 <script setup>
 import { ref, computed, nextTick } from 'vue'
-import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
-import { useQuery } from '@tanstack/vue-query'
+import { useQuery, useMutation } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
+import { mutations } from '@js/mutations.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import GymMapSelector from './GymMapSelector.vue'
 
 const { t } = useI18n()
-const store = useStore()
+const gymStore = useGymStore()
+const { mutate: changeGymMutate } = useMutation(mutations.changeGym())
 const emit = defineEmits(['select'])
 
 const popupOpened = ref(false)
@@ -132,7 +134,7 @@ const { data: gyms } = useQuery({
   placeholderData: { gyms: [] },
 })
 
-const gymid = computed(() => store.state.gymid)
+const gymid = computed(() => gymStore.gymid)
 
 const currentGymName = computed(() => {
   if (!gymid.value || !gyms.value?.length) return ''
@@ -213,13 +215,15 @@ function locate() {
 
 const onGymSelected = async (id) => {
   // Close first, and let the close reach the DOM before anything reloads the
-  // profile. changeGym flips profileLoaded to false synchronously, and any
-  // ancestor that unmounts this component mid-close leaves Framework7's
-  // backdrop and body scroll lock behind — destroy() does not close().
+  // profile. Setting gymStore.gymid changes queries.profile's key
+  // synchronously, and any ancestor that unmounts this component mid-close
+  // leaves Framework7's backdrop and body scroll lock behind — destroy()
+  // does not close().
   popupOpened.value = false
   await nextTick()
 
-  store.dispatch('changeGym', id)
+  gymStore.setGymid(id)
+  changeGymMutate(id)
   emit('select', id)
 }
 </script>

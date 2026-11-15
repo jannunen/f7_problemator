@@ -11,6 +11,9 @@
 import { computed } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import { Radar } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -25,11 +28,13 @@ import {
 ChartJS.register(RadialLinearScale, PointElement, LineElement, Filler, Tooltip, Legend)
 
 const store = useStore()
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
 const { t } = useI18n()
 
 const ticks = computed(() => store.state.alltime.ticks || [])
 const problems = computed(() => store.state.problems || {})
-const styles = computed(() => store.state.styles || [])
+const { data: styles } = useQuery({ ...queries.profile(gymid), select: (data) => data.styles ?? [] })
 
 // Set of problem IDs the user has ticked
 const tickedIds = computed(() => new Set(ticks.value.map((tick) => String(tick.problemid))))

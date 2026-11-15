@@ -55,6 +55,8 @@
 import { ref, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations.js'
 import { toaster } from '@js/helpers/notifications.js'
 import { getNames } from 'country-list'
 
@@ -62,6 +64,7 @@ const { t } = useI18n()
 const store = useStore()
 const climber = computed(() => store.state.climber)
 const showPopup = ref(false)
+const { mutateAsync: saveSettingsMutate } = useMutation(mutations.saveSettings())
 
 const form = ref({
   etunimi: '',
@@ -92,7 +95,7 @@ const skip = () => {
 
 const save = () => {
   const payload = { ...climber.value, ...form.value }
-  store.dispatch('saveSettings', payload).then((ret) => {
+  saveSettingsMutate(payload).then((ret) => {
     toaster(t('complete_profile.profile_updated'))
     showPopup.value = false
   })

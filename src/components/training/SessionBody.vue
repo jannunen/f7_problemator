@@ -195,7 +195,9 @@
 import { computed, onMounted, reactive, ref } from 'vue'
 import { f7 } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import api from '@js/api.js'
 import { actual, prescribed } from '@helpers/trainingFormat.js'
 import { clearMarksOnOpen } from '@helpers/trainingPrefs.js'
@@ -210,7 +212,9 @@ const props = defineProps({
 const emit = defineEmits(['changed'])
 
 const { t } = useI18n()
-const store = useStore()
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
+const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
 
 // Faces rather than numbers: 1-5 means nothing without a legend, and nobody
 // reads a legend at the end of a hard session.
@@ -338,7 +342,7 @@ const toggleComplete = async () => {
     completed: !props.session.completed_at,
     // Without the gym the logged session has no location, and every
     // gym-scoped view of a climber's history quietly misses it.
-    gymid: store.state.gymid ?? store.state.gym?.id ?? null,
+    gymid: gymid.value ?? gym.value?.id ?? null,
     feeling: feeling.value
   })
   emit('changed')

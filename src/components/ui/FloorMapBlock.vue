@@ -31,16 +31,19 @@
   </div>
 </template>
 <script setup>
-import { useStore } from 'vuex'
 import { computed } from 'vue'
 import { f7 } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
 import { capitalize } from '@helpers/filters.js'
 import FloorMap from '@components/ui/FloorMap.vue'
-const store = useStore()
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
 const { t } = useI18n()
-const gym = computed(() => store.state.gym)
-const walls = computed(() => store.state.walls || [])
+const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
+const { data: walls } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym?.walls ?? [] })
 const hasGymMap = computed(() => walls.value.some(w => w.shape_data && w.shape_data.length > 0))
 const props = defineProps({
   f7router: Object,

@@ -47,41 +47,48 @@
 <script>
 import RoundBadge from "@components/ui/RoundBadge.vue";
 import { computed } from "vue";
-import { useStore } from "vuex";
 import { useUiStore } from "@js/stores/ui.store.js";
+import { useGymStore } from "@js/stores/gym.store.js";
+import { useQuery } from "@tanstack/vue-query";
+import { queries } from "@js/queryKeys.js";
 import HorizontalBarGraph from "../ui/HorizontalBarGraph.vue";
 
 export default {
   setup() {
-    const store = useStore();
     const uiStore = useUiStore();
-    const profile = store.state.profile;
-    const gym = store.state.gym;
+    const gymStore = useGymStore();
+    const gymid = computed(() => gymStore.gymid);
+    // profile/gym used to be captured once, non-reactively, off Vuex state —
+    // harmless only because getProfile always finished before this mounted.
+    // A changeGym mid-session would have left both stale; reading them off
+    // the query keeps them live across a gym switch too.
+    const { data: profile } = useQuery({ ...queries.profile(gymid), select: (data) => data.profile });
+    const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym });
 
     const getOwnTickCount = computed(() => {
-      if (profile.info != null) {
+      if (profile.value?.info != null) {
         // Count only unique ticks
-        const problemsids = profile.info.ticked.map((tick) => tick.problemid);
+        const problemsids = profile.value.info.ticked.map((tick) => tick.problemid);
         const distinctProblems = [...new Set(problemsids)];
         return distinctProblems.length;
       }
       return 0;
     });
     const getTriedCount = computed(() => {
-      if (profile.info != null) {
-        if (profile.info.tried == null) {
+      if (profile.value?.info != null) {
+        if (profile.value.info.tried == null) {
           return 0;
         }
 
-        const problemsids = profile.info.tried.map((tick) => tick.problemid);
+        const problemsids = profile.value.info.tried.map((tick) => tick.problemid);
         const distinctProblems = [...new Set(problemsids)];
         return distinctProblems.length;
       }
       return 0;
     });
     const getTotalRoutes = computed(() => {
-      if (gym != null) {
-        const total = gym.problemcount;
+      if (gym.value != null) {
+        const total = gym.value.problemcount;
         return total || 0;
       }
       return 0;

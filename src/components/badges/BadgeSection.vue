@@ -47,9 +47,9 @@
  * than an empty section.
  */
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import { useI18n } from 'vue-i18n'
 import dayjs from 'dayjs'
 import BadgeMedal from './BadgeMedal.vue'
@@ -60,12 +60,12 @@ import { f7 } from 'framework7-vue'
 const COLLAPSED_COUNT = 8
 
 const { t } = useI18n()
-const store = useStore()
+const gymStore = useGymStore()
 
 const selected = ref(null)
 const sheetOpen = ref(false)
 
-const gymid = computed(() => store.state.gymid)
+const gymid = computed(() => gymStore.gymid)
 
 // Badges belong to a gym: the query is keyed on gymid, so switching gym
 // refetches on its own — no manual watch/dispatch needed any more.

@@ -61,7 +61,7 @@ describe('the gyms query', () => {
  * that forgets its gate fails here rather than in somebody's empty list.
  */
 describe('every query over an authenticated endpoint', () => {
-  const AUTHENTICATED = ['gyms', 'competitions', 'feed']
+  const AUTHENTICATED = ['gyms', 'competitions', 'feed', 'profile']
 
   beforeEach(() => setAuthToken(null))
 

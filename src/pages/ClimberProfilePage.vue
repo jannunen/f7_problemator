@@ -152,6 +152,7 @@ import { useQuery, useMutation } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys'
 import { mutations } from '@js/mutations'
 import { useUiStore } from '@js/stores/ui.store.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import { estimateGrade } from '@js/helpers'
 import dayjs from 'dayjs'
 import ClimbedProblemListItem from '@components/profile/ClimbedProblemListItem.vue'
@@ -161,6 +162,8 @@ import ClimberBadges from '@components/profile/ClimberBadges.vue'
 const { t } = useI18n()
 const store = useStore()
 const uiStore = useUiStore()
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
 const props = defineProps({
   id: Number,
 })
@@ -168,7 +171,7 @@ const props = defineProps({
 const { data: profile, isLoading: loading } = useQuery(queries.climberProfile(computed(() => props.id)))
 const climber = computed(() => store.state.climber)
 const isOwnProfile = computed(() => String(props.id) === String(climber.value?.id))
-const grades = computed(() => store.state.grades)
+const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
 
 const amIFollowing = computed(() => {
   if (!climber.value || !profile.value?.followers) return false

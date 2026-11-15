@@ -7,10 +7,15 @@ import { useI18n } from 'vue-i18n'
 import { toaster, alert } from '@js/helpers/notifications.js'
 import PopupGradeOpinion from '@components/problem/GradeOpinion.vue'
 import PopupTickDate from '@components/problem/TickDate.vue'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 const store = useStore()
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
 
 const { t } = useI18n()
-const grades = computed(() => store.state.grades)
+const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
 
 const props = defineProps({
   opened: { type: Boolean, default: false },

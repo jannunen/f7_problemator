@@ -67,10 +67,10 @@
 import { useI18n } from 'vue-i18n'
 import {  computed, ref } from 'vue'
 import { debounce } from '@js/helpers'
-import { useStore } from 'vuex'
+import { useGymStore } from '@js/stores/gym.store.js'
 import SearchHitItem from '@components/ui/problem/SearchHitItem.vue'
 import api from '@js/api.js'
-const store = useStore()
+const gymStore = useGymStore()
 const props = defineProps({
   opened: {
     type: Boolean,
@@ -79,7 +79,7 @@ const props = defineProps({
 })
 const emit = defineEmits(['close', 'clear', 'log-session'])
 const { t, tc } = useI18n()
-const gymid = computed(() => store.state.gymid)
+const gymid = computed(() => gymStore.gymid)
 const searchProblemText = ref('')
 const searching = ref(false)
 const problems = ref([])

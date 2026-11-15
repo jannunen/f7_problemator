@@ -21,18 +21,18 @@
 import { computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
-import { useStore } from 'vuex'
 import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import api from '@js/api'
 
 const { t } = useI18n()
 
 const maxShow = 5
 
-const store = useStore()
+const gymStore = useGymStore()
 // The endpoint answers with nothing without a gym, and badges belong to
 // one — so the gym has to be in the key as well as the call.
-const gymid = computed(() => store.state.gymid)
+const gymid = computed(() => gymStore.gymid)
 
 const { data: badgeData } = useQuery({
   ...queries.badges(gymid),

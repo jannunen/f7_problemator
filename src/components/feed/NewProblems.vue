@@ -31,13 +31,14 @@
 <script setup>
 import { f7 } from 'framework7-vue'
 import { ref, computed, watch } from 'vue'
-import { useStore } from 'vuex'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import NewProblemItem from '@components/feed/NewProblemItem.vue'
 import api from '@js/api'
-const store = useStore()
-const gym = computed(() => store.state.gym)
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
+const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
 const { data: gymsData } = useQuery({
   ...queries.gyms(),
   select: (data) => data.gyms,
