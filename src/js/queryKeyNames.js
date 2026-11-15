@@ -18,14 +18,14 @@ import { toValue } from 'vue'
  * URL segment straight into `route.params`, and framework7-vue spreads
  * `route.params` into component props untouched) when a page first asks
  * for a competition, versus an already-fetched competition object's own
- * numeric `.id` field (from the JSON response) when a mutation or the
- * saveTick/deleteTickByProblem bridge (store.js) writes back into the same
- * cache entry. TanStack's cache key hashing (`hashKey` in
+ * numeric `.id` field (from the JSON response) when a mutation (mutations.js's
+ * saveTick/deleteTickByProblem among them) writes back into the same cache
+ * entry. TanStack's cache key hashing (`hashKey` in
  * @tanstack/query-core) is a plain `JSON.stringify` with no type coercion,
  * so `['competition', '7']` and `['competition', 7]` hash to two different
  * cache entries for the one competition. Every place a compid enters one
  * of the competition/compResults query keys — reading in queryKeys.js,
- * writing in mutations.js/store.js — goes through this first, so a
+ * writing in mutations.js — goes through this first, so a
  * route-param string and a fetched object's numeric id always land in the
  * same entry.
  *

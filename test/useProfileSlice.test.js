@@ -6,11 +6,10 @@ import { createPinia } from 'pinia'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 import messages from '../src/js/i18n/messages.js'
 
-// queries.profile's queryFn pulls in the api client and the still-live Vuex
-// store; neither is reached here (no token, so the query never runs), but
-// importing them for real drags in browser-only code.
+// queries.profile's queryFn pulls in the api client; it is never reached
+// here (no token, so the query never runs), but importing it for real drags
+// in browser-only code.
 vi.mock('@js/api', () => ({ default: { getProfile: vi.fn() } }))
-vi.mock('../src/js/store.js', () => ({ default: { commit: vi.fn() } }))
 vi.mock('@/js/helpers', async () => ({ calculatePoints: (await import('../src/js/helpers/problemator.js')).calculatePoints }))
 vi.mock('framework7-vue', () => ({ f7: { views: { main: { router: { navigate() {} } } } } }))
 vi.mock('@components/gym_completion/CompletionBarChart.vue', () => ({ default: { render: () => h('div', 'chart') } }))

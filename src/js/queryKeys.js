@@ -206,7 +206,7 @@ export const queries = {
    *
    * Built with asCompId (queryKeyNames.js), not key()/unref: `compid` here
    * is a Framework7 route param read off a component prop, always a
-   * string, while mutations.js/store.js patch this same cache entry keyed
+   * string, while mutations.js patches this same cache entry keyed
    * by an already-fetched competition's numeric `.id`. asCompId normalizes
    * both to the same Number so they address the same entry — see its own
    * doc comment for the full story (a real bug this task shipped and a
@@ -353,10 +353,9 @@ export const queries = {
     // Fetched once per sign-in and per gym, like the getProfile action it
     // replaces — not every 30s. ~30 components observe this query, so under
     // the global default any navigation past 30s re-downloaded the whole
-    // bootstrap and overwrote Vuex state.problems through the bridge above
-    // (able to revert a tick committed locally mid-session). A gym change is
-    // a new key and fetches on its own; saveSettings invalidates ['profile']
-    // explicitly. app.vue keeps an observer mounted all session, so gcTime
+    // bootstrap and could overwrite a tick patched into the cached
+    // gym.problems locally mid-session. A gym change is a new key and
+    // fetches on its own; saveSettings invalidates ['profile'] explicitly. app.vue keeps an observer mounted all session, so gcTime
     // never evicts it.
     staleTime: Infinity,
   }),

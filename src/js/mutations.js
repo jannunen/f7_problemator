@@ -138,13 +138,8 @@ const patchRemovedCheckpoint = (old, problemid) => {
  *     one a currently-mounted component's own `queries.profile(gymid)` call
  *     would be keyed on right now, not whatever gym was selected when the
  *     component first mounted.
- *
- * Exported so store.js's still-live saveTick/publicSaveTick/deleteTick
- * actions (Task 5's domain) can reuse this exact merge logic as a temporary
- * bridge, rather than duplicating it — see store.js's own
- * patchProblemIntoProfileCache for why that bridge exists.
  */
-export const patchGymProblems = (updateProblems) => {
+const patchGymProblems = (updateProblems) => {
   const gymid = useGymStore(pinia).gymid
   queryClient.setQueryData(['profile', gymid], (old) => {
     if (old?.gym?.problems == null) return old

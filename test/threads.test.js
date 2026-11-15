@@ -62,7 +62,7 @@ describe('threadTitle', () => {
     expect(threadTitle(group, 1)).toBe('Coach Ville, Sanna R')
   })
 
-  // Called with store.state.climber?.id, which is undefined before the
+  // Called with climberStore.climber?.id, which is undefined before the
   // climber has loaded. "!== undefined" excludes nobody, so without a guard
   // the reader's own name would print right alongside everyone else's.
   it('does not include everyone when the reader\'s own id is not known yet', () => {
