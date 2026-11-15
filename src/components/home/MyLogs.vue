@@ -111,8 +111,7 @@ import customParseFormat  from 'dayjs/plugin/customParseFormat'
 dayjs.extend(advancedFormat)
 dayjs.extend(weekOfYear)
 dayjs.extend(customParseFormat)
-import { useQuery } from '@tanstack/vue-query'
-import { queries } from '@js/queryKeys.js'
+import { useProfileGrades } from '@js/useProfileSlice.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 
 const store = useStore()
@@ -125,7 +124,7 @@ const props = defineProps({
   },
 })
 const { t } = useI18n()
-const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
+const grades = useProfileGrades(gymid)
 const ticks = computed(() => store.state.alltime.ticks)
 const tries = computed(() => store.state.alltime.tries)
 const lastDays = ref(30)

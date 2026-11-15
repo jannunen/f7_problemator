@@ -314,8 +314,7 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { f7 } from 'framework7-vue'
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
-import { useQuery } from '@tanstack/vue-query'
-import { queries } from '@js/queryKeys.js'
+import { useProfileGym, useProfileStyles, useProfileWalls } from '@js/useProfileSlice.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 const props = defineProps({
   f7router: Object,
@@ -384,9 +383,9 @@ const showLabel = computed(() => scale.value < 0.4)
 const showDetails = computed(() => scale.value < 0.33)
 
 // Data from store
-const { data: walls } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym?.walls ?? [] })
+const walls = useProfileWalls(gymid)
 const problems = computed(() => store.state.problems || {})
-const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
+const gym = useProfileGym(gymid)
 const backgroundUrl = computed(() => gym.value?.gym_map_config?.background_url || null)
 const backgroundOpacity = computed(() => gym.value?.gym_map_config?.opacity ?? 0.3)
 
@@ -421,7 +420,7 @@ const filterProject = ref(false)
 const filterTodo = ref(false)
 
 const allProblems = computed(() => Object.values(problems.value))
-const { data: styles } = useQuery({ ...queries.profile(gymid), select: (data) => data.styles ?? [] })
+const styles = useProfileStyles(gymid)
 const allTimeTicks = computed(() => store.state.alltime?.ticks || [])
 const allTimeTries = computed(() => store.state.alltime?.tries || [])
 

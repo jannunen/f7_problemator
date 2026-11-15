@@ -7,15 +7,14 @@ import { useI18n } from 'vue-i18n'
 import { toaster, alert } from '@js/helpers/notifications.js'
 import PopupGradeOpinion from '@components/problem/GradeOpinion.vue'
 import PopupTickDate from '@components/problem/TickDate.vue'
-import { useQuery } from '@tanstack/vue-query'
-import { queries } from '@js/queryKeys.js'
+import { useProfileGrades } from '@js/useProfileSlice.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 const store = useStore()
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
 
 const { t } = useI18n()
-const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
+const grades = useProfileGrades(gymid)
 
 const props = defineProps({
   opened: { type: Boolean, default: false },
@@ -34,7 +33,8 @@ const getGrade = (gradeid) => {
   if (gradeid == null) {
     return 'N/A'
   }
-  return grades.value[gradeid].name
+  // The grade list is empty until the profile payload lands.
+  return grades.value[gradeid]?.name ?? 'N/A'
 }
 // A problem with no grade of its own only ever gets one from the people who
 // climb it, so a send without an opinion leaves it ungraded forever — invisible

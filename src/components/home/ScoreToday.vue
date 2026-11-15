@@ -27,15 +27,14 @@ import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { useQuery } from '@tanstack/vue-query'
-import { queries } from '@js/queryKeys.js'
+import { useProfileGrades } from '@js/useProfileSlice.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 
 const { t } = useI18n()
 const store = useStore()
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
-const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
+const grades = useProfileGrades(gymid)
 const ticksTodayLength = computed(() => ticks.value.length)
 const triesTodayLength = computed(() => tries.value.length)
 const allTicks = computed(() => store.state.alltime.ticks)

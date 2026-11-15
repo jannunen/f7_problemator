@@ -29,8 +29,7 @@
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
-import { queries } from '@js/queryKeys.js'
+import { useProfileGrades } from '@js/useProfileSlice.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 import CompletionBarChart from '@components/gym_completion/CompletionBarChart.vue'
 
@@ -43,7 +42,7 @@ const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
 const ticks = computed(() => store.state.alltime.ticks)
 const problems = computed(() => store.state.problems)
-const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
+const grades = useProfileGrades(gymid)
 
 const routeTypeFilter = ref('all')
 const filterOptions = [

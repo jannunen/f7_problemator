@@ -188,8 +188,7 @@ import { maxSnap } from '@js/constants.js'
 import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { useGymStore } from '@js/stores/gym.store.js'
-import { useQuery } from '@tanstack/vue-query'
-import { queries } from '@js/queryKeys.js'
+import { useProfileGrades, useProfileGym, useProfileStyles, useProfileWalls } from '@js/useProfileSlice.js'
 import { useI18n } from 'vue-i18n'
 import GradeFilter from '@components/ui/problemlist/GradeFilter.vue'
 import StyleFilter from '@components/ui/problemlist/StyleFilter.vue'
@@ -209,7 +208,7 @@ const uiStore = useUiStore()
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
 dayjs.extend(relativeTime)
-const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
+const gym = useProfileGym(gymid)
 const routeTypes = computed(() => uiStore.routetypes)
 const onAreaSelected = (area) => {
   // Bound to <floor-map @area-selected>, so this runs whenever someone taps a
@@ -266,8 +265,8 @@ watch(problems, (newValue) => {
     store.dispatch('getProblems')
   }
 })
-const { data: walls } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym.walls })
-const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
+const walls = useProfileWalls(gymid)
+const grades = useProfileGrades(gymid)
 const tipShowStatus = computed(() => uiStore.tipShowStatus)
 const loading = computed(() => store.state.loading)
 
@@ -276,7 +275,7 @@ const tries = computed(() => store.state.alltime.tries)
 const selectedWalls = ref([])
 const filters = computed(() => uiStore.filters)
 const nameFilter = ref('')
-const { data: styles } = useQuery({ ...queries.profile(gymid), select: (data) => data.styles })
+const styles = useProfileStyles(gymid)
 const storeNameFilter = computed(() => uiStore.filters.nameFilter)
 const ascentTypeFilter = ref('all')
 const soonToBeRemovedFilter = ref(false)
