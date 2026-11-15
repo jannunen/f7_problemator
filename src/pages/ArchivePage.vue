@@ -158,6 +158,7 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
+import { runArchiveDayClick } from '@js/helpers/archiveThrottle.js'
 import dayjs from 'dayjs'
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
@@ -204,19 +205,17 @@ const showSpan = ref('day')
 // empty span before anything set the real dates.
 const selectedSpan = ref([dayjs().format("YYYY-MM-DD"), dayjs().format("YYYY-MM-DD")])
 
-// Switching selectedSpan changes the query key, so TanStack refetches on its
-// own when onDayClick below picks a new day/week/month/year — no manual
-// dispatch needed.
+// onDayClick below changes selectedSpan AND explicitly calls refetch (see
+// runArchiveDayClick) — the key change alone is not enough, since a
+// month/year span repeats across different days and a literal re-click
+// repeats it exactly, neither of which TanStack sees as "new".
 const { data: archiveDayData, isFetching: archiveDayFetching, refetch: refetchArchiveDay } = useQuery(queries.archiveDay(selectedSpan))
 
-// Mirrors the old dispatch-then-set-loading pattern: show the loading
-// spinner for the duration of each fetch, then hold the calendar's click
-// throttle for 2s after it settles.
+// Only drives the spinner. The click-throttle's own reopening is handled
+// in onDayClick via runArchiveDayClick, not here — see its comment for why:
+// isFetching does not reliably transition for every click.
 watch(archiveDayFetching, (fetching) => {
     loading.value = fetching
-    if (!fetching) {
-        setTimeout(() => { newClickPossible.value = true }, 2000)
-    }
 })
 const ascentsByGrade = computed(() => {
     if (archiveDate.value == null || archiveDate.value.ticks == null) {
@@ -298,7 +297,7 @@ const attrs = computed(() => [
         dates: daysWithTicks.value
     }
 ])
-const onDayClick = (evt) => {
+const onDayClick = async (evt) => {
     if (!newClickPossible.value) {
         // Deny click when loading is in progress
         return
@@ -318,10 +317,14 @@ const onDayClick = (evt) => {
     } else {
         console.log("No idea what to do")
     }
-    console.log("span", selectedSpan)
-    // Changing selectedSpan above changes queries.archiveDay's key, so the
-    // refetch happens on its own; the watch on archiveDayFetching handles
-    // loading and newClickPossible once it settles.
+    // Two different days in the same month/year span to the same [start,end]
+    // pair, and re-clicking the same day repeats the exact span — either way
+    // queries.archiveDay's key does not change, so TanStack would serve the
+    // cached entry within its 30s staleTime and skip the fetch entirely.
+    // runArchiveDayClick calls refetch() unconditionally, so this always
+    // issues a real request and always reopens the throttle afterwards.
+    await runArchiveDayClick(refetchArchiveDay)
+    newClickPossible.value = true
 }
 
 const reversedTicks = computed(() => [...(archiveDate.value.ticks || [])].reverse())
