@@ -33,9 +33,7 @@ import { queryClient } from '@js/queryClient'
  * "`state.climber` boundary"). `state.profile`/`state.profileLoaded` moved
  * off Vuex in Task 7 along with `gymid`, so logout clears those through the
  * Pinia gym store and the TanStack `profile` query's cache instead, and sets
- * the `ready` flag that already lives in the Pinia ui store (bridged the
- * same way `store.js`'s now-removed `getProfile`/`changeGym` used to bridge
- * into it). This is the only way to drop logout's Vuex action entirely
+ * the `ready` flag that already lives in the Pinia ui store. This is the only way to drop logout's Vuex action entirely
  * without changing what climbers see on screen.
  */
 export const useAuthStore = defineStore('auth', () => {
@@ -170,8 +168,6 @@ export const useAuthStore = defineStore('auth', () => {
     authStep.value = 'idle'
     authEmail.value = ''
     authError.value = null
-    // Mirrors the bridge store.js's getProfile/changeGym already use to
-    // reach the Pinia ui store from old Vuex code.
     useUiStore(pinia).setReady(true)
     clearSupabaseSession()
   }

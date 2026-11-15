@@ -35,6 +35,8 @@ describe('keysInvalidatedBy', () => {
 
   // Gym-scoped keys carry the gym id, so the key change alone refetches.
   // A broad invalidation here would discard every other gym's cache.
+  // changeGym is no longer a mapped write (it is mutations.changeGym), so
+  // this holds through the unknown-write path — and fails if someone maps it.
   it('invalidates nothing when the gym changes', () => {
     expect(keysInvalidatedBy('changeGym')).toEqual([])
   })

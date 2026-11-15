@@ -270,7 +270,7 @@ const doLogout = () => {
   authStore.logout()
 }
 const sidePanelOpen = computed(() => uiStore.sidePanelOpen)
-const selectedItem = computed(() => store.state.selectedItem)
+const selectedItem = computed(() => uiStore.selectedLeftPanelItem)
 
 </script>
 <style scoped>

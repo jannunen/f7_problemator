@@ -43,9 +43,7 @@ jwtInterceptor();
 setLogoutHandler(() => {
     // Explicit-instance form: there is no active component `setup()` at
     // module scope for `useAuthStore()`'s implicit active-instance lookup to
-    // attach to, so the shared `pinia` instance (Task 1) is passed directly —
-    // the same pattern store.js's still-live Vuex actions already use to
-    // reach into the Pinia ui store from outside a component.
+    // attach to, so the shared `pinia` instance (Task 1) is passed directly.
     useAuthStore(pinia).logout()
     const router = f7?.views?.main?.router
     if (router && router.currentRoute?.path !== '/') {

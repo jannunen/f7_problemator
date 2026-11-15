@@ -64,13 +64,10 @@ export const INVALIDATES = {
   likeProblem: () => [invalidate.publicAscents(), invalidate.newProblems()],
   dislikeProblem: () => [invalidate.publicAscents(), invalidate.newProblems()],
 
-  /**
-   * Switching gyms does not dirty anything by itself: every gym-scoped key
-   * carries the gym id, so Query refetches on the key change alone. Listed
-   * explicitly so the next person does not add a broad invalidation here and
-   * throw away every other gym's cache on each switch.
-   */
-  changeGym: () => [],
+  // No changeGym entry: switching gyms is mutations.changeGym now, not a Vuex
+  // write, and it dirties nothing — every gym-scoped key carries the gym id,
+  // so Query refetches on the key change alone. Do not add a broad
+  // invalidation for it; that would throw away every other gym's cache.
 }
 
 /**
