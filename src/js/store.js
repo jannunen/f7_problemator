@@ -5,6 +5,7 @@ import { useClimberStore } from './stores/climber.store.js'
 import { useRankingsStore } from './stores/rankings.store.js'
 import { pinia } from './stores/index.js'
 import { asCompId } from '@js/queryKeyNames'
+import { patchGymProblems } from '@js/mutations'
 
 // The signed-in-or-public-point-entry climber's point_entry_key, if any —
 // read from the Pinia climber store (Task 1 of the Activity-group migration
@@ -70,6 +71,44 @@ const removeTickFromCompetitionCache = (queryKeyName, compid, problemid) => {
   })
 }
 
+// SECOND temporary bridge (added fixing a reviewer-caught regression in
+// Task 4 of the Activity-group migration plan; Task 5 removes this one too,
+// for the same reason and at the same time as the bridge above).
+//
+// A tick/delete write used to refresh the ticked problem's cached
+// myTicks/myProjects fields via the updateProblem/problems Vuex mutations
+// (see their removal note above). Task 4 removed those two mutations —
+// nothing in Vuex read state.problems any more — but useProfileProblems
+// (ProblemList.vue, sortFunctions.js's problemStyleFilter,
+// PersonalTickStatus.vue's Ticked/Projects quick filters) reads the SAME
+// cached problem, now out of queries.profile's ['profile', gymid] cache,
+// for those same myTicks/myProjects fields. Without this bridge, ticking or
+// deleting a tick would leave those filters showing stale data for the rest
+// of the session: the profile query's staleTime is Infinity, and neither
+// saveTick's nor deleteTick's invalidateAfter list includes ['profile'] to
+// force a refetch either.
+//
+// Reuses mutations.js's own patchGymProblems — the exact merge logic
+// likeProblem/dislikeProblem/commentProblem/reportProblem/getProblemDetails/
+// deleteProject already use — rather than duplicating it here. Replaces the
+// cached problem wholesale when found (matching updateProblem's/the old
+// deleteTick commit's own semantics — a plain replace, not a merge) and
+// upserts it when not already cached (matching deleteProject's mutations.js
+// sibling, for the same "a problem reached via a page that doesn't source
+// it from this array yet" edge case).
+//
+// deleteTickByProblem/publicDeleteTickByProblem are deliberately NOT
+// touched: neither ever committed to updateProblem/problems, even before
+// Task 4 — they are not part of this regression.
+const patchProblemIntoProfileCache = (problem) => {
+  if (problem == null) return
+  patchGymProblems((problems) => {
+    const idx = problems.findIndex((p) => p.id == problem.id)
+    if (idx === -1) return [...problems, problem]
+    return problems.map((p, i) => (i === idx ? problem : p))
+  })
+}
+
 export default createStore({
   namespaced: true,
   state: {
@@ -119,15 +158,19 @@ export default createStore({
     },
     // updateProblem/problems removed (Task 4 of the Activity-group migration
     // plan — problems moved to useProfileSlice.js's useProfileProblems and
-    // mutations.js's patchGymProblems). saveTick/publicSaveTick/deleteTick/
-    // deleteTickByProblem below still `commit('updateProblem', ...)` /
-    // `commit('problems', ...)` — those are Task 5's domain (ticks), not
-    // this task's to touch; with no mutation left to handle them, Vuex logs
-    // "unknown mutation type" and the commit is a no-op, same as
-    // addTickToCompetition/removeTickFromCompetition above already are.
-    // Harmless: nothing reads state.problems any more for Task 5 to leave
-    // stale. Task 5 replaces each with a direct queryClient.setQueryData
-    // call using patchGymProblems, per the plan's own coordination note.
+    // mutations.js's patchGymProblems). saveTick/publicSaveTick/deleteTick
+    // below still `commit('updateProblem', ...)` / `commit('problems', ...)`
+    // — those are Task 5's domain (ticks), not this task's to touch; with no
+    // mutation left to handle them, Vuex logs "unknown mutation type" and
+    // the commit itself is a no-op, same as addTickToCompetition/
+    // removeTickFromCompetition above already are. NOT harmless on its own,
+    // though — unlike those two, useProfileProblems' consumers DO still read
+    // the field this used to refresh (myTicks/myProjects), so those three
+    // actions also call patchProblemIntoProfileCache (defined above,
+    // alongside patchTickIntoCompetitionCache) as a real bridge into that
+    // cache. Task 5 replaces both the dead commit and the bridge call with
+    // a single direct queryClient.setQueryData call using patchGymProblems,
+    // per the plan's own coordination note.
     isAbsolute (state, payload) {
       state.isAbsolute = payload
     },
@@ -143,6 +186,7 @@ export default createStore({
       const { compid, ...apiPayload } = payload
       const ret = await api.saveTick(apiPayload,'/compkey')
       commit('updateProblem', ret.problem)
+      patchProblemIntoProfileCache(ret.problem)
       // Update also tries in profile
       if (payload.ticktype=='tick') {
         commit('addTicksAllTime',ret.tick)
@@ -192,6 +236,7 @@ export default createStore({
     async deleteTick({ state, commit}, payload) {
       const ret = await api.deleteTick(payload)
       commit('problems', {...state.problems,[ret.problem.id] : ret.problem})
+      patchProblemIntoProfileCache(ret.problem)
       useRankingsStore(pinia).fetchRankings()
       invalidateAfter('deleteTick')
 
@@ -206,6 +251,7 @@ export default createStore({
       const { compid, ...apiPayload } = payload
       const ret = await api.saveTick(apiPayload)
       commit('updateProblem', ret.problem)
+      patchProblemIntoProfileCache(ret.problem)
       // Update also tries in profile
       if (payload.ticktype=='tick') {
         commit('addTicksAllTime',ret.tick)

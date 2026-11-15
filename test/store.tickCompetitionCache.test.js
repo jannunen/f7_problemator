@@ -77,13 +77,18 @@ describe('saveTick: the competition-cache bridge', () => {
     expect(next.userticks).toEqual({ 1: { problemid: 1 }, 42: tick })
   })
 
-  it('is a no-op (no cache write at all) for callers with no competition context', async () => {
+  it('is a no-op on the COMPETITION cache for callers with no competition context', async () => {
     api.saveTick.mockResolvedValue({ problem: { id: 1 }, tick: { problemid: 42, tries: 1 } })
 
     // AddTick.vue/SearchHitItem.vue/NewProblemItem.vue never send compid.
     await store.dispatch('saveTick', { ticktype: 'tick', problemid: 42 })
 
-    expect(queryClient.setQueryData).not.toHaveBeenCalled()
+    // The profile-problems-cache bridge (see
+    // test/store.profileProblemsCache.test.js) still fires unconditionally
+    // — it has nothing to do with competition context — so this only
+    // asserts no ['competition'|'public-competition', ...] key was touched.
+    const competitionCalls = queryClient.setQueryData.mock.calls.filter(([key]) => key[0] === 'competition' || key[0] === 'public-competition')
+    expect(competitionCalls).toEqual([])
   })
 
   it('does not touch the competition cache for a try (ticktype != "tick")', async () => {
@@ -91,7 +96,12 @@ describe('saveTick: the competition-cache bridge', () => {
 
     await store.dispatch('saveTick', { ticktype: 'try', problemid: 42, compid: 7 })
 
-    expect(queryClient.setQueryData).not.toHaveBeenCalled()
+    // Same caveat as above: the profile-problems-cache bridge fires
+    // regardless of ticktype (it ported updateProblem's own unconditional
+    // commit, which ran before the ticktype branch) — only the competition
+    // cache is ticktype-gated.
+    const competitionCalls = queryClient.setQueryData.mock.calls.filter(([key]) => key[0] === 'competition' || key[0] === 'public-competition')
+    expect(competitionCalls).toEqual([])
   })
 
   it('is a safe no-op when the competition is not in the cache yet', async () => {
