@@ -82,6 +82,8 @@
 import { useI18n } from 'vue-i18n'
 import {f7 } from 'framework7-vue'
 import { useStore } from 'vuex'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations'
 import { useAuthStore } from '@js/stores/auth.store.js'
 import { getTagShort } from '@js/helpers'
 import { ref, computed } from 'vue'
@@ -91,6 +93,9 @@ import PopupListTicks from '@components/ui/problem/TickList.vue'
 import { getSessionCount } from '@helpers/component.helpers.js'
 const store = useStore()
 const authStore = useAuthStore()
+const { mutate: likeProblem } = useMutation(mutations.likeProblem())
+const { mutate: dislikeProblem } = useMutation(mutations.dislikeProblem())
+const { mutateAsync: commentProblem } = useMutation(mutations.commentProblem())
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 const { t } = useI18n()
@@ -116,17 +121,17 @@ const isMyTick = (pid) => {
 const myTicksPopupOpen = ref(false)
 const askLike = () => {
   confirm(t('global.are_you_sure'), t('problem.confirm_like'), () => {
-    store.dispatch('likeProblem', { id: props.problem.id })
+    likeProblem(props.problem.id)
   })
 }
 const askDislike = () => {
   confirm(t('global.are_you_sure'), t('problem.confirm_dislike'), () => {
-    store.dispatch('dislikeProblem', { id: props.problem.id })
+    dislikeProblem(props.problem.id)
   })
 }
 const askComment = () => {
         f7.dialog.prompt('<div class="text-center">Comments are public!<br /><strong>What is your comment?</strong></div>', (comment) => {
-          store.dispatch('commentProblem', { id: props.problem.id, comment })
+          commentProblem({ id: props.problem.id, comment })
           .then(() => {
             f7.dialog.alert('Thanks for your comment! It will be visible when it\'s has been approved by the admin.')
           })

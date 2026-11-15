@@ -29,7 +29,7 @@
 import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { computed, ref } from 'vue'
-import { useProfileGrades } from '@js/useProfileSlice.js'
+import { useProfileGrades, useProfileProblems } from '@js/useProfileSlice.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 import CompletionBarChart from '@components/gym_completion/CompletionBarChart.vue'
 
@@ -41,7 +41,7 @@ const store = useStore()
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
 const ticks = computed(() => store.state.alltime.ticks)
-const problems = computed(() => store.state.problems)
+const problems = useProfileProblems(gymid)
 const grades = useProfileGrades(gymid)
 
 const routeTypeFilter = ref('all')

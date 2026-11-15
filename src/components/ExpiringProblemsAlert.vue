@@ -27,13 +27,15 @@
   </div>
 </template>
 <script setup>
-import { useStore } from 'vuex'
-import {  computed, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { date_format, right } from '@js/helpers'
 import RoundBadge from '@components/ui/RoundBadge.vue'
+import { useGymStore } from '@js/stores/gym.store.js'
+import { useProfileProblems } from '@js/useProfileSlice.js'
 
-const store = useStore()
-const problems = computed(() => store.state.problems)
+const gymStore = useGymStore()
+const gymid = computed(() => gymStore.gymid)
+const problems = useProfileProblems(gymid)
 const showDetails = ref(false)
 
 const expiringProblems = computed(() => {

@@ -68,7 +68,8 @@
  * marked and disabled rather than being able to pile on.
  */
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations'
 import { useI18n } from 'vue-i18n'
 import { f7 } from 'framework7-vue'
 
@@ -84,7 +85,7 @@ const KINDS = [
 const NOTE_MAX = 500
 
 const { t } = useI18n()
-const store = useStore()
+const { mutateAsync: reportProblem } = useMutation(mutations.reportProblem())
 const busy = ref(null)
 const sheetOpen = ref(false)
 const pending = ref(null)
@@ -118,7 +119,7 @@ async function send() {
     // The note is optional and stays optional — sending with an empty field
     // files the flag on its own, which is the common case when someone is
     // standing under the route with chalky hands.
-    await store.dispatch('reportProblem', { id: props.problem.id, type, note: note.value.trim() })
+    await reportProblem({ id: props.problem.id, type, note: note.value.trim() })
     sheetOpen.value = false
     f7.toast.show({ text: t('report.thanks'), closeTimeout: 2500, position: 'bottom' })
   } catch (err) {

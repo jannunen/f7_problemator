@@ -11,10 +11,11 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 
-import { useStore } from 'vuex'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations'
 import { useAuthStore } from '@js/stores/auth.store.js'
 import { f7 } from 'framework7-vue'
-const store = useStore()
+const { mutateAsync: getProblemDetails } = useMutation(mutations.getProblemDetails())
 const authStore = useAuthStore()
 const showPublicAscentsDialog = ref(false)
 const showCommentsDialog = ref(false)
@@ -29,7 +30,7 @@ const props = defineProps({
   id : Number,
 })
 if (props.id != null) {
-  store.dispatch('getProblemDetails', props.id)
+  getProblemDetails(props.id)
   .then((prob) => {
     loading.value = false
     problem.value = prob

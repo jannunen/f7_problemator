@@ -156,8 +156,9 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
-import { useQuery } from '@tanstack/vue-query'
+import { useMutation, useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
+import { mutations } from '@js/mutations'
 import { runArchiveDayClick } from '@js/helpers/archiveThrottle.js'
 import dayjs from 'dayjs'
 import utc from "dayjs/plugin/utc"
@@ -173,6 +174,7 @@ import { right } from '@js/helpers'
 
 import { Bar } from 'vue-chartjs'
 const store = useStore()
+const { mutateAsync: deleteProject } = useMutation(mutations.deleteProject())
 
 dayjs.extend(relativeTime)
 dayjs.extend(utc)
@@ -368,7 +370,7 @@ const refreshArchiveDate = async () => {
     await refetchArchiveDay()
 }
 const onProjectDeleted = async (tick) => {
-    const resp = await store.dispatch('deleteProject', tick.id)
+    const resp = await deleteProject(tick.id)
     toaster(resp.message)
     await refreshArchiveDate()
 }

@@ -16,7 +16,7 @@ vi.mock('@/js/helpers', async () => ({ calculatePoints: (await import('../src/js
 vi.mock('framework7-vue', () => ({ f7: { views: { main: { router: { navigate() {} } } } } }))
 vi.mock('@components/gym_completion/CompletionBarChart.vue', () => ({ default: { render: () => h('div', 'chart') } }))
 
-const { useProfileSlice, useProfileGrades, useProfileGym } = await import('../src/js/useProfileSlice.js')
+const { useProfileSlice, useProfileGrades, useProfileGym, useProfileProblems } = await import('../src/js/useProfileSlice.js')
 const GymCompletionPage = (await import('../src/pages/GymCompletionPage.vue')).default
 const ScoreToday = (await import('../src/components/home/ScoreToday.vue')).default
 
@@ -63,6 +63,47 @@ describe('useProfileSlice', () => {
 
     expect(run(() => useProfileGrades(ref(1))).value).toEqual([{ id: 1, name: '6A' }])
     expect(run(() => useProfileSlice(ref(1), (d) => d.gym?.walls, [])).value).toEqual([])
+  })
+
+  /**
+   * `problems` is not a pure server cache — it's a `select` slice of the
+   * SAME profile payload, reshaped from the raw `gym.problems` ARRAY the
+   * backend returns into an id-keyed OBJECT, matching exactly what the old
+   * Vuex `store.commit('problems', ...)` bridge produced
+   * (`acc[prob.id] = prob`). Every current consumer (ExpiringProblemsAlert,
+   * AttributeRadar, GymCompletionPage, ProblemList, GymMapPage) destructures
+   * this with `Object.keys`/`Object.values`/bracket-by-id lookups, not
+   * array methods — so the id-keyed shape, not the raw array, is what must
+   * come out of this selector.
+   */
+  describe('useProfileProblems', () => {
+    it('returns an empty object while the profile query has no data', () => {
+      const client = new QueryClient()
+      const problems = inApp(client, () => useProfileProblems(ref(1)))
+
+      expect(problems.value).toEqual({})
+    })
+
+    it('reshapes gym.problems (an array) into an id-keyed object', () => {
+      const client = new QueryClient()
+      client.setQueryData(['profile', 1], {
+        gym: { problems: [{ id: 5, name: 'a' }, { id: 9, name: 'b' }] },
+      })
+      const problems = inApp(client, () => useProfileProblems(ref(1)))
+
+      expect(problems.value).toEqual({
+        5: { id: 5, name: 'a' },
+        9: { id: 9, name: 'b' },
+      })
+    })
+
+    it('falls back to an empty object when the payload has no gym', () => {
+      const client = new QueryClient()
+      client.setQueryData(['profile', 1], { gym: null })
+      const problems = inApp(client, () => useProfileProblems(ref(1)))
+
+      expect(problems.value).toEqual({})
+    })
   })
 })
 

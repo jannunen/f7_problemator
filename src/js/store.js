@@ -78,7 +78,6 @@ export default createStore({
       ticks : [],
       tries : []
     },
-    problems : [],
   },
 
   mutations: {
@@ -118,14 +117,19 @@ export default createStore({
     removeTick(state, pid) {
       state.alltime.ticks = state.alltime.ticks.filter(x => x.problemid != pid)
     },
-    updateProblem(state, payload) {
-      state.problems = {...state.problems,[payload.id] : payload}
-    },
+    // updateProblem/problems removed (Task 4 of the Activity-group migration
+    // plan — problems moved to useProfileSlice.js's useProfileProblems and
+    // mutations.js's patchGymProblems). saveTick/publicSaveTick/deleteTick/
+    // deleteTickByProblem below still `commit('updateProblem', ...)` /
+    // `commit('problems', ...)` — those are Task 5's domain (ticks), not
+    // this task's to touch; with no mutation left to handle them, Vuex logs
+    // "unknown mutation type" and the commit is a no-op, same as
+    // addTickToCompetition/removeTickFromCompetition above already are.
+    // Harmless: nothing reads state.problems any more for Task 5 to leave
+    // stale. Task 5 replaces each with a direct queryClient.setQueryData
+    // call using patchGymProblems, per the plan's own coordination note.
     isAbsolute (state, payload) {
       state.isAbsolute = payload
-    },
-    problems(state, payload) {
-      state.problems = payload
     },
   },
   actions: {
@@ -174,16 +178,8 @@ export default createStore({
       commit('allTimeTicks', ret)
       commit('ticksLoaded',true)
     },
-    async deleteProject({ commit, state}, payload) {
-      const ret = await api.deleteProject(payload)
-      commit('problems', {...state.problems,[ret.problem.id] : ret.problem})
-      invalidateAfter('deleteProject')
-      // Unlike deleteTick right below, this never returned its result —
-      // every caller's `resp.message` read `.message` off undefined and
-      // crashed before whatever came after it (ArchivePage.vue's post-delete
-      // refetch) ever ran.
-      return ret
-    },
+    // deleteProject moved to mutations.deleteProject (Task 4 of the
+    // Activity-group migration plan).
      async deleteTickByProblem({ state,commit}, payload) {
       const { compid, ...apiPayload } = payload
       const ret = await api.deleteTickByProblem(apiPayload)
@@ -222,52 +218,12 @@ export default createStore({
       invalidateAfter('saveTick')
       return ret
     },
-    async likeProblem({ state , commit}, payload) {
-      const pid = payload.id
-      const ret = await api.likeProblem(pid)
-      // Update problem likes
-      const problem = state.problems[pid]
-      commit('problems' , { ...state.problems, [pid]: {...problem,['c_like'] : ret.likeCount, ['likeCount'] : ret.likeCount, ['c_dislike'] : ret.dislikeCount, ['dislikeCount'] : ret.dislikeCount } })
-      invalidateAfter('likeProblem')
-    },
-    async dislikeProblem({ state , commit}, payload) {
-      const pid = payload.id
-      const ret = await api.dislikeProblem(pid)
-      // Update problem dislikes
-      const problem = state.problems[pid]
-      commit('problems' , { ...state.problems, [pid]: {...problem,['likeCount'] : ret.likeCount, ['dislikeCount'] : ret.dislikeCount } })
-      invalidateAfter('dislikeProblem')
-    },
-    async commentProblem({ state , commit}, payload) {
-      const pid = payload.id
-      const ret = await api.commentProblem(payload)
-      // Update problem comments
-      const problem = state.problems[pid]
-      commit('problems' , { ...state.problems, [pid]: {...problem, ['messages'] : ret.messages, ['messageCount'] : ret.messages.length } })
-    },
-    async reportProblem({ state, commit }, payload) {
-      const ret = await api.reportProblem(payload)
-      // Keep the counts on the cached problem, so leaving the page and coming
-      // back does not show the report as un-made.
-      const problem = state.problems[payload.id]
-      if (problem) {
-        commit('problems', { ...state.problems, [payload.id]: { ...problem, reports: ret.reports } })
-      }
-      return ret.reports
-    },
     // requestOtp, verifyOtp, socialLogin, completeSocialLogin, logout moved
     // to Pinia's useAuthStore (Task 6). login/setUser were dead (zero
     // dispatch sites) and were dropped rather than ported.
-    async getProblemDetails({ state  , commit}, payload) {
-      const ret = await api.getProblemDetails(payload);
-      const problem = ret.problem
-      const curProblem = state.problems[problem.id]
-      const merged = {...curProblem, ...problem}
-      if (problem) {
-        commit('problems' , {...state.problems,[problem.id] : merged})
-      }
-      return problem
-    },
+    // likeProblem, dislikeProblem, commentProblem, reportProblem and
+    // getProblemDetails moved to mutations.js (Task 4 of the Activity-group
+    // migration plan).
     // changeGym and saveSettings moved to mutations.js (Task 7).
     // saveGymSettings dropped (Task 7): zero call sites, same as when it
     // was last checked. getClimberByKey moved to mutations.getClimberByKey

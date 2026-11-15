@@ -6,19 +6,6 @@ vi.mock('@js/api', () => ({
   },
 }))
 
-// store.js is the still-live Vuex store. `problems` is the one
-// Activity-owned field this migration plan deliberately leaves on it (see
-// the plan's "climber boundary", narrowed by Task 1 to climber, and by
-// Task 2 to just `problems` — climber moved to the Pinia climber store,
-// rankingTarget to the Pinia rankings store, both below) — queries.profile's
-// queryFn bridges `problems` in exactly the shape the old getProfile action
-// did. Mocked the same way test/stores/auth.store.test.js and
-// test/mutations.followUnFollow.test.js mock the one Vuex call each of
-// those leaves behind.
-vi.mock('../src/js/store.js', () => ({
-  default: { commit: vi.fn() },
-}))
-
 // The rankings store's seedFromProfile is mocked rather than exercised for
 // real here: its seed-once guard is store-instance state that would leak
 // across this file's tests through the shared `pinia` singleton (there is
@@ -33,7 +20,6 @@ vi.mock('@js/stores/rankings.store.js', () => ({
 }))
 
 import api from '@js/api'
-import store from '../src/js/store.js'
 import { queries } from '@js/queryKeys'
 import { setAuthToken } from '@js/authToken.js'
 import { QueryClient, QueryObserver } from '@tanstack/query-core'
@@ -42,7 +28,6 @@ import { pinia } from '@js/stores/index.js'
 
 beforeEach(() => {
   api.getProfile.mockReset()
-  store.commit.mockReset()
   rankingsStoreMock.seedFromProfile.mockReset()
   useClimberStore(pinia).setFromProfile(null)
   setAuthToken(null)
@@ -118,8 +103,16 @@ describe('queries.profile', () => {
     expect(rankingsStoreMock.seedFromProfile).toHaveBeenCalledWith('de')
   })
 
-  it('reduces gym.problems into an id-keyed object, same as the old getProfile action', async () => {
-    api.getProfile.mockResolvedValue({
+  // Task 4 (Activity-group migration plan) removed the old
+  // `store.commit('problems', ...)` bridge that used to run right here: it
+  // reshaped `gym.problems` into an id-keyed object as a side effect of this
+  // queryFn. That reshape is now `useProfileSlice.js`'s `useProfileProblems`
+  // selector's job (see useProfileSlice.test.js); this queryFn leaves
+  // `gym.problems` exactly as the backend returned it — untouched, still an
+  // array — so mutations.js's patches (which also operate on this same raw
+  // array) and a plain query read always agree on its shape.
+  it('leaves gym.problems as the raw array the backend returned, doing no reshaping of its own', async () => {
+    const payload = {
       profile: { settings: {} },
       climber: null,
       gym: {
@@ -127,22 +120,13 @@ describe('queries.profile', () => {
         walls: [],
         problems: [{ id: 5, name: 'a' }, { id: 9, name: 'b' }],
       },
-    })
+    }
+    api.getProfile.mockResolvedValue(payload)
 
-    await queries.profile(42).queryFn()
+    const result = await queries.profile(42).queryFn()
 
-    expect(store.commit).toHaveBeenCalledWith('problems', {
-      5: { id: 5, name: 'a' },
-      9: { id: 9, name: 'b' },
-    })
-  })
-
-  it('does nothing to the Vuex store when the API returns no profile', async () => {
-    api.getProfile.mockResolvedValue(null)
-
-    await queries.profile(42).queryFn()
-
-    expect(store.commit).not.toHaveBeenCalled()
+    expect(result.gym.problems).toEqual([{ id: 5, name: 'a' }, { id: 9, name: 'b' }])
+    expect(result.gym.problems).toBe(payload.gym.problems)
   })
 
   /**

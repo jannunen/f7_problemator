@@ -41,3 +41,31 @@ export const useProfileGrades = (gymid) =>
 /** The gym's route styles. */
 export const useProfileStyles = (gymid) =>
   useProfileSlice(gymid, (d) => d.styles, [])
+
+/**
+ * The gym's problems, keyed by id — not the raw `gym.problems` array the
+ * backend returns (and that `queries.profile`'s cache still holds
+ * untouched), but reshaped exactly the way the old Vuex
+ * `store.commit('problems', ...)` bridge reshaped it (`acc[prob.id] = prob`).
+ *
+ * Every current consumer (ExpiringProblemsAlert, AttributeRadar,
+ * GymCompletionPage, ProblemList, GymMapPage) destructures this with
+ * `Object.keys`/`Object.values`/bracket-by-id lookups — the array shape
+ * would not satisfy any of them without first undoing this same reshape
+ * in every call site.
+ *
+ * mutations.js patches the RAW array in the cache (see its own
+ * patchGymProblems), not this id-keyed view — this selector runs again,
+ * fresh, on every render, so a patch to the array is automatically
+ * reflected here with no separate bridge to keep in sync.
+ */
+export const useProfileProblems = (gymid) =>
+  useProfileSlice(
+    gymid,
+    (d) =>
+      (d.gym?.problems ?? []).reduce((acc, prob) => {
+        acc[prob.id] = prob
+        return acc
+      }, {}),
+    {}
+  )

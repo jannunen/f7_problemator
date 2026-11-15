@@ -98,6 +98,8 @@
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
 import { useStore } from 'vuex'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations'
 import dayjs from 'dayjs'
 import { ref} from 'vue'
 import { toaster, alert } from '@js/helpers/notifications.js'
@@ -111,6 +113,7 @@ console.log(guessed.value)
 
 
 const store = useStore()
+const { mutateAsync: deleteProject } = useMutation(mutations.deleteProject())
 const props = defineProps({
   problem: {
     type: Object,
@@ -131,7 +134,7 @@ const props = defineProps({
 
 const { t } = useI18n()
 const onProjectDeleted = (tick) => {
-  store.dispatch('deleteProject', tick.id).then((resp) => {
+  deleteProject(tick.id).then((resp) => {
     toaster(resp.message)
   })
 }

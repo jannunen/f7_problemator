@@ -1,7 +1,6 @@
 import { computed, unref, toValue } from 'vue'
 import api from '@js/api'
 import { isAuthenticated } from './authToken.js'
-import store from './store.js'
 import { useClimberStore } from './stores/climber.store.js'
 import { useRankingsStore } from './stores/rankings.store.js'
 import { pinia } from './stores/index.js'
@@ -286,11 +285,16 @@ export const queries = {
    * on a gym the way the others are would starve that prompt, and the
    * climber bridge below, of the one call that feeds them both.
    *
-   * The bridge: `problems` is the one Activity-owned piece this migration
-   * plan deliberately leaves on the still-live Vuex store for now (see the
-   * plan's "climber boundary" — narrowed by this plan's Task 1 to climber,
-   * and by this Task 2 to just `problems`; `rankingTarget` moved to the
-   * Pinia rankings store below, climber to the Pinia climber store).
+   * `gym.problems` (this task's own domain — see useProfileSlice.js's
+   * `useProfileProblems` and mutations.js's `likeProblem`/`dislikeProblem`/
+   * `commentProblem`/`reportProblem`/`getProblemDetails`/`deleteProject`) is
+   * left here exactly as the backend returns it: an ARRAY, untouched. The
+   * old `store.commit('problems', ...)` bridge that used to reshape it into
+   * an id-keyed object right here is gone — that reshape now happens in
+   * `useProfileProblems`'s `select`, which runs fresh on every render, so a
+   * mutation's patch to this array needs no separate id-keyed copy kept in
+   * sync.
+   *
    * climber is written into that Pinia store directly here (and from
    * mutations.saveSettings's onSuccess) rather than through Vuex, same
    * "whichever source ran most recently wins" overload the old
@@ -314,13 +318,6 @@ export const queries = {
       if (ret != null && ret.profile != null) {
         if (ret.gym != null) {
           useRankingsStore(pinia).seedFromProfile(ret.gym?.country)
-          if (ret.gym.problems != null) {
-            const problems = ret.gym.problems.reduce((acc, prob) => {
-              acc[prob.id] = prob
-              return acc
-            }, {})
-            store.commit('problems', problems)
-          }
         }
         useClimberStore(pinia).setFromProfile(ret.climber)
       }

@@ -188,7 +188,7 @@ import { maxSnap } from '@js/constants.js'
 import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { useGymStore } from '@js/stores/gym.store.js'
-import { useProfileGrades, useProfileGym, useProfileStyles, useProfileWalls } from '@js/useProfileSlice.js'
+import { useProfileGrades, useProfileGym, useProfileProblems, useProfileStyles, useProfileWalls } from '@js/useProfileSlice.js'
 import { useI18n } from 'vue-i18n'
 import GradeFilter from '@components/ui/problemlist/GradeFilter.vue'
 import StyleFilter from '@components/ui/problemlist/StyleFilter.vue'
@@ -259,7 +259,7 @@ onMounted(() => {
   }
 })
 const { t, d, locale } = useI18n()
-const problems = computed(() => store.state.problems)
+const problems = useProfileProblems(gymid)
 watch(problems, (newValue) => {
   if (problems.value.length == 0) {
     store.dispatch('getProblems')

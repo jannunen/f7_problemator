@@ -1,6 +1,7 @@
 import api from '@js/api'
-import { queryClient } from '@js/queryClient'
+import { queryClient, invalidateAfter } from '@js/queryClient'
 import { useClimberStore } from '@js/stores/climber.store.js'
+import { useGymStore } from '@js/stores/gym.store.js'
 import { pinia } from '@js/stores/index.js'
 import { asCompId } from '@js/queryKeyNames'
 
@@ -73,6 +74,48 @@ const patchRemovedCheckpoint = (old, problemid) => {
   const my_checkpoint_scores = { ...asObj(old.my_checkpoint_scores) }
   delete my_checkpoint_scores[problemid]
   return { ...old, my_checkpoints, my_checkpoint_tries, my_checkpoint_scores }
+}
+
+/**
+ * Patches the cached profile payload's `gym.problems` — an ARRAY, exactly
+ * as the backend returns it and as `queries.profile`'s queryFn now leaves
+ * it untouched (the old `store.commit('problems', ...)` bridge that
+ * reshaped it into an id-keyed object has moved to useProfileSlice.js's
+ * `useProfileProblems` selector, which runs fresh on every render — so a
+ * patch made here to the raw array needs no separate id-keyed copy kept in
+ * sync).
+ *
+ * `updateProblems` gets the current array and returns the next one; it is
+ * a no-op (returns `old` unchanged) when the profile payload is not cached
+ * yet, same safety every other setQueryData updater in this file has.
+ *
+ * gymid is read from the Pinia gym store HERE, at call time, rather than
+ * threaded through each mutation's payload or captured when the mutation
+ * factory runs (`mutations.likeProblem()`, once per component). Two reasons:
+ *
+ *   - Every current caller of `queries.profile(gymid)` already builds gymid
+ *     the same way, with `computed(() => useGymStore().gymid)` (see
+ *     GymCompletionPage.vue, ProblemList.vue, GymMapPage.vue, etc.). Reading
+ *     the exact same store here, the exact same way, is what guarantees this
+ *     patch's key and the query's key can never drift apart — which is
+ *     exactly how Task 3's compid bug happened (a route-param string on one
+ *     side, a fetched object's numeric id on the other). Requiring callers
+ *     to pass gymid in the mutate() payload instead would add a SECOND path
+ *     by which gymid reaches a cache key, with no guarantee every call site
+ *     (LeftDetails.vue, ReportProblem.vue, Problem.vue, TickList.vue,
+ *     ArchivePage.vue) sources it identically.
+ *   - Reading it inside onSuccess (not once when the factory runs) means a
+ *     gym switch mid-session patches the NEW gym's cache entry — the same
+ *     one a currently-mounted component's own `queries.profile(gymid)` call
+ *     would be keyed on right now, not whatever gym was selected when the
+ *     component first mounted.
+ */
+const patchGymProblems = (updateProblems) => {
+  const gymid = useGymStore(pinia).gymid
+  queryClient.setQueryData(['profile', gymid], (old) => {
+    if (old?.gym?.problems == null) return old
+    return { ...old, gym: { ...old.gym, problems: updateProblems(old.gym.problems) } }
+  })
 }
 
 export const mutations = {
@@ -267,5 +310,121 @@ export const mutations = {
   /** A judge records one checkpoint for a contender. */
   addCheckpointJudging: () => ({
     mutationFn: (payload) => api.addCheckpointAscent(payload),
+  }),
+
+  /**
+   * Like a route. The endpoint answers with the route's fresh like/dislike
+   * counts (both, since liking can clear a previous dislike server-side).
+   * Ported verbatim from store.js's likeProblem action: patches BOTH the
+   * legacy `c_like`/`c_dislike` fields (read by older templates) and the
+   * newer `likeCount`/`dislikeCount` fields with the same fresh counts.
+   */
+  likeProblem: () => ({
+    mutationFn: (id) => api.likeProblem(id),
+    onSuccess: (data, id) => {
+      patchGymProblems((problems) =>
+        problems.map((p) =>
+          p.id == id
+            ? { ...p, c_like: data.likeCount, likeCount: data.likeCount, c_dislike: data.dislikeCount, dislikeCount: data.dislikeCount }
+            : p
+        )
+      )
+      invalidateAfter('likeProblem')
+    },
+  }),
+
+  /**
+   * Dislike a route. Unlike likeProblem, the old dislikeProblem action never
+   * touched `c_like`/`c_dislike` — only `likeCount`/`dislikeCount`.
+   */
+  dislikeProblem: () => ({
+    mutationFn: (id) => api.dislikeProblem(id),
+    onSuccess: (data, id) => {
+      patchGymProblems((problems) => problems.map((p) => (p.id == id ? { ...p, likeCount: data.likeCount, dislikeCount: data.dislikeCount } : p)))
+      invalidateAfter('dislikeProblem')
+    },
+  }),
+
+  /**
+   * Comment on a route. `payload` is `{id, comment}` — api.commentProblem
+   * needs both, so unlike likeProblem/dislikeProblem this cannot take a bare
+   * id. The response carries the full messages list; messageCount is
+   * derived from it, same as the old action (there is no separate count
+   * field from the server).
+   */
+  commentProblem: () => ({
+    mutationFn: (payload) => api.commentProblem(payload),
+    onSuccess: (data, payload) =>
+      patchGymProblems((problems) =>
+        problems.map((p) => (p.id == payload.id ? { ...p, messages: data.messages, messageCount: data.messages.length } : p))
+      ),
+  }),
+
+  /**
+   * Flag a route as dirty/dangerous. `payload` is `{id, type, note}`
+   * (api.reportProblem's own shape). Ported verbatim from store.js's
+   * `if (problem) { commit(...) }` guard: unlike the other problem patches
+   * here, a report for a problem not already in the cached array is
+   * skipped outright, not inserted.
+   */
+  reportProblem: () => ({
+    mutationFn: (payload) => api.reportProblem(payload),
+    onSuccess: (data, payload) =>
+      patchGymProblems((problems) => problems.map((p) => (p.id == payload.id ? { ...p, reports: data.reports } : p))),
+  }),
+
+  /**
+   * One route's full detail payload (messages, grade opinions, reports...),
+   * fetched when a climber opens its page. Resolves with `ret.problem`
+   * (not the full `ret`), matching the old action's own return value —
+   * Problem.vue's `.then((prob) => ...)` reads the problem directly.
+   *
+   * onSuccess merges `{...curProblem, ...problem}` — detail-endpoint-only
+   * fields land ON TOP of whatever list-endpoint fields were already
+   * cached, never replacing them outright. This is why this patches the
+   * cache directly instead of invalidating: a plain refetch of the profile
+   * query would bring back the LIST shape, dropping every detail-only
+   * field this merge just added, undoing itself the moment the refetch
+   * landed. Also ported verbatim: the old action committed unconditionally
+   * even when the problem was not already in `state.problems` (unlike
+   * reportProblem's guard above) — this upserts (inserts) rather than
+   * skipping when the row is missing.
+   */
+  getProblemDetails: () => ({
+    mutationFn: async (id) => {
+      const ret = await api.getProblemDetails(id)
+      return ret.problem
+    },
+    onSuccess: (problem) => {
+      if (problem == null) return
+      patchGymProblems((problems) => {
+        const idx = problems.findIndex((p) => p.id == problem.id)
+        if (idx === -1) return [...problems, problem]
+        return problems.map((p, i) => (i === idx ? { ...p, ...problem } : p))
+      })
+    },
+  }),
+
+  /**
+   * Delete a project (a pretick — a route marked as being worked on, not
+   * yet sent). `id` is the pretick's own id, not the problem's — see
+   * api.deleteProject. Resolves with the full response (not just
+   * `.problem`): every caller reads `resp.message` for a toast.
+   *
+   * Ported verbatim from store.js's deleteProject action: the cached
+   * problem is REPLACED wholesale with `ret.problem`, not merged with
+   * whatever fields were already there.
+   */
+  deleteProject: () => ({
+    mutationFn: (id) => api.deleteProject(id),
+    onSuccess: (data) => {
+      if (data?.problem == null) return
+      patchGymProblems((problems) => {
+        const idx = problems.findIndex((p) => p.id == data.problem.id)
+        if (idx === -1) return [...problems, data.problem]
+        return problems.map((p, i) => (i === idx ? data.problem : p))
+      })
+      invalidateAfter('deleteProject')
+    },
   }),
 }
