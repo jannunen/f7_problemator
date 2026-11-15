@@ -184,26 +184,26 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { onMounted, watch,  ref,  computed } from 'vue'
-import { useStore } from 'vuex'
 import { useMutation } from '@tanstack/vue-query'
 import { mutations } from '@js/mutations.js'
+import { useClimberStore } from '@js/stores/climber.store.js'
 import { toaster, alert } from '@js/helpers/notifications.js'
 import { getNames } from 'country-list'
 import dayjs from 'dayjs'
-const store = useStore()
+const climberStore = useClimberStore()
 const { mutateAsync: saveSettingsMutate } = useMutation(mutations.saveSettings())
 const { t } = useI18n()
 const props = defineProps({
     f7router: Object,
 })
-const climberStore = computed(() => store.state.climber)
+const storedClimber = computed(() => climberStore.climber)
 const climber = ref(null)
 
-watch(climberStore, (newValue) => {
+watch(storedClimber, (newValue) => {
     climber.value = JSON.parse(JSON.stringify(newValue))
 })
 onMounted(() => {
-    climber.value = JSON.parse(JSON.stringify(climberStore.value))
+    climber.value = JSON.parse(JSON.stringify(storedClimber.value))
 })
 
 const genders = computed(() => [

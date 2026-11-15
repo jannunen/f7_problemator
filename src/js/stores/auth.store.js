@@ -5,8 +5,8 @@ import { signInWith, clearSupabaseSession } from '@helpers/socialAuth.js'
 import { setAuthToken, readStoredToken } from '../authToken.js'
 import { useUiStore } from './ui.store.js'
 import { useGymStore } from './gym.store.js'
+import { useClimberStore } from './climber.store.js'
 import { pinia } from './index.js'
-import store from '../store.js'
 import { queryClient } from '@js/queryClient'
 
 /**
@@ -27,14 +27,13 @@ import { queryClient } from '@js/queryClient'
  * backend's Supabase-exchange route was removed months ago, so they
  * currently fail if ever invoked — but are ported faithfully anyway.
  *
- * `logout()` keeps calling into the still-live Vuex `store` for one piece
- * of state that remains Vuex's own domain and is out of scope for this
- * migration (`state.climber` — see the migration plan's Global Constraints
- * "`state.climber` boundary"). `state.profile`/`state.profileLoaded` moved
- * off Vuex in Task 7 along with `gymid`, so logout clears those through the
- * Pinia gym store and the TanStack `profile` query's cache instead, and sets
- * the `ready` flag that already lives in the Pinia ui store. This is the only way to drop logout's Vuex action entirely
- * without changing what climbers see on screen.
+ * `logout()` clears the Pinia climber store directly (the second plan's
+ * Task 1 moved `state.climber` off Vuex). `state.profile`/`state.profileLoaded`
+ * moved off Vuex in Task 7 along with `gymid`, so logout clears those through
+ * the Pinia gym store and the TanStack `profile` query's cache instead, and
+ * sets the `ready` flag that already lives in the Pinia ui store. This is
+ * the only way to drop logout's Vuex action entirely without changing what
+ * climbers see on screen.
  */
 export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(!!readStoredToken())
@@ -153,10 +152,10 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.removeItem('gymid')
     setToken(null)
     user.value = null
-    // state.climber is out of scope for this entire migration plan (see the
-    // plan's Global Constraints) — keep writing it through the still-live
-    // Vuex store exactly as the old action did.
-    store.commit('climber', null)
+    // Clears whichever of setFromProfile/setFromPublicKey last wrote this —
+    // same "whichever ran most recently wins" field the old
+    // commit('climber', null) mutation cleared.
+    useClimberStore(pinia).setFromProfile(null)
     isAuthenticated.value = false
     // gymid and the profile payload now live in the Pinia gym store and the
     // TanStack `profile` query (Task 7), not Vuex — clear both the same way

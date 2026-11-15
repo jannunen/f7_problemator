@@ -28,14 +28,16 @@ import { useStore } from 'vuex'
 import { ref, onMounted, computed, watch } from 'vue'
 import CompetitionRegisterInfo from '@components/comps/CompetitionRegisterInfo.vue'
 import CompetitionEntry from '@components/comps/CompetitionEntry.vue'
+import { useClimberStore } from '@js/stores/climber.store.js'
 
 const props = defineProps({
     compid : Number,
 })
 const { t } = useI18n()
 const store = useStore()
+const climberStore = useClimberStore()
 const comp = computed(() => store.state.competition)
-const climber = computed(() => store.state.climber)
+const climber = computed(() => climberStore.climber)
 const url = window.location.href
 const urlParams = new URLSearchParams(url.split('?')[1])
 store.dispatch('getCompetition', { compid: props.compid })

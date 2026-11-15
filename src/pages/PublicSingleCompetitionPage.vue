@@ -25,6 +25,9 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations.js'
+import { useClimberStore } from '@js/stores/climber.store.js'
 import { ref, onMounted, computed, watch } from 'vue'
 import PublicCompetitionEntry from '@components/comps/PublicCompetitionEntry.vue'
 
@@ -33,22 +36,29 @@ const props = defineProps({
 })
 const { t } = useI18n()
 const store = useStore()
+const climberStore = useClimberStore()
 const comp = computed(() => store.state.competition)
-const climber = computed(() => store.state.climber)
+const climber = computed(() => climberStore.climber)
 const url = window.location.href
 const urlParams = new URLSearchParams(url.split('?')[1])
 const notAuthorized = ref(false)
 // this key can be used to open the entry page without logging in
 const key = urlParams.get('key')
+const { mutate: getClimberByKeyMutate } = useMutation(mutations.getClimberByKey())
 if (key != null) {
-  store.dispatch('getClimberByKey', { compid: props.compid, key: key },'/compkey')
-  .then((ret) => {
-    if (ret != null && typeof ret == 'string' && ret.match(/access.to.this.comp/i)) {
-      notAuthorized.value = true
-    } else {
-      store.dispatch('publicGetCompetition',{compid:props.compid, point_entry_key: key})
-      .then(() => loading.value=false)
-    }
+  getClimberByKeyMutate({ compid: props.compid, key: key }, {
+    onSuccess: (ret) => {
+      // The mutation's own onSuccess already guards against writing this
+      // string into the climber store; this is the separate UI decision —
+      // whether to show the "not authorized" message — so the same check
+      // is repeated here on purpose.
+      if (ret != null && typeof ret == 'string' && ret.match(/access.to.this.comp/i)) {
+        notAuthorized.value = true
+      } else {
+        store.dispatch('publicGetCompetition',{compid:props.compid, point_entry_key: key})
+        .then(() => loading.value=false)
+      }
+    },
   })
 } else {
       /*

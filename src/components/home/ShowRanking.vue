@@ -142,6 +142,7 @@ import { estimateGrade, toLocalTime, calculatePoints } from '@/js/helpers'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
 import { useGymStore } from '@js/stores/gym.store.js'
+import { useClimberStore } from '@js/stores/climber.store.js'
 import api from '@js/api'
 
 
@@ -153,10 +154,11 @@ const props = defineProps({
 const { t } = useI18n()
 const store = useStore()
 const gymStore = useGymStore()
+const climberStore = useClimberStore()
 const gymid = computed(() => gymStore.gymid)
 const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
 const showAscents = ref(false)
-const user = computed(() => store.state.climber)
+const user = computed(() => climberStore.climber)
 const showMyTop10 = () => {
     climber.value = user.value.id
     showAscents.value = true

@@ -2,6 +2,8 @@ import { computed, unref } from 'vue'
 import api from '@js/api'
 import { isAuthenticated } from './authToken.js'
 import store from './store.js'
+import { useClimberStore } from './stores/climber.store.js'
+import { pinia } from './stores/index.js'
 
 /**
  * Every server query the app makes, in one place.
@@ -212,15 +214,18 @@ export const queries = {
    * on a gym the way the others are would starve that prompt, and the
    * climber bridge below, of the one call that feeds them both.
    *
-   * The bridge: climber/rankingTarget/problems are Activity-owned pieces
-   * this migration plan deliberately leaves on the still-live Vuex store
-   * (see the plan's "climber boundary") — same bridge pattern used
-   * elsewhere in this migration (auth.store.js's logout, for one), just
-   * living inside the queryFn rather than an onSuccess callback: TanStack
-   * Query v5 dropped useQuery's onSuccess, so the queryFn's own body — the
-   * one place guaranteed to run exactly once per fetch, before the result
-   * is handed back — is what the old getProfile action's success path
-   * becomes now.
+   * The bridge: rankingTarget/problems are Activity-owned pieces this
+   * migration plan deliberately leaves on the still-live Vuex store for now
+   * (see the plan's "climber boundary" — narrowed by this plan's Task 1 to
+   * cover only these two; climber itself moved to the Pinia climber store).
+   * climber is written into that Pinia store directly here (and from
+   * mutations.saveSettings's onSuccess) rather than through Vuex, same
+   * "whichever source ran most recently wins" overload the old
+   * `commit('climber', ...)` mutation had, just living inside the queryFn
+   * rather than an onSuccess callback: TanStack Query v5 dropped useQuery's
+   * onSuccess, so the queryFn's own body — the one place guaranteed to run
+   * exactly once per fetch, before the result is handed back — is what the
+   * old getProfile action's success path becomes now.
    */
   profile: (gymid) => ({
     queryKey: key('profile', gymid),
@@ -237,7 +242,7 @@ export const queries = {
             store.commit('problems', problems)
           }
         }
-        store.commit('climber', ret.climber)
+        useClimberStore(pinia).setFromProfile(ret.climber)
       }
       return ret
     },

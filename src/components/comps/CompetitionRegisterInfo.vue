@@ -104,6 +104,7 @@
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { useAuthStore } from '@js/stores/auth.store.js'
+import { useClimberStore } from '@js/stores/climber.store.js'
 import { webendpoint } from '@js/api'
 import PButton from '@components/PButton.vue'
 import { ref, computed} from 'vue'
@@ -117,6 +118,7 @@ setInterval(() => nowUTC.value = dayjs().utc(),1000*30)
 import dayjs from 'dayjs'
 const store = useStore()
 const authStore = useAuthStore()
+const climberStore = useClimberStore()
 // Same host every other call uses, so this cannot drift away from it again.
 const getResultsLink = computed(() => `${webendpoint}/comps/${props.comp.id}/results`)
 
@@ -148,7 +150,7 @@ const { t } = useI18n()
 const props = defineProps({
   comp: Object,
 })
-const climber = computed(() => store.state.climber)
+const climber = computed(() => climberStore.climber)
 
 const isRegistered = (catid) => {
   if (climber.value == null) {

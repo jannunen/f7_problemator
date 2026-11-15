@@ -147,12 +147,12 @@
 import { f7 } from 'framework7-vue'
 import { useI18n } from 'vue-i18n'
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 import { useQuery, useMutation } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys'
 import { mutations } from '@js/mutations'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { useGymStore } from '@js/stores/gym.store.js'
+import { useClimberStore } from '@js/stores/climber.store.js'
 import { estimateGrade } from '@js/helpers'
 import dayjs from 'dayjs'
 import ClimbedProblemListItem from '@components/profile/ClimbedProblemListItem.vue'
@@ -160,16 +160,16 @@ import SocialButtons from '@components/profile/SocialButtons.vue'
 import ClimberBadges from '@components/profile/ClimberBadges.vue'
 
 const { t } = useI18n()
-const store = useStore()
 const uiStore = useUiStore()
 const gymStore = useGymStore()
+const climberStore = useClimberStore()
 const gymid = computed(() => gymStore.gymid)
 const props = defineProps({
   id: Number,
 })
 
 const { data: profile, isLoading: loading } = useQuery(queries.climberProfile(computed(() => props.id)))
-const climber = computed(() => store.state.climber)
+const climber = computed(() => climberStore.climber)
 const isOwnProfile = computed(() => String(props.id) === String(climber.value?.id))
 const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades })
 

@@ -24,31 +24,26 @@ vi.mock('@helpers/socialAuth.js', () => ({
   signInWith: vi.fn(),
   clearSupabaseSession: vi.fn(),
 }))
-// Mock the still-live Vuex store module so logout()'s one allowed call into
-// it (`store.commit('climber', null)`) can be observed without pulling in
-// the real store (and its own imports/side effects). Same pattern as
-// test/store.checkpoint.test.js uses in the other direction.
-vi.mock('../../src/js/store.js', () => ({
-  default: {
-    commit: vi.fn(),
-  },
-}))
 
 import api from '@js/api'
 import { signInWith, clearSupabaseSession } from '@helpers/socialAuth.js'
-import store from '../../src/js/store.js'
 import { useAuthStore } from '../../src/js/stores/auth.store.js'
+import { useClimberStore } from '../../src/js/stores/climber.store.js'
 import { pinia } from '../../src/js/stores/index.js'
 
 beforeEach(() => {
-  setActivePinia(createPinia())
   globalThis.localStorage = makeLocalStorageStub()
   api.requestOtp.mockReset()
   api.verifyOtp.mockReset()
   api.socialExchange.mockReset()
   signInWith.mockReset()
   clearSupabaseSession.mockReset()
-  store.commit.mockReset()
+  // Resets the shared climber store, as a side effect making it Pinia's
+  // active instance — so setActivePinia(createPinia()) runs after it, not
+  // before, to restore the fresh local instance the bare useAuthStore()
+  // calls below need for test isolation.
+  useClimberStore(pinia).setFromProfile(null)
+  setActivePinia(createPinia())
 })
 
 describe('useAuthStore initial state', () => {
@@ -171,7 +166,7 @@ describe('setToken', () => {
 })
 
 describe('logout', () => {
-  it('resets auth fields and calls store.commit for climber', () => {
+  it('resets auth fields and clears the Pinia climber store', () => {
     globalThis.localStorage = makeLocalStorageStub({ token: 'stored-token', gymid: '42' })
     const authStore = useAuthStore()
     authStore.user = { id: 1 }
@@ -179,6 +174,7 @@ describe('logout', () => {
     authStore.authStep = 'otp_sent'
     authStore.authEmail = 'a@b.com'
     authStore.authError = 'oops'
+    useClimberStore(pinia).setFromProfile({ id: 1 })
 
     authStore.logout()
 
@@ -189,7 +185,7 @@ describe('logout', () => {
     expect(authStore.authEmail).toBe('')
     expect(authStore.authError).toBe(null)
     expect(localStorage.getItem('gymid')).toBe(null)
-    expect(store.commit).toHaveBeenCalledWith('climber', null)
+    expect(useClimberStore(pinia).climber).toBe(null)
     expect(clearSupabaseSession).toHaveBeenCalled()
   })
 })
@@ -207,12 +203,13 @@ describe('module-scope usage (no component context)', () => {
     const authStore = useAuthStore(pinia)
     authStore.setToken('module-scope-token')
     authStore.isAuthenticated = true
+    useClimberStore(pinia).setFromProfile({ id: 1 })
 
     expect(() => useAuthStore(pinia).logout()).not.toThrow()
 
     expect(useAuthStore(pinia).isAuthenticated).toBe(false)
     expect(useAuthStore(pinia).accessToken).toBe(null)
-    expect(store.commit).toHaveBeenCalledWith('climber', null)
+    expect(useClimberStore(pinia).climber).toBe(null)
   })
 
   it('useAuthStore(pinia).setToken(token) succeeds when called outside any setup()', () => {

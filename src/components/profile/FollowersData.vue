@@ -22,14 +22,14 @@
 </template>
 <script setup>
 import { computed } from 'vue'
-import { useStore } from 'vuex'
 import { useMutation } from '@tanstack/vue-query'
 import { mutations } from '@js/mutations'
+import { useClimberStore } from '@js/stores/climber.store.js'
 const props = defineProps({
   profile: Object,
 })
-const store = useStore()
-const climber = computed(() => store.state.climber)
+const climberStore = useClimberStore()
+const climber = computed(() => climberStore.climber)
 const amIFollowing= computed(() => {
   if (climber.value == null) {
     return false

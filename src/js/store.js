@@ -1,6 +1,15 @@
 import { createStore } from "vuex";
 import { invalidateAfter } from '@js/queryClient'
 import api from './api'
+import { useClimberStore } from './stores/climber.store.js'
+import { pinia } from './stores/index.js'
+
+// The signed-in-or-public-point-entry climber's point_entry_key, if any —
+// read from the Pinia climber store (Task 1 of the Activity-group migration
+// plan moved climber identity off this Vuex store entirely). Only the
+// public-comp-key actions below need this; everything else about climber
+// identity now lives in useClimberStore.
+const pointEntryKeyOf = () => useClimberStore(pinia).climber?.point_entry_key ?? null
 
 // The server keeps the highest checkpoint: show what it stored, not what was tapped.
 const commitSavedCheckpoint = (commit, problemid, ret) => {
@@ -32,8 +41,6 @@ export default createStore({
       ticks : [],
       tries : []
     },
-    climber : null,
-    pointEntryKey : null,
     problems : [],
   },
 
@@ -139,23 +146,9 @@ export default createStore({
     problems(state, payload) {
       state.problems = payload
     },
-    climber(state, payload) {
-      state.climber = payload
-    },
-    pointEntryKey(state, payload) {
-      state.pointEntryKey = payload
-    },
   },
   actions: {
     // These actions use the public comp key
-    async getClimberByKey({state, commit}, payload) {
-      const ret = await api.getClimberByKey(payload,'/compkey')
-      commit('climber', ret)
-      if (ret.id != null) {
-        commit('pointEntryKey', payload.key)
-      }
-      return ret
-    },
      async publicGetPointsPerRoute({ commit }, payload) {
       const ret = await api.getPointsPerRoute(payload,'/compkey')
       commit('updatePointsPerRoute',{ compid : payload.compid, points : ret})
@@ -174,8 +167,8 @@ export default createStore({
       return ret
     },
     async publicSaveTick({ state, commit, dispatch}, payload) {
-      if (state.climber != null && state.climber.point_entry_key != null) {
-        payload.point_entry_key = state.climber.point_entry_key  
+      if (pointEntryKeyOf() != null) {
+        payload.point_entry_key = pointEntryKeyOf()
       }
       const ret = await api.saveTick(payload,'/compkey')
       commit('updateProblem', ret.problem)
@@ -211,9 +204,9 @@ export default createStore({
       return ret
     },
     // getProfile moved to queryKeys.js's `profile` query (Task 7). Its
-    // climber/rankingTarget/problems commits moved with it, into that
-    // query's queryFn — the same bridge-into-still-live-Vuex pattern this
-    // file's other out-of-scope fields already use.
+    // rankingTarget/problems commits moved with it, into that query's
+    // queryFn; its climber bridge moved to the Pinia climber store directly
+    // (this plan's Task 1) rather than through this still-live Vuex store.
     async loadAllTimeTicks({ commit, state}, payload) {
       const ret = await api.loadAllTimeTicks(payload)
       commit('allTimeTicks', ret)
@@ -259,8 +252,8 @@ export default createStore({
       return ret
     },
     async saveTick({ state, commit, dispatch}, payload) {
-      if (state.climber != null && state.climber.point_entry_key != null) {
-        payload.point_entry_key = state.climber.point_entry_key
+      if (pointEntryKeyOf() != null) {
+        payload.point_entry_key = pointEntryKeyOf()
       }
       const ret = await api.saveTick(payload)
       commit('updateProblem', ret.problem)
@@ -286,16 +279,16 @@ export default createStore({
       return ret
     },
     async publicSaveCheckpoint({ state, commit }, payload) {
-      if (state.climber != null && state.climber.point_entry_key != null) {
-        payload.point_entry_key = state.climber.point_entry_key
+      if (pointEntryKeyOf() != null) {
+        payload.point_entry_key = pointEntryKeyOf()
       }
       const ret = await api.saveCheckpoint(payload, '/compkey')
       commitSavedCheckpoint(commit, payload.problemid, ret)
       return ret
     },
     async publicDeleteCheckpoint({ state, commit }, payload) {
-      if (state.climber != null && state.climber.point_entry_key != null) {
-        payload.point_entry_key = state.climber.point_entry_key
+      if (pointEntryKeyOf() != null) {
+        payload.point_entry_key = pointEntryKeyOf()
       }
       const ret = await api.deleteCheckpoint(payload, '/compkey')
       commit('removeMyCheckpoint', payload.problemid)
@@ -379,13 +372,10 @@ export default createStore({
       commit('competition' , ret)
       return ret
     },
-    async getClimber({state, commit}, payload) {
-      const ret = await api.getClimber(payload)
-      commit('climber', ret)
-      return ret
-    },
     // saveGymSettings dropped (Task 7): zero call sites, same as when it
-    // was last checked.
+    // was last checked. getClimberByKey moved to mutations.getClimberByKey
+    // and getClimber dropped (zero dispatch sites, same as when it was last
+    // checked) — both this plan's Task 1.
   },
   getters: {
   }

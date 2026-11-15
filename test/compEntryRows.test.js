@@ -5,6 +5,8 @@ import { renderToString } from '@vue/server-renderer'
 import { createI18n } from 'vue-i18n'
 import { createStore } from 'vuex'
 import messages from '../src/js/i18n/messages.js'
+import { useClimberStore } from '../src/js/stores/climber.store.js'
+import { pinia } from '../src/js/stores/index.js'
 
 // No DOM in this test setup: the entry components are server-rendered with
 // Framework7's components stubbed, and the HTML inspected.
@@ -18,6 +20,15 @@ const CompetitionEntry = (await import('../src/components/comps/CompetitionEntry
 const PublicCompetitionEntry = (await import('../src/components/comps/PublicCompetitionEntry.vue')).default
 const CheckpointLadder = (await import('../src/components/comps/CheckpointLadder.vue')).default
 const PButton = (await import('../src/components/PButton.vue')).default
+
+// climber moved off Vuex (this plan's Task 1): CompetitionEntry.vue and
+// PublicCompetitionEntry.vue now read it from the Pinia climber store via a
+// bare useClimberStore(), which resolves against whatever Pinia considers
+// "active". Seeding it once here, through the real shared `pinia` instance,
+// both supplies the point_entry_key the public rows below need and — as a
+// side effect of passing that instance explicitly — makes it Pinia's active
+// instance for the bare calls inside the rendered components.
+useClimberStore(pinia).setFromProfile({ id: 5, point_entry_key: 'k' })
 
 // A stub that keeps its props/attrs visible as attributes and renders every
 // slot. onRender (optional) receives what the slots rendered.
@@ -52,7 +63,7 @@ const makeComp = (tyyppi, userticks = {}) => ({
 
 const render = async (Component, comp, locale = 'en', { actions = {}, onRow = null } = {}) => {
   const store = createStore({
-    state: () => ({ competition: comp, climber: { id: 5, point_entry_key: 'k' }, compResults: null, alltime: { ticks: [] } }),
+    state: () => ({ competition: comp, compResults: null, alltime: { ticks: [] } }),
     actions: { getCompResults: () => null, publicGetCompResults: () => null, getPointsPerRoute: () => null, publicGetPointsPerRoute: () => null, ...actions },
   })
   const app = createSSRApp({ render: () => h(Component, { comp }) })

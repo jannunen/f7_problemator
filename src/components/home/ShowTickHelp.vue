@@ -52,12 +52,14 @@ import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { useAuthStore } from '@js/stores/auth.store.js'
+import { useClimberStore } from '@js/stores/climber.store.js'
 import { f7  } from 'framework7-vue'
 
 const store = useStore()
 const uiStore = useUiStore()
 const authStore = useAuthStore()
-const climber = computed(() => store.state.climber)
+const climberStore = useClimberStore()
+const climber = computed(() => climberStore.climber)
 const tipShowStatus = computed(() => uiStore.tipShowStatus)
 const ret = ref({message : null})
 const email = ref(null)

@@ -12,19 +12,11 @@ vi.mock('@js/queryClient', () => ({
   },
 }))
 
-// store.js is the still-live Vuex store; saveSettings' one allowed call into
-// it (commit('climber', ...)) is out of scope for this migration plan (see
-// the plan's "climber boundary") and is mocked the same way
-// test/mutations.followUnFollow.test.js and test/stores/auth.store.test.js
-// mock the one Vuex call each of those leaves behind.
-vi.mock('../src/js/store.js', () => ({
-  default: { commit: vi.fn() },
-}))
-
 import api from '@js/api'
-import store from '../src/js/store.js'
 import { queryClient } from '@js/queryClient'
 import { mutations } from '@js/mutations'
+import { useClimberStore } from '@js/stores/climber.store.js'
+import { pinia } from '@js/stores/index.js'
 
 const makeLocalStorageStub = () => {
   const data = {}
@@ -38,7 +30,7 @@ const makeLocalStorageStub = () => {
 beforeEach(() => {
   api.saveSettings.mockReset()
   queryClient.invalidateQueries.mockReset()
-  store.commit.mockReset()
+  useClimberStore(pinia).setFromProfile(null)
   globalThis.localStorage = makeLocalStorageStub()
 })
 
@@ -69,10 +61,10 @@ describe('mutations.saveSettings', () => {
     expect(api.saveSettings).toHaveBeenCalledWith({ etunimi: 'A' })
   })
 
-  it('invalidates the profile query and bridges climber into the still-live Vuex store on success', () => {
+  it('invalidates the profile query and writes climber into the Pinia climber store on success', () => {
     mutations.saveSettings().onSuccess({ climber: { id: 9 } })
 
     expect(queryClient.invalidateQueries).toHaveBeenCalledWith({ queryKey: ['profile'] })
-    expect(store.commit).toHaveBeenCalledWith('climber', { id: 9 })
+    expect(useClimberStore(pinia).climber).toEqual({ id: 9 })
   })
 })

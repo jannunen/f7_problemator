@@ -31,10 +31,6 @@ const makeLocalStorageStub = () => {
   }
 }
 
-// logout()'s one allowed call into the still-live Vuex store (`commit('climber', null)`)
-// — mocked the same way test/stores/auth.store.test.js does, so this test does not
-// need to pull in the real Vuex store.
-vi.mock('../src/js/store.js', () => ({ default: { commit: vi.fn() } }))
 vi.mock('@helpers/socialAuth.js', () => ({ signInWith: vi.fn(), clearSupabaseSession: vi.fn() }))
 vi.mock('@js/api', () => ({
   default: { requestOtp: vi.fn(), verifyOtp: vi.fn(), socialExchange: vi.fn() },
@@ -42,10 +38,10 @@ vi.mock('@js/api', () => ({
   endpoint: 'https://api.test/api/v03',
 }))
 
-import store from '../src/js/store.js'
 import { jwtInterceptor, setLogoutHandler, setTokenRefreshHandler } from '@js/helpers/jwt.interceptor.js'
 import { endpoint } from '@js/api.js'
 import { useAuthStore } from '../src/js/stores/auth.store.js'
+import { useClimberStore } from '../src/js/stores/climber.store.js'
 import { pinia } from '../src/js/stores/index.js'
 
 const REFRESH_URL = endpoint + '/auth/otp/refresh'
@@ -62,7 +58,7 @@ jwtInterceptor()
 
 beforeEach(() => {
   globalThis.localStorage = makeLocalStorageStub()
-  store.commit.mockReset()
+  useClimberStore(pinia).setFromProfile(null)
 })
 
 afterEach(() => {
@@ -75,6 +71,7 @@ describe('a real 401 through the real interceptor logs out via the module-scope 
     // Start signed in, exactly as a climber using the app would be.
     authStore.setToken('a.real.jwt')
     authStore.isAuthenticated = true
+    useClimberStore(pinia).setFromProfile({ id: 1 })
 
     // The exact callback app.js registers for the 401 path, minus the
     // f7 router navigation that follows it (unrelated routing plumbing,
@@ -98,7 +95,7 @@ describe('a real 401 through the real interceptor logs out via the module-scope 
 
     expect(useAuthStore(pinia).isAuthenticated).toBe(false)
     expect(useAuthStore(pinia).accessToken).toBe(null)
-    expect(store.commit).toHaveBeenCalledWith('climber', null)
+    expect(useClimberStore(pinia).climber).toBe(null)
   })
 })
 
@@ -107,6 +104,7 @@ describe('a successful token refresh updates the auth store via the module-scope
     const authStore = useAuthStore(pinia)
     authStore.setToken('old.jwt')
     authStore.isAuthenticated = true
+    useClimberStore(pinia).setFromProfile({ id: 1 })
 
     setLogoutHandler(() => {
       useAuthStore(pinia).logout()
@@ -134,6 +132,6 @@ describe('a successful token refresh updates the auth store via the module-scope
     expect(useAuthStore(pinia).isAuthenticated).toBe(true)
     expect(localStorage.getItem('token')).toBe('new.jwt')
     // Logout must not have fired on the recoverable path.
-    expect(store.commit).not.toHaveBeenCalledWith('climber', null)
+    expect(useClimberStore(pinia).climber).toEqual({ id: 1 })
   })
 })

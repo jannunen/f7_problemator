@@ -6,12 +6,14 @@ vi.mock('@js/api', () => ({
   },
 }))
 
-// store.js is the still-live Vuex store. climber/rankingTarget/problems are
+// store.js is the still-live Vuex store. rankingTarget/problems are
 // Activity-owned fields this migration plan deliberately leaves on it (see
-// the plan's "climber boundary") — queries.profile's queryFn bridges them in
-// exactly the shape the old getProfile action did. Mocked the same way
-// test/stores/auth.store.test.js and test/mutations.followUnFollow.test.js
-// mock the one Vuex call each of those leaves behind.
+// the plan's "climber boundary", narrowed by Task 1 to these two — climber
+// itself moved to the Pinia climber store below) — queries.profile's
+// queryFn bridges them in exactly the shape the old getProfile action did.
+// Mocked the same way test/stores/auth.store.test.js and
+// test/mutations.followUnFollow.test.js mock the one Vuex call each of
+// those leaves behind.
 vi.mock('../src/js/store.js', () => ({
   default: { commit: vi.fn() },
 }))
@@ -21,10 +23,13 @@ import store from '../src/js/store.js'
 import { queries } from '@js/queryKeys'
 import { setAuthToken } from '@js/authToken.js'
 import { QueryClient, QueryObserver } from '@tanstack/query-core'
+import { useClimberStore } from '@js/stores/climber.store.js'
+import { pinia } from '@js/stores/index.js'
 
 beforeEach(() => {
   api.getProfile.mockReset()
   store.commit.mockReset()
+  useClimberStore(pinia).setFromProfile(null)
   setAuthToken(null)
 })
 
@@ -74,7 +79,7 @@ describe('queries.profile', () => {
     expect(result).toBe(payload)
   })
 
-  it('bridges climber into the still-live Vuex store', async () => {
+  it('writes climber into the Pinia climber store', async () => {
     api.getProfile.mockResolvedValue({
       profile: { settings: {} },
       climber: { id: 7 },
@@ -83,7 +88,7 @@ describe('queries.profile', () => {
 
     await queries.profile(42).queryFn()
 
-    expect(store.commit).toHaveBeenCalledWith('climber', { id: 7 })
+    expect(useClimberStore(pinia).climber).toEqual({ id: 7 })
   })
 
   it('bridges rankingTarget from the gym country', async () => {

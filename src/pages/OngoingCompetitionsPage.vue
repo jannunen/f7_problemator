@@ -50,7 +50,6 @@
 </template>
 <script setup>
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
 import { computed, ref } from 'vue'
 import dayjs from 'dayjs'
 import { isRegistrationPossible, toLocalTime } from '@helpers/component.helpers'
@@ -59,8 +58,9 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
 import api from '@js/api'
-const store = useStore()
-const climber = computed(() => store.state.climber)
+import { useClimberStore } from '@js/stores/climber.store.js'
+const climberStore = useClimberStore()
+const climber = computed(() => climberStore.climber)
 const nowUTC = ref(dayjs().utc())
 setInterval(() => nowUTC.value = dayjs().utc(),1000*30)
 dayjs.extend(relativeTime)

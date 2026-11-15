@@ -128,10 +128,10 @@ import { performUpdate } from '@js/helpers/update.js'
 import { waitingWorkerAvailable } from '@js/helpers/registerServiceWorker.js'
 import { isUpdateAvailable, shouldShowUpdateBanner } from '@js/version.js'
 import { BUILD_STAMP } from '@js/buildInfo.js'
-import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
 import { useAuthStore } from '@js/stores/auth.store.js'
 import { useGymStore } from '@js/stores/gym.store.js'
+import { useClimberStore } from '@js/stores/climber.store.js'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
 import { f7 } from 'framework7-vue'
@@ -141,8 +141,8 @@ import ShowTips from '@components/home/ShowTips.vue'
 import ShowChangelog from '@components/home/ShowChangelog.vue'
 import $ from 'dom7'
 import logo from '../../assets/images/logo.png'
-const store = useStore()
 const uiStore = useUiStore()
+const climberStore = useClimberStore()
 const authStore = useAuthStore()
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
@@ -171,7 +171,7 @@ const updateAvailable = computed(() => shouldShowUpdateBanner({
   serverVersion: serverVersion.value,
   waitingWorkerAvailable: waitingWorkerAvailable.value,
 }))
-const climber = computed(() => store.state.climber)
+const climber = computed(() => climberStore.climber)
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const serverVersion = computed(() => uiStore.serverVersion)
 

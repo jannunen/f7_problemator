@@ -28,14 +28,16 @@ import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { ref, onMounted, computed } from 'vue'
 import CompetitionEntry from '@components/comps/CompetitionEntry.vue'
+import { useClimberStore } from '@js/stores/climber.store.js'
 
 const props = defineProps({
     compid : Number,
 })
 const { t } = useI18n()
 const store = useStore()
+const climberStore = useClimberStore()
 const comp = computed(() => store.state.competition)
-const climber = computed(() => store.state.climber)
+const climber = computed(() => climberStore.climber)
 const isPaidAndRegistered = computed(() => {
   if (climber.value == null) {
     return false

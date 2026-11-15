@@ -204,6 +204,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { useClimberStore } from '@js/stores/climber.store.js'
 import { f7 } from 'framework7-vue'
 
 import { onUnmounted,  computed, ref } from 'vue'
@@ -253,6 +254,7 @@ const getPointsPerProblem = (num) => {
   return rule.points
 }
 const store = useStore()
+const climberStore = useClimberStore()
 const pointRules = computed(() => {
   const comp = store.state.competition
   if (comp.pointsharingobj == null) {
@@ -306,7 +308,7 @@ dayjs.extend(duration)
 dayjs.extend(isBetween)
 const { t } = useI18n()
 const compResults = computed(() => store.state.compResults)
-const climber = computed(() => store.state.climber)
+const climber = computed(() => climberStore.climber)
 
 const isJudge = computed(() => {
   const comp = props.comp

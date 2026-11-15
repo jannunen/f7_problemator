@@ -1,6 +1,7 @@
 import api from '@js/api'
 import { queryClient } from '@js/queryClient'
-import store from '@js/store.js'
+import { useClimberStore } from '@js/stores/climber.store.js'
+import { pinia } from '@js/stores/index.js'
 
 /**
  * Every server write the app makes through TanStack Query, in one place.
@@ -45,17 +46,37 @@ export const mutations = {
    * response: saveSettings changing something that feeds back into the
    * profile payload is plausible, and invalidation is the trade this
    * migration already prefers everywhere else (see the file doc above).
-   *
-   * climber is out of scope for this migration plan (see the plan's
-   * "climber boundary") — kept as the one bridge into the still-live Vuex
-   * store, same as today's action and the same pattern queries.profile's
-   * queryFn uses for the same field.
    */
   saveSettings: () => ({
     mutationFn: (payload) => api.saveSettings(payload),
     onSuccess: (data) => {
-      store.commit('climber', data.climber)
+      useClimberStore(pinia).setFromProfile(data.climber)
       queryClient.invalidateQueries({ queryKey: ['profile'] })
+    },
+  }),
+
+  /**
+   * The anonymous public point-entry identity, looked up by a competition
+   * key (the compkey flow: a climber opens a comp's standalone entry page
+   * from an emailed link, with no sign-in).
+   *
+   * `payload` is `{compid, key}`, matching api.getClimberByKey's actual
+   * signature — `compid` is required, this is not simplifiable to a bare
+   * `key`.
+   *
+   * The endpoint can answer with either a real climber object or a plain
+   * string error message (e.g. "You do not have access to this comp.");
+   * onSuccess guards against writing that string into the climber store as
+   * if it were climber data. PublicSingleCompetitionPage.vue separately
+   * re-checks the same string shape on the mutation's own result to decide
+   * whether to show its "not authorized" message — the UI decision, as
+   * opposed to this guard, which protects the shared climber identity.
+   */
+  getClimberByKey: () => ({
+    mutationFn: (payload) => api.getClimberByKey(payload, '/compkey'),
+    onSuccess: (data) => {
+      if (typeof data === 'string' && data.match(/access.to.this.comp/i)) return
+      useClimberStore(pinia).setFromPublicKey(data)
     },
   }),
 }

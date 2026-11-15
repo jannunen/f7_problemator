@@ -53,16 +53,16 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue'
-import { useStore } from 'vuex'
 import { useI18n } from 'vue-i18n'
 import { useMutation } from '@tanstack/vue-query'
 import { mutations } from '@js/mutations.js'
+import { useClimberStore } from '@js/stores/climber.store.js'
 import { toaster } from '@js/helpers/notifications.js'
 import { getNames } from 'country-list'
 
 const { t } = useI18n()
-const store = useStore()
-const climber = computed(() => store.state.climber)
+const climberStore = useClimberStore()
+const climber = computed(() => climberStore.climber)
 const showPopup = ref(false)
 const { mutateAsync: saveSettingsMutate } = useMutation(mutations.saveSettings())
 

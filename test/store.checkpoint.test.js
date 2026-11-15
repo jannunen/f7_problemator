@@ -14,16 +14,18 @@ vi.mock('@helpers/socialAuth.js', () => ({ signInWith: vi.fn(), clearSupabaseSes
 
 import api from '../src/js/api.js'
 import store from '../src/js/store.js'
+import { useClimberStore } from '../src/js/stores/climber.store.js'
+import { pinia } from '../src/js/stores/index.js'
 
 beforeEach(() => {
   api.saveCheckpoint.mockReset().mockResolvedValue({ checkpoint: 1 })
   api.deleteCheckpoint.mockReset().mockResolvedValue({})
-  store.state.climber = null
+  useClimberStore(pinia).setFromProfile(null)
 })
 
 describe('publicSaveCheckpoint', () => {
   it('sends the climber point entry key to the compkey route', async () => {
-    store.state.climber = { point_entry_key: 'abc' }
+    useClimberStore(pinia).setFromProfile({ point_entry_key: 'abc' })
 
     await store.dispatch('publicSaveCheckpoint', { compid: 7, problemid: 42, score: 25.25 })
 
@@ -45,7 +47,7 @@ describe('publicSaveCheckpoint', () => {
 
 describe('publicDeleteCheckpoint', () => {
   it('sends the climber point entry key to the compkey route', async () => {
-    store.state.climber = { point_entry_key: 'abc' }
+    useClimberStore(pinia).setFromProfile({ point_entry_key: 'abc' })
 
     await store.dispatch('publicDeleteCheckpoint', { compid: 7, problemid: 42 })
 

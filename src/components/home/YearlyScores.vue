@@ -85,7 +85,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useStore } from 'vuex'
+import { useClimberStore } from '@js/stores/climber.store.js'
 import axios from 'axios'
 import { endpoint } from '@js/api'
 import { Line } from 'vue-chartjs'
@@ -93,13 +93,13 @@ import { Chart, registerables } from 'chart.js'
 Chart.register(...registerables)
 
 const { t } = useI18n()
-const store = useStore()
+const climberStore = useClimberStore()
 
 const scores = ref({})
 const loaded = ref(false)
 const currentYear = new Date().getFullYear()
 
-const climberId = computed(() => store.state.climber?.id)
+const climberId = computed(() => climberStore.climber?.id)
 
 const years = computed(() =>
   Object.keys(scores.value)

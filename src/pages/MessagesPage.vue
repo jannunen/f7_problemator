@@ -138,7 +138,7 @@
 
 <script setup>
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useStore } from 'vuex'
+import { useClimberStore } from '@js/stores/climber.store.js'
 import { useI18n } from 'vue-i18n'
 import { useQuery } from '@tanstack/vue-query'
 import api from '@js/api.js'
@@ -159,7 +159,7 @@ import {
 const props = defineProps({ f7route: { type: Object, default: () => ({}) } })
 
 const { t } = useI18n()
-const store = useStore()
+const climberStore = useClimberStore()
 
 const threads = ref([])
 const loading = ref(true)
@@ -180,7 +180,7 @@ const coachFailed = ref(false)
 // which is also why the draft gets restored rather than left empty.
 const sendFailed = ref(false)
 
-const myClimberId = computed(() => store.state.climber?.id)
+const myClimberId = computed(() => climberStore.climber?.id)
 
 // Same query key the home card and Ada's explainer page use, so this page
 // opens with thread_id already in cache in the common case rather than a
