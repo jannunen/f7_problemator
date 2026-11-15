@@ -55,7 +55,7 @@
             <div class="font-bold my-1">{{ serie.category.nimi }}</div>
             <table width="100%" class="text-gray-500 dark:text-gray-400">
               <tbody>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+result.climber.id">
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+(result.climber?.id ?? result._rowKey)">
                   <td class="w-1/12">{{ result.standing }}</td>
                   <td class="w-4/12">{{ climberName(result) }}</td>
                   <td class="w-3/12">{{ result.climber?.team }}</td>
@@ -75,7 +75,7 @@
             <div class="font-bold my-1">{{ serie.category.nimi }}</div>
             <table width="100%" class="text-gray-500 dark:text-gray-400">
               <tbody>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+result.climber.id">
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+(result.climber?.id ?? result._rowKey)">
                   <td class="w-1/12">{{ result.standing }}</td>
                   <td class="w-4/12">{{ climberName(result) }}</td>
                   <td class="w-3/12">{{ result.climber?.team }}</td>
@@ -95,7 +95,7 @@
             <div class="font-bold my-1">{{ serie.category.nimi }}</div>
             <table width="100%" class="text-gray-500 dark:text-gray-400">
               <tbody>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+result.climber.id">
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+(result.climber?.id ?? result._rowKey)">
                   <td class="w-1/12">{{ result.standing }}</td>
                   <td class="w-4/12">{{ climberName(result) }}</td>
                   <td class="w-3/12">{{ result.climber?.team }}</td>
@@ -115,7 +115,7 @@
             <div class="font-bold my-1">{{ serie.category.nimi }}</div>
             <table width="100%" class="text-gray-500 dark:text-gray-400">
               <tbody>
-                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+result.climber.id">
+                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 px-2" v-for="result in sortResults(serie.results)" :key="serie.category.id+'_'+(result.climber?.id ?? result._rowKey)">
                   <td class="w-1/12">{{ result.standing }}</td>
                   <td class="w-4/12">{{ climberName(result) }}</td>
                   <td class="w-3/12">{{ result.climber?.team }}</td>
@@ -247,7 +247,10 @@ const climberName = (result) => {
   if (result.climber?.etunimi != null) return `${result.climber.etunimi} ${result.climber.sukunimi}`
   return result.climbername ?? ''
 }
-const sortResults = (keyedResults) =>  Object.keys(keyedResults).map(key => keyedResults[key]).sort((a,b) => { return parseInt(a.standing) - parseInt(b.standing)})
+// _rowKey carries the original map key through the sort so templates always
+// have a unique v-for key, even for a row whose climber object is missing
+// (eg. a stale/mismatched results payload for the comp's current type).
+const sortResults = (keyedResults) =>  Object.keys(keyedResults).map(key => ({...keyedResults[key], _rowKey: key})).sort((a,b) => { return parseInt(a.standing) - parseInt(b.standing)})
 // IFSC phase results are keyed by serieid and may be an empty object ({}) rather than [] when nothing has been climbed yet.
 const ifscHasResults = (phase) => phase != null && Object.keys(phase).length > 0
 // olympicPoints is a running total of fractional deductions (0.1 per failed attempt);
