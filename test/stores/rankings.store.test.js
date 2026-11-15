@@ -82,7 +82,7 @@ describe('fetchRankings', () => {
 
     await store.fetchRankings()
 
-    expect(api.ranking).toHaveBeenCalledWith({ url: null, country: 'FI' })
+    expect(api.ranking).toHaveBeenCalledWith({ url: null, country: 'FI', gym: null })
     expect(store.rankings).toEqual({ foo: 'bar' })
   })
 
@@ -93,7 +93,7 @@ describe('fetchRankings', () => {
 
     await store.fetchRankings('https://api.test/ranking?page=2')
 
-    expect(api.ranking).toHaveBeenCalledWith({ url: 'https://api.test/ranking?page=2', country: 'global' })
+    expect(api.ranking).toHaveBeenCalledWith({ url: 'https://api.test/ranking?page=2', country: 'global', gym: null })
     expect(store.rankings).toEqual({ foo: 'page2' })
   })
 })
@@ -120,5 +120,65 @@ describe('module-scope usage (no component context)', () => {
   it('useRankingsStore(pinia).seedFromProfile succeeds when called outside any setup()', () => {
     expect(() => useRankingsStore(pinia).seedFromProfile('FI')).not.toThrow()
     expect(useRankingsStore(pinia).rankingTarget).toBe('FI')
+  })
+})
+
+describe('gym scope', () => {
+  it('sends the selected gym id and stamps the result with it', async () => {
+    const { useGymStore } = await import('../../src/js/stores/gym.store.js')
+    api.ranking.mockResolvedValue([{ gym: { id: 7, name: 'X' } }])
+    useGymStore().setGymid('7')
+    const store = useRankingsStore()
+    store.setRankingTarget('gym')
+    await store.fetchRankings()
+    expect(api.ranking).toHaveBeenCalledWith({ url: null, country: 'gym', gym: '7' })
+    expect(store.rankingsGymid).toBe('7')
+  })
+
+  it('does not call the api without a selected gym', async () => {
+    const { useGymStore } = await import('../../src/js/stores/gym.store.js')
+    useGymStore().setGymid(null)
+    const store = useRankingsStore()
+    store.setRankingTarget('gym')
+    await store.fetchRankings()
+    expect(api.ranking).not.toHaveBeenCalled()
+    expect(store.rankings).toEqual([])
+  })
+
+  it('flags an unpublished/unknown gym (422/404) instead of throwing', async () => {
+    const { useGymStore } = await import('../../src/js/stores/gym.store.js')
+    useGymStore().setGymid('9')
+    api.ranking.mockRejectedValue({ response: { status: 404 } })
+    const store = useRankingsStore()
+    store.setRankingTarget('gym')
+    await store.fetchRankings()
+    expect(store.gymUnavailable).toBe(true)
+    expect(store.rankings).toEqual([])
+  })
+
+  it('ignores a stale response after the gym was switched', async () => {
+    const { useGymStore } = await import('../../src/js/stores/gym.store.js')
+    const g = useGymStore()
+    let resolveA
+    api.ranking.mockImplementationOnce(() => new Promise((r) => { resolveA = r }))
+    api.ranking.mockResolvedValueOnce(['B'])
+    const store = useRankingsStore()
+    store.setRankingTarget('gym')
+    g.setGymid('1')
+    const a = store.fetchRankings()
+    g.setGymid('2')
+    await store.fetchRankings()
+    resolveA(['A'])
+    await a
+    expect(store.rankings).toEqual(['B'])
+    expect(store.rankingsGymid).toBe('2')
+  })
+
+  it('does not leak the gym id into the country request', async () => {
+    api.ranking.mockResolvedValue([])
+    const store = useRankingsStore()
+    store.setRankingTarget('FI')
+    await store.fetchRankings()
+    expect(api.ranking).toHaveBeenCalledWith({ url: null, country: 'FI', gym: null })
   })
 })

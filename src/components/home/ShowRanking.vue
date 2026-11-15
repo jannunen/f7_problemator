@@ -98,7 +98,7 @@
         <!-- Rank number -->
         <div class="ranking-row__rank">
           <span class="ranking-row__rank-num">{{ row.rank }}</span>
-          <span v-if="country && country !== 'global' && row.global_rank" class="ranking-row__global">#{{ row.global_rank }}</span>
+          <span v-if="country && country !== 'global' && country !== 'gym' && row.global_rank" class="ranking-row__global">#{{ row.global_rank }}</span>
         </div>
 
         <!-- Climber name -->
@@ -149,6 +149,7 @@ import api from '@js/api'
 const props = defineProps({
     'ranking': Object,
     'country': String,
+    'gym': [Number, String],
 })
 
 const { t } = useI18n()
@@ -197,7 +198,8 @@ const { data: rankingtop10, isLoading: loading } = useQuery({
   ...queries.rankingTop10(
     climber,
     computed(() => props.ranking.ranking.id),
-    computed(() => props.country)
+    computed(() => (props.gym != null ? null : props.country)),
+    computed(() => props.gym ?? null)
   ),
 })
 

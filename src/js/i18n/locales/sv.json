@@ -25,6 +25,9 @@
     "description": "Ranking baseras på de 10 svåraste problemmen. Flash ger mer poäng, försök drar av.",
     "country_hint": "Om du inte ser din ranking i ditt lands lista, gå till inställningssidan, ange land och klättra några problem.",
     "global": "Global",
+    "my_gym": "Min hall",
+    "gym_unavailable": "Rankingen för den här hallen är inte tillgänglig just nu.",
+    "gym_hint": "Den här listan räknar bara bestigningar på problemen i din nuvarande hall.",
     "all_tab": "Alla",
     "boulder_tab": "Boulder",
     "sport_tab": "Sport"

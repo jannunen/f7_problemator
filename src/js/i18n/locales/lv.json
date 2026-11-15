@@ -25,6 +25,9 @@
     "description": "Reitings balstās uz top10 grūtākajiem uzkāpieniem. Flash dod vairāk punktu, mēģinājumi samazina.",
     "country_hint": "Ja neredzat savu pozīciju valsts sarakstā, dodieties uz iestatījumiem, iestatiet valsti un uzkāpiet uz dažām problēmām.",
     "global": "Globāls",
+    "my_gym": "Mana zāle",
+    "gym_unavailable": "Šīs zāles reitings pašlaik nav pieejams.",
+    "gym_hint": "Šajā sarakstā tiek skaitīti tikai pacēlumi tavas pašreizējās zāles trasēs.",
     "all_tab": "Visi",
     "boulder_tab": "Boulder",
     "sport_tab": "Sport"
