@@ -68,10 +68,6 @@ export default createStore({
     grades : [],
     walls : [],
     profileLoaded : false,
-    archive : {
-      dates : {},
-      dateDetails : {}
-    },
   },
 
   mutations: {
@@ -172,9 +168,6 @@ export default createStore({
     },
     competition(state, payload) {
       state.competition = payload
-    },
-    archive(state, payload) {
-      state.archive = payload
     },
     updateProblem(state, payload) {
       state.problems = {...state.problems,[payload.id] : payload}
@@ -629,20 +622,6 @@ export default createStore({
     async removeCompAscent({state, dispatch}, payload) {
       const ret = await api.removeCompAscent(payload)
       return ret
-    },
-    async fetchArchiveDate({state, commit, dispatch}, payload) {
-      const [ticks, tries] = await Promise.all([
-        api.getArchiveDay({...payload, type: 'ticks'}),
-        api.getArchiveDay({...payload, type: 'tries'}),
-      ])
-      commit('archive' , {...state.archive, ['dateDetails'] : {...state.archive.dateDetails, [payload.span] : { ticks, tries } } })
-      return { ticks, tries }
-    },
-    async getTickDates({state, commit, dispatch}, payload) {
-      const ret = await api.getTickDates(payload)
-      commit('archive' , {...state.archive, ['dates']:  ret.dates })
-      console.log("Setting archive dates",state.archive.dates)
-      return ret.dates
     },
     async unRegisterToComp({state, commit, dispatch}, payload) {
       const ret = await api.unRegisterToComp(payload)

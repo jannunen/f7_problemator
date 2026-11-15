@@ -174,6 +174,23 @@ export const queries = {
     queryFn: () => api.getVirtualCoach(),
     enabled: isAuthenticated,
   }),
+
+  /** Every date this climber has a tick on record, for the calendar highlight. */
+  archiveDates: () => ({
+    queryKey: key('archive-dates'),
+    queryFn: () => api.getTickDates(),
+  }),
+
+  /** One calendar span's ticks and tries, fetched separately and merged. */
+  archiveDay: (span) => ({
+    queryKey: key('archive-day', span),
+    queryFn: () =>
+      Promise.all([
+        api.getArchiveDay({ span: unref(span), type: 'ticks' }),
+        api.getArchiveDay({ span: unref(span), type: 'tries' }),
+      ]).then(([ticks, tries]) => ({ ticks, tries })),
+    enabled: needs(span),
+  }),
 }
 
 export { invalidate } from '@js/queryKeyNames'

@@ -156,10 +156,12 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { useQuery } from '@tanstack/vue-query'
+import { queries } from '@js/queryKeys.js'
 import dayjs from 'dayjs'
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, watch } from 'vue'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import 'v-calendar/dist/style.css'
 import { Calendar, SetupCalendar, DatePicker } from 'v-calendar'
@@ -195,17 +197,27 @@ const placeText = (tick) => {
 }
 const loading = ref(true)
 
-onMounted(() => {
-    selectedSpan.value = [dayjs().format("YYYY-MM-DD"), dayjs().format("YYYY-MM-DD")]
-    loading.value = true
-    store.dispatch('fetchArchiveDate', { span: selectedSpan.value })
-        .then(() => {
-            loading.value = false
-            setTimeout(() => { newClickPossible.value = true }, 2000)
-        })
-})
 const showSpan = ref('day')
-const selectedSpan = ref([])
+// Initialized straight to today rather than in onMounted: the query below is
+// enabled as soon as this has a value, so starting it at [] (a falsy-looking
+// but truthy array — needs() would never gate it) fired a request for an
+// empty span before anything set the real dates.
+const selectedSpan = ref([dayjs().format("YYYY-MM-DD"), dayjs().format("YYYY-MM-DD")])
+
+// Switching selectedSpan changes the query key, so TanStack refetches on its
+// own when onDayClick below picks a new day/week/month/year — no manual
+// dispatch needed.
+const { data: archiveDayData, isFetching: archiveDayFetching, refetch: refetchArchiveDay } = useQuery(queries.archiveDay(selectedSpan))
+
+// Mirrors the old dispatch-then-set-loading pattern: show the loading
+// spinner for the duration of each fetch, then hold the calendar's click
+// throttle for 2s after it settles.
+watch(archiveDayFetching, (fetching) => {
+    loading.value = fetching
+    if (!fetching) {
+        setTimeout(() => { newClickPossible.value = true }, 2000)
+    }
+})
 const ascentsByGrade = computed(() => {
     if (archiveDate.value == null || archiveDate.value.ticks == null) {
         return []
@@ -265,18 +277,11 @@ const data = computed(() => ({
 }))
 
 
-const tickDates = computed(() => store.state.archive.dates)
-const dateDetails = computed(() => store.state.archive.dateDetails)
-store.dispatch("getTickDates")
-const archiveDate = computed(() => {
-    if (Array.isArray(selectedSpan.value)) {
-        const keyed = selectedSpan.value.join(",")
-        if (dateDetails.value[keyed]) {
-            return dateDetails.value[keyed]
-        }
-    }
-    return {}
-})
+const { data: archiveDatesData } = useQuery(queries.archiveDates())
+const tickDates = computed(() => archiveDatesData.value?.dates ?? {})
+// The query is already keyed by selectedSpan, so its data IS the current
+// span's details — no separate per-span cache to look up here any more.
+const archiveDate = computed(() => archiveDayData.value ?? {})
 const newClickPossible = ref(true)
 const attrs = computed(() => [
     {
@@ -301,7 +306,6 @@ const onDayClick = (evt) => {
     newClickPossible.value = false
     // Day click depends on the calendar span.
     // day selectes days, weeks or months
-    loading.value = true
     const date = evt.id
     if (showSpan.value == 'day') {
         selectedSpan.value = [date, date]
@@ -315,11 +319,9 @@ const onDayClick = (evt) => {
         console.log("No idea what to do")
     }
     console.log("span", selectedSpan)
-    store.dispatch('fetchArchiveDate', { span: selectedSpan.value })
-        .then(() => {
-            loading.value = false
-            setTimeout(() => { newClickPossible.value = true }, 2000)
-        })
+    // Changing selectedSpan above changes queries.archiveDay's key, so the
+    // refetch happens on its own; the watch on archiveDayFetching handles
+    // loading and newClickPossible once it settles.
 }
 
 const reversedTicks = computed(() => [...(archiveDate.value.ticks || [])].reverse())
@@ -350,15 +352,17 @@ const openProblem = (tick) => {
         })
     }
 }
-// deleteTick/deleteProject only invalidate the TanStack Query cache (feed,
-// badges, rankings...) — this page's list comes from Vuex's
-// archive.dateDetails, a completely separate store the delete never touches.
-// Without this refetch the row stayed on screen until the next unrelated
-// re-render, looking like the delete silently did nothing.
+// deleteTick/deleteProject only invalidate the TanStack Query cache entries
+// listed in queryKeyNames.js (feed, badges, rankings...) — archive-day isn't
+// among them, since its key is per-span and the invalidation helper has no
+// way to know which span the deleted tick belonged to. Without this explicit
+// refetch the row stayed on screen until an unrelated re-render, looking like
+// the delete silently did nothing.
 const refreshArchiveDate = async () => {
-    loading.value = true
-    await store.dispatch('fetchArchiveDate', { span: selectedSpan.value })
-    loading.value = false
+    // selectedSpan hasn't changed, so the query key hasn't either — ask it
+    // to refetch directly instead of waiting for a key change that isn't
+    // coming.
+    await refetchArchiveDay()
 }
 const onProjectDeleted = async (tick) => {
     const resp = await store.dispatch('deleteProject', tick.id)
