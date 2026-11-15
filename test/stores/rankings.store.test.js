@@ -98,6 +98,24 @@ describe('fetchRankings', () => {
   })
 })
 
+describe('reset', () => {
+  // Called from auth.store's logout(): a seeded/explicitly-chosen scope and
+  // the last-fetched page must not survive into the next climber's session,
+  // or that climber's own first profile fetch could never seed theirs.
+  it('restores rankingTarget/rankings and lets the next seedFromProfile win again', () => {
+    const store = useRankingsStore()
+    store.setRankingTarget('fi')
+    store.rankings = { data: ['previous climber'] }
+
+    store.reset()
+
+    expect(store.rankingTarget).toBe('global')
+    expect(store.rankings).toBe(null)
+    store.seedFromProfile('se')
+    expect(store.rankingTarget).toBe('se')
+  })
+})
+
 describe('module-scope usage (no component context)', () => {
   it('useRankingsStore(pinia).seedFromProfile succeeds when called outside any setup()', () => {
     expect(() => useRankingsStore(pinia).seedFromProfile('FI')).not.toThrow()

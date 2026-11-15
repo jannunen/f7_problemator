@@ -47,5 +47,14 @@ export const useRankingsStore = defineStore('rankings', () => {
     return ret
   }
 
-  return { rankingTarget, rankings, setRankingTarget, seedFromProfile, fetchRankings }
+  // Back to a fresh store, for auth.store's logout(): without it, `seeded`
+  // stays true across a climber swap and the next climber's first profile
+  // fetch can never seed their own scope — they inherit the previous one's.
+  function reset() {
+    rankingTarget.value = 'global'
+    rankings.value = null
+    seeded.value = false
+  }
+
+  return { rankingTarget, rankings, setRankingTarget, seedFromProfile, fetchRankings, reset }
 })

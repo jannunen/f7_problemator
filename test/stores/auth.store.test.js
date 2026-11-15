@@ -18,6 +18,7 @@ vi.mock('@js/api', () => ({
     requestOtp: vi.fn(),
     verifyOtp: vi.fn(),
     socialExchange: vi.fn(),
+    getProfile: vi.fn(),
   },
 }))
 vi.mock('@helpers/socialAuth.js', () => ({
@@ -29,7 +30,10 @@ import api from '@js/api'
 import { signInWith, clearSupabaseSession } from '@helpers/socialAuth.js'
 import { useAuthStore } from '../../src/js/stores/auth.store.js'
 import { useClimberStore } from '../../src/js/stores/climber.store.js'
+import { useRankingsStore } from '../../src/js/stores/rankings.store.js'
 import { pinia } from '../../src/js/stores/index.js'
+import { queryClient } from '@js/queryClient'
+import { queries } from '@js/queryKeys'
 
 beforeEach(() => {
   globalThis.localStorage = makeLocalStorageStub()
@@ -187,6 +191,61 @@ describe('logout', () => {
     expect(localStorage.getItem('gymid')).toBe(null)
     expect(useClimberStore(pinia).climber).toBe(null)
     expect(clearSupabaseSession).toHaveBeenCalled()
+  })
+})
+
+describe('logout then a different climber signs in', () => {
+  // Every cache entry below carries data about the climber who was signed
+  // in. alltime-ticks is staleTime: Infinity, so nothing would ever refetch
+  // it for the next climber; the competition entries carry userticks/
+  // my_checkpoints; the rest are the archive and profile reads.
+  const perClimberKeys = [
+    ['profile', 42],
+    ['alltime-ticks'],
+    ['competition', 7],
+    ['public-competition', 7],
+    ['comp-results', 7],
+    ['public-comp-results', 7],
+    ['archive-dates'],
+    ['archive-day', '2026-11'],
+    ['climber-profile', 5],
+  ]
+
+  beforeEach(() => {
+    queryClient.clear()
+    api.getProfile.mockReset()
+    useRankingsStore(pinia).reset()
+  })
+
+  it("drops the previous climber's cached data and ranking scope", async () => {
+    globalThis.localStorage = makeLocalStorageStub({ token: 'climber-a', gymid: '42' })
+    for (const key of perClimberKeys) queryClient.setQueryData(key, { owner: 'climber A' })
+    // Not per-climber: logout must clear selectively, not wipe the cache.
+    queryClient.setQueryData(['gyms'], ['gym list'])
+    const rankings = useRankingsStore(pinia)
+    rankings.seedFromProfile('fi')
+    rankings.rankings = { data: ['climber A ranking page'] }
+
+    useAuthStore(pinia).logout()
+
+    for (const key of perClimberKeys) {
+      expect(queryClient.getQueryData(key), JSON.stringify(key)).toBeUndefined()
+    }
+    expect(queryClient.getQueryData(['gyms'])).toEqual(['gym list'])
+    expect(rankings.rankingTarget).toBe('global')
+    expect(rankings.rankings).toBe(null)
+
+    // Climber B signs in: their first profile fetch runs the real queryFn,
+    // whose seedFromProfile must now take effect instead of being a no-op.
+    api.getProfile.mockResolvedValue({
+      profile: { settings: {} },
+      climber: { id: 2 },
+      gym: { country: 'se' },
+    })
+    await queries.profile(43).queryFn()
+
+    expect(rankings.rankingTarget).toBe('se')
+    expect(useClimberStore(pinia).climber).toEqual({ id: 2 })
   })
 })
 

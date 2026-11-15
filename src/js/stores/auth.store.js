@@ -6,6 +6,7 @@ import { setAuthToken, readStoredToken } from '../authToken.js'
 import { useUiStore } from './ui.store.js'
 import { useGymStore } from './gym.store.js'
 import { useClimberStore } from './climber.store.js'
+import { useRankingsStore } from './rankings.store.js'
 import { pinia } from './index.js'
 import { queryClient } from '@js/queryClient'
 
@@ -35,6 +36,21 @@ import { queryClient } from '@js/queryClient'
  * the only way to drop logout's Vuex action entirely without changing what
  * climbers see on screen.
  */
+/**
+ * Query key prefixes (see queryKeys.js) whose cached data belongs to the
+ * signed-in climber, removed on logout alongside ['profile'].
+ */
+const PER_CLIMBER_QUERY_KEYS = [
+  'alltime-ticks',
+  'competition',
+  'public-competition',
+  'comp-results',
+  'public-comp-results',
+  'archive-dates',
+  'archive-day',
+  'climber-profile',
+]
+
 export const useAuthStore = defineStore('auth', () => {
   const isAuthenticated = ref(!!readStoredToken())
   const accessToken = ref(readStoredToken())
@@ -164,6 +180,17 @@ export const useAuthStore = defineStore('auth', () => {
     // into whoever signs in next.
     useGymStore(pinia).setGymid(null)
     queryClient.removeQueries({ queryKey: ['profile'] })
+    // Everything else cached about the climber who just left, or whoever
+    // signs in next on this device sees it: alltime-ticks is staleTime:
+    // Infinity, so nothing would ever refetch it; the competition entries
+    // carry their userticks/my_checkpoints. Partial keys match by prefix,
+    // so each line drops every id/span/gym's entry under that name.
+    for (const name of PER_CLIMBER_QUERY_KEYS) {
+      queryClient.removeQueries({ queryKey: [name] })
+    }
+    // The ranking scope seeds once per session; without a reset the next
+    // climber's profile fetch cannot seed theirs and inherits this one's.
+    useRankingsStore(pinia).reset()
     authStep.value = 'idle'
     authEmail.value = ''
     authError.value = null
