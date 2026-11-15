@@ -304,10 +304,12 @@ import { f7 } from 'framework7-vue'
 import PhotoAdjustControls from '@components/ui/PhotoAdjustControls.vue'
 import { usePhotoAdjust } from '@js/usePhotoAdjust'
 import { useStore } from 'vuex'
+import { useAuthStore } from '@js/stores/auth.store.js'
 import AddTick from '@components/problem/AddTick.vue'
 
 const { t } = useI18n()
 const store = useStore()
+const authStore = useAuthStore()
 
 const props = defineProps({
   problemId: [String, Number],
@@ -445,7 +447,7 @@ const title = computed(() => {
   return `${t('spraywall.problem')} #${p.id}`
 })
 
-const isAuthenticated = computed(() => store.state.isAuthenticated)
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 const commentsOpen = ref(false)
 const opining = ref(false)

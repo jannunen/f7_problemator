@@ -58,6 +58,7 @@ import { useQueryClient } from '@tanstack/vue-query'
 import { watch, computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
+import { useAuthStore } from '@js/stores/auth.store.js'
 import $ from 'dom7'
 import { f7, f7ready } from 'framework7-vue'
 
@@ -70,6 +71,7 @@ export default {
     const { t } = useI18n()
     const store = useStore()
     const uiStore = useUiStore()
+    const authStore = useAuthStore()
     const queryClient = useQueryClient()
     const allTime = computed(() => store.state.alltime)
     const profile = computed(() => store.state.profile)
@@ -77,7 +79,7 @@ export default {
     // it cannot disagree with the origin pushState will check it against.
     // See platform.js for what that disagreement costs.
     const historyRoot = browserHistoryRoot
-    const isAuthenticated = computed(() => store.state.isAuthenticated)
+    const isAuthenticated = computed(() => authStore.isAuthenticated)
 
     // Five destinations, one of which is the route list — the thing climbers
     // could not find. "Menu" opens the side panel so nothing that lived only
@@ -153,7 +155,7 @@ export default {
     // supabase-js consumed the URL before this ran, so any session it left is
     // waiting to be traded for our JWT. Resolves to null on an ordinary load.
     pendingWebSession().then((token) => {
-      if (token) store.dispatch('completeSocialLogin', token)
+      if (token) authStore.completeSocialLogin(token)
     })
 
     // The other trip through an external page: back from Stripe Checkout
@@ -174,7 +176,7 @@ export default {
 
     // Save tip showing status in localStorage.
     const tipShowStatus = JSON.parse(localStorage.getItem('tipShowStatus'))
-    const access_token = computed(() => store.state.access_token)
+    const access_token = computed(() => authStore.accessToken)
     uiStore.setTipShowStatus(tipShowStatus)
     uiStore.setInitializing(false)
 
@@ -204,7 +206,7 @@ export default {
           uiStore.setReady(true)
         } catch (err) {
           console.warn('Session expired or invalid token, redirecting to login', err)
-          store.dispatch('logout')
+          authStore.logout()
         }
       }
       uiStore.setInitializing(false)
@@ -223,7 +225,7 @@ export default {
     // not a third place that has to remember about the string "null".
     const existingToken = readStoredToken()
     if (existingToken) {
-      store.commit('setToken', existingToken)
+      authStore.setToken(existingToken)
     } else {
       uiStore.setReady(true)
     }

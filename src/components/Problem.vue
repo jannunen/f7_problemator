@@ -12,8 +12,10 @@ import relativeTime from 'dayjs/plugin/relativeTime'
 import LocalizedFormat from 'dayjs/plugin/localizedFormat'
 
 import { useStore } from 'vuex'
+import { useAuthStore } from '@js/stores/auth.store.js'
 import { f7 } from 'framework7-vue'
 const store = useStore()
+const authStore = useAuthStore()
 const showPublicAscentsDialog = ref(false)
 const showCommentsDialog = ref(false)
 const loading = ref(true)
@@ -39,7 +41,7 @@ if (props.id != null) {
   })
 
 }
-const isAuthenticated = computed(() => store.state.isAuthenticated)
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 const onLoginClick = () => {
   f7.views.main.router.navigate({url : '/'  });

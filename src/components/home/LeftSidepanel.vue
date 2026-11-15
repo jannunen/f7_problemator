@@ -130,6 +130,7 @@ import { isUpdateAvailable, shouldShowUpdateBanner } from '@js/version.js'
 import { BUILD_STAMP } from '@js/buildInfo.js'
 import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
+import { useAuthStore } from '@js/stores/auth.store.js'
 import { f7 } from 'framework7-vue'
 import { ref, watch, computed } from 'vue'
 import ShowTickHelp from '@components/home/ShowTickHelp.vue'
@@ -139,6 +140,7 @@ import $ from 'dom7'
 import logo from '../../assets/images/logo.png'
 const store = useStore()
 const uiStore = useUiStore()
+const authStore = useAuthStore()
 const showTickHelpDialog = ref(false)
 const showTipsDialog = ref(false)
 const showChangeLogDialog = ref(false)
@@ -165,7 +167,7 @@ const updateAvailable = computed(() => shouldShowUpdateBanner({
   waitingWorkerAvailable: waitingWorkerAvailable.value,
 }))
 const climber = computed(() => store.state.climber)
-const isAuthenticated = computed(() => store.state.isAuthenticated)
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 const serverVersion = computed(() => uiStore.serverVersion)
 
 const { t, locale } = useI18n()
@@ -260,7 +262,7 @@ const doReloadApp = async () => {
 }
 const doLogout = () => {
   uiStore.setSidePanel(false)
-  store.dispatch('logout')
+  authStore.logout()
 }
 const sidePanelOpen = computed(() => uiStore.sidePanelOpen)
 const selectedItem = computed(() => store.state.selectedItem)

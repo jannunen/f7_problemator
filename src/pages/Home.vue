@@ -190,8 +190,10 @@ import { computed, ref, watch, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
+import { useAuthStore } from '@js/stores/auth.store.js'
 const store = useStore()
 const uiStore = useUiStore()
+const authStore = useAuthStore()
 const showTickHelpDialog = ref(false)
 const ready = computed(() => uiStore.ready)
 const profile = computed(() => store.state.profile)
@@ -244,7 +246,7 @@ const props = defineProps({
   f7router: Object,
 })
 const profileLoaded = computed(() => store.state.profileLoaded)
-const isAuthenticated = computed(() => store.state.isAuthenticated)
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 const onSearchSheetClosed = () => {
   isOpened.value = false
 }

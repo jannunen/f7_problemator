@@ -51,10 +51,12 @@ import { tipShown } from '@js/helpers'
 import { computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useUiStore } from '@js/stores/ui.store.js'
+import { useAuthStore } from '@js/stores/auth.store.js'
 import { f7  } from 'framework7-vue'
 
 const store = useStore()
 const uiStore = useUiStore()
+const authStore = useAuthStore()
 const climber = computed(() => store.state.climber)
 const tipShowStatus = computed(() => uiStore.tipShowStatus)
 const ret = ref({message : null})
@@ -71,7 +73,7 @@ const startSync = (which) => {
     ret.value = resp
     requestDone.value = true
     setTimeout(() => {
-      store.dispatch('logout')
+      authStore.logout()
       f7.views.main.router.navigate("/")
     },15000)
   })

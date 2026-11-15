@@ -215,7 +215,7 @@
 
 <script setup>
 import PButton from '@components/PButton.vue'
-import { useStore } from 'vuex'
+import { useAuthStore } from '@js/stores/auth.store.js'
 import { useI18n } from 'vue-i18n'
 import { ref, computed, watch, nextTick } from 'vue'
 import logo from '../../assets/images/logo.png'
@@ -223,7 +223,7 @@ import { PROVIDERS } from '@helpers/socialAuth.js'
 import { socialAuthAvailable } from '@js/supabase.js'
 
 const { t } = useI18n()
-const store = useStore()
+const authStore = useAuthStore()
 const email = ref('')
 const etunimi = ref('')
 const sukunimi = ref('')
@@ -234,18 +234,18 @@ const sending = ref(false)
 // disabled rather than both showing the same indeterminate state.
 const busyProvider = ref(null)
 
-const authStep = computed(() => store.state.authStep)
-const authEmail = computed(() => store.state.authEmail)
-const debugOtp = computed(() => store.state.debugOtp)
-const authType = computed(() => store.state.authType)
-const authError = computed(() => store.state.authError)
+const authStep = computed(() => authStore.authStep)
+const authEmail = computed(() => authStore.authEmail)
+const debugOtp = computed(() => authStore.debugOtp)
+const authType = computed(() => authStore.authType)
+const authError = computed(() => authStore.authError)
 
 
 
 const switchTab = (type) => {
-  store.commit('setAuthType', type)
-  store.commit('setAuthStep', 'idle')
-  store.commit('setAuthError', null)
+  authStore.authType = type
+  authStore.authStep = 'idle'
+  authStore.authError = null
   clearOtp()
 }
 
@@ -271,11 +271,11 @@ const onOtpInput = () => {
 const sendOtp = async () => {
   if (!email.value) return
   if (authType.value === 'signup' && (!etunimi.value || !sukunimi.value)) {
-    store.commit('setAuthError', t('auth.enter_name_error'))
+    authStore.authError = t('auth.enter_name_error')
     return
   }
   sending.value = true
-  await store.dispatch('requestOtp', { email: email.value, type: authType.value })
+  await authStore.requestOtp({ email: email.value, type: authType.value })
   sending.value = false
 }
 
@@ -290,18 +290,18 @@ const verifyCode = async () => {
     payload.etunimi = etunimi.value
     payload.sukunimi = sukunimi.value
   }
-  await store.dispatch('verifyOtp', payload)
+  await authStore.verifyOtp(payload)
 }
 
 const signIn = async (provider) => {
   busyProvider.value = provider
-  await store.dispatch('socialLogin', provider)
+  await authStore.socialLogin(provider)
   busyProvider.value = null
 }
 
 const goBack = () => {
-  store.commit('setAuthStep', 'idle')
-  store.commit('setAuthError', null)
+  authStore.authStep = 'idle'
+  authStore.authError = null
   clearOtp()
 }
 

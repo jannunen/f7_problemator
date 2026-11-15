@@ -15,6 +15,7 @@ import Framework7 from 'framework7/lite-bundle'
 import Framework7Vue, { registerComponents } from 'framework7-vue/bundle'
 import store from "./store.js";
 import { pinia } from './stores/index.js'
+import { useAuthStore } from './stores/auth.store.js'
 import { VueQueryPlugin } from '@tanstack/vue-query'
 import { queryClient } from '@js/queryClient'
 import { registerServiceWorker } from '@js/helpers/registerServiceWorker.js'
@@ -40,15 +41,20 @@ jwtInterceptor();
 // '/' is the same move ShowTickHelp.vue already makes after its own logout;
 // Home renders the sign-in flow there whenever isAuthenticated is false.
 setLogoutHandler(() => {
-    store.dispatch('logout')
+    // Explicit-instance form: there is no active component `setup()` at
+    // module scope for `useAuthStore()`'s implicit active-instance lookup to
+    // attach to, so the shared `pinia` instance (Task 1) is passed directly —
+    // the same pattern store.js's still-live Vuex actions already use to
+    // reach into the Pinia ui store from outside a component.
+    useAuthStore(pinia).logout()
     const router = f7?.views?.main?.router
     if (router && router.currentRoute?.path !== '/') {
         router.navigate('/', { reloadAll: true })
     }
 });
 
-// Keep Vuex state in sync when the interceptor refreshes the token
-setTokenRefreshHandler((token) => store.commit('setToken', token));
+// Keep the Pinia auth store in sync when the interceptor refreshes the token
+setTokenRefreshHandler((token) => useAuthStore(pinia).setToken(token));
 //errorInterceptor();
 
 // Init App

@@ -71,7 +71,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { f7 } from 'framework7-vue'
-import { useStore } from 'vuex'
+import { useAuthStore } from '@js/stores/auth.store.js'
 import { useI18n } from 'vue-i18n'
 import api from '@js/api.js'
 import { progress } from '@helpers/trainingFormat.js'
@@ -79,13 +79,13 @@ import { trainingCardTarget, shouldOfferList } from '@helpers/trainingNav.js'
 import { unreadTotal } from '@helpers/threads.js'
 
 const { t } = useI18n()
-const store = useStore()
+const authStore = useAuthStore()
 
 const invitations = ref([])
 const assignments = ref([])
 const threads = ref([])
 
-const isAuthenticated = computed(() => store.state.isAuthenticated)
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 const active = computed(() => assignments.value.find((a) => a.status === 'active') ?? null)
 // There is no push notification here, so this dot is the only thing that

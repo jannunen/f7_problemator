@@ -103,6 +103,7 @@
 <script setup>
 import { useI18n } from 'vue-i18n'
 import { useStore } from 'vuex'
+import { useAuthStore } from '@js/stores/auth.store.js'
 import { webendpoint } from '@js/api'
 import PButton from '@components/PButton.vue'
 import { ref, computed} from 'vue'
@@ -115,6 +116,7 @@ const nowUTC = ref(dayjs().utc())
 setInterval(() => nowUTC.value = dayjs().utc(),1000*30)
 import dayjs from 'dayjs'
 const store = useStore()
+const authStore = useAuthStore()
 // Same host every other call uses, so this cannot drift away from it again.
 const getResultsLink = computed(() => `${webendpoint}/comps/${props.comp.id}/results`)
 
@@ -163,7 +165,7 @@ const isPaid = (catid) => {
   return row != null && row.pivot.paid != null && dayjs(row.pivot.paid).year() != 0
 }
 const isCategoryFull = (cat) => cat.maxparticipants - cat.participants.length <= 0
-const user = computed(() => store.state.user)
+const user = computed(() => authStore.user)
 const getPaymentLink = (cat) => {
     return `https://www.problemator.fi/t/problemator/competitions/payment/${cat.compid}?contid=${user.value?.id}`
 }

@@ -16,18 +16,20 @@
 <script setup>
 import { watch, computed,onMounted,ref } from 'vue'
 import { useStore } from 'vuex'
+import { useAuthStore } from '@js/stores/auth.store.js'
 import BoulderJudging from './BoulderJudging.vue'
 import SportJudging from './SportJudging.vue'
 import { useI18n } from 'vue-i18n'
 import { isBoulderingCompType, isSportCompType } from '../../js/helpers/compKind.js'
 const store = useStore()
+const authStore = useAuthStore()
 const { t } = useI18n()
 
 const props = defineProps({
   compid : Number,
 })
 const comp = computed(() => store.state.competition)
-const isAuthenticated = computed(() => store.state.isAuthenticated)
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 watch(isAuthenticated, (newValue) => {
   if (newValue) {

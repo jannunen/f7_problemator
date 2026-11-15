@@ -82,6 +82,7 @@
 import { useI18n } from 'vue-i18n'
 import {f7 } from 'framework7-vue'
 import { useStore } from 'vuex'
+import { useAuthStore } from '@js/stores/auth.store.js'
 import { getTagShort } from '@js/helpers'
 import { ref, computed } from 'vue'
 import { confirm } from '@js/helpers/notifications.js'
@@ -89,7 +90,8 @@ import RoundBadge from '@components/ui/RoundBadge.vue'
 import PopupListTicks from '@components/ui/problem/TickList.vue'
 import { getSessionCount } from '@helpers/component.helpers.js'
 const store = useStore()
-const isAuthenticated = computed(() => store.state.isAuthenticated)
+const authStore = useAuthStore()
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 
 const { t } = useI18n()
 const props = defineProps({

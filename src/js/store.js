@@ -1,8 +1,6 @@
 import { createStore } from "vuex";
 import { invalidateAfter } from '@js/queryClient'
-import { signInWith, clearSupabaseSession } from '@helpers/socialAuth.js'
 import api from './api'
-import { setAuthToken, readStoredToken } from './authToken.js'
 import { useUiStore } from './stores/ui.store.js'
 import { pinia } from './stores/index.js'
 
@@ -31,7 +29,6 @@ export default createStore({
     rankingTarget : 'global',
     competition : null,
     compResults : null,
-    isAuthenticated : !!readStoredToken(),
     gymid : null,
     profile : {
       settings : null,
@@ -41,18 +38,8 @@ export default createStore({
       ticks : [],
       tries : []
     },
-    user : null,
     climber : null,
     pointEntryKey : null,
-    // Seeded from storage, not null. The request interceptor has always read
-    // localStorage directly, so a returning user was signed in as far as the
-    // API was concerned while this said otherwise.
-    access_token : readStoredToken(),
-    authStep: 'idle', // idle, otp_sent, verifying
-    debugOtp: null, // dev-only: the code, when the API is running with debug on
-    authEmail: '',
-    authType: 'signin',
-    authError: null,
     problems : [],
     gym : { 
       problems :[],
@@ -153,12 +140,6 @@ export default createStore({
     removeTick(state, pid) {
       state.alltime.ticks = state.alltime.ticks.filter(x => x.problemid != pid)
     },
-    expires_in(state, payload) {
-      state.expires_in = payload
-    },
-    user(state, payload) {
-      state.user = payload
-    },
     competition(state, payload) {
       state.competition = payload
     },
@@ -173,31 +154,6 @@ export default createStore({
     },
     profile(state, payload) {
       state.profile = payload
-    },
-    setToken( state  , payload) {
-      state.access_token = payload
-      // Through setAuthToken, not localStorage directly: it is what anything
-      // waiting on sign-in is watching, and it refuses to store the string
-      // "null" the way this used to on logout.
-      setAuthToken(payload)
-    },
-    setIsAuthenticated (state, payload) {
-      state.isAuthenticated = payload
-    },
-    setDebugOtp(state, payload) {
-      state.debugOtp = payload
-    },
-    setAuthStep(state, payload) {
-      state.authStep = payload
-    },
-    setAuthEmail(state, payload) {
-      state.authEmail = payload
-    },
-    setAuthType(state, payload) {
-      state.authType = payload
-    },
-    setAuthError(state, payload) {
-      state.authError = payload
     },
     isAbsolute (state, payload) {
       state.isAbsolute = payload
@@ -310,7 +266,12 @@ export default createStore({
         commit('walls', ret.gym.walls)
         commit('climber', ret.climber)
         commit('profileLoaded', true )
-        commit('setIsAuthenticated', true )
+        // No `commit('setIsAuthenticated', true)` here any more — that
+        // mutation moved to Pinia's auth store (Task 6). It was always a
+        // no-op by the time getProfile's success path ran: isAuthenticated
+        // is seeded from storage in step with access_token, and every path
+        // that sets a fresh token (verifyOtp/socialLogin/completeSocialLogin)
+        // already sets isAuthenticated alongside it, before this ever fires.
         useUiStore(pinia).setReady(true)
         commit('serverVersion',ret.version)
         return state.profile
@@ -448,123 +409,9 @@ export default createStore({
       }
       return ret.reports
     },
-    async requestOtp({ commit }, payload) {
-      commit('setAuthError', null)
-      commit('setAuthEmail', payload.email)
-      commit('setAuthType', payload.type)
-      try {
-        const ret = await api.requestOtp(payload)
-        // Only ever present when the API runs with debug on outside
-        // production; in every real build this is undefined.
-        commit('setDebugOtp', ret?.debug_code ?? null)
-        commit('setAuthStep', 'otp_sent')
-      } catch (err) {
-        commit('setAuthError', err.response?.data?.error || 'Failed to send code.')
-      }
-    },
-    async verifyOtp({ commit }, payload) {
-      commit('setAuthError', null)
-      commit('setAuthStep', 'verifying')
-      try {
-        const ret = await api.verifyOtp(payload)
-        commit('setToken', ret.access_token)
-        commit('user', ret.user)
-        commit('setIsAuthenticated', true)
-        commit('setAuthStep', 'idle')
-        return ret
-      } catch (err) {
-        commit('setAuthStep', 'otp_sent')
-        commit('setAuthError', err.response?.data?.error || 'Verification failed.')
-      }
-    },
-    /**
-     * Apple / Google sign-in.
-     *
-     * Ends in exactly the same state as verifyOtp — same token, same user, same
-     * flags — because it ends at the same API contract. The only extra step is
-     * dropping the Supabase session afterwards, so nothing in the app has two
-     * competing answers to whether someone is signed in.
-     */
-    async socialLogin({ commit }, provider) {
-      commit('setAuthError', null)
-      commit('setAuthStep', 'verifying')
-      try {
-        const supabaseToken = await signInWith(provider)
-
-        // Web only: the page is navigating away to the provider. There is no
-        // token yet and nothing to fail — completion happens on the way back.
-        if (!supabaseToken) return null
-
-        const ret = await api.socialExchange(supabaseToken)
-        commit('setToken', ret.access_token)
-        commit('user', ret.user)
-        commit('setIsAuthenticated', true)
-        commit('setAuthStep', 'idle')
-        await clearSupabaseSession()
-        return ret
-      } catch (err) {
-        commit('setAuthStep', 'idle')
-        commit(
-          'setAuthError',
-          err.response?.data?.error || err.message || 'Sign-in failed.'
-        )
-        await clearSupabaseSession()
-        return null
-      }
-    },
-    /**
-     * Finish a sign-in that started before a redirect or a trip out to the
-     * system browser. Safe to call on every launch: with nothing pending it
-     * does nothing.
-     */
-    async completeSocialLogin({ commit }, supabaseToken) {
-      if (!supabaseToken) return null
-      try {
-        const ret = await api.socialExchange(supabaseToken)
-        commit('setToken', ret.access_token)
-        commit('user', ret.user)
-        commit('setIsAuthenticated', true)
-        commit('setAuthStep', 'idle')
-        await clearSupabaseSession()
-        return ret
-      } catch (err) {
-        commit('setAuthStep', 'idle')
-        commit('setAuthError', err.response?.data?.error || 'Sign-in failed.')
-        await clearSupabaseSession()
-        return null
-      }
-    },
-    logout({ commit }) {
-      localStorage.removeItem('gymid')
-      commit('setToken', null)
-      commit('user', null)
-      commit('climber', null)
-      commit('setIsAuthenticated', false)
-      commit('profile', { settings: null })
-      commit('profileLoaded', false)
-      commit('setAuthStep', 'idle')
-      commit('setAuthEmail', '')
-      commit('setAuthError', null)
-      useUiStore(pinia).setReady(true)
-      clearSupabaseSession()
-    },
-    setUser({  commit}, payload) {
-      commit('user' , payload)
-      return payload
-    },
-    async login({  commit}, payload) {
-      const ret = await api.login(payload)
-      if (ret.user != null) {
-        // Login ok
-        commit('user' , ret.user)
-        commit('setToken' , ret.access_token)
-        commit('expires_in',  ret.expires_in)
-        return ret
-      } else {
-        return {error : true, message : 'Incorrect login'}
-      }
-
-    },
+    // requestOtp, verifyOtp, socialLogin, completeSocialLogin, logout moved
+    // to Pinia's useAuthStore (Task 6). login/setUser were dead (zero
+    // dispatch sites) and were dropped rather than ported.
     async getProblemDetails({ state  , commit}, payload) {
       const ret = await api.getProblemDetails(payload);
       const problem = ret.problem
