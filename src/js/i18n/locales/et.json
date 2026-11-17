@@ -25,6 +25,9 @@
     "description": "Edetabel põhineb top10 raskeimal tippudel. Flashid annavad rohkem punkte, katsed vähendavad.",
     "country_hint": "Kui ei näe oma kohta riigi edetabelis, mine seadetesse, määra riik ja roni mõni probleem.",
     "global": "Globaalne",
+    "my_gym": "Minu saal",
+    "gym_unavailable": "Selle saali edetabel pole praegu saadaval.",
+    "gym_hint": "See nimekiri arvestab ainult sinu praeguse saali probleemide läbimisi.",
     "all_tab": "Kõik",
     "boulder_tab": "Boulder",
     "sport_tab": "Sport"

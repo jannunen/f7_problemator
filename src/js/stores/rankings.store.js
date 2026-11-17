@@ -1,6 +1,10 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import api from '@js/api'
+import { useGymStore } from '@js/stores/gym.store.js'
+
+// rankingTarget value meaning "the climber's currently selected gym".
+export const GYM_TARGET = 'gym'
 
 /**
  * Rankings view state: the climber's chosen ranking scope (`rankingTarget`,
@@ -26,6 +30,11 @@ export const useRankingsStore = defineStore('rankings', () => {
   const rankingTarget = ref('global')
   const rankings = ref(null)
   const seeded = ref(false)
+  // The gym id the current `rankings` were fetched for (null for country/global).
+  const rankingsGymid = ref(null)
+  // True when the backend refused the gym (422/404: unpublished or unknown).
+  const gymUnavailable = ref(false)
+  let requestSeq = 0
 
   function setRankingTarget(country) {
     rankingTarget.value = country
@@ -42,9 +51,34 @@ export const useRankingsStore = defineStore('rankings', () => {
   // link (ShowRanking.vue's first/prev/next/last page buttons); omit it for
   // a plain fetch at the current rankingTarget.
   async function fetchRankings(url = null) {
-    const ret = await api.ranking({ url, country: rankingTarget.value })
-    rankings.value = ret
-    return ret
+    const gymid = rankingTarget.value === GYM_TARGET ? useGymStore().gymid : null
+    const seq = ++requestSeq
+    gymUnavailable.value = false
+    if (rankingTarget.value === GYM_TARGET && gymid == null) {
+      // Gym scope without a selected gym: nothing to ask for.
+      rankings.value = []
+      rankingsGymid.value = null
+      return rankings.value
+    }
+    try {
+      const ret = await api.ranking({ url, country: rankingTarget.value, gym: gymid })
+      // A newer request (scope toggled, gym switched) has superseded this one:
+      // its answer must not overwrite the list the climber is now looking at.
+      if (seq !== requestSeq) return ret
+      rankings.value = ret
+      rankingsGymid.value = gymid
+      return ret
+    } catch (e) {
+      if (gymid != null && [404, 422].includes(e?.response?.status)) {
+        if (seq === requestSeq) {
+          gymUnavailable.value = true
+          rankings.value = []
+          rankingsGymid.value = gymid
+        }
+        return []
+      }
+      throw e
+    }
   }
 
   // Back to a fresh store, for auth.store's logout(): without it, `seeded`
@@ -54,7 +88,10 @@ export const useRankingsStore = defineStore('rankings', () => {
     rankingTarget.value = 'global'
     rankings.value = null
     seeded.value = false
+    rankingsGymid.value = null
+    gymUnavailable.value = false
+    requestSeq++
   }
 
-  return { rankingTarget, rankings, setRankingTarget, seedFromProfile, fetchRankings, reset }
+  return { rankingTarget, rankings, rankingsGymid, gymUnavailable, setRankingTarget, seedFromProfile, fetchRankings, reset }
 })

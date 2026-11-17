@@ -25,6 +25,9 @@
     "description": "La classifica si basa sui 10 problemi piu difficili. I Flash danno piu punti, i tentativi li sottraggono.",
     "country_hint": "Se non vedi la tua posizione nella lista del tuo paese, vai alle impostazioni, imposta il paese e scala alcuni problemi.",
     "global": "Globale",
+    "my_gym": "La mia palestra",
+    "gym_unavailable": "La classifica di questa palestra non è al momento disponibile.",
+    "gym_hint": "Questa lista conta solo le salite sui problemi della tua palestra attuale.",
     "all_tab": "Tutti",
     "boulder_tab": "Boulder",
     "sport_tab": "Sport"

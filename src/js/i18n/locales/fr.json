@@ -25,6 +25,9 @@
     "description": "Le classement est base sur les 10 problemes les plus difficiles. Les Flash donnent plus de points, les essais en retirent.",
     "country_hint": "Si vous ne voyez pas votre classement dans la liste de votre pays, allez dans les parametres, definissez le pays et grimpez quelques problemes.",
     "global": "Global",
+    "my_gym": "Ma salle",
+    "gym_unavailable": "Le classement de cette salle n'est pas disponible pour le moment.",
+    "gym_hint": "Ce classement ne compte que les ascensions des blocs de ta salle actuelle.",
     "all_tab": "Tous",
     "boulder_tab": "Boulder",
     "sport_tab": "Sport"

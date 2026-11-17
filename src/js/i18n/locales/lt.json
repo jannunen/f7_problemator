@@ -25,6 +25,9 @@
     "description": "Reitingas grindžiamas top10 sunkiausiais įkopimais. Flash duoda daugiau taškų, bandymai mažina.",
     "country_hint": "Jei nematote savo pozicijos šalies sąraše, eikite į nustatymus, nustatykite šalį ir užlipkite ant kelių problemų.",
     "global": "Pasaulinis",
+    "my_gym": "Mano salė",
+    "gym_unavailable": "Šios salės reitingas šiuo metu nepasiekiamas.",
+    "gym_hint": "Šis sąrašas skaičiuoja tik užlipimus jūsų dabartinės salės trasose.",
     "all_tab": "Visi",
     "boulder_tab": "Boulder",
     "sport_tab": "Sport"

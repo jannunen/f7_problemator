@@ -170,14 +170,18 @@ const api = {
   },
   async rankingtop10(payload) {
     let ret = null
-    ret = await axios.get(endpoint + `/ranking/top10/?climber_id=${payload.climber_id}&ranking_id=${payload.ranking_id}&country=${payload.country}`)
+    ret = await axios.get(endpoint + `/ranking/top10/?climber_id=${payload.climber_id}&ranking_id=${payload.ranking_id}&country=${payload.country}` + (payload.gym != null ? `&gym=${payload.gym}` : ''))
     return ret.data
 
   },
   async ranking(payload) {
     // pagination defines the urls 
     let ret = null
-    if (payload != null && payload.url != null) {
+    // A gym ranking is asked for with ?gym=<id>; the backend ignores country
+    // then. Pagination links the backend hands back already carry ?gym=.
+    if (payload != null && payload.gym != null) {
+      ret = await axios.get(payload.url != null ? payload.url : endpoint+"/ranking?gym="+payload.gym)
+    } else if (payload != null && payload.url != null) {
       ret = await axios.get(payload.url+"&country="+payload?.country)
     } else {
       ret = await axios.get(endpoint+"/ranking?country="+payload?.country)

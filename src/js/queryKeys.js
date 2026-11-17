@@ -131,13 +131,16 @@ export const queries = {
   }),
 
   /** A ranking's top ten, per climber and country. */
-  rankingTop10: (climberId, rankingId, country) => ({
-    queryKey: key('ranking-top10', climberId, rankingId, country),
+  rankingTop10: (climberId, rankingId, country, gym = null) => ({
+    // The gym id is part of the key: a climber's ten at one gym must never
+    // be served for another gym (or for the country list).
+    queryKey: key('ranking-top10', climberId, rankingId, country, gym),
     queryFn: () =>
       api.rankingtop10({
         climber_id: unref(climberId),
         ranking_id: unref(rankingId),
         country: unref(country),
+        gym: unref(gym),
       }),
     // Both call sites are meaningless without a climber; one guarded for it
     // and the other did not.

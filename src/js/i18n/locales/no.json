@@ -25,6 +25,9 @@
     "description": "Ranking er basert på topp 10 vanskeligste problemer. Flash gir mer poeng, forsøk trekker fra.",
     "country_hint": "Hvis du ikke ser rangeringen din i landets liste, gå til innstillingssiden, angi land og klatr noen problemer.",
     "global": "Global",
+    "my_gym": "Min hall",
+    "gym_unavailable": "Rangeringen for denne hallen er ikke tilgjengelig akkurat nå.",
+    "gym_hint": "Denne listen teller bare bestigninger på problemene i din nåværende hall.",
     "all_tab": "Alle",
     "boulder_tab": "Boulder",
     "sport_tab": "Sport"

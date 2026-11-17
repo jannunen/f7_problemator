@@ -25,6 +25,9 @@
     "description": "El ranking se basa en los 10 problemas mas dificiles. Los Flash dan mas puntos, los intentos restan.",
     "country_hint": "Si no ves tu ranking en la lista de tu pais, ve a la pagina de ajustes, establece el pais y escala algunos problemas.",
     "global": "Global",
+    "my_gym": "Mi gimnasio",
+    "gym_unavailable": "El ranking de este gimnasio no está disponible ahora.",
+    "gym_hint": "Esta lista solo cuenta ascensos en los problemas de tu gimnasio actual.",
     "all_tab": "Todos",
     "boulder_tab": "Boulder",
     "sport_tab": "Sport"

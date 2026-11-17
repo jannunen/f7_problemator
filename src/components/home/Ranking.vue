@@ -79,7 +79,7 @@
             <span class="material-icons p-link ranking-info-icon" @click.prevent="showRankingSheet = true">info</span>
         </p>
         <p class="text-xs mb-3 p-text-accent leading-snug">
-            {{ t('ranking.country_hint') }}
+            {{ isGymScope ? t('ranking.gym_hint') : t('ranking.country_hint') }}
         </p>
 
         <!-- Country / Global toggle -->
@@ -92,9 +92,17 @@
                     class="p-toggle-group__btn"
                     :class="{ 'p-toggle-group__btn--active': rankingTarget == 'global' }"
                     @click.prevent="changeTarget('global')">{{ t('ranking.global') }}</button>
+            <button
+                    v-if="gymid"
+                    class="p-toggle-group__btn ranking-gym-btn"
+                    :class="{ 'p-toggle-group__btn--active': isGymScope }"
+                    @click.prevent="changeTarget(GYM_TARGET)">{{ gymLabel }}</button>
         </div>
 
-        <div v-if="rankings != null">
+        <div v-if="isGymScope && gymUnavailable" class="text-center py-4 text-sm p-text-muted">
+            {{ t('ranking.gym_unavailable') }}
+        </div>
+        <div v-else-if="rankings != null">
             <!-- Route type toggle -->
             <div class="p-toggle-group mb-3">
                 <button
@@ -126,7 +134,7 @@
 
             <div v-for="(r, idx) in filteredRankings" :key="r.ranking.id">
                 <div v-if="rankingTab == idx">
-                    <show-ranking :country="rankingTarget" :ranking="r" />
+                    <show-ranking :country="rankingTarget" :gym="isGymScope ? gymid : null" :ranking="r" />
                 </div>
             </div>
 
@@ -144,7 +152,7 @@ import ShowRanking from '@components/home/ShowRanking.vue'
 import { useQuery } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
 import { useGymStore } from '@js/stores/gym.store.js'
-import { useRankingsStore } from '@js/stores/rankings.store.js'
+import { useRankingsStore, GYM_TARGET } from '@js/stores/rankings.store.js'
 const { t } = useI18n()
 const rankingTab = ref(0)
 const gymStore = useGymStore()
@@ -154,10 +162,15 @@ const gymid = computed(() => gymStore.gymid)
 // profile fetch's gym country (queryKeys.js's `profile` queryFn), then only
 // changed by an explicit `changeTarget` click below.
 const rankingTarget = computed(() => rankingsStore.rankingTarget)
+const isGymScope = computed(() => rankingTarget.value === GYM_TARGET)
+const gymUnavailable = computed(() => rankingsStore.gymUnavailable)
 const routeTypeFilter = ref('all')
 const showRankingSheet = ref(false)
 const rankings = computed(() => rankingsStore.rankings)
 const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
+// The segmented control is narrow on a phone: the gym name is clipped by CSS
+// (.ranking-gym-btn) and falls back to a short translated label.
+const gymLabel = computed(() => gym.value?.name || t('ranking.my_gym'))
 const filteredRankings = computed(() => {
     if (!rankings.value) return null
     return rankings.value.filter(r => r.ranking.route_type === routeTypeFilter.value)
@@ -174,6 +187,17 @@ watch(routeTypeFilter, (newVal, oldVal) => {
         rankingTab.value = 0
     }
 })
+// Switching the selected gym must refresh the gym tab; losing the gym
+// altogether drops back to global rather than showing a dead tab.
+watch(gymid, (id) => {
+    if (!isGymScope.value) return
+    if (id) {
+        refresh()
+    } else {
+        rankingsStore.setRankingTarget('global')
+        refresh()
+    }
+})
 const changeTarget = (tgt) => {
     rankingsStore.setRankingTarget(tgt)
     refresh()
@@ -188,6 +212,13 @@ refresh()
 .ranking-rule-row td {
     padding: 0.25rem 0;
     border-bottom: 1px solid var(--p-border);
+}
+
+.ranking-gym-btn {
+    max-width: 40%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .ranking-info-icon {
