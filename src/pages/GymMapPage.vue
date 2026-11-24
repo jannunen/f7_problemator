@@ -133,8 +133,10 @@
         </g>
       </svg>
 
-      <!-- Problem info popup -->
-      <div v-if="selectedProblem && popupPos" ref="popupRef" class="gym-map-popup" :class="{ 'gym-map-popup-dark': isDark }" :style="popupStyle" @click.stop @mousedown.stop @touchstart.stop>
+      <!-- Problem info popup — gated on showLabel so it only opens once the
+           view is close enough to show grades; a tap while zoomed out just
+           slides/zooms there, and the popup appears the moment it arrives. -->
+      <div v-if="selectedProblem && popupPos && showLabel" ref="popupRef" class="gym-map-popup" :class="{ 'gym-map-popup-dark': isDark }" :style="popupStyle" @click.stop @mousedown.stop @touchstart.stop>
         <table class="gym-map-popup-table">
           <tbody>
             <tr>
