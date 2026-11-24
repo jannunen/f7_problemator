@@ -225,8 +225,9 @@
       </div>
 
       <!-- Floating filter button -->
-      <div class="gym-map-btn" style="left: 100px;" @click.stop="showFilters = !showFilters">
+      <div class="gym-map-btn gym-map-btn--filter" style="left: 100px;" @click.stop="showFilters = !showFilters">
         <i class="icon f7-icons" style="font-size: 16px;">line_horizontal_3_decrease</i>
+        <span class="gym-map-btn-label">{{ t('gymmap.filters') }}</span>
         <span v-if="activeFilterCount > 0" class="gym-map-filter-badge">{{ activeFilterCount }}</span>
       </div>
 
@@ -1251,6 +1252,18 @@ function onTouchEnd(event) {
 
 .gym-map-btn:active {
   background: rgba(0, 0, 0, 0.7);
+}
+
+.gym-map-btn--filter {
+  width: auto;
+  padding: 0 10px 0 8px;
+  gap: 6px;
+}
+
+.gym-map-btn-label {
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .gym-map-zoom-row {
