@@ -128,7 +128,7 @@ describe('components render with no profile data yet', () => {
 
   it('GymCompletionPage (grades.value.forEach during render)', async () => {
     const html = await render(GymCompletionPage)
-    expect(html).toContain('chart')
+    expect(html).toContain('data-test="gym-completion"')
   })
 
   it('ScoreToday with a tick today (grades.value.find during render)', async () => {
