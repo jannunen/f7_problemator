@@ -316,6 +316,7 @@ import { useI18n } from 'vue-i18n'
 import { useProfileGym, useProfileProblems, useProfileStyles, useProfileWalls } from '@js/useProfileSlice.js'
 import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 import { useGymStore } from '@js/stores/gym.store.js'
+import { easeOutCubic, focusViewBox, lerpViewBox } from './gymMapViewTween.js'
 const props = defineProps({
   f7router: Object,
 })
@@ -354,12 +355,39 @@ onMounted(() => {
     }
   }
 })
-onUnmounted(() => { darkObserver?.disconnect() })
+onUnmounted(() => {
+  darkObserver?.disconnect()
+  if (viewBoxAnimFrame) cancelAnimationFrame(viewBoxAnimFrame)
+})
 
 // View state (local, not in vuex — this is read-only viewer)
 const defaultView = computed(() => gym.value?.gym_map_config?.default_view || null)
 const viewBox = ref({ x: 0, y: 0, w: 1, h: 1 })
 const scale = computed(() => viewBox.value.w)
+
+// Tapping a problem slides and zooms the view to it, landing well inside the
+// showDetails threshold below so its grade and tag are readable on arrival.
+const FOCUS_ZOOM_W = 0.25
+let viewBoxAnimFrame = null
+
+function stopViewBoxAnim() {
+  if (viewBoxAnimFrame) {
+    cancelAnimationFrame(viewBoxAnimFrame)
+    viewBoxAnimFrame = null
+  }
+}
+
+function animateViewBoxTo(target, duration = 450) {
+  stopViewBoxAnim()
+  const start = { ...viewBox.value }
+  const startTime = performance.now()
+  const step = (now) => {
+    const t = Math.min(1, (now - startTime) / duration)
+    viewBox.value = lerpViewBox(start, target, easeOutCubic(t))
+    viewBoxAnimFrame = t < 1 ? requestAnimationFrame(step) : null
+  }
+  viewBoxAnimFrame = requestAnimationFrame(step)
+}
 const viewBoxString = computed(() => {
   const vb = viewBox.value
   return `${vb.x} ${vb.y} ${vb.w} ${vb.h}`
@@ -876,6 +904,7 @@ function onProblemTap(p) {
   }
   selectedProblem.value = p
   nextTick(updatePopupPos)
+  animateViewBoxTo(focusViewBox(p, viewBox.value, FOCUS_ZOOM_W))
 }
 
 function openProblemDetails() {
@@ -899,6 +928,7 @@ function dismissPopup() {
 watch([viewBox, rotation], () => { updatePopupPos() })
 
 function resetView() {
+  stopViewBoxAnim()
   const cb = gym.value?.gym_map_config?.content_bounds
   if (cb) {
     const side = cb.w * 1.1
@@ -919,6 +949,7 @@ function resetView() {
 }
 
 function onZoomSlider(event) {
+  stopViewBoxAnim()
   const pct = parseInt(event.target.value)
   const newW = Math.max(0.02, Math.min(20, 1 / (pct / 100)))
   const vb = viewBox.value
@@ -952,6 +983,7 @@ const panStart = ref(null)
 const viewBoxStart = ref(null)
 
 function onWheel(event) {
+  stopViewBoxAnim()
   const [svgX, svgY] = screenToSVG(event.clientX, event.clientY)
   const zoomFactor = event.deltaY > 0 ? 1.04 : 0.96
   const vb = { ...viewBox.value }
@@ -966,6 +998,7 @@ function onWheel(event) {
 
 function onMouseDown(event) {
   if (event.button === 0) {
+    stopViewBoxAnim()
     didPan.value = false
     isPanning.value = true
     panStart.value = { x: event.clientX, y: event.clientY }
@@ -1002,6 +1035,7 @@ function onMouseUp() {
 const lastPinchDist = ref(null)
 
 function onTouchStart(event) {
+  stopViewBoxAnim()
   const t = event.touches
   didPan.value = false
   if (t.length === 1) {
