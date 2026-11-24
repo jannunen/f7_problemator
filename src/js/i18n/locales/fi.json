@@ -194,7 +194,21 @@
     "select_zone": "Valitse alue",
     "low_zone": "Alempi alue",
     "high_zone": "Ylempi alue",
-    "select_checkpoint": "Valitse tarkistuspiste"
+    "select_checkpoint": "Valitse tarkistuspiste",
+    "registration_opens": "Ilmoittautuminen alkaa",
+    "registration_is_open": "Ilmoittautuminen on auki",
+    "no_upcoming": "Ei aktiivisia kilpailuja juuri nyt",
+    "no_upcoming_hint": "Menneet kilpailut ja niiden tulokset ovat edelleen selattavissa.",
+    "load_failed": "Kilpailujen lataus epäonnistui.",
+    "comp_load_failed": "Kilpailun lataus epäonnistui.",
+    "open_judging_sheet": "Avaa tuomarikortti",
+    "venue_opens": "Kisapaikka aukeaa",
+    "location_not_set": "Sijaintia ei ole asetettu",
+    "points_per_route": "Pisteet reiteittäin",
+    "time_left": "jäljellä",
+    "days_short": "{n} pv",
+    "no_problems_yet": "Reittejä ei ole vielä lisätty.",
+    "delete_ascent_hint_swipe": "Pyyhkäise vasemmalle poistaaksesi nousun"
   },
   "settings": {
     "settings_title": "Asetukset",

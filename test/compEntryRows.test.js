@@ -617,3 +617,68 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     expect(live.saveCheckpoint).not.toHaveBeenCalled()
   })
 })
+
+describe('CompetitionEntry: around the rows', () => {
+  const running = (over = {}) => ({ ...makeComp('fixed_points_best_n', ticked), location: 'Boulder Barn', compdate: '2026-06-15 10:00:00', ...over })
+
+  it('names the competition once, with its id once', async () => {
+    const html = await render(CompetitionEntry, running())
+    expect(count(html, 'Test comp')).toBe(1)
+    expect(count(html, '>ID<')).toBe(1)
+    expect(count(html, '>9</dd>')).toBe(1)
+  })
+
+  it('lists what kind of competition it is, where, and how big', async () => {
+    const html = await render(CompetitionEntry, running())
+    expect(html).toContain('Fixed points, best N')
+    expect(html).toContain('Best 3 count')
+    expect(html).toContain('Boulder Barn')
+    expect(html).toMatch(/<dt>Problems<\/dt><dd>2<\/dd>/)
+  })
+
+  it('says so when the location is not set', async () => {
+    expect(await render(CompetitionEntry, running({ location: null }))).toContain('Location not set')
+  })
+
+  it('leaves the judging link to the page around it', async () => {
+    const html = await render(CompetitionEntry, running({ judges: [{ id: 5 }] }))
+    expect(html).not.toContain('judging')
+  })
+
+  it('keeps the tally with the clock, above the rows', async () => {
+    const html = await render(CompetitionEntry, running())
+    expect(html).toMatch(/ce-bar__count[^>]*>1<\/span><span[^>]*>\/2<\/span>/)
+    expect(html.indexOf('data-test="comp-bar"')).toBeLessThan(html.indexOf('data-stub="f7-list-item"'))
+  })
+
+  it('no end time: says there is no limit instead of counting down', async () => {
+    const html = await render(CompetitionEntry, running())
+    expect(html).toContain('No time limit')
+    expect(html).not.toContain('ce-bar__clock')
+  })
+
+  it('an end time: a clock, never negative', async () => {
+    const html = await render(CompetitionEntry, running({ timespan_end: '2999-01-01 00:00:00' }))
+    expect(html).toMatch(/ce-bar__clock[^>]*>\d\d:\d\d:\d\d</)
+    expect(html).not.toContain('No time limit')
+  })
+
+  it('outside the tick window: a notice, and no rows to enter anything on', async () => {
+    const html = await render(CompetitionEntry, running({ timespan_start: '2999-01-01 00:00:00' }))
+    expect(html).toContain('data-test="comp-not-running"')
+    expect(html).not.toContain('data-stub="f7-list-item"')
+    expect(html).not.toContain('data-test="comp-bar"')
+  })
+
+  it('no problems yet: says so, and does not explain how to delete an ascent', async () => {
+    const html = await render(CompetitionEntry, running({ problems: [] }))
+    expect(html).toContain('data-test="comp-no-problems"')
+    expect(html).not.toContain('to delete an ascent')
+  })
+
+  it('a ticked row is marked for a screen reader as well as by its icon', async () => {
+    const html = await render(CompetitionEntry, running())
+    expect(count(html, 'ce-row--ticked')).toBe(1)
+    expect(count(html, '>check_circle</i><span class="sr-only">ticked</span>')).toBe(1)
+  })
+})

@@ -214,7 +214,21 @@
     "checkpoint_not_ongoing": "The competition is not ongoing, checkpoints cannot be entered now.",
     "checkpoint_not_participant": "You are not a participant of this competition.",
     "checkpoint_invalid": "That checkpoint is not valid for this problem.",
-    "checkpoint_failed": "Could not save the checkpoint. Try again."
+    "checkpoint_failed": "Could not save the checkpoint. Try again.",
+    "registration_opens": "Registration opens",
+    "registration_is_open": "Registration is open",
+    "no_upcoming": "No active competitions right now",
+    "no_upcoming_hint": "Past competitions and their results are still there to look through.",
+    "load_failed": "Could not load the competitions.",
+    "comp_load_failed": "Could not load the competition.",
+    "open_judging_sheet": "Open judging sheet",
+    "venue_opens": "Venue opens",
+    "location_not_set": "Location not set",
+    "points_per_route": "Points per route",
+    "time_left": "left",
+    "days_short": "{n} d",
+    "no_problems_yet": "No problems have been added yet.",
+    "delete_ascent_hint_swipe": "Swipe left to delete an ascent"
   },
   "settings": {
     "settings_title": "Settings",
