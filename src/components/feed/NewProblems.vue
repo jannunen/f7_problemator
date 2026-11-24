@@ -4,38 +4,47 @@
   </h1>
   <f7-list>
     <f7-list-item
-      title="Selected gym"
+      title="Gyms you follow"
       smart-select
       :smart-select-params="{
         openIn: 'popup',
         searchbar: true,
         searchbarPlaceholder: 'Search gym',
-        closeOnSelect: true,
+        closeOnSelect: false,
       }"
     >
-      <select name="gym" v-model="selectedGym" @change="onChangeGym">
+      <select name="gyms" multiple v-model="followedGyms">
         <option v-for="gym in gyms" :key="gym.id" :value="gym.id">{{ gym.name }}</option>
       </select>
     </f7-list-item>
   </f7-list>
-  <f7-list v-if="problems.length > 0" media class="p-2 my-0" problem-list>
-    <new-problem-item
-      v-for="item in problems"
-      :key="item.id"
-      :problem="item"
-      @click="() => onStartNavigate(item)"
-    >
-    </new-problem-item>
-  </f7-list>
+
+  <div v-if="followedGyms.length === 0" class="text-center text-sm p-text-muted my-4">
+    Pick one or more gyms above to see their newest routes.
+  </div>
+
+  <template v-for="group in groupedProblems" :key="group.gymid">
+    <!-- One gym followed: no point labelling what's already obvious. -->
+    <f7-block-title v-if="followedGyms.length > 1">{{ group.gymName }}</f7-block-title>
+    <f7-list v-if="group.problems.length > 0" media class="p-2 my-0" problem-list>
+      <new-problem-item
+        v-for="item in group.problems"
+        :key="item.id"
+        :problem="item"
+        @click="() => onStartNavigate(item)"
+      >
+      </new-problem-item>
+    </f7-list>
+  </template>
 </template>
 <script setup>
 import { f7 } from 'framework7-vue'
-import { ref, computed, watch } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
+import { computed, watch } from 'vue'
+import { useQuery, useQueries } from '@tanstack/vue-query'
 import { queries } from '@js/queryKeys.js'
 import { useGymStore } from '@js/stores/gym.store.js'
+import { followedGyms } from '@js/followedGyms.js'
 import NewProblemItem from '@components/feed/NewProblemItem.vue'
-import api from '@js/api'
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
 const { data: gym } = useQuery({ ...queries.profile(gymid), select: (data) => data.gym })
@@ -49,20 +58,32 @@ const { data: gymsData } = useQuery({
   placeholderData: { gyms: [] },
 })
 const gyms = gymsData
-const selectedGym = ref(gym.value?.id || null)
+
+// Nothing followed yet (first time on this device) — seed with the
+// climber's current gym, the same single gym this page used to default to,
+// so the feed isn't empty on arrival.
 watch(gym, (val) => {
-  selectedGym.value = val.id
+  if (followedGyms.value.length === 0 && val?.id != null) {
+    followedGyms.value = [val.id]
+  }
+}, { immediate: true })
+
+const problemQueries = useQueries({
+  queries: () => followedGyms.value.map((id) => {
+    const q = queries.newProblems(id)
+    return { queryKey: q.queryKey, queryFn: q.queryFn }
+  }),
 })
 
-const { data: problems } = useQuery({
-  ...queries.newProblems(selectedGym),
-  enabled: computed(() => selectedGym.value != null),
-  initialData: [],
-})
+const gymName = (id) => gyms.value?.find((g) => g.id === id)?.name ?? ''
 
-const onChangeGym = () => {
-  // Query auto-refetches when selectedGym changes in the queryKey
-}
+const groupedProblems = computed(() =>
+  followedGyms.value.map((id, index) => ({
+    gymid: id,
+    gymName: gymName(id),
+    problems: problemQueries.value[index]?.data ?? [],
+  }))
+)
 
 const onStartNavigate = (problem) => {
   f7.views.main.router.navigate('/problem/' + problem.id + '/popup', {
