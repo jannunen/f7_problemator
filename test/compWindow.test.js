@@ -58,6 +58,10 @@ describe('msUntilEnd', () => {
   it('a number with a real end', () => {
     expect(Number.isFinite(msUntilEnd({ timespan_end: AFTER }, now))).toBe(true)
   })
+  it('counts to the end as UTC, the way isCompRunning reads the same value', () => {
+    expect(msUntilEnd({ timespan_end: '2026-06-15 13:00:00' }, now)).toBe(60 * 60 * 1000)
+    expect(msUntilEnd({ timespan_end: '2026-06-15 11:59:00' }, now)).toBe(-60 * 1000)
+  })
 })
 
 describe('parseBound / windowLabel', () => {
