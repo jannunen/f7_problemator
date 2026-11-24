@@ -516,7 +516,9 @@
     "circuit": "Circuit",
     "project": "Project",
     "no_wall_shapes": "No wall shapes drawn yet",
-    "no_wall_shapes_hint": "Wall shapes are drawn in the routesetter dashboard."
+    "no_wall_shapes_hint": "Wall shapes are drawn in the routesetter dashboard.",
+    "top": "Top",
+    "needs_grade_hint": "This problem needs a grade before you can log a tick — open it for the full form."
   },
   "climber_profile": {
     "ascents": "Ascents",

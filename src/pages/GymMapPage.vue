@@ -171,9 +171,14 @@
               <td class="gym-map-popup-label">{{ t('gymmap.ascents') }}</td>
               <td class="gym-map-popup-value">{{ selectedProblem.total_ascents }}</td>
             </tr>
-            <tr v-if="likeCount(selectedProblem) > 0">
+            <tr v-if="likeCount(selectedProblem) > 0 || isAuthenticated">
               <td class="gym-map-popup-label">{{ t('gymmap.likes') }}</td>
-              <td class="gym-map-popup-value">{{ likeCount(selectedProblem) }}</td>
+              <td class="gym-map-popup-value">
+                <button v-if="isAuthenticated" class="gym-map-popup-like-btn" @click.stop="quickLike">
+                  <span class="material-icons" style="font-size: 14px;">favorite</span>
+                </button>
+                {{ likeCount(selectedProblem) }}
+              </td>
             </tr>
             <tr v-if="selectedProblem.circuits && selectedProblem.circuits.length > 0">
               <td class="gym-map-popup-label">{{ t('gymmap.circuit') }}</td>
@@ -181,6 +186,29 @@
             </tr>
           </tbody>
         </table>
+
+        <!-- Quick tick actions -->
+        <div v-if="isAuthenticated" class="gym-map-popup-quick">
+          <div v-if="needsGradeOpinion" class="gym-map-popup-hint">{{ t('gymmap.needs_grade_hint') }}</div>
+          <template v-else>
+            <div class="gym-map-popup-quick-row">
+              <button v-if="quickTries === 1" class="gym-map-popup-quick-btn gym-map-popup-quick-btn--flash" @click.stop="quickFlash">
+                <span class="material-icons" style="font-size: 15px;">bolt</span>
+                {{ t('flash') }}
+              </button>
+              <button class="gym-map-popup-quick-btn" @click.stop="quickTry">
+                <span class="material-icons" style="font-size: 15px;">exposure_plus_1</span>
+                {{ t('problem.tries') }}
+              </button>
+              <button class="gym-map-popup-quick-btn gym-map-popup-quick-btn--top" @click.stop="quickTop">
+                <span class="material-icons" style="font-size: 15px;">check_circle</span>
+                {{ t('gymmap.top') }}
+              </button>
+            </div>
+            <div v-if="quickTries > 1" class="gym-map-popup-quick-count">{{ t('problem.tries') }}: {{ quickTries }}</div>
+          </template>
+        </div>
+
         <button class="gym-map-popup-btn" @click.stop="openProblemDetails">
           {{ t('gymmap.open_details') }}
         </button>
@@ -318,6 +346,10 @@ import { useI18n } from 'vue-i18n'
 import { useProfileGym, useProfileProblems, useProfileStyles, useProfileWalls } from '@js/useProfileSlice.js'
 import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 import { useGymStore } from '@js/stores/gym.store.js'
+import { useAuthStore } from '@js/stores/auth.store.js'
+import { useMutation } from '@tanstack/vue-query'
+import { mutations } from '@js/mutations'
+import { toaster, alert } from '@js/helpers/notifications.js'
 import { easeOutCubic, focusViewBox, lerpViewBox } from './gymMapViewTween.js'
 const props = defineProps({
   f7router: Object,
@@ -326,6 +358,8 @@ const props = defineProps({
 const { t } = useI18n()
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
+const authStore = useAuthStore()
+const isAuthenticated = computed(() => authStore.isAuthenticated)
 const svgRef = ref(null)
 const containerRef = ref(null)
 
@@ -929,6 +963,78 @@ function dismissPopup() {
 // Update popup position when view changes
 watch([viewBox, rotation], () => { updatePopupPos() })
 
+// --- Quick tick / like actions on the popup ---
+const { mutateAsync: saveTickMutate } = useMutation(mutations.saveTick())
+const { mutateAsync: likeProblemMutate } = useMutation(mutations.likeProblem())
+
+// How many tries have been logged on the selected problem this visit —
+// resets whenever the selection changes. "+1 try" logs one attempt and bumps
+// it; "Top" sends this count as the tries it took; "Flash" only makes sense
+// before any try has been logged, so it disappears once this is above 1.
+const quickTries = ref(1)
+watch(selectedProblem, () => { quickTries.value = 1 })
+
+// A problem with no grade of its own needs a grade opinion before any tick
+// can be saved (same rule AddTick.vue enforces) — the quick buttons have no
+// room for that picker, so they step aside for "Open problem details" instead.
+const needsGradeOpinion = computed(() => {
+  const p = selectedProblem.value
+  return p != null && p.gradeid == null && p.grade == null
+})
+
+function quickFlash() {
+  const p = selectedProblem.value
+  if (!p || needsGradeOpinion.value) return
+  saveTickMutate({ ticktype: 'tick', tries: 1, created: new Date(), problemid: p.id })
+    .then((resp) => {
+      toaster(resp.message)
+      selectedProblem.value = null
+      popupPos.value = null
+    })
+    .catch((err) => alert(err))
+}
+
+function quickTry() {
+  const p = selectedProblem.value
+  if (!p || needsGradeOpinion.value) return
+  saveTickMutate({ ticktype: 'pretick', tries: 1, created: new Date(), problemid: p.id })
+    .then(() => { quickTries.value += 1 })
+    .catch((err) => alert(err))
+}
+
+function quickTop() {
+  const p = selectedProblem.value
+  if (!p || needsGradeOpinion.value) return
+  saveTickMutate({ ticktype: 'tick', tries: quickTries.value, created: new Date(), problemid: p.id })
+    .then((resp) => {
+      toaster(resp.message)
+      selectedProblem.value = null
+      popupPos.value = null
+    })
+    .catch((err) => alert(err))
+}
+
+function quickLike() {
+  const p = selectedProblem.value
+  if (!p) return
+  likeProblemMutate(p.id)
+    .then((data) => {
+      // selectedProblem is a snapshot, not a live reference into the problems
+      // store — the mutation already patched the store for everywhere else,
+      // but the open popup needs its own copy updated to show the new count.
+      if (selectedProblem.value && selectedProblem.value.id === p.id) {
+        selectedProblem.value = {
+          ...selectedProblem.value,
+          c_like: data.likeCount,
+          likeCount: data.likeCount,
+          c_dislike: data.dislikeCount,
+          dislikeCount: data.dislikeCount,
+        }
+      }
+    })
+    .catch((err) => alert(err))
+}
+
 function resetView() {
   stopViewBoxAnim()
   const cb = gym.value?.gym_map_config?.content_bounds
@@ -1297,6 +1403,98 @@ function onTouchEnd(event) {
 
 .gym-map-popup-btn:active {
   background: #2563eb;
+}
+
+.gym-map-popup-like-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: #ef4444;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.gym-map-popup-like-btn:active {
+  transform: scale(0.9);
+}
+
+.gym-map-popup-quick {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.gym-map-popup-dark .gym-map-popup-quick {
+  border-top-color: rgba(255, 255, 255, 0.1);
+}
+
+.gym-map-popup-quick-row {
+  display: flex;
+  gap: 6px;
+}
+
+.gym-map-popup-quick-btn {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 4px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.gym-map-popup-dark .gym-map-popup-quick-btn {
+  background: rgba(96, 165, 250, 0.18);
+  color: #93c5fd;
+}
+
+.gym-map-popup-quick-btn:active {
+  filter: brightness(0.92);
+}
+
+.gym-map-popup-quick-btn--flash {
+  background: rgba(250, 204, 21, 0.2);
+  color: #b45309;
+}
+
+.gym-map-popup-dark .gym-map-popup-quick-btn--flash {
+  background: rgba(250, 204, 21, 0.22);
+  color: #facc15;
+}
+
+.gym-map-popup-quick-btn--top {
+  background: rgba(34, 197, 94, 0.16);
+  color: #15803d;
+}
+
+.gym-map-popup-dark .gym-map-popup-quick-btn--top {
+  background: rgba(34, 197, 94, 0.22);
+  color: #4ade80;
+}
+
+.gym-map-popup-quick-count {
+  margin-top: 4px;
+  text-align: center;
+  font-size: 10px;
+  color: var(--p-text-dim);
+}
+
+.gym-map-popup-hint {
+  font-size: 11px;
+  color: var(--p-text-dim);
+  font-style: italic;
 }
 
 .gym-map-filter-badge {

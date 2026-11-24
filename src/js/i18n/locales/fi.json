@@ -481,7 +481,9 @@
     "circuit": "Circuit",
     "project": "Projekti",
     "no_wall_shapes": "Seinämuotoja ei ole vielä piirretty",
-    "no_wall_shapes_hint": "Seinämuodot piirretään ratamestarin hallintapaneelissa."
+    "no_wall_shapes_hint": "Seinämuodot piirretään ratamestarin hallintapaneelissa.",
+    "top": "Huippu",
+    "needs_grade_hint": "Tälle radalle tarvitaan greidi ennen kuin voit kirjata nousun — avaa radan tiedot."
   },
   "climber_profile": {
     "ascents": "Nousut",
