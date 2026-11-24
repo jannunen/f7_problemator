@@ -41,9 +41,9 @@
 
             <!-- The state is the loudest thing on the card: it is the answer
                  to "am I in this one", which is why the page was opened. -->
-            <span v-if="isCategoryFull(cat)" class="chip chip--full">{{ t('comps.full') }}</span>
-            <span v-else-if="isRegistered(cat.id) && isPaid(cat.id)" class="chip chip--in">{{ t('comps.paid') }}</span>
+            <span v-if="isRegistered(cat.id) && isPaid(cat.id)" class="chip chip--in">{{ t('comps.paid') }}</span>
             <span v-else-if="isRegistered(cat.id)" class="chip chip--unpaid">{{ t('comps.registered_unpaid') }}</span>
+            <span v-else-if="isCategoryFull(cat)" class="chip chip--full">{{ t('comps.full') }}</span>
             <span v-else-if="!isRegistrationPossible(comp, nowUTC)" class="chip chip--closed">{{ t('comps.closed') }}</span>
           </div>
 
@@ -66,14 +66,16 @@
           </p>
 
           <div class="cat__act">
-            <template v-if="isCategoryFull(cat)">
-              <span class="cat__closedtext">{{ t('comps.category_full_text') }}</span>
-            </template>
-
-            <template v-else-if="isRegistered(cat.id)">
+            <!-- My own registration comes before "full": a category I am in
+                 still has to offer me the way out of it. -->
+            <template v-if="isRegistered(cat.id)">
               <p-button class="cat__quit" @click="askUnRegister(cat)">
                 {{ t('comps.quit_comp') }}
               </p-button>
+            </template>
+
+            <template v-else-if="isCategoryFull(cat)">
+              <span class="cat__closedtext">{{ t('comps.category_full_text') }}</span>
             </template>
 
             <template v-else-if="isRegistrationPossible(comp, nowUTC)">
@@ -108,14 +110,16 @@ import { useAuthStore } from '@js/stores/auth.store.js'
 import { useClimberStore } from '@js/stores/climber.store.js'
 import { webendpoint } from '@js/api'
 import PButton from '@components/PButton.vue'
-import { ref, computed} from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import { confirm, toaster } from '@helpers/notifications.js'
 import { handleValidationErrors } from '@helpers'
 import { isRegistrationPossible, toLocalTime } from '@helpers/component.helpers'
 import { hasBound, windowLabel } from '@helpers/compWindow'
+import { isCategoryFull, spotsLeft } from '@helpers/compCategory'
 
 const nowUTC = ref(dayjs().utc())
-setInterval(() => nowUTC.value = dayjs().utc(),1000*30)
+const clock = setInterval(() => nowUTC.value = dayjs().utc(),1000*30)
+onUnmounted(() => clearInterval(clock))
 import dayjs from 'dayjs'
 const { mutateAsync: registerToCompMutate } = useMutation(mutations.registerToComp())
 const { mutateAsync: unRegisterToCompMutate } = useMutation(mutations.unRegisterToComp())
@@ -133,12 +137,10 @@ const blurbOpen = ref(false)
 const registeredCount = (cat) => (cat.participants?.length || 0) + (cat.unpaidparticipants || 0)
 
 const spotsText = (cat) => {
-  const max = cat.pivot?.maxparticipants
-  if (max == null) return t('comps.unlimited_spots')
-
   // Spots left, not the cap: "4 left" is the fact that decides whether to
   // register now or think about it.
-  const left = Math.max(0, max - registeredCount(cat))
+  const left = spotsLeft(cat, registeredCount(cat))
+  if (left == null) return t('comps.unlimited_spots')
 
   return t('comps.spots_left', { n: left })
 }
@@ -146,7 +148,8 @@ const spotsText = (cat) => {
 const catClass = (cat) => ({
   'cat--in': isRegistered(cat.id) && isPaid(cat.id),
   'cat--unpaid': isRegistered(cat.id) && !isPaid(cat.id),
-  'cat--shut': isCategoryFull(cat) || !isRegistrationPossible(props.comp, nowUTC.value),
+  // Never the one I am in: that is the card to find, not to fade.
+  'cat--shut': !isRegistered(cat.id) && (isCategoryFull(cat) || !isRegistrationPossible(props.comp, nowUTC.value)),
 })
 const { t } = useI18n()
 const props = defineProps({
@@ -168,7 +171,6 @@ const isPaid = (catid) => {
   const row = props.comp.paidregistrations.find(x => x.id == climber.value.id && x.pivot.serieid == catid ) 
   return row != null && row.pivot.paid != null && dayjs(row.pivot.paid).year() != 0
 }
-const isCategoryFull = (cat) => cat.maxparticipants - cat.participants.length <= 0
 const user = computed(() => authStore.user)
 const getPaymentLink = (cat) => {
     return `https://www.problemator.fi/t/problemator/competitions/payment/${cat.compid}?contid=${user.value?.id}`
@@ -211,13 +213,6 @@ const askRegister = (cat) => {
     },() => {
         // cancle
     })
-}
-
-const getContenderCount = (cat) => {
-  if (cat.paidregistrations == null) {
-    return 0
-  }
-  return cat.paidregistrations.length
 }
 </script>
 

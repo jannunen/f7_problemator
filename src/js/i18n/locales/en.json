@@ -228,7 +228,11 @@
     "time_left": "left",
     "days_short": "{n} d",
     "no_problems_yet": "No problems have been added yet.",
-    "delete_ascent_hint_swipe": "Swipe left to delete an ascent"
+    "delete_ascent_hint_swipe": "Swipe left to delete an ascent",
+    "delete_failed": "Could not delete the ascent. Try again.",
+    "enter_points": "Enter points",
+    "type_not_supported": "Comp type not supported (yet)",
+    "not_found": "This competition could not be found."
   },
   "settings": {
     "settings_title": "Settings",

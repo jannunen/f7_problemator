@@ -37,6 +37,7 @@ vi.mock('@js/api.js', () => ({
 vi.mock('framework7-vue', () => ({ f7: { dialog: { confirm: vi.fn() }, notification: { create: () => ({ open() {} }) } } }))
 
 import api from '@js/api.js'
+import { f7 } from 'framework7-vue'
 import { queryClient } from '@js/queryClient'
 
 const CompetitionEntry = (await import('../src/components/comps/CompetitionEntry.vue')).default
@@ -231,7 +232,8 @@ const renderLive = async (comp, { Component = CompetitionEntry } = {}) => {
   const problemRows = rows.filter((r) => walk(r).some((n) => n.type === PButton || n.type === CheckpointLadder))
   const input = (i) => walk(problemRows[i]).find((n) => n.type === 'input').props
   const saveButton = (i) => walk(problemRows[i]).find((n) => n.type === PButton).props
-  return { html, ladder, input, saveButton, saveTick: api.saveTick, saveCheckpoint: api.saveCheckpoint, deleteTickByProblem: api.deleteTickByProblem }
+  const trash = (i) => walk(problemRows[i]).find((n) => n.props?.['data-test'] === 'delete-ascent').props
+  return { html, ladder, input, saveButton, trash, saveTick: api.saveTick, saveCheckpoint: api.saveCheckpoint, deleteTickByProblem: api.deleteTickByProblem }
 }
 const sportComp = () => ({
   ...makeComp('sport'),
@@ -680,5 +682,54 @@ describe('CompetitionEntry: around the rows', () => {
     const html = await render(CompetitionEntry, running())
     expect(count(html, 'ce-row--ticked')).toBe(1)
     expect(count(html, '>check_circle</i><span class="sr-only">ticked</span>')).toBe(1)
+  })
+})
+
+describe('CompetitionEntry: a save or a delete that fails says so', () => {
+  const toasts = () => vi.spyOn(f7.notification, 'create')
+
+  it('a tick that did not save', async () => {
+    const live = await renderLive(makeComp('fixed_points_best_n'))
+    const toast = toasts()
+    live.saveTick.mockRejectedValueOnce(new Error('offline'))
+    live.saveButton(0).onClick()
+    await vi.waitFor(() => expect(toast).toHaveBeenCalledWith(expect.objectContaining({ subtitle: 'Not saved.' })))
+    expect(toast).not.toHaveBeenCalledWith(expect.objectContaining({ subtitle: 'Tick saved' }))
+    toast.mockRestore()
+  })
+
+  it('a tick that did save still only says saved', async () => {
+    const live = await renderLive(makeComp('fixed_points_best_n'))
+    const toast = toasts()
+    live.saveButton(0).onClick()
+    await vi.waitFor(() => expect(toast).toHaveBeenCalledWith(expect.objectContaining({ subtitle: 'Tick saved' })))
+    expect(toast).not.toHaveBeenCalledWith(expect.objectContaining({ subtitle: 'Not saved.' }))
+    toast.mockRestore()
+  })
+
+  it('an ascent that could not be deleted', async () => {
+    const live = await renderLive(makeComp('fixed_points_best_n', ticked))
+    const toast = toasts()
+    live.deleteTickByProblem.mockRejectedValueOnce(new Error('offline'))
+    live.trash(0).onClick()
+    // the confirm dialog is mocked: answer it
+    f7.dialog.confirm.mock.calls.at(-1)[2]()
+    await vi.waitFor(() => expect(toast).toHaveBeenCalledWith(expect.objectContaining({ subtitle: 'Could not delete the ascent. Try again.' })))
+    toast.mockRestore()
+  })
+})
+
+describe('CompetitionEntry: the last untranslated strings', () => {
+  it('the swipe action and its confirmation are translated', async () => {
+    const fi = await render(CompetitionEntry, makeComp('fixed_points_best_n'), 'fi')
+    expect(fi).toContain('confirm-text="Oletko varma, että haluat poistaa tämän nousun?"')
+    expect(fi).toContain('>Poista nousu</div>')
+    expect(fi).not.toContain('Are you sure you want to delete this tick?')
+  })
+
+  it('the sport field is translated, and so is the name of its competition type', async () => {
+    const fi = await render(CompetitionEntry, sportComp(), 'fi')
+    expect(fi).toContain('placeholder="Syötä pisteet"')
+    expect(fi).toContain('Köysi / liidi')
   })
 })

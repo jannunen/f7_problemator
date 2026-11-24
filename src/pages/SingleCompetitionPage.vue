@@ -1,10 +1,18 @@
 <template>
   <f7-page>
     <f7-navbar>
-      <f7-nav-left><f7-link back>back</f7-link></f7-nav-left>
+      <f7-nav-left><f7-link back>{{ t('global.back') }}</f7-link></f7-nav-left>
       <f7-nav-title> {{ t('comps.competition_title') }} </f7-nav-title>
     </f7-navbar>
-    <f7-block  v-if="comp != null">
+    <!-- The backend answers an unknown id with 200 and an error body, so
+         "there is data" is not yet "there is a competition". -->
+    <f7-block v-if="notFound">
+      <div class="p-banner p-banner--warning comp-error" data-test="comp-not-found">
+        <span class="material-icons p-banner__icon" aria-hidden="true">search_off</span>
+        <div class="p-banner__content">{{ t('comps.not_found') }}</div>
+      </div>
+    </f7-block>
+    <f7-block v-else-if="comp != null">
       <!-- Once, for both views below: a judge sees it whether or not they
            are also competing. -->
       <div v-if="isJudge" class="p-banner p-banner--info comp-judge" data-test="comp-judge">
@@ -48,12 +56,14 @@ import CompetitionEntry from '@components/comps/CompetitionEntry.vue'
 import { useClimberStore } from '@js/stores/climber.store.js'
 
 const props = defineProps({
-    compid : Number,
+    // A route param, so it arrives as a string; queries.competition evens it out.
+    compid : [Number, String],
 })
 const { t } = useI18n()
 const climberStore = useClimberStore()
 const { data: comp, isPending, isError, refetch } = useQuery(queries.competition(() => props.compid))
 const climber = computed(() => climberStore.climber)
+const notFound = computed(() => comp.value?.error === true)
 
 const isPaidAndRegistered = computed(() => {
   if (climber.value == null) {

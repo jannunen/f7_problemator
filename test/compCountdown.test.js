@@ -22,8 +22,9 @@ describe('countdown', () => {
     expect(countdown(1 * D)).toMatchObject({ days: 1, clock: '00:00:00', over: false })
   })
 
-  it('a part second is not shown as a whole one', () => {
-    expect(countdown(1999).clock).toBe('00:00:01')
+  it('a started second counts, so zero is only shown when the time is up', () => {
+    expect(countdown(1999).clock).toBe('00:00:02')
+    expect(countdown(1)).toMatchObject({ clock: '00:00:01', over: false })
   })
 
   it('urgent from ten minutes down', () => {

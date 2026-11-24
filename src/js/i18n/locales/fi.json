@@ -208,7 +208,19 @@
     "time_left": "jäljellä",
     "days_short": "{n} pv",
     "no_problems_yet": "Reittejä ei ole vielä lisätty.",
-    "delete_ascent_hint_swipe": "Pyyhkäise vasemmalle poistaaksesi nousun"
+    "delete_ascent_hint_swipe": "Pyyhkäise vasemmalle poistaaksesi nousun",
+    "delete_failed": "Nousun poistaminen epäonnistui. Yritä uudelleen.",
+    "enter_points": "Syötä pisteet",
+    "type_not_supported": "Kilpailutyyppiä ei tueta (vielä)",
+    "not_found": "Kilpailua ei löytynyt.",
+    "traditional": "Perinteinen (topit, alueet, yritykset)",
+    "ifsc_2018_bouldering": "IFSC 2018 boulderointi",
+    "ifsc_2024_bouldering": "IFSC 2024 boulderointi (yhdistetty)",
+    "flashcomp": "Flash-kisa",
+    "predefined_plus_flashcomp": "Ennalta määrätyt pisteet + flash-bonus",
+    "sport": "Köysi / liidi",
+    "bonus": "Bonus",
+    "score_saved": "Pisteet tallennettu"
   },
   "settings": {
     "settings_title": "Asetukset",

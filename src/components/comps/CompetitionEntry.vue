@@ -101,7 +101,7 @@
         <f7-list class="ce-rows">
           <f7-list-item swipeout v-for="prob in sortedProblems" :key="prob.id" class="ce-row" :class="[ladderRowClass, { 'ce-row--ticked': isTicked(prob.id) }]">
             <f7-swipeout-actions right>
-              <f7-swipeout-button color="red" close @click="() => onDeleted(prob.id)" confirm-text="Are you sure you want to delete this tick?">Delete</f7-swipeout-button>
+              <f7-swipeout-button color="red" close @click="() => onDeleted(prob.id)" :confirm-text="t('problem.tick_delete_are_you_sure')">{{ t('comps.delete_ascent') }}</f7-swipeout-button>
             </f7-swipeout-actions>
             <template #media>
               <div class="ce-id">
@@ -146,7 +146,7 @@
                 <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
               <div v-else-if="comp.tyyppi=='sport'" class="ce-entry">
-                <input :value="sportPointsDisplay(prob.id)" @change="(e) => onChangeSportPoints(prob.id, e)" class="p-input ce-input" :placeholder="t('Enter points')" type="text" />
+                <input :value="sportPointsDisplay(prob.id)" @change="(e) => onChangeSportPoints(prob.id, e)" class="p-input ce-input" :placeholder="t('comps.enter_points')" type="text" />
               </div>
               <div v-else-if="isZoneLadderType" class="ce-entry">
                 <checkpoint-ladder
@@ -169,7 +169,7 @@
                 />
               </div>
               <div v-else class="ce-entry ce-entry--unsupported">
-                Comp type not supported (yet)
+                {{ t('comps.type_not_supported') }}
               </div>
             </template>
             <template #after>
@@ -376,11 +376,15 @@ const isPaidAndPriceIsSet = computed(() => {
   return true
 })
 
+// Read again every second, with the clock below: the rows appear when the
+// tick window opens and give way to the notice when it closes. Computed
+// once, a page opened early kept saying "not started" until it was
+// reloaded, and a page left open past the end kept offering Save for ticks
+// the results no longer count.
+const nowUTC = ref(dayjs().utc())
 const compOngoing = computed(() => {
-  const nowUTC = dayjs().utc()
-
   // Missing timespan_start/timespan_end means no limit on that side.
-  return isCompRunning(props.comp, nowUTC)
+  return isCompRunning(props.comp, nowUTC.value)
 })
 
 // First, set the tries from the comp object.
@@ -419,7 +423,9 @@ const onDeleted = (id) => {
       tries.value = rest
       toaster(t(ret.message))
     })
-    .catch((err) => { })
+    // Said out loud: a delete that failed used to leave the row exactly as
+    // it was, with nothing to tell it from one that had not been tried.
+    .catch(() => toaster(t('comps.delete_failed')))
 }
 // Trash button on a ticked row: same delete as the swipe action, behind a confirm.
 const confirmDelete = (id) => {
@@ -460,6 +466,7 @@ if (props.comp.tyyppi == 'variable_points') {
 // the competition has no end to count down to.
 const timeLeft = ref(countdown(msUntilEnd(props.comp)))
 const clockID = setInterval(() => {
+  nowUTC.value = dayjs().utc()
   timeLeft.value = countdown(msUntilEnd(props.comp))
 }, 1000)
 
@@ -525,7 +532,9 @@ const doTick = (id) => {
   if (busy.value[id]) return
   busy.value = { ...busy.value, [id]: true }
   saveTickFor(id)
-    .catch(() => { })
+    // Same message a failed sport score already gets. Without it a tick that
+    // did not save looked the same as one never tried.
+    .catch(() => toaster(t('ladder.not_saved')))
     .finally(() => { busy.value = { ...busy.value, [id]: false } })
 }
 // triesBonus, when given, replaces the tries_bonus derived from the row.

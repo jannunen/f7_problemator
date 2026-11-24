@@ -83,8 +83,52 @@ describe('SingleCompetitionPage', () => {
     expect(await render(makeComp({ judges: null }))).toContain('Test comp')
   })
 
+  it('an id the backend does not know: says so instead of breaking', async () => {
+    const html = await render({ error: true, message: 'Competition not found' })
+    expect(html).toContain('data-test="comp-not-found"')
+    expect(html).toContain('This competition could not be found.')
+  })
+
   it('shows a placeholder while the competition is on its way', async () => {
     const html = await render(null)
     expect(html).toContain('data-test="comp-loading"')
+  })
+})
+
+// The register view: what a climber who is not (yet) a confirmed participant sees.
+describe('SingleCompetitionPage: categories to register in', () => {
+  const far = '2999-01-01 00:00:00'
+  const category = (over = {}) => ({ id: 1, nimi: 'Open', participants: [], unpaidparticipants: 0, ...over, pivot: { price: '15', maxparticipants: null, ...over.pivot } })
+  const unregistered = (cat, over = {}) => makeComp({ paidregistrations: [], registration_end: far, categories: [cat], ...over })
+  const confirmed = (n) => Array.from({ length: n }, (_, i) => ({ contenderid: 100 + i }))
+
+  it('a cap of 0 is no limit, as the backend reads it, not "0 spots left"', async () => {
+    const html = await render(unregistered(category({ pivot: { maxparticipants: 0 } })))
+    expect(html).toContain('No limit')
+    expect(html).not.toContain('spots left')
+    expect(html).toContain('Register')
+  })
+
+  it('counts the spots left against the cap on the pivot', async () => {
+    const html = await render(unregistered(category({ participants: confirmed(3), unpaidparticipants: 1, pivot: { maxparticipants: 10 } })))
+    expect(html).toContain('6 spots left')
+    expect(html).toContain('Register')
+  })
+
+  it('a category at its cap is full: said, and no Register button', async () => {
+    const html = await render(unregistered(category({ participants: confirmed(2), pivot: { maxparticipants: 2 } })))
+    expect(html).toContain('chip--full')
+    expect(html).toContain('FULL')
+    expect(html).not.toContain('cat__register')
+    expect(html).toContain('cat--shut')
+  })
+
+  it('my own unconfirmed registration comes before "full": I can still resign', async () => {
+    const comp = unregistered(category({ participants: confirmed(2), pivot: { maxparticipants: 2 } }), { unpaidregistrations: [{ id: 5, pivot: { serieid: 1 } }] })
+    const html = await render(comp)
+    expect(html).toContain('Registered, unpaid')
+    expect(html).toContain('Resign')
+    expect(html).not.toContain('chip--full')
+    expect(html).not.toContain('cat--shut')
   })
 })
