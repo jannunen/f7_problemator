@@ -1,12 +1,12 @@
 <template>
-  <div v-if="comp != null">
+  <div v-if="comp != null" class="ce">
 
 
     <f7-popup v-model:opened="showResultList">
       <f7-page>
-        <f7-navbar title="Results">
+        <f7-navbar :title="t('comps.open_results')">
           <f7-nav-right>
-            <f7-link popup-close>Close</f7-link>
+            <f7-link popup-close>{{ t('global.close_action') }}</f7-link>
           </f7-nav-right>
         </f7-navbar>
         <f7-block v-if="compResults != null">
@@ -18,9 +18,9 @@
 
     <f7-popup v-model:opened="showPointsPerRoute">
       <f7-page>
-        <f7-navbar title="Points per problem">
+        <f7-navbar :title="t('comps.points_per_route')">
           <f7-nav-right>
-            <f7-link popup-close>Close</f7-link>
+            <f7-link popup-close>{{ t('global.close_action') }}</f7-link>
           </f7-nav-right>
         </f7-navbar>
         <f7-block>
@@ -28,95 +28,99 @@
         </f7-block>
       </f7-page>
     </f7-popup>
-    <div class="flex flex-row justify-between w-full">
-      <div>{{ now }}</div>
-      <div>ID: {{ comp.id  }}</div>
-    </div>
-    <div class="flex flex-row justify-between">
-      <p-badge class="text-sm py-1 bg-blue-500">{{ comp.location ?? "Location not set"}}</p-badge>
-      <p-badge class="text-sm py-1 bg-green-500">{{ t('comps.' + comp.tyyppi) }}</p-badge>
-    </div>
-    <div class="flex flex-row justify-between">
-      <h1 class="p-0 m-0 text-2xl font-bold">{{ comp.name }}</h1>
-    </div>
-    <div class="flex flex-row justify-between">
-      Competition venue opens at: {{ toLocalTime(comp.compdate) }}
-      <small class="m-0">ID: {{ comp.id }}</small>
-    </div>
-    <h3 class=""> {{ t('comps.timespan') }} {{ windowLabel(comp.timespan_start, comp.timespan_end, toLocalTime, t('comps.no_time_limit')) }} </h3>
-    <div class="my-1 flex flex-row justify-between">
-      <h2 class="text-xl">
-        <p-badge class="text-xl py-1 bg-blue-500">  {{ sortedProblems.length }}</p-badge>
-        problem(s)
-      </h2>
-      <div class="text-xl">
-      {{ t('comps.participants') }}
-      <p-badge class="text-xl py-1 bg-blue-500">  {{ comp.paidregistrations?.length }}</p-badge>
-      </div>
-    </div>
-    <div v-if="isTopPointsType" class="my-1 flex flex-row flex-wrap gap-1">
-      <p-badge v-if="comp.tyyppi == 'fixed_points_best_n' && comp.nbest" class="text-sm py-1 bg-indigo-500">{{ t('comps.best_n_count', { n: comp.nbest }) }}</p-badge>
-    </div>
-    <div v-if="sortedProblems.length == 0" class="my-3 text-2xl">
-      No problems have been added - yet.
-    </div>
-    <div v-if="isJudge">
-      <f7-block-title>{{ t('comps.you_are_a_judge') }}</f7-block-title>
-      <f7-link :href="getJudgingLink" class="btn-primary font-bold ">Open judging sheet</f7-link>
 
+    <!-- Reference, not the task: what the competition is and when. The same
+         shape as the header a climber saw before registering. -->
+    <header class="ce-head">
+      <h1 class="ce-head__name">{{ comp.name }}</h1>
+      <div class="ce-chips">
+        <p-badge class="ce-chip ce-chip--type">{{ t('comps.' + comp.tyyppi) }}</p-badge>
+        <p-badge v-if="comp.tyyppi == 'fixed_points_best_n' && comp.nbest" class="ce-chip">{{ t('comps.best_n_count', { n: comp.nbest }) }}</p-badge>
+      </div>
+      <dl class="ce-facts">
+        <dt>{{ t('comps.location') }}</dt>
+        <dd>{{ comp.location ?? t('comps.location_not_set') }}</dd>
+        <dt>{{ t('comps.venue_opens') }}</dt>
+        <dd>{{ toLocalTime(comp.compdate) }}</dd>
+        <dt>{{ t('comps.timespan') }}</dt>
+        <dd>{{ windowLabel(comp.timespan_start, comp.timespan_end, toLocalTime, t('comps.no_time_limit')) }}</dd>
+      </dl>
+      <dl class="ce-counts">
+        <div class="ce-count">
+          <dt>{{ t('comps.problems') }}</dt>
+          <dd>{{ sortedProblems.length }}</dd>
+        </div>
+        <div class="ce-count">
+          <dt>{{ t('comps.participants') }}</dt>
+          <dd>{{ comp.paidregistrations?.length }}</dd>
+        </div>
+        <div class="ce-count ce-count--id">
+          <dt>ID</dt>
+          <dd>{{ comp.id }}</dd>
+        </div>
+      </dl>
+    </header>
+
+    <div v-if="sortedProblems.length == 0" class="p-banner p-banner--info ce-notice" data-test="comp-no-problems">
+      <span class="material-icons p-banner__icon" aria-hidden="true">info</span>
+      <div class="p-banner__content">{{ t('comps.no_problems_yet') }}</div>
     </div>
 
     <div>
 
-      <div v-if="compOngoing ">
+      <div v-if="compOngoing " class="ce-live">
 
-        <div v-if="comp.tyyppi == 'variable_points'">
-          <p-button class="bg-yellow-400 dark:bg-yellow-600" @click="showPointsPerRoute=!showPointsPerRoute">Toggle show points per route</p-button>
+        <div class="ce-actions">
+          <p-button v-if="comp.tyyppi == 'variable_points'" class="ce-action" @click="showPointsPerRoute=!showPointsPerRoute"><i class="material-icons" aria-hidden="true">format_list_numbered</i>{{ t('comps.points_per_route') }}</p-button>
+          <p-button class="ce-action" @click="showResultList=!showResultList"><i class="material-icons" aria-hidden="true">leaderboard</i>{{ t('comps.open_results') }}</p-button>
         </div>
-        <p-button class="my-1 bg-teal-400 dark:bg-teal-600" @click="showResultList=!showResultList">Toggle show result list</p-button>
-        <div class="text-center">
-          <span class="dark:text-white text-black text-lg">{{ timeLeft }}</span>
-        </div>
-        <p v-if="!isLadderType" class="text-center">{{ t('comps.delete_ascent_hint') }}</p>
-        <p v-else class="text-center">Swipe left to delete an ascent</p>
-        <p v-if="comp.tyyppi == 'sport'" class="text-center text-sm text-gray-400">{{ t('comps.sport_points_hint') }}</p>
-        <f7-list class="m-0">
-          <f7-list-item>
-            <template #title>
-              <span class="text-3xl font-bold">{{ tickCount }}</span> /<span class="text-lg">{{ sortedProblems.length }}</span>
-              {{ t('comps.ticked') }}
+
+        <!-- Stays under the navbar while the list scrolls: the clock and the
+             tally are what a climber looks up for between attempts. -->
+        <div class="ce-bar" data-test="comp-bar">
+          <div class="ce-bar__time" :class="{ 'ce-bar__time--urgent': timeLeft?.urgent }" role="timer">
+            <i class="material-icons" aria-hidden="true">timer</i>
+            <template v-if="timeLeft">
+              <span v-if="timeLeft.days > 0" class="ce-bar__days">{{ t('comps.days_short', { n: timeLeft.days }) }}</span>
+              <span class="ce-bar__clock">{{ timeLeft.clock }}</span>
+              <span class="ce-bar__unit">{{ t('comps.time_left') }}</span>
             </template>
-          </f7-list-item>
+            <span v-else class="ce-bar__nolimit">{{ t('comps.no_time_limit') }}</span>
+          </div>
+          <div class="ce-bar__ticks">
+            <span class="ce-bar__count">{{ tickCount }}</span><span class="ce-bar__total">/{{ sortedProblems.length }}</span>
+            <span class="ce-bar__unit">{{ t('comps.ticked') }}</span>
+          </div>
+        </div>
 
-          <f7-list-item swipeout v-for="prob in sortedProblems" :key="prob.id" :class="ladderRowClass">
+        <template v-if="sortedProblems.length > 0">
+          <p v-if="!isLadderType" class="ce-hint">{{ t('comps.delete_ascent_hint') }}</p>
+          <p v-else class="ce-hint">{{ t('comps.delete_ascent_hint_swipe') }}</p>
+          <p v-if="comp.tyyppi == 'sport'" class="ce-hint">{{ t('comps.sport_points_hint') }}</p>
+        </template>
+        <f7-list class="ce-rows">
+          <f7-list-item swipeout v-for="prob in sortedProblems" :key="prob.id" class="ce-row" :class="[ladderRowClass, { 'ce-row--ticked': isTicked(prob.id) }]">
             <f7-swipeout-actions right>
-              <f7-swipeout-button color="red" close @click="() => onDeleted(prob.id)" confirm-text="Are you sure you want to delete this tick?">Delete</f7-swipeout-button>
+              <f7-swipeout-button color="red" close @click="() => onDeleted(prob.id)" :confirm-text="t('problem.tick_delete_are_you_sure')">{{ t('comps.delete_ascent') }}</f7-swipeout-button>
             </f7-swipeout-actions>
             <template #media>
-              <div class="w-16 flex flex-row justify-between">
-                <div class="flex flex-col">
-                  <div class="mr-1 font-bold text-xl">{{ prob.pivot.num }}</div>
-                  <div class="mr-2 pt-0 text-sm font-bold">{{ right(prob?.tag,4) }}</div>
-                </div>
-                <div class="flex flex-col w-8">
-                  <div class="h-6 mt-3 w-6 border border-white rounded-md" :style="getStyles(prob)"></div>
-                </div>
+              <div class="ce-id">
+                <span class="ce-id__num">{{ prob.pivot.num }}</span>
+                <span class="ce-id__swatch" :style="getStyles(prob)" aria-hidden="true"></span>
+                <span class="ce-id__tag">{{ right(prob?.tag,4) }}</span>
               </div>
             </template>
             <template #title>
-              <div v-if="comp.tyyppi == 'variable_points'">
+              <div v-if="comp.tyyppi == 'variable_points'" class="ce-entry">
                 <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
-              <div v-else-if="comp.tyyppi == 'predefined_plus_flashcomp'" class="flex flex-row ">
-                
-                <div class="flex flex-row items-center mr-2">
-                <div class="text-sm font-bold bg-blue-500 text-white rounded-md p-1 dark:bg-blue-600 mr-1 w-8 h-8 flex items-center justify-center">
-                  {{ getPointsPerProblem(prob.pivot.num) }} 
-                </div>
+              <div v-else-if="comp.tyyppi == 'predefined_plus_flashcomp'" class="ce-entry ce-entry--points">
+                <div class="ce-points" :title="t('results.points')">
+                  {{ getPointsPerProblem(prob.pivot.num) }}
                 </div>
                 <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
-              <div v-else-if="comp.tyyppi=='checkpoint_points'" class="w-full">
+              <div v-else-if="comp.tyyppi=='checkpoint_points'" class="ce-entry">
                 <checkpoint-ladder
                   :problem="prob"
                   :state="ladders.stateFor(prob)"
@@ -135,18 +139,16 @@
                   @clear="() => ladders.act(prob, 'clear')"
                 />
               </div>
-              <div v-else-if="comp.tyyppi=='fixed_points_best_n'" class="flex flex-row">
-                <div class="flex flex-row items-center mr-2">
-                  <div class="text-sm font-bold bg-blue-500 text-white rounded-md p-1 dark:bg-blue-600 mr-1 min-w-[2rem] h-8 flex items-center justify-center">
-                    {{ prob.pivot.max_points }}
-                  </div>
+              <div v-else-if="comp.tyyppi=='fixed_points_best_n'" class="ce-entry ce-entry--points">
+                <div class="ce-points" :title="t('results.points')">
+                  {{ prob.pivot.max_points }}
                 </div>
                 <f7-stepper fill :min="1" :value="tries[prob.id]?.tries || 1" @stepper:change="(num) => setTries(prob.id, num)"></f7-stepper>
               </div>
-              <div v-else-if="comp.tyyppi=='sport'">
-                <input :value="sportPointsDisplay(prob.id)" @change="(e) => onChangeSportPoints(prob.id, e)" class="border border-white h-12 w-24" :placeholder="t('Enter points')" type="text" />
+              <div v-else-if="comp.tyyppi=='sport'" class="ce-entry">
+                <input :value="sportPointsDisplay(prob.id)" @change="(e) => onChangeSportPoints(prob.id, e)" class="p-input ce-input" :placeholder="t('comps.enter_points')" type="text" />
               </div>
-              <div v-else-if="isZoneLadderType" class="w-full">
+              <div v-else-if="isZoneLadderType" class="ce-entry">
                 <checkpoint-ladder
                   :problem="prob"
                   :state="ladders.stateFor(prob)"
@@ -166,8 +168,8 @@
                   @clear="() => ladders.act(prob, 'clear')"
                 />
               </div>
-              <div v-else>
-                Comp type not supported (yet)
+              <div v-else class="ce-entry ce-entry--unsupported">
+                {{ t('comps.type_not_supported') }}
               </div>
             </template>
             <template #after>
@@ -175,15 +177,15 @@
                 v-if="!isLadderType"
                 :disabled="busy[prob.id]"
                 @click="() => onSave(prob.id)"
-                class="w-20 py-2 dark:bg-green-500 bg-green-600 disabled:opacity-50"
+                class="p-btn--primary ce-save"
               >{{ busy[prob.id] ? t('global.saving') : t('global.save') }}</p-button>
-              <span v-if="isTicked(prob.id)" class="w-5 text-red-400 font-bold text-2xl">✓</span>
-              <span v-else class="w-5 text-white font-bold text-2xl">&nbsp;</span>
+              <span v-if="isTicked(prob.id)" class="ce-check"><i class="material-icons" aria-hidden="true">check_circle</i><span class="sr-only">{{ t('comps.ticked') }}</span></span>
+              <span v-else class="ce-check">&nbsp;</span>
               <button
                 v-if="!isLadderType && isTicked(prob.id)"
                 type="button"
                 data-test="delete-ascent"
-                class="w-11 h-11 shrink-0 flex items-center justify-center rounded-md text-red-600 dark:text-red-400 active:bg-red-500/20"
+                class="ce-trash"
                 :aria-label="t('comps.delete_ascent')"
                 :title="t('comps.delete_ascent')"
                 @click="() => confirmDelete(prob.id)"
@@ -192,13 +194,12 @@
           </f7-list-item>
         </f7-list>
       </div>
-      <div v-else>
-        <div class="text-center font-bold text-xl text-red-500 border-t-2 border-red-700 mt-2">
-          {{ t('comps.the_comp_has_not_started_yet') }}
-        </div>
+      <div v-else class="p-banner p-banner--warning ce-notice" data-test="comp-not-running">
+        <span class="material-icons p-banner__icon" aria-hidden="true">schedule</span>
+        <div class="p-banner__content">{{ t('comps.the_comp_has_not_started_yet') }}</div>
       </div>
     </div><!-- if paid -->
-    {{ errors }}
+    <div v-if="errors" class="p-banner p-banner--error ce-notice" role="alert">{{ errors }}</div>
   </div>
 </template>
 <script setup>
@@ -220,20 +221,19 @@ import ShowResults from './ShowResults.vue'
 import { webendpoint } from '@js/api.js'
 import CheckpointLadder from './CheckpointLadder.vue'
 import { useCheckpointLadders } from '@js/useCheckpointLadders.js'
-import { TOP_POINTS_TYPES, TRIES_AND_BONUS_TYPES } from '@helpers/checkpoints.js'
+import { TRIES_AND_BONUS_TYPES } from '@helpers/checkpoints.js'
 
 import {  toaster } from '@helpers/notifications.js'
 import { compTickTries, parseSportPoints } from '@helpers/compTries.js'
 import { toLocalTime } from '@helpers/component.helpers'
 import { isCompRunning, msUntilEnd, windowLabel } from '@helpers/compWindow'
+import { countdown } from '@helpers/compCountdown.js'
 import { handleValidationErrors } from '@helpers'
 import dayjs from 'dayjs'
 import utc from "dayjs/plugin/utc"
 import timezone from "dayjs/plugin/timezone"
 dayjs.extend(utc)
 dayjs.extend(timezone)
-
-const now = computed(() =>   dayjs().format("DD.MM.YYYY HH:mm") )
 
 const props = defineProps({
   comp: Object,
@@ -280,7 +280,6 @@ const isTicked = (pid) => {
 
 // Route ids the climber has already topped in this comp (the preview only applies to the rest).
 const toppedIds = computed(() => Object.keys(props.comp?.userticks || {}).map(Number))
-const isTopPointsType = computed(() => TOP_POINTS_TYPES.includes(props.comp.tyyppi))
 const isTriesAndBonusType = computed(() => TRIES_AND_BONUS_TYPES.includes(props.comp.tyyppi))
 const busy = ref({})
 // Zones/bonus + top on a ladder, saved like checkpoint_points': a zone or
@@ -319,17 +318,6 @@ const compResultsQuery = useQuery({
 const compResults = computed(() => compResultsQuery.data.value ?? null)
 const climber = computed(() => climberStore.climber)
 
-const isJudge = computed(() => {
-  const comp = props.comp
-  if (comp.judges == null) {
-    return false
-  }
-  if (climber.value == null) {
-    return false
-  }
-  const judgeids = comp.judges.map(jobj => jobj.id)
-  return judgeids.includes(climber.value.id)
-})
 // Competition payment: builds the real payment URL, but nothing in the
 // template calls this yet — not wired to a button or shown conditionally on
 // isPaymentForced/isPaidAndPriceIsSet. Left in place rather than removed so
@@ -355,14 +343,6 @@ const sportPointsDisplay = (pid) => {
   return Number(value) === 1000 ? 'TOP' : value
 }
 const tries = ref({})
-const getJudgingLink = computed(() => {
-  if (props.comp != null) {
-    const url = `/competitions/${props.comp.id}/judging`
-    return url
-  }
-  // No competition yet: say so, rather than returning undefined.
-  return null
-})
 // Same as openPaymentWindow above: reads a real field (comp.forcepayment)
 // but nothing in the template checks it yet. Part of the same unfinished
 // competition-payment feature.
@@ -396,11 +376,15 @@ const isPaidAndPriceIsSet = computed(() => {
   return true
 })
 
+// Read again every second, with the clock below: the rows appear when the
+// tick window opens and give way to the notice when it closes. Computed
+// once, a page opened early kept saying "not started" until it was
+// reloaded, and a page left open past the end kept offering Save for ticks
+// the results no longer count.
+const nowUTC = ref(dayjs().utc())
 const compOngoing = computed(() => {
-  const nowUTC = dayjs().utc()
-
   // Missing timespan_start/timespan_end means no limit on that side.
-  return isCompRunning(props.comp, nowUTC)
+  return isCompRunning(props.comp, nowUTC.value)
 })
 
 // First, set the tries from the comp object.
@@ -439,7 +423,9 @@ const onDeleted = (id) => {
       tries.value = rest
       toaster(t(ret.message))
     })
-    .catch((err) => { })
+    // Said out loud: a delete that failed used to leave the row exactly as
+    // it was, with nothing to tell it from one that had not been tried.
+    .catch(() => toaster(t('comps.delete_failed')))
 }
 // Trash button on a ticked row: same delete as the swipe action, behind a confirm.
 const confirmDelete = (id) => {
@@ -476,24 +462,21 @@ if (props.comp.tyyppi == 'variable_points') {
   fetchPointsPerRoute()
 }
 
+// What is left of the tick window as { days, clock, urgent }, or null when
+// the competition has no end to count down to.
+const timeLeft = ref(countdown(msUntilEnd(props.comp)))
+const clockID = setInterval(() => {
+  nowUTC.value = dayjs().utc()
+  timeLeft.value = countdown(msUntilEnd(props.comp))
+}, 1000)
+
 onUnmounted(() => {
   // Stop udpates when page unloads
   if (timerID != null) {
     clearInterval(timerID)
   }
+  clearInterval(clockID)
 })
-
-setInterval(() => {
-  // Update time left
-  const ms = msUntilEnd(props.comp)
-  if (ms === null) {
-    timeLeft.value = t('comps.no_time_limit')
-    return
-  }
-  const dur = dayjs.duration(ms)
-  timeLeft.value = dur.format('D[day(s)] HH[h] mm[m] ss[s]') + ' left'
-}, 1000)
-const timeLeft = ref(null)
 
 // Ladder comps: zones + tries on a ladder per route; the Top is the
 // ordinary tick with tries = the route's running attempt count. The ladder
@@ -549,7 +532,9 @@ const doTick = (id) => {
   if (busy.value[id]) return
   busy.value = { ...busy.value, [id]: true }
   saveTickFor(id)
-    .catch(() => { })
+    // Same message a failed sport score already gets. Without it a tick that
+    // did not save looked the same as one never tried.
+    .catch(() => toaster(t('ladder.not_saved')))
     .finally(() => { busy.value = { ...busy.value, [id]: false } })
 }
 // triesBonus, when given, replaces the tries_bonus derived from the row.
@@ -632,11 +617,419 @@ const sortedProblems = computed(() => {
 </script>
 
 <style>
-/* A row whose entry control is a ladder. Framework7 sizes a list title to
-   its content, so a ladder with short labels came out narrow; here it takes
-   whatever the row has left. */
-.comp-row--ladder .item-title {
-  flex: 1 1 auto;
+/* Not scoped: most of this reaches into Framework7's own list markup, which
+   a scoped block cannot see. Everything is kept under .ce instead. */
+.ce {
+  max-width: 44rem;
+  margin: 0 auto;
+  padding-bottom: 1rem;
+}
+.ce button:focus-visible,
+.ce input:focus-visible {
+  outline: 2px solid var(--p-accent);
+  outline-offset: 2px;
+}
+
+/* ---- Header ---- */
+.ce-head__name {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--p-text);
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+}
+.ce-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  margin-top: 0.5rem;
+}
+/* p-badge brings its own utility margins and size; .ce outranks them. */
+.ce .ce-chip {
+  margin: 0;
+  padding: 0.1875rem 0.625rem;
+  border: 1px solid var(--p-border-light);
+  border-radius: var(--p-radius-full);
+  background: var(--p-bg-card);
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--p-text-secondary);
+}
+/* Neutral on purpose: accent is kept for what can be pressed. */
+.ce .ce-chip--type {
+  background: var(--p-bg-card-hover);
+  color: var(--p-text);
+}
+.ce-facts {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 0.25rem 0.875rem;
+  margin: 0.75rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+.ce-facts dt,
+.ce-count dt {
+  color: var(--p-text-muted);
+}
+.ce-facts dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--p-text-secondary);
+}
+.ce-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.125rem;
+  margin: 0.625rem 0 0;
+  padding-top: 0.625rem;
+  border-top: 1px solid var(--p-border);
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+.ce-count {
+  display: flex;
+  gap: 0.375rem;
+}
+.ce-count dd {
+  margin: 0;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--p-text);
+}
+/* Only there for when an organiser asks which competition this is. */
+.ce-count--id {
+  margin-left: auto;
+}
+.ce-count--id dd {
+  font-weight: 400;
+  color: var(--p-text-muted);
+}
+
+.ce-notice {
+  align-items: center;
+  margin-top: 1rem;
+}
+.ce-notice .p-banner__icon {
+  margin-top: 0;
+  font-size: 1.125rem;
+}
+
+/* ---- Results / points ---- */
+.ce-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.875rem;
+}
+/* Sized to their words: a full-width slab here would be the loudest thing
+   above the list a climber came for. */
+.ce-action {
+  /* Framework7 stretches every button to its container's width */
+  width: auto;
   min-width: 0;
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+}
+.ce-action .material-icons {
+  font-size: 1.125rem;
+}
+
+/* ---- Clock and tally ---- */
+.ce-bar {
+  position: -webkit-sticky;
+  position: sticky;
+  /* Zero, not the navbar's height: the scrolling box already keeps its
+     content clear of the navbar with padding, and sticky counts from there.
+     Framework7's own sticky list headings do the same. */
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  /* Out to the edges of the page, through the block's own padding. */
+  margin: 0.875rem calc(-1 * (var(--f7-block-padding-horizontal) + var(--f7-safe-area-right))) 0
+    calc(-1 * (var(--f7-block-padding-horizontal) + var(--f7-safe-area-left)));
+  padding: 0.625rem calc(var(--f7-block-padding-horizontal) + var(--f7-safe-area-right)) 0.625rem
+    calc(var(--f7-block-padding-horizontal) + var(--f7-safe-area-left));
+  border-top: 1px solid var(--p-border);
+  border-bottom: 1px solid var(--p-border);
+  /* The navbar's own surface, so the strip reads as part of it once stuck. */
+  background: rgba(15, 21, 38, 0.92);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.ce-bar__time,
+.ce-bar__ticks {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  min-width: 0;
+  color: var(--p-text);
+}
+.ce-bar__time .material-icons {
+  align-self: center;
+  font-size: 1.125rem;
+  color: var(--p-text-muted);
+}
+.ce-bar__clock,
+.ce-bar__days,
+.ce-bar__count {
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+}
+.ce-bar__nolimit {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--p-text-secondary);
+}
+.ce-bar__total {
+  margin-left: -0.3125rem;
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--p-text-muted);
+}
+.ce-bar__unit {
+  font-size: 0.8125rem;
+  color: var(--p-text-muted);
+}
+.ce-bar__time--urgent,
+.ce-bar__time--urgent .material-icons {
+  color: #fcd34d;
+}
+
+/* Wider than the column, the strip can no longer run edge to edge, so it
+   is held to the column as a bar of its own. */
+@media (min-width: 46rem) {
+  .ce-bar {
+    margin-right: 0;
+    margin-left: 0;
+    padding-right: 1rem;
+    padding-left: 1rem;
+    border: 1px solid var(--p-border-light);
+    border-radius: var(--p-radius);
+  }
+}
+
+.ce-hint {
+  margin: 0.625rem 0 0;
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--p-text-muted);
+}
+
+/* ---- Scoring rows ----
+   One row is two lines: which problem it is, then the control that scores
+   it. Framework7 gives a list item three boxes (media, title, after); they
+   are dissolved here so their contents can be laid out on one grid, without
+   moving a single binding in the template. */
+.ce .ce-rows {
+  margin: 0.5rem 0 0;
+}
+.ce .ce-rows ul::before,
+.ce .ce-rows ul::after {
+  content: none;
+}
+.ce-row {
+  border-bottom: 1px solid var(--p-border);
+}
+.ce-rows .ce-row .item-content {
+  display: grid;
+  /* The last column is the trash can's. It is held open on every row so
+     Save does not move sideways when a row gets ticked. */
+  grid-template-columns: minmax(0, 1fr) auto 2.75rem;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 0;
+  padding: 0.75rem 0;
+}
+.ce-rows .ce-row .item-inner,
+.ce-rows .ce-row .item-title,
+.ce-rows .ce-row .item-after,
+.ce-rows .ce-row .ce-entry--points {
+  display: contents;
+}
+.ce-rows .ce-row .item-media {
+  grid-area: 1 / 1;
+  min-width: 0;
+  padding: 0;
+}
+.ce-id {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+.ce-id__num {
+  min-width: 1.5rem;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.2;
+  font-variant-numeric: tabular-nums;
+  color: var(--p-text);
+}
+.ce-row--ticked .ce-id__num {
+  color: var(--p-success);
+}
+.ce-id__swatch {
+  flex-shrink: 0;
+  width: 1.125rem;
+  height: 1.125rem;
+  /* The ring keeps black and dark-blue holds visible on the dark page. */
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.3125rem;
+}
+.ce-id__tag {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  color: var(--p-text-muted);
+}
+.ce-points {
+  grid-area: 1 / 2;
+  justify-self: end;
+  max-width: 9rem;
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--p-border-light);
+  border-radius: var(--p-radius-sm);
+  background: var(--p-bg-card);
+  font-size: 0.8125rem;
+  font-weight: 700;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: normal;
+  color: var(--p-text-secondary);
+}
+.ce-check {
+  grid-area: 1 / 3;
+  display: flex;
+  justify-content: center;
+}
+.ce-check .material-icons {
+  font-size: 1.375rem;
+  color: var(--p-success);
+}
+.ce-entry,
+.ce-entry--points > .stepper {
+  grid-area: 2 / 1;
+  justify-self: start;
+  min-width: 0;
+}
+/* Flex, so an inline stepper does not sit on a text baseline with a few
+   pixels of descender under it and end up above its Save button. */
+.ce-entry {
+  display: flex;
+  align-items: center;
+}
+.ce-row.comp-row--ladder .ce-entry {
+  grid-column: 1 / -1;
+  justify-self: stretch;
+}
+.ce-entry--unsupported {
+  font-size: 0.875rem;
+  white-space: normal;
+  color: var(--p-text-muted);
+}
+.ce-row .ce-save {
+  grid-area: 2 / 2;
+  width: auto;
+  min-width: 5rem;
+  min-height: 2.75rem;
+  padding: 0 0.875rem;
+}
+.ce-row .ce-save:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.ce-trash {
+  grid-area: 2 / 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: var(--p-radius);
+  color: var(--p-danger-tint);
+  -webkit-tap-highlight-color: transparent;
+  transition: background var(--p-duration) var(--p-ease);
+}
+.ce-trash:active {
+  background: rgba(239, 68, 68, 0.2);
+}
+
+/* The tries stepper: thumb-sized, and tinted rather than solid — a column of
+   solid accent buttons would outshout Save on every row. */
+.ce-row .stepper {
+  --f7-stepper-height: 2.75rem;
+  --f7-stepper-border-radius: var(--p-radius);
+  --f7-stepper-fill-button-bg-color: rgba(var(--p-accent-rgb), 0.14);
+  --f7-stepper-fill-button-text-color: var(--p-accent);
+  --f7-stepper-fill-button-pressed-bg-color: rgba(var(--p-accent-rgb), 0.3);
+  --f7-stepper-value-text-color: var(--p-text);
+  --f7-stepper-value-font-size: 1.125rem;
+  --f7-stepper-value-font-weight: 700;
+}
+.ce-row .stepper-button-minus,
+.ce-row .stepper-button-plus {
+  width: 2.75rem;
+  border-color: rgba(var(--p-accent-rgb), 0.25);
+}
+.ce-row .stepper-input-wrap {
+  border-color: rgba(var(--p-accent-rgb), 0.25);
+}
+.ce-row .stepper .stepper-input-wrap input {
+  width: 2.5rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Framework7 strips a text input inside a list down to bare text; this one
+   has to look like the field it is. */
+.ce-rows .ce-row input.ce-input {
+  width: 9.5rem;
+  max-width: 100%;
+  height: 2.75rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--p-border-light);
+  border-radius: var(--p-radius);
+  background: rgba(255, 255, 255, 0.03);
+  font-size: 1rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--p-text);
+  caret-color: var(--p-accent);
+}
+.ce-rows .ce-row input.ce-input::placeholder {
+  font-weight: 400;
+  color: var(--p-text-muted);
+}
+.ce-rows .ce-row input.ce-input:focus {
+  border-color: rgba(var(--p-accent-rgb), 0.4);
+  background: rgba(var(--p-accent-rgb), 0.04);
+}
+
+/* A finger leaves :hover behind on the button it last touched, which made a
+   tapped Save look lit until the next tap elsewhere. */
+@media (hover: none) {
+  .ce .p-btn:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ce-trash {
+    transition: none;
+  }
 }
 </style>

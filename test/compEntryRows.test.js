@@ -37,6 +37,7 @@ vi.mock('@js/api.js', () => ({
 vi.mock('framework7-vue', () => ({ f7: { dialog: { confirm: vi.fn() }, notification: { create: () => ({ open() {} }) } } }))
 
 import api from '@js/api.js'
+import { f7 } from 'framework7-vue'
 import { queryClient } from '@js/queryClient'
 
 const CompetitionEntry = (await import('../src/components/comps/CompetitionEntry.vue')).default
@@ -231,7 +232,8 @@ const renderLive = async (comp, { Component = CompetitionEntry } = {}) => {
   const problemRows = rows.filter((r) => walk(r).some((n) => n.type === PButton || n.type === CheckpointLadder))
   const input = (i) => walk(problemRows[i]).find((n) => n.type === 'input').props
   const saveButton = (i) => walk(problemRows[i]).find((n) => n.type === PButton).props
-  return { html, ladder, input, saveButton, saveTick: api.saveTick, saveCheckpoint: api.saveCheckpoint, deleteTickByProblem: api.deleteTickByProblem }
+  const trash = (i) => walk(problemRows[i]).find((n) => n.props?.['data-test'] === 'delete-ascent').props
+  return { html, ladder, input, saveButton, trash, saveTick: api.saveTick, saveCheckpoint: api.saveCheckpoint, deleteTickByProblem: api.deleteTickByProblem }
 }
 const sportComp = () => ({
   ...makeComp('sport'),
@@ -615,5 +617,119 @@ describe('PublicCompetitionEntry: partial credit vs a genuine top', () => {
     await vi.waitFor(() => expect(live.saveTick).toHaveBeenCalledTimes(1))
     expect(live.saveTick.mock.calls[0][0]).toMatchObject({ problemid: 2, sport_points: 'TOP', point_entry_key: 'k' })
     expect(live.saveCheckpoint).not.toHaveBeenCalled()
+  })
+})
+
+describe('CompetitionEntry: around the rows', () => {
+  const running = (over = {}) => ({ ...makeComp('fixed_points_best_n', ticked), location: 'Boulder Barn', compdate: '2026-06-15 10:00:00', ...over })
+
+  it('names the competition once, with its id once', async () => {
+    const html = await render(CompetitionEntry, running())
+    expect(count(html, 'Test comp')).toBe(1)
+    expect(count(html, '>ID<')).toBe(1)
+    expect(count(html, '>9</dd>')).toBe(1)
+  })
+
+  it('lists what kind of competition it is, where, and how big', async () => {
+    const html = await render(CompetitionEntry, running())
+    expect(html).toContain('Fixed points, best N')
+    expect(html).toContain('Best 3 count')
+    expect(html).toContain('Boulder Barn')
+    expect(html).toMatch(/<dt>Problems<\/dt><dd>2<\/dd>/)
+  })
+
+  it('says so when the location is not set', async () => {
+    expect(await render(CompetitionEntry, running({ location: null }))).toContain('Location not set')
+  })
+
+  it('leaves the judging link to the page around it', async () => {
+    const html = await render(CompetitionEntry, running({ judges: [{ id: 5 }] }))
+    expect(html).not.toContain('judging')
+  })
+
+  it('keeps the tally with the clock, above the rows', async () => {
+    const html = await render(CompetitionEntry, running())
+    expect(html).toMatch(/ce-bar__count[^>]*>1<\/span><span[^>]*>\/2<\/span>/)
+    expect(html.indexOf('data-test="comp-bar"')).toBeLessThan(html.indexOf('data-stub="f7-list-item"'))
+  })
+
+  it('no end time: says there is no limit instead of counting down', async () => {
+    const html = await render(CompetitionEntry, running())
+    expect(html).toContain('No time limit')
+    expect(html).not.toContain('ce-bar__clock')
+  })
+
+  it('an end time: a clock, never negative', async () => {
+    const html = await render(CompetitionEntry, running({ timespan_end: '2999-01-01 00:00:00' }))
+    expect(html).toMatch(/ce-bar__clock[^>]*>\d\d:\d\d:\d\d</)
+    expect(html).not.toContain('No time limit')
+  })
+
+  it('outside the tick window: a notice, and no rows to enter anything on', async () => {
+    const html = await render(CompetitionEntry, running({ timespan_start: '2999-01-01 00:00:00' }))
+    expect(html).toContain('data-test="comp-not-running"')
+    expect(html).not.toContain('data-stub="f7-list-item"')
+    expect(html).not.toContain('data-test="comp-bar"')
+  })
+
+  it('no problems yet: says so, and does not explain how to delete an ascent', async () => {
+    const html = await render(CompetitionEntry, running({ problems: [] }))
+    expect(html).toContain('data-test="comp-no-problems"')
+    expect(html).not.toContain('to delete an ascent')
+  })
+
+  it('a ticked row is marked for a screen reader as well as by its icon', async () => {
+    const html = await render(CompetitionEntry, running())
+    expect(count(html, 'ce-row--ticked')).toBe(1)
+    expect(count(html, '>check_circle</i><span class="sr-only">ticked</span>')).toBe(1)
+  })
+})
+
+describe('CompetitionEntry: a save or a delete that fails says so', () => {
+  const toasts = () => vi.spyOn(f7.notification, 'create')
+
+  it('a tick that did not save', async () => {
+    const live = await renderLive(makeComp('fixed_points_best_n'))
+    const toast = toasts()
+    live.saveTick.mockRejectedValueOnce(new Error('offline'))
+    live.saveButton(0).onClick()
+    await vi.waitFor(() => expect(toast).toHaveBeenCalledWith(expect.objectContaining({ subtitle: 'Not saved.' })))
+    expect(toast).not.toHaveBeenCalledWith(expect.objectContaining({ subtitle: 'Tick saved' }))
+    toast.mockRestore()
+  })
+
+  it('a tick that did save still only says saved', async () => {
+    const live = await renderLive(makeComp('fixed_points_best_n'))
+    const toast = toasts()
+    live.saveButton(0).onClick()
+    await vi.waitFor(() => expect(toast).toHaveBeenCalledWith(expect.objectContaining({ subtitle: 'Tick saved' })))
+    expect(toast).not.toHaveBeenCalledWith(expect.objectContaining({ subtitle: 'Not saved.' }))
+    toast.mockRestore()
+  })
+
+  it('an ascent that could not be deleted', async () => {
+    const live = await renderLive(makeComp('fixed_points_best_n', ticked))
+    const toast = toasts()
+    live.deleteTickByProblem.mockRejectedValueOnce(new Error('offline'))
+    live.trash(0).onClick()
+    // the confirm dialog is mocked: answer it
+    f7.dialog.confirm.mock.calls.at(-1)[2]()
+    await vi.waitFor(() => expect(toast).toHaveBeenCalledWith(expect.objectContaining({ subtitle: 'Could not delete the ascent. Try again.' })))
+    toast.mockRestore()
+  })
+})
+
+describe('CompetitionEntry: the last untranslated strings', () => {
+  it('the swipe action and its confirmation are translated', async () => {
+    const fi = await render(CompetitionEntry, makeComp('fixed_points_best_n'), 'fi')
+    expect(fi).toContain('confirm-text="Oletko varma, että haluat poistaa tämän nousun?"')
+    expect(fi).toContain('>Poista nousu</div>')
+    expect(fi).not.toContain('Are you sure you want to delete this tick?')
+  })
+
+  it('the sport field is translated, and so is the name of its competition type', async () => {
+    const fi = await render(CompetitionEntry, sportComp(), 'fi')
+    expect(fi).toContain('placeholder="Syötä pisteet"')
+    expect(fi).toContain('Köysi / liidi')
   })
 })

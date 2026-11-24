@@ -43,12 +43,14 @@ export const isRegistrationOpen = (comp, now) =>
 
 /**
  * Milliseconds until the tick window ends (negative when past), or null when
- * there is no end. Parsed like the old code did, with dayjs(end) in local
- * mode, so real values keep their exact behaviour.
+ * there is no end. The end is UTC, like every other bound here: read as
+ * local time, the countdown ran ahead by the device's UTC offset and hit
+ * zero hours before isCompRunning closed the window.
  */
 export const msUntilEnd = (comp, now) => {
-  if (!hasBound(comp?.timespan_end)) return null
-  return dayjs(comp.timespan_end).diff(now == null ? dayjs() : now)
+  const end = parseBound(comp?.timespan_end)
+  if (!end) return null
+  return end.diff(now == null ? dayjs() : now)
 }
 
 /**

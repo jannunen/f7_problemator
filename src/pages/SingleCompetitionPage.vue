@@ -1,13 +1,24 @@
 <template>
   <f7-page>
     <f7-navbar>
-      <f7-nav-left><f7-link back>back</f7-link></f7-nav-left>
+      <f7-nav-left><f7-link back>{{ t('global.back') }}</f7-link></f7-nav-left>
       <f7-nav-title> {{ t('comps.competition_title') }} </f7-nav-title>
     </f7-navbar>
-    <f7-block  v-if="comp != null">
-      <div v-if="isJudge">
-        <f7-block-title>{{ t('comps.you_are_a_judge') }}</f7-block-title>
-        <f7-link :href="getJudgingLink" class="w-full px-8 py-3 bg-blue-500 font-bold ">Open judging sheet</f7-link>
+    <!-- The backend answers an unknown id with 200 and an error body, so
+         "there is data" is not yet "there is a competition". -->
+    <f7-block v-if="notFound">
+      <div class="p-banner p-banner--warning comp-error" data-test="comp-not-found">
+        <span class="material-icons p-banner__icon" aria-hidden="true">search_off</span>
+        <div class="p-banner__content">{{ t('comps.not_found') }}</div>
+      </div>
+    </f7-block>
+    <f7-block v-else-if="comp != null">
+      <!-- Once, for both views below: a judge sees it whether or not they
+           are also competing. -->
+      <div v-if="isJudge" class="p-banner p-banner--info comp-judge" data-test="comp-judge">
+        <span class="material-icons p-banner__icon" aria-hidden="true">gavel</span>
+        <div class="p-banner__content">{{ t('comps.you_are_a_judge') }}</div>
+        <f7-link :href="getJudgingLink" class="p-btn p-btn--sm comp-judge__link">{{ t('comps.open_judging_sheet') }}</f7-link>
       </div>
       <div v-if="!isPaidAndRegistered">
           <competition-register-info :comp="comp" />
@@ -16,10 +27,23 @@
           <competition-entry :comp="comp" />
       </div>
     </f7-block>
-    <f7-block v-if="loading">
-      <div class="text-center mt-2">Loading competition data...</div>
+    <f7-block v-else-if="isError">
+      <div class="p-banner p-banner--error comp-error" role="alert" data-test="comp-error">
+        <span class="material-icons p-banner__icon" aria-hidden="true">error_outline</span>
+        <div class="p-banner__content">{{ t('comps.comp_load_failed') }}</div>
+        <button type="button" class="p-btn p-btn--ghost p-btn--sm" @click="refetch()">{{ t('global.retry') }}</button>
+      </div>
     </f7-block>
-      
+    <f7-block v-else-if="loading">
+      <div class="comp-loading" aria-busy="true" data-test="comp-loading">
+        <span class="sr-only">{{ t('global.loading') }}</span>
+        <div class="p-skeleton comp-loading__title"></div>
+        <div class="p-skeleton p-skeleton--text"></div>
+        <div class="p-skeleton p-skeleton--text-sm"></div>
+        <div class="p-skeleton comp-loading__list"></div>
+      </div>
+    </f7-block>
+
   </f7-page>
 </template>
 <script setup>
@@ -32,12 +56,14 @@ import CompetitionEntry from '@components/comps/CompetitionEntry.vue'
 import { useClimberStore } from '@js/stores/climber.store.js'
 
 const props = defineProps({
-    compid : Number,
+    // A route param, so it arrives as a string; queries.competition evens it out.
+    compid : [Number, String],
 })
 const { t } = useI18n()
 const climberStore = useClimberStore()
-const { data: comp, isPending } = useQuery(queries.competition(() => props.compid))
+const { data: comp, isPending, isError, refetch } = useQuery(queries.competition(() => props.compid))
 const climber = computed(() => climberStore.climber)
+const notFound = computed(() => comp.value?.error === true)
 
 const isPaidAndRegistered = computed(() => {
   if (climber.value == null) {
@@ -55,10 +81,54 @@ const getJudgingLink = computed(() => {
   return null
 })
 const isJudge = computed(() => {
-  return comp.value.judges.find(x => {
-    return x.id == climber.value.id
-   })
+  if (comp.value.judges == null || climber.value == null) {
+    return false
+  }
+  return comp.value.judges.some(x => x.id == climber.value.id)
 })
 
 const loading = computed(() => isPending.value)
 </script>
+
+<style scoped>
+.comp-judge {
+  align-items: center;
+  flex-wrap: wrap;
+  max-width: 44rem;
+  margin: 0 auto 1rem;
+}
+/* The button drops under the sentence rather than squeezing it into a
+   column of single words. */
+.comp-judge .p-banner__content {
+  flex: 1 1 9rem;
+}
+.comp-judge .p-banner__icon {
+  margin-top: 0;
+  font-size: 1.125rem;
+}
+/* Framework7 draws a link as inline text; here it is the banner's button. */
+.comp-judge__link {
+  flex-shrink: 0;
+  min-height: 2.5rem;
+}
+.comp-error {
+  align-items: center;
+}
+.comp-loading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  max-width: 44rem;
+  margin: 0 auto;
+}
+.comp-loading__title {
+  width: 70%;
+  height: 1.75rem;
+}
+.comp-loading__list {
+  height: 20rem;
+  margin-top: 0.75rem;
+  border: 1px solid var(--p-border);
+  border-radius: var(--p-radius-lg);
+}
+</style>
