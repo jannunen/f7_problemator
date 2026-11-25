@@ -38,7 +38,7 @@
       <div class="p-banner__content">{{ t('comps.no_problems_yet') }}</div>
     </div>
 
-    <f7-toolbar tabbar class="ce-tabbar">
+    <f7-toolbar tabbar top class="ce-tabbar">
       <f7-link tab-link="#ce-tab-entry" tab-link-active>{{ t('comps.point_entry') }}</f7-link>
       <f7-link tab-link="#ce-tab-results">{{ t('comps.open_results') }}</f7-link>
       <f7-link tab-link="#ce-tab-routes">{{ t('comps.route_details') }}</f7-link>
@@ -190,15 +190,22 @@
           />
           <ul v-else class="ce-route-list" data-test="route-details-list">
             <li v-for="prob in sortedProblems" :key="prob.id" class="ce-route-row">
-              <div class="ce-id">
-                <span class="ce-id__num">{{ prob.pivot.num }}</span>
-                <span class="ce-id__swatch" :style="getStyles(prob)" aria-hidden="true"></span>
-                <span class="ce-id__tag">{{ right(prob?.tag,4) }}</span>
+              <div class="ce-route-row__top">
+                <div class="ce-id">
+                  <span class="ce-id__num">{{ prob.pivot.num }}</span>
+                  <span class="ce-id__swatch" :style="getStyles(prob)" aria-hidden="true"></span>
+                  <span class="ce-id__tag">{{ right(prob?.tag,4) }}</span>
+                </div>
+                <div class="ce-route-row__facts">
+                  <span v-if="prob.grade?.name" class="ce-route-row__fact ce-route-row__grade">{{ prob.grade.name }}</span>
+                  <span v-if="prob.colour?.name" class="ce-route-row__fact">{{ prob.colour.name }}</span>
+                  <span v-if="prob.wall?.wallchar" class="ce-route-row__fact">{{ prob.wall.wallchar }}<template v-if="prob.wall.walldesc"> · {{ prob.wall.walldesc }}</template></span>
+                </div>
               </div>
-              <div class="ce-route-row__facts">
-                <span v-if="prob.grade?.name" class="ce-route-row__fact ce-route-row__grade">{{ prob.grade.name }}</span>
-                <span v-if="prob.colour?.name" class="ce-route-row__fact">{{ prob.colour.name }}</span>
-                <span v-if="prob.wall?.wallchar" class="ce-route-row__fact">{{ prob.wall.wallchar }}<template v-if="prob.wall.walldesc"> · {{ prob.wall.walldesc }}</template></span>
+              <div v-if="routeStatsByProblemId[prob.id]" class="ce-route-row__stats" data-test="route-stats">
+                <span class="ce-route-row__stat">{{ t('comps.route_stats_climbed', { climbed: routeStatsByProblemId[prob.id].totalAscents, total: routeStatsByProblemId[prob.id].totalParticipants }) }}</span>
+                <span v-if="routeStatsByProblemId[prob.id].overallPercent != null" class="ce-route-row__stat">{{ t('comps.route_stats_of_everyone', { percent: routeStatsByProblemId[prob.id].overallPercent }) }}</span>
+                <span v-if="routeStatsByProblemId[prob.id].categoryPercent != null" class="ce-route-row__stat">{{ t('comps.route_stats_of_your_category', { percent: routeStatsByProblemId[prob.id].categoryPercent }) }}</span>
               </div>
             </li>
           </ul>
@@ -325,6 +332,41 @@ const compResultsQuery = useQuery({
 })
 const compResults = computed(() => compResultsQuery.data.value ?? null)
 const climber = computed(() => climberStore.climber)
+
+// This climber's own entry in the comp (pivot.serieid is their category) -
+// sortedProblems' sport-type filter below already looked this up inline;
+// pulled out here so the route-stats percentages can use it too.
+const compClimber = computed(() => props.comp.paidregistrations?.find(x => x.id == climber.value?.id) ?? null)
+
+const routeStatsQuery = useQuery({
+  ...queries.compRouteStats(() => props.comp.id),
+})
+const routeStats = computed(() => routeStatsQuery.data.value ?? null)
+
+// "x/y climbed" plus both percentages, keyed by problem id so the template
+// does a plain lookup instead of recomputing per row per render. Missing
+// stats (not loaded yet) and zero-sized denominators all read as "no data"
+// rather than NaN% or a divide-by-zero.
+const routeStatsByProblemId = computed(() => {
+  if (routeStats.value == null) {
+    return {}
+  }
+  const totalParticipants = routeStats.value.total_participants ?? 0
+  const categoryId = compClimber.value?.pivot?.serieid
+  const categoryParticipants = categoryId != null ? (routeStats.value.participants_by_category?.[categoryId] ?? 0) : null
+  const byProblemId = {}
+  for (const [problemId, stats] of Object.entries(routeStats.value.problems ?? {})) {
+    const totalAscents = stats.total_ascents ?? 0
+    const categoryAscents = categoryId != null ? (stats.ascents_by_category?.[categoryId] ?? 0) : null
+    byProblemId[problemId] = {
+      totalAscents,
+      totalParticipants,
+      overallPercent: totalParticipants > 0 ? Math.round((totalAscents / totalParticipants) * 100) : null,
+      categoryPercent: categoryParticipants > 0 ? Math.round((categoryAscents / categoryParticipants) * 100) : null,
+    }
+  }
+  return byProblemId
+})
 
 // Competition payment: builds the real payment URL, but nothing in the
 // template calls this yet — not wired to a button or shown conditionally on
@@ -611,12 +653,11 @@ const sortedProblems = computed(() => {
   })
   if (props.comp.tyyppi == 'sport') {
     // Add additional filtering, if there are route bindings...
-    const compClimber = props.comp.paidregistrations.find(x => x.id == climber.value.id)
     return probs.filter(x => {
       if (x.pivot == null) {
         return true
       }
-      return x.pivot.bind_to_category == compClimber.pivot.serieid
+      return x.pivot.bind_to_category == compClimber.value?.pivot.serieid
     })
 
   }
@@ -743,11 +784,16 @@ const sortedProblems = computed(() => {
 }
 .ce-route-row {
   display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--p-border);
+}
+.ce-route-row__top {
+  display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.75rem 0;
-  border-bottom: 1px solid var(--p-border);
 }
 .ce-route-row__facts {
   display: flex;
@@ -756,6 +802,16 @@ const sortedProblems = computed(() => {
   gap: 0.375rem;
   font-size: 0.8125rem;
   color: var(--p-text-secondary);
+}
+.ce-route-row__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--p-text-muted);
+}
+.ce-route-row__stat {
+  white-space: nowrap;
 }
 .ce-route-row__fact {
   padding: 0.125rem 0.5rem;
