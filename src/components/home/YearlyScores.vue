@@ -95,11 +95,15 @@ Chart.register(...registerables)
 const { t } = useI18n()
 const climberStore = useClimberStore()
 
+const props = defineProps({
+  climberId: { type: [Number, String], default: null },
+})
+
 const scores = ref({})
 const loaded = ref(false)
 const currentYear = new Date().getFullYear()
 
-const climberId = computed(() => climberStore.climber?.id)
+const climberId = computed(() => props.climberId ?? climberStore.climber?.id)
 
 const years = computed(() =>
   Object.keys(scores.value)

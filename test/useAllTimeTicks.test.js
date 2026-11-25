@@ -2,7 +2,12 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createSSRApp, effectScope } from 'vue'
 import { QueryClient, VueQueryPlugin } from '@tanstack/vue-query'
 
-vi.mock('@js/api', () => ({ default: { loadAllTimeTicks: vi.fn() } }))
+vi.mock('@js/api', () => ({
+  default: {
+    loadAllTimeTicks: vi.fn(),
+    climber: { allTimeTicks: vi.fn() },
+  },
+}))
 
 import api from '@js/api'
 import { setAuthToken } from '@js/authToken.js'
@@ -10,6 +15,7 @@ import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 
 beforeEach(() => {
   api.loadAllTimeTicks.mockReset()
+  api.climber.allTimeTicks.mockReset()
   setAuthToken(null)
 })
 
@@ -48,5 +54,22 @@ describe('useAllTimeTicks', () => {
     const allTime = inApp(client, () => useAllTimeTicks())
 
     expect(allTime.value).toEqual({ ticks: [{ id: 1 }], tries: [{ id: 2 }] })
+  })
+
+  /**
+   * ClimberProfilePage passes a climberId to read someone else's ticks.
+   * This must hit the separate /climber/{id}/ticks cache entry and call,
+   * never the "me" one, and the no-argument call sites above must keep
+   * working exactly as before.
+   */
+  it('with a climberId, reads the climber-specific cache entry instead', () => {
+    const client = new QueryClient()
+    client.setQueryData(['climber-alltime-ticks', 42], { ticks: [{ id: 9 }], tries: [] })
+
+    const allTime = inApp(client, () => useAllTimeTicks(42))
+
+    expect(allTime.value).toEqual({ ticks: [{ id: 9 }], tries: [] })
+    expect(api.climber.allTimeTicks).not.toHaveBeenCalled()
+    expect(api.loadAllTimeTicks).not.toHaveBeenCalled()
   })
 })

@@ -80,6 +80,10 @@
         </div>
       </div>
 
+      <!-- Stats charts -->
+      <yearly-scores :climber-id="props.id" />
+      <grade-pyramid :climber-id="props.id" />
+
       <!-- Body specs card -->
       <div class="p-card" v-if="profile.height || profile.apeindex || profile.age">
         <div class="p-section-title" style="margin-top: 0;">{{ t('climber_profile.specs') }}</div>
@@ -158,6 +162,8 @@ import dayjs from 'dayjs'
 import ClimbedProblemListItem from '@components/profile/ClimbedProblemListItem.vue'
 import SocialButtons from '@components/profile/SocialButtons.vue'
 import ClimberBadges from '@components/profile/ClimberBadges.vue'
+import YearlyScores from '@components/home/YearlyScores.vue'
+import GradePyramid from '@components/home/GradePyramid.vue'
 
 const { t } = useI18n()
 const uiStore = useUiStore()
