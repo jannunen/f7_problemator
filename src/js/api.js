@@ -204,6 +204,10 @@ const api = {
     const ret = await axios.get(endpoint+prefix+"/competitions/"+payload.compid+"/points_per_route/?key="+payload.point_entry_key)
     return ret.data
   },
+  async getCompRouteStats(payload) {
+    const ret = await axios.get(endpoint+"/competitions/"+payload.compid+"/route-stats")
+    return ret.data
+  },
   async fetchCompAscents(payload) {
     const ret = await axios.get(endpoint+"/competitions/"+payload.compid+"/ascents/"+payload.contenderid)
     return ret.data

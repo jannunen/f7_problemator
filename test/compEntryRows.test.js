@@ -27,6 +27,7 @@ vi.mock('@js/api.js', () => ({
   default: {
     getCompResults: vi.fn().mockResolvedValue(null),
     getPointsPerRoute: vi.fn().mockResolvedValue({}),
+    getCompRouteStats: vi.fn().mockResolvedValue(null),
     saveCheckpoint: vi.fn(),
     deleteCheckpoint: vi.fn().mockResolvedValue({ ok: true }),
     saveTick: vi.fn(),
@@ -86,7 +87,7 @@ const makeComp = (tyyppi, userticks = {}) => ({
   nbest: 3,
 })
 
-const render = async (Component, comp, locale = 'en', { onRow = null } = {}) => {
+const render = async (Component, comp, locale = 'en', { onRow = null, routeStats = null } = {}) => {
   // The real app-wide singleton (matching app.js's own
   // app.use(VueQueryPlugin, { queryClient }) installation), not a fresh
   // instance: mutations.js's saveCheckpoint/deleteCheckpoint/
@@ -100,6 +101,14 @@ const render = async (Component, comp, locale = 'en', { onRow = null } = {}) => 
   const queryKeyName = Component === PublicCompetitionEntry ? 'public-competition' : 'competition'
   queryClient.clear()
   queryClient.setQueryData([queryKeyName, comp.id], comp)
+  // useQuery reads a cache hit synchronously on mount regardless of its
+  // `enabled` value, so seeding this here (rather than waiting on the
+  // mocked api.getCompRouteStats promise, which this single-pass
+  // renderToString never awaits) is what makes the route-stats rows
+  // observable in a server-rendered snapshot.
+  if (routeStats != null) {
+    queryClient.setQueryData(['comp-route-stats', comp.id], routeStats)
+  }
   const app = createSSRApp({ render: () => h(Component, { comp }) })
   app.use(VueQueryPlugin, { queryClient })
   // missingWarn: the sport row's placeholder is the untranslated literal t('Enter points').
@@ -732,5 +741,61 @@ describe('CompetitionEntry: the last untranslated strings', () => {
     const fi = await render(CompetitionEntry, sportComp(), 'fi')
     expect(fi).toContain('placeholder="Syötä pisteet"')
     expect(fi).toContain('Köysi / liidi')
+  })
+})
+
+describe('CompetitionEntry: route details per-problem stats', () => {
+  const statsPayload = (overrides = {}) => ({
+    total_participants: 12,
+    participants_by_category: { 7: 5 },
+    problems: {
+      1: { total_ascents: 8, ascents_by_category: { 7: 3 } },
+      2: { total_ascents: 0, ascents_by_category: {} },
+    },
+    ...overrides,
+  })
+  // climber 5 (seeded globally into the climber store above) in category 7.
+  const withCategory = (comp) => ({ ...comp, paidregistrations: [{ id: 5, pivot: { serieid: 7 } }] })
+
+  it('shows how many climbed, and both percentages, per route', async () => {
+    const html = await render(CompetitionEntry, withCategory(makeComp('fixed_points_best_n')), 'en', { routeStats: statsPayload() })
+    expect(html).toContain('8/12 climbed')
+    expect(html).toContain('67% of everyone') // 8/12 rounds to 67%
+    expect(html).toContain('60% of your category') // 3/5
+  })
+
+  it('a route nobody has climbed shows 0, not NaN', async () => {
+    const html = await render(CompetitionEntry, withCategory(makeComp('fixed_points_best_n')), 'en', { routeStats: statsPayload() })
+    expect(html).toContain('0/12 climbed')
+    expect(html).toContain('0% of everyone')
+    expect(html).not.toContain('NaN')
+  })
+
+  it('no category percent when nobody in the category is registered yet', async () => {
+    const html = await render(CompetitionEntry, withCategory(makeComp('fixed_points_best_n')), 'en', {
+      routeStats: statsPayload({ participants_by_category: {} }),
+    })
+    expect(html).toContain('of everyone')
+    expect(html).not.toContain('of your category')
+    expect(html).not.toContain('NaN')
+  })
+
+  it('no total percent when the competition has no participants yet', async () => {
+    const html = await render(CompetitionEntry, withCategory(makeComp('fixed_points_best_n')), 'en', {
+      routeStats: statsPayload({ total_participants: 0, participants_by_category: {} }),
+    })
+    expect(html).toContain('0/0 climbed')
+    expect(html).not.toContain('of everyone')
+    expect(html).not.toContain('NaN')
+  })
+
+  it('no stats row at all before the query has loaded', async () => {
+    const html = await render(CompetitionEntry, withCategory(makeComp('fixed_points_best_n')))
+    expect(html).not.toContain('data-test="route-stats"')
+  })
+
+  it('PublicCompetitionEntry does not show route stats', async () => {
+    const html = await render(PublicCompetitionEntry, withCategory(makeComp('fixed_points_best_n')), 'en', { routeStats: statsPayload() })
+    expect(html).not.toContain('data-test="route-stats"')
   })
 })

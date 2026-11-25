@@ -253,6 +253,19 @@ export const queries = {
   }),
 
   /**
+   * Per-problem ascent counts for the "Route details" tab: total climbers
+   * who ticked each route plus a per-category breakdown, and participant
+   * totals to turn either into a percentage. auth:api only (CompetitionEntry
+   * is only reached once signed in — see `competition` above), so this
+   * mirrors that gate rather than also covering the public comp-key flow.
+   */
+  compRouteStats: (compid) => ({
+    queryKey: computed(() => ['comp-route-stats', asCompId(compid)]),
+    queryFn: () => api.getCompRouteStats({ compid: asCompId(compid) }),
+    enabled: computed(() => !!asCompId(compid) && isAuthenticated.value),
+  }),
+
+  /**
    * Every tick and try this climber has ever logged, across every gym —
    * `loadAllTimeTicks`, moved here from store.js's `actions` block (Task 5 of
    * the Activity-group migration plan). It never wrote anything of its own;
