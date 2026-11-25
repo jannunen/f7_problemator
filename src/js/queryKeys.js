@@ -277,6 +277,19 @@ export const queries = {
     staleTime: Infinity,
   }),
 
+  /**
+   * Same payload as `allTimeTicks` above, for a climber other than the
+   * signed-in one — the /climber/{id}/ticks endpoint GradePyramid needs to
+   * render on ClimberProfilePage. Keyed separately per climber id so it
+   * never collides with (or invalidates alongside) the "me" cache entry.
+   */
+  climberAllTimeTicks: (id) => ({
+    queryKey: key('climber-alltime-ticks', id),
+    queryFn: () => api.climber.allTimeTicks(unref(id)),
+    enabled: needs(id),
+    staleTime: Infinity,
+  }),
+
   /** Every date this climber has a tick on record, for the calendar highlight. */
   archiveDates: () => ({
     queryKey: key('archive-dates'),

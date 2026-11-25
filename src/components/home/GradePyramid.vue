@@ -85,6 +85,10 @@ import { queries } from '@js/queryKeys.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 import { useAllTimeTicks } from '@js/useAllTimeTicks.js'
 
+const props = defineProps({
+  climberId: { type: [Number, String], default: null },
+})
+
 const gymStore = useGymStore()
 const gymid = computed(() => gymStore.gymid)
 const { t } = useI18n()
@@ -106,7 +110,9 @@ const selectedDayLabel = computed(() =>
 )
 
 const { data: grades } = useQuery({ ...queries.profile(gymid), select: (data) => data.grades ?? [] })
-const allTime = useAllTimeTicks()
+const allTime = props.climberId != null
+  ? useAllTimeTicks(computed(() => props.climberId))
+  : useAllTimeTicks()
 const ticks = computed(() => allTime.value.ticks)
 
 function segPct(segCount, total) {

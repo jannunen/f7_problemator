@@ -12,5 +12,9 @@ export default {
     const ret = await axios.get(endpoint+"/climber/"+payload+"/follow")
     return ret.data
   },
+  async allTimeTicks(payload) {
+    const ret = await axios.get(endpoint+"/climber/"+payload+"/ticks")
+    return ret.data
+  },
 }
 
