@@ -584,7 +584,12 @@
     "settings_link": "settings",
     "settings_hint2": "Leave fields empty to hide them.",
     "latest_ascents": "Latest ascents",
-    "no_ascents_yet": "No ascents yet"
+    "no_ascents_yet": "No ascents yet",
+    "share_stats": "Share my stats",
+    "share_title": "{name} on Problemator",
+    "share_text": "My rank and what I have climbed",
+    "share_copied": "Link copied",
+    "share_failed": "Could not share the link"
   },
   "complete_profile": {
     "title": "Complete your profile",
