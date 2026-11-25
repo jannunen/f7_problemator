@@ -1,34 +1,6 @@
 <template>
   <div v-if="comp != null" class="ce">
 
-
-    <f7-popup v-model:opened="showResultList">
-      <f7-page>
-        <f7-navbar :title="t('comps.open_results')">
-          <f7-nav-right>
-            <f7-link popup-close>{{ t('global.close_action') }}</f7-link>
-          </f7-nav-right>
-        </f7-navbar>
-        <f7-block v-if="compResults != null">
-          <show-results :type="comp.tyyppi" :last-update="lastResultUpdate" :results="compResults.results" />
-        </f7-block>
-      </f7-page>
-
-    </f7-popup>
-
-    <f7-popup v-model:opened="showPointsPerRoute">
-      <f7-page>
-        <f7-navbar :title="t('comps.points_per_route')">
-          <f7-nav-right>
-            <f7-link popup-close>{{ t('global.close_action') }}</f7-link>
-          </f7-nav-right>
-        </f7-navbar>
-        <f7-block>
-          <points-per-route :last-update="lastUpdate" :points-per-route="comp.points_per_route" :topped-ids="toppedIds" :tries-by-id="tries" />
-        </f7-block>
-      </f7-page>
-    </f7-popup>
-
     <!-- Reference, not the task: what the competition is and when. The same
          shape as the header a climber saw before registering. -->
     <header class="ce-head">
@@ -66,14 +38,15 @@
       <div class="p-banner__content">{{ t('comps.no_problems_yet') }}</div>
     </div>
 
-    <div>
+    <f7-toolbar tabbar class="ce-tabbar">
+      <f7-link tab-link="#ce-tab-entry" tab-link-active>{{ t('comps.point_entry') }}</f7-link>
+      <f7-link tab-link="#ce-tab-results">{{ t('comps.open_results') }}</f7-link>
+      <f7-link tab-link="#ce-tab-routes">{{ t('comps.route_details') }}</f7-link>
+    </f7-toolbar>
+    <f7-tabs>
+      <f7-tab id="ce-tab-entry" tab-active>
 
       <div v-if="compOngoing " class="ce-live">
-
-        <div class="ce-actions">
-          <p-button v-if="comp.tyyppi == 'variable_points'" class="ce-action" @click="showPointsPerRoute=!showPointsPerRoute"><i class="material-icons" aria-hidden="true">format_list_numbered</i>{{ t('comps.points_per_route') }}</p-button>
-          <p-button class="ce-action" @click="showResultList=!showResultList"><i class="material-icons" aria-hidden="true">leaderboard</i>{{ t('comps.open_results') }}</p-button>
-        </div>
 
         <!-- Stays under the navbar while the list scrolls: the clock and the
              tally are what a climber looks up for between attempts. -->
@@ -198,7 +171,44 @@
         <span class="material-icons p-banner__icon" aria-hidden="true">schedule</span>
         <div class="p-banner__content">{{ t('comps.the_comp_has_not_started_yet') }}</div>
       </div>
-    </div><!-- if paid -->
+      </f7-tab>
+
+      <f7-tab id="ce-tab-results" class="ce-tab-results">
+        <f7-block v-if="compResults != null">
+          <show-results :type="comp.tyyppi" :last-update="lastResultUpdate" :results="compResults.results" />
+        </f7-block>
+      </f7-tab>
+
+      <f7-tab id="ce-tab-routes" class="ce-tab-routes">
+        <f7-block>
+          <points-per-route
+            v-if="comp.tyyppi == 'variable_points'"
+            :last-update="lastUpdate"
+            :points-per-route="comp.points_per_route"
+            :topped-ids="toppedIds"
+            :tries-by-id="tries"
+          />
+          <ul v-else class="ce-route-list" data-test="route-details-list">
+            <li v-for="prob in sortedProblems" :key="prob.id" class="ce-route-row">
+              <div class="ce-id">
+                <span class="ce-id__num">{{ prob.pivot.num }}</span>
+                <span class="ce-id__swatch" :style="getStyles(prob)" aria-hidden="true"></span>
+                <span class="ce-id__tag">{{ right(prob?.tag,4) }}</span>
+              </div>
+              <div class="ce-route-row__facts">
+                <span v-if="prob.grade?.name" class="ce-route-row__fact ce-route-row__grade">{{ prob.grade.name }}</span>
+                <span v-if="prob.colour?.name" class="ce-route-row__fact">{{ prob.colour.name }}</span>
+                <span v-if="prob.wall?.wallchar" class="ce-route-row__fact">{{ prob.wall.wallchar }}<template v-if="prob.wall.walldesc"> · {{ prob.wall.walldesc }}</template></span>
+              </div>
+            </li>
+          </ul>
+          <div v-if="sortedProblems.length == 0" class="p-banner p-banner--info ce-notice">
+            <span class="material-icons p-banner__icon" aria-hidden="true">info</span>
+            <div class="p-banner__content">{{ t('comps.no_problems_yet') }}</div>
+          </div>
+        </f7-block>
+      </f7-tab>
+    </f7-tabs>
     <div v-if="errors" class="p-banner p-banner--error ce-notice" role="alert">{{ errors }}</div>
   </div>
 </template>
@@ -306,8 +316,6 @@ const zoneLadderOptions = computed(() => {
 // A ladder takes the row's spare width (see the styles at the end of this file).
 const ladderRowClass = computed(() => ({ 'comp-row--ladder': isLadderType.value }))
 const errors = ref("")
-const showPointsPerRoute = ref(false)
-const showResultList = ref(false)
 dayjs.extend(duration)
 dayjs.extend(isBetween)
 const { t } = useI18n()
@@ -718,24 +726,46 @@ const sortedProblems = computed(() => {
   font-size: 1.125rem;
 }
 
-/* ---- Results / points ---- */
-.ce-actions {
+/* ---- Tabs: point entry / results / route details ---- */
+.ce-tabbar {
+  margin-top: 0.875rem;
+  border-radius: var(--p-radius);
+  background: var(--p-bg-card);
+}
+.ce-tab-results,
+.ce-tab-routes {
+  padding-top: 0.5rem;
+}
+.ce-route-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ce-route-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--p-border);
+}
+.ce-route-row__facts {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-top: 0.875rem;
+  justify-content: flex-end;
+  gap: 0.375rem;
+  font-size: 0.8125rem;
+  color: var(--p-text-secondary);
 }
-/* Sized to their words: a full-width slab here would be the loudest thing
-   above the list a climber came for. */
-.ce-action {
-  /* Framework7 stretches every button to its container's width */
-  width: auto;
-  min-width: 0;
-  min-height: 2.75rem;
-  padding: 0 0.875rem;
+.ce-route-row__fact {
+  padding: 0.125rem 0.5rem;
+  border: 1px solid var(--p-border-light);
+  border-radius: var(--p-radius-full);
+  background: var(--p-bg-card);
 }
-.ce-action .material-icons {
-  font-size: 1.125rem;
+.ce-route-row__grade {
+  font-weight: 700;
+  color: var(--p-text);
 }
 
 /* ---- Clock and tally ---- */

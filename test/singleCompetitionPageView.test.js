@@ -31,7 +31,8 @@ const stub = (name) => ({
   setup: (_, { attrs, slots }) => () => h('div', { 'data-stub': name, ...attrs }, Object.values(slots).map((s) => s())),
 })
 const F7 = ['f7-popup', 'f7-page', 'f7-navbar', 'f7-nav-left', 'f7-nav-right', 'f7-nav-title', 'f7-link', 'f7-block',
-  'f7-list', 'f7-list-item', 'f7-swipeout-actions', 'f7-swipeout-button', 'f7-stepper']
+  'f7-list', 'f7-list-item', 'f7-swipeout-actions', 'f7-swipeout-button', 'f7-stepper',
+  'f7-toolbar', 'f7-tabs', 'f7-tab']
 
 const makeComp = (over = {}) => ({
   id: 9,
