@@ -559,7 +559,12 @@
     "settings_link": "asetuksissa",
     "settings_hint2": "Jätä kentät tyhjiksi piilottaaksesi ne.",
     "latest_ascents": "Viimeisimmät nousut",
-    "no_ascents_yet": "Ei nousuja vielä"
+    "no_ascents_yet": "Ei nousuja vielä",
+    "share_stats": "Jaa tilastoni",
+    "share_title": "{name} Problematorissa",
+    "share_text": "Sijoitukseni ja kiipeämäni reitit",
+    "share_copied": "Linkki kopioitu",
+    "share_failed": "Linkin jakaminen ei onnistunut"
   },
   "complete_profile": {
     "title": "Täydennä profiilisi",

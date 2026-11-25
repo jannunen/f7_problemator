@@ -23,6 +23,12 @@
             {{ profile.city }}
           </p>
           <p v-if="profile.bio" class="profile-bio">{{ profile.bio }}</p>
+          <!-- Own profile only: the page it links to is public, and whether
+               to put it in front of people is the climber's own call. -->
+          <button v-if="isOwnProfile" type="button" class="p-btn p-btn--ghost p-btn--sm profile-share" @click="shareStats">
+            <span class="material-icons profile-share__icon">share</span>
+            {{ t('climber_profile.share_stats') }}
+          </button>
         </div>
       </div>
 
@@ -158,6 +164,8 @@ import { useUiStore } from '@js/stores/ui.store.js'
 import { useGymStore } from '@js/stores/gym.store.js'
 import { useClimberStore } from '@js/stores/climber.store.js'
 import { estimateGrade } from '@js/helpers'
+import { webendpoint } from '@js/api'
+import { climberShareUrl, shareLink } from '@js/helpers/shareClimber.js'
 import dayjs from 'dayjs'
 import ClimbedProblemListItem from '@components/profile/ClimbedProblemListItem.vue'
 import SocialButtons from '@components/profile/SocialButtons.vue'
@@ -199,6 +207,19 @@ const hasSocials = computed(() => {
 const formatGrade = (name) => {
   if (!name) return null
   return name.toUpperCase()
+}
+
+const shareStats = async () => {
+  const name = `${profile.value.etunimi ?? ''} ${profile.value.sukunimi ?? ''}`.trim()
+  const outcome = await shareLink({
+    url: climberShareUrl(webendpoint, profile.value.id),
+    title: t('climber_profile.share_title', { name }),
+    text: t('climber_profile.share_text'),
+  })
+  // The share sheet is its own confirmation; only the silent paths need one.
+  if (outcome === 'copied' || outcome === 'failed') {
+    f7.toast.show({ text: t(`climber_profile.share_${outcome}`), closeTimeout: 2500, position: 'bottom' })
+  }
 }
 
 const openSettings = () => {
@@ -271,6 +292,12 @@ const onStartNavigate = (problem) => {
   font-size: 0.8rem;
   color: var(--p-text-muted);
   margin: 0.25rem 0 0;
+}
+.profile-share {
+  margin-top: 0.875rem;
+}
+.profile-share__icon {
+  font-size: 16px;
 }
 .profile-bio {
   font-size: 0.85rem;
