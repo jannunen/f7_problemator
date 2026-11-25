@@ -50,10 +50,16 @@ const gymid = computed(() => gymStore.gymid)
 
 // Keyed by gym so switching gyms refetches rather than showing the previous
 // gym's walls, and disabled until a gym is actually chosen.
+//
+// placeholderData, not initialData: initialData is cached AS the answer, so
+// with the default 30s staleTime an empty list counted as a fresh, correct
+// result and the real fetch never ran on mount — the block silently stayed
+// empty until something (e.g. a tab switch outlasting the staleTime) forced
+// a refetch. Same bug, same fix as queries.gyms() in GymSelector.vue.
 const { data: sprayWalls } = useQuery({
   ...queries.sprayWalls(gymid),
   enabled: computed(() => !!gymid.value),
-  initialData: [],
+  placeholderData: [],
 })
 
 const wallName = (wall) => {
