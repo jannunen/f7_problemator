@@ -38,7 +38,7 @@
       <div class="p-banner__content">{{ t('comps.no_problems_yet') }}</div>
     </div>
 
-    <f7-toolbar tabbar top class="ce-tabbar">
+    <f7-toolbar tabbar class="ce-tabbar">
       <f7-link tab-link="#ce-tab-entry" tab-link-active>{{ t('comps.point_entry') }}</f7-link>
       <f7-link tab-link="#ce-tab-results">{{ t('comps.open_results') }}</f7-link>
       <f7-link tab-link="#ce-tab-routes">{{ t('comps.route_details') }}</f7-link>
@@ -772,6 +772,17 @@ const sortedProblems = computed(() => {
   margin-top: 0.875rem;
   border-radius: var(--p-radius);
   background: var(--p-bg-card);
+}
+/* Framework7's active-tab underline (.tab-link-highlight) has no vertical
+   position of its own -- it only gets one from the .toolbar-top/-bottom
+   classes, and those classes also carry `top: calc(navbar-height)` for
+   toolbars that are page-level absolute subnavbars (`.navbar ~ * .toolbar-top`
+   in framework7-bundle.css). This toolbar is inline content, not one of
+   those, so adding the prop shifted the whole bar down into the row below
+   it instead of just fixing the underline. Set only the one declaration we
+   actually need (.toolbar-top's own `bottom: 0` for the highlight). */
+.ce-tabbar .tab-link-highlight {
+  bottom: 0;
 }
 .ce-tab-results,
 .ce-tab-routes {
