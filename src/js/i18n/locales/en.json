@@ -189,6 +189,8 @@
     "comp_type": "Competition type",
     "the_comp_has_not_started_yet": "The competition time is either not started or has already ended",
     "open_results": "Results",
+    "point_entry": "Point entry",
+    "route_details": "Route details",
     "show_more": "Show more",
     "show_less": "Show less",
     "full": "Full",

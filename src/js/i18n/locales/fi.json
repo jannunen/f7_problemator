@@ -164,6 +164,8 @@
     "comp_type": "Kilpailutyyppi",
     "the_comp_has_not_started_yet": "Kilpailuaika ei ole vielä alkanut tai on jo päättynyt",
     "open_results": "Tulokset",
+    "point_entry": "Pisteiden syöttö",
+    "route_details": "Reitin tiedot",
     "show_more": "Näytä lisää",
     "show_less": "Näytä vähemmän",
     "full": "Täynnä",

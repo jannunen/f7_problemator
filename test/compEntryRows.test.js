@@ -68,7 +68,8 @@ const stub = (name, onRender) => ({
   },
 })
 const F7 = ['f7-popup', 'f7-page', 'f7-navbar', 'f7-nav-right', 'f7-link', 'f7-block', 'f7-block-title',
-  'f7-list', 'f7-list-item', 'f7-swipeout-actions', 'f7-swipeout-button', 'f7-stepper']
+  'f7-list', 'f7-list-item', 'f7-swipeout-actions', 'f7-swipeout-button', 'f7-stepper',
+  'f7-toolbar', 'f7-tabs', 'f7-tab']
 
 const problem = (id, num) => ({ id, tag: `B00${num}`, colour: { code: '#e11d48', textcolor: '#fff' }, pivot: { num, max_points: 100 } })
 const makeComp = (tyyppi, userticks = {}) => ({
