@@ -63,12 +63,12 @@
               :key="prob.id" 
               :value="prob.id"
             >
-            {{ prob.pivot.num }}. {{ prob.tag }} {{ prob.wallchar }} {{ prob.colour.name }} 
+            {{ prob.pivot.num }}. {{ prob.tag ?? '' }} {{ prob.wallchar ?? '' }} {{ prob.colour?.name ?? '' }} 
            </option>
           </select>
             <!--
             <template #title>
-            {{ prob.pivot.num }}. {{ prob.tag }} {{ prob.wallchar }} {{ prob.colour.name }} 
+            {{ prob.pivot.num }}. {{ prob.tag ?? '' }} {{ prob.wallchar ?? '' }} {{ prob.colour?.name ?? '' }} 
             </template>
             <template #header>
             max points: {{ prob.pivot.max_points }}, {{ prob.routetype }}, {{ prob.pivot.bound }}
