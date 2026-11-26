@@ -623,8 +623,9 @@ const saveTickFor = (id, triesBonus) => {
 }
 const getStyles = (prob) => {
   // Virtual (numbered) routes have colour: null; fall back to the neutral grey used elsewhere.
-  const htmlcolour = prob.colour?.code ?? '#888'
-  const textcolor = prob.colour?.textcolor ?? '#fff'
+  const colour = prob.colour
+  const htmlcolour = colour ? colour.code : '#888'
+  const textcolor = colour ? colour.textcolor : '#fff'
   return {
     'background-color': htmlcolour,
     color: textcolor,
