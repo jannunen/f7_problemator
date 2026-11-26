@@ -250,7 +250,7 @@ const fetchContender = debounce(() => {
     <div v-if="isCheckpointComp" class="mb-3 p-2 bg-gray-100 dark:bg-gray-800 rounded-md" data-test="checkpoint-picker">
       <select v-model="cpProblemId" class="w-full border border-black rounded-md p-2 mb-2">
         <option value="">{{ t('judging.pick_problem') }}</option>
-        <option v-for="p in cpProblems" :key="p.id" :value="p.id">{{ p.pivot.num }} {{ p.tag }}</option>
+        <option v-for="p in cpProblems" :key="p.id" :value="p.id">{{ p.pivot.num }} {{ p.tag ?? '' }}</option>
       </select>
       <div v-if="cpProblem != null">
         <div class="text-sm font-bold mb-1">{{ t('judging.highest_point') }}</div>

@@ -581,8 +581,9 @@ const pointRules = computed(() => {
 })
 
 const getStyles = (prob) => {
-  const htmlcolour = prob.colour.code
-  const textcolor = prob.colour.textcolor
+  // Virtual (numbered) routes have colour: null; fall back to the neutral grey used elsewhere.
+  const htmlcolour = prob.colour?.code ?? '#888'
+  const textcolor = prob.colour?.textcolor ?? '#fff'
   return {
     'background-color': htmlcolour,
     color: textcolor,
@@ -605,7 +606,7 @@ const sortedProblems = computed(() => {
     const anum = parseInt(a.pivot.num)
     const bnum = parseInt(b.pivot.num)
     if (anum - bnum == 0) {
-      return a.tag.localeCompare(b.tag)
+      return (a.tag ?? '').localeCompare(b.tag ?? '')
     } else {
       return anum - bnum
     }
